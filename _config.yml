@@ -7,7 +7,7 @@
 
 # Site settings
 title: miaoqi
-brief-intro: Front-end Dev Engineer
+brief-intro: 
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://miaomiaoqi.github.io" # the base hostname & protocol for your site
 
