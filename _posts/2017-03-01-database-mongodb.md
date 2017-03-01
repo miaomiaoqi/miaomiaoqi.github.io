@@ -1,0 +1,46 @@
+---
+layout: post
+title:  "MongoDB 导入导出"
+date:   2017-03-01 17:28:00
+categories: database
+tags: MongoDB
+author: miaoqi
+---
+
+* content
+{:toc}
+
+## 导出库
+
+    mongodump -h IP --port 端口 -u 用户名 -p 密码 -d 数据库 -o 文件路径
+    -u:用户名(可省)
+    -p:密码(可省)
+    -h:主机地址(省略为本机)
+    --port:端口(省略为默认端口27017)
+    -d:指定库(省略为导出所有库)
+    
+    
+## 导入库
+    
+    mongorestore -h IP --port 端口 -u 用户名 -p 密码 -d 数据库 --drop 文件路径
+    
+## 导出表
+
+    mongoexport -h IP --port 端口 -u 用户名 -p 密码 -d 数据库 -c 表名 -f 字段 -q 条件导出 --csv -o 文件路径
+    -c:表名
+    -f:导出指定字段,以','分割
+    --csv 表示导出的文件格式为csv的
+    
+## 导入非csv文件
+
+    mongoimport -h IP --port 端口 -u 用户名 -p 密码 -d 数据库 -c 表名 --upsert --drop 文件路径
+    --upsert:插入或者更新现有数据
+    
+## 导入部分字段的导出文件
+    mongoimport -h IP --port 端口 -u 用户名 -p 密码 -d 数据库 -c 表名 --upsertFields 字段 --drop 文件名
+    
+## 导入csv文件
+    mongoimport -h IP --port 端口 -u 用户名 -p 密码 -d 数据库 -c 表名 --type 类型 --headerline --upsert --drop 文件名
+
+
+    
