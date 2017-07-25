@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "MySQL 疑难 SQL"
+title:  "MySQL疑难SQL"
 date:   2016-12-07 19:57:05
 categories: database
 tags: MySQL
