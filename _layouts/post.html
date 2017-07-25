@@ -43,6 +43,7 @@ layout: default
                     {% if postHasSimilar == false and hasSimilar.size < 6 and post != page and tag == thisTag %}
                         {% if hasSimilar.size == 0 %}
                         <!--<h2 id="similar_posts">Similar Posts</h2>-->
+                        <!--
                         <ul>
                         {% endif %}
                         <li class="relatedPost">
@@ -52,6 +53,7 @@ layout: default
                             {% endif %}
                             </a>
                         </li>
+                        -->
                         {% capture hasSimilar %}{{ hasSimilar }}*{% endcapture %}
                         {% assign postHasSimilar = true %}
                     {% endif %}
