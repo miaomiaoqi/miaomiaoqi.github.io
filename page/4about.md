@@ -12,8 +12,3 @@ type: page
 ## 关于我
 
 暂无介绍
-
-
-## Comments
-
-{% include comments.html %}
