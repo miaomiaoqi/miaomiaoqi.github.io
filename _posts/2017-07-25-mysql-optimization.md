@@ -3,7 +3,7 @@ layout: post
 title:  "MySQL性能调优"
 date:   2017-03-01 17:28:00
 categories: database
-tags: MongoDB
+tags: MySQL
 author: miaoqi
 ---
 
