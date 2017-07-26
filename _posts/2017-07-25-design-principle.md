@@ -36,7 +36,7 @@ author: miaoqi
             Ｂ.只有类中方法数量足够少，才可以在方法级别上违背ＳＲＰ;
             Ｃ.实际应用中的类都要复杂的多，一旦发生职责扩散而需要修改类时，除非这个类本身非常简单，否则还是要遵循ＳＲＰ。
             
-[参考]:http://blog.csdn.net/benbenxiongyuan/article/details/23940989
+    [参考]:  http://blog.csdn.net/benbenxiongyuan/article/details/23940989
         
         
         
