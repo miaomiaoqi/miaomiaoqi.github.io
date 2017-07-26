@@ -7,9 +7,10 @@ tags: MySQL
 author: miaoqi
 ---
 
-* content
-{:toc}
-
 ## 补充自增主键
 
-    alter table `表格名` add column `列名` int not null auto_increment primary key comment '主键' first;
+    alter table `表名` add column `列名` int not null auto_increment primary key comment '主键' first;
+    
+## 中文字段排序
+
+    ORDER BY CONVERT(column USING gbk) ASC
