@@ -2,7 +2,7 @@
 layout: post
 title:  "MySQL疑难SQL"
 date:   2016-12-07 19:57:05
-categories: database
+categories: Database
 tags: MySQL
 author: miaoqi
 ---

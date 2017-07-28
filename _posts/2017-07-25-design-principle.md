@@ -2,8 +2,8 @@
 layout: post
 title:  "软件设计模式六大原则"
 date:   2017-07-26 10:14:05
-categories: software engineering
-tags: Design principle
+categories: SoftwareEngineering
+tags: DesignPrinciple
 author: miaoqi
 ---
 
