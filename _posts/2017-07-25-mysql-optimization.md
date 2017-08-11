@@ -745,3 +745,9 @@ author: miaoqi
     show status like 'table%';
     immediate: 代表立即获得锁的情况
     waited: 代表等待次数
+
+## 建议:
+
+    1. 内容过多的字段要单独抽一张表
+    2. 避免过多关联查询, 尽量单表查询
+    3. 适当冗余
