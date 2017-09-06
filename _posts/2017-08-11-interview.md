@@ -44,7 +44,7 @@ author: miaoqi
             |-- TreeMap
 2. HashMap中负载因子的作用
 3. ConcurrentHashMap是如何实现的线程安全？
-4. StringBuffer 和 StringBuilder的区别\
+4. StringBuffer 和 StringBuilder的区别?
 
         StringBuffer: 线程安全, 效率低
         StringBuilder: 线程不安全, 效率高
@@ -122,13 +122,13 @@ author: miaoqi
 
 
 ### HTML
-1.可以实现行内合并单元格的是？
-2.谈谈前端使用bootstrap的优缺点
-3.Velocity的使用场景是什么
-4.一个表单提交响应速度很慢，如何防止重复提交？
-5.JS闭包
-6.JS变量的作用域？JS方法内的变量能否在外部访问？
-7.Jquery的选择器有哪些？
+1. 可以实现行内合并单元格的是？
+2. 谈谈前端使用bootstrap的优缺点
+3. Velocity的使用场景是什么
+4. 一个表单提交响应速度很慢，如何防止重复提交？
+5. JS闭包
+6. JS变量的作用域？JS方法内的变量能否在外部访问？
+7. Jquery的选择器有哪些？
 
 
 ### Redis
@@ -139,23 +139,25 @@ author: miaoqi
 
 
 ### Mongodb
-1.Mongodb非常吃内存，在生产环境是如何处理的？
-2.Mongodb可否同时更改一条记录内一个集合中符合条件的多个值？
+1. Mongodb非常吃内存，在生产环境是如何处理的？
+2. Mongodb可否同时更改一条记录内一个集合中符合条件的多个值？
 
 
 ### 性能调优
-1.JVM性能调优
-2.Tomcat性能调优
-3.MySQL性能调优
-4.Mongodb性能调优
+1. JVM性能调优
+2. Tomcat性能调优
+3. MySQL性能调优
+4. Mongodb性能调优
 
 
 ### 其他零零碎碎的
-1.git和svn的区别
-2.git从本地修改到推送到远程所需要经历的状态和命令
-3.maven的打包命令
-4.谈谈Jenkins在项目中的意义
-5.使用过哪些消息队列
+1. git和svn的区别
+2. git从本地修改到推送到远程所需要经历的状态和命令
+3. maven的打包命令
+
+        mvn clean package -P -Dmaven.test.skip=true
+4. 谈谈Jenkins在项目中的意义
+5. 使用过哪些消息队列
 
 
 
