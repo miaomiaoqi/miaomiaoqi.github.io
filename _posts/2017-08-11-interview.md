@@ -1,9 +1,9 @@
 ---
 layout: post
-title:  "Python语法"
+title:  "面试题"
 date:   2017-08-10 15:12:38
-categories: python
-tags: Python
+categories: Work
+tags: Interview
 author: miaoqi
 ---
                                     
