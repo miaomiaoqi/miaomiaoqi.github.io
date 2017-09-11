@@ -7,6 +7,9 @@ tags: MySQL
 author: miaoqi
 ---
 
+* content
+{:toc}
+
 ## 常用Linux命令
 
     ps -ef|grep mysql 

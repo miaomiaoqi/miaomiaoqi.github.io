@@ -7,6 +7,9 @@ tags: DesignPrinciple
 author: miaoqi
 ---
 
+* content
+{:toc}
+
 ## 单一职责原则(SRP)
 
     
