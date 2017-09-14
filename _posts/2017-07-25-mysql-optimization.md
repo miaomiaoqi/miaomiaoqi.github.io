@@ -47,23 +47,29 @@ author: miaoqi
 
 ## MySQL配置文件
     
-    1. 二进制日志log-bin:主从复制
-    2. 错误日志log-error:默认是关闭的,记录严重的警告和错误信息,每次启动和关闭的详细信息
-    3. 查询日志log:默认关闭, 记录查询的sql语句,如果开启会降低mysql的整体性能
-    4. 数据文件 存放路径:/var/lib/myqsl
-        frm文件-存放表结构
-        myd文件-存放表数据
-        myi文件-存放表索引
+* 二进制日志log-bin:主从复制
+
+* 错误日志log-error:默认是关闭的,记录严重的警告和错误信息,每次启动和关闭的详细信息
+
+* 查询日志log:默认关闭, 记录查询的sql语句,如果开启会降低mysql的整体性能
+
+* 数据文件 存放路径:/var/lib/myqsl
+    frm文件-存放表结构
+    myd文件-存放表数据
+    myi文件-存放表索引
 
 ## MySQL架构
 
-    1.连接层:jdbc
-    2.服务层:核心服务功能,如sql接口,缓存查询,sql的分析优化及部分内置函数的执行.
-    3.引擎层:存储引擎(插拔式)
-    4.存储层:硬盘
+* 连接层: jdbc
 
-    存储引擎:常用MyISAM和InnoDB
-    查看引擎:show engines;show variables like '%storage_engine%';
+* 服务层: 核心服务功能, 如sql接口, 缓存查询, sql的分析优化及部分内置函数的执行
+
+* 引擎层: 存储引擎(插拔式)
+
+* 存储层: 硬盘
+
+    存储引擎: 常用MyISAM和InnoDB
+    查看引擎: show engines;show variables like '%storage_engine%';
     
     对比项	    MyISAM              InnoDB
     主外键	    不支持                 支持
@@ -75,127 +81,155 @@ author: miaoqi
 
 ## 性能
 
-    性能下降SQL慢: 查询语句写的不好
-    执行时间长: 索引失效(单值 create index idx_user_name on user(name),复合 create index idx_user_nameEmail on user(name,email))
-    等待时间长: 关联查询太多join(设计缺陷或不得已需求)
+* 性能下降SQL慢: 查询语句写的不好
+* 执行时间长: 索引失效(单值 create index idx_user_name on user(name),复合 create index idx_user_nameEmail on user(name,email))
+* 等待时间长: 关联查询太多join(设计缺陷或不得已需求)
     			服务器调优及各个参数设置(缓冲, 线程数等)
 
 
 ## JOIN查询
 
-    1.SQL执行顺序:  
+* SQL执行顺序:  
+    
     手写
-        select distinct <select_list> from <left_table> <join_type> join <right_table> on <join_condition>
-    	where <where_condition> group by <group_by_list> having <having_condition> order by <order_by_condition> limit <limit number>
+        
+        select distinct <select_list>
+        from <left_table> <join_type> join <right_table> on <join_condition>
+        where <where_condition>
+        group by <group_by_list>
+        having <having_condition>
+        order by <order_by_condition>
+        limit <limit number>
+        
     机读
-        from <left_table> on <join_condition> <join_type> join <right_table> where <where_condition> group by <group_by_list>
-    	having <having_condition> select distinct <select_list> order by <order_by_condition> limit <limit_number>
+    
+        from <left_table> on <join_condition> <join_type> join <right_table>
+        where <where_condition>
+        group by <group_by_list>
+        having <having_condition>
+        select distinct <select_list>
+        order by <order_by_condition>
+        limit <limit_number>
     	
-    http://www.cnblogs.com/qanholas/archive/2010/10/24/1859924.html
-    2.Join图
+        http://www.cnblogs.com/qanholas/archive/2010/10/24/1859924.html
 
-    练习:
-    create table tbl_dept(
-        id int(11) not null auto_increment,
-        dept_name varchar(30) default null,
-        ioc_add varchar(40) default null,
-        primary key(id)
-    )engine=innodb auto_increment=1 default charset=utf8;
+    练习
     
-    create table tbl_emp(
-        id int(11) not null auto_increment,
-        name varchar(20) default null,
-        dept_id int(11) default null,
-        primary key(id),
-        key fk_dept_id(dept_id)
-        #constraint fk_dept_id foreign key (dept_id) references tbl_dept(id)
-    )engine=innodb auto_increment=1 default charset=utf8;
+        create table tbl_dept(
+            id int(11) not null auto_increment,
+            dept_name varchar(30) default null,
+            ioc_add varchar(40) default null,
+            primary key(id)
+        )engine=innodb auto_increment=1 default charset=utf8;
+        
+        create table tbl_emp(
+            id int(11) not null auto_increment,
+            name varchar(20) default null,
+            dept_id int(11) default null,
+            primary key(id),
+            key fk_dept_id(dept_id)
+            #constraint fk_dept_id foreign key (dept_id) references tbl_dept(id)
+        )engine=innodb auto_increment=1 default charset=utf8;
+        
+        insert into tbl_dept(dept_name,ioc_add) values('RD',11);
+        insert into tbl_dept(dept_name,ioc_add) values('HR',12);
+        insert into tbl_dept(dept_name,ioc_add) values('MK',13);
+        insert into tbl_dept(dept_name,ioc_add) values('MIS',14);
+        insert into tbl_dept(dept_name,ioc_add) values('FD',15);
+        
+        insert into tbl_emp(name,dept_id) values('z3',1);
+        insert into tbl_emp(name,dept_id) values('z4',1);
+        insert into tbl_emp(name,dept_id) values('z5',1);
+        insert into tbl_emp(name,dept_id) values('w5',2);
+        insert into tbl_emp(name,dept_id) values('w6',2);
+        insert into tbl_emp(name,dept_id) values('s7',3);
+        insert into tbl_emp(name,dept_id) values('s8',4);
+        insert into tbl_emp(name,dept_id) values('s9',51);
+        
+        
+        select * from tbl_dept, tbl_emp;
+        select * from tbl_emp e inner join tbl_dept d on e.dept_id = d.id;
+        select * from tbl_emp e, tbl_dept d on e.dept_id = d.id;
+        select * from tbl_emp e left join tbl_dept d on e.dept_id = d.id;
+        select * from tbl_emp e right join tbl_dept d on e.dept_id = d.id;
+        select * from tbl_emp e left join tbl_dept d on e.dept_id = d.id where d.id is null;
+        select * from tbl_emp e right join tbl_dept d on e.dept_id = d.id where e.dept_id is null;
+        #select * from tbl_emp e full outer join tbl_dept d on e.dept_id = d.id; oracle
+        select * from tbl_emp e left join tbl_dept d on e.dept_id = d.id union select * from tbl_emp e right join tbl_dept d on e.dept_id = d.id;
+        select * from tbl_emp e left join tbl_dept d on e.dept_id = d.id where d.id is null union select * from tbl_emp e right join tbl_dept d on e.dept_id = d.id where e.dept_id is null;
     
-    insert into tbl_dept(dept_name,ioc_add) values('RD',11);
-    insert into tbl_dept(dept_name,ioc_add) values('HR',12);
-    insert into tbl_dept(dept_name,ioc_add) values('MK',13);
-    insert into tbl_dept(dept_name,ioc_add) values('MIS',14);
-    insert into tbl_dept(dept_name,ioc_add) values('FD',15);
-    
-    insert into tbl_emp(name,dept_id) values('z3',1);
-    insert into tbl_emp(name,dept_id) values('z4',1);
-    insert into tbl_emp(name,dept_id) values('z5',1);
-    insert into tbl_emp(name,dept_id) values('w5',2);
-    insert into tbl_emp(name,dept_id) values('w6',2);
-    insert into tbl_emp(name,dept_id) values('s7',3);
-    insert into tbl_emp(name,dept_id) values('s8',4);
-    insert into tbl_emp(name,dept_id) values('s9',51);
-    
-    
-    select * from tbl_dept, tbl_emp;
-    select * from tbl_emp e inner join tbl_dept d on e.dept_id = d.id;
-    select * from tbl_emp e, tbl_dept d on e.dept_id = d.id;
-    select * from tbl_emp e left join tbl_dept d on e.dept_id = d.id;
-    select * from tbl_emp e right join tbl_dept d on e.dept_id = d.id;
-    select * from tbl_emp e left join tbl_dept d on e.dept_id = d.id where d.id is null;
-    select * from tbl_emp e right join tbl_dept d on e.dept_id = d.id where e.dept_id is null;
-    #select * from tbl_emp e full outer join tbl_dept d on e.dept_id = d.id; oracle
-    select * from tbl_emp e left join tbl_dept d on e.dept_id = d.id union select * from tbl_emp e right join tbl_dept d on e.dept_id = d.id;
-    select * from tbl_emp e left join tbl_dept d on e.dept_id = d.id where d.id is null union select * from tbl_emp e right join tbl_dept d on e.dept_id = d.id where e.dept_id is null;
-
-    union,union all合并结果集
-    union:去重,按照字段排序,效率低
-    union all:不去重,不排序,效率高
+        union,union all合并结果集
+        union:去重,按照字段排序,效率低
+        union all:不去重,不排序,效率高
 
 
 ## 索引
 
-    索引:索引(index)是帮助mysql高效获取数据的数据结构,本质:数据结构
-    "排好序的快速查找数据结构"(排序+查找)order by+where
-    B树索引:索引单独维护了一个索引文件, 索引文件使用二叉树结构, 指向对象的数据
+* 索引:索引(index)是帮助mysql高效获取数据的数据结构,本质:数据结构
 
-    优势:
-        1. 提高数据检索的效率, 降低数据库的IO
-        2. 降低数据排序成本, 降低了CPU消耗
-    劣势:
-        1. 实际上索引也是一张表, 保存了主键与索引字段, 并指向实体表记录, 所以索引列也是占空间的
-        2. 大大提高了查询速度, 会降低更新表的速度, 如对表insert, update和delete.
-            因为更新表时,mysql不仅要保存数据, 还要保存一下索引文件每次更新添加了索引列的字段.
-    		都会调整因为更新所带来得键值变化后的索引信息
-        3. 索引只是提高效率的一个因素, 如果你的mysql有大数据的表, 就需要花时间研究建立最优秀的索引, 或优化
+* B树索引:索引单独维护了一个索引文件, 索引文件使用二叉树结构, 指向对象的数据
+
+    优势: 
+       
+    1. 提高数据检索的效率, 降低数据库的IO    
+    2. 降低数据排序成本, 降低了CPU消耗
+        
+    劣势:         
+
+    1. 实际上索引也是一张表, 保存了主键与索引字段, 并指向实体表记录, 所以索引列也是占空间的       
+    2. 大大提高了查询速度, 会降低更新表的速度, 如对表insert, update和delete.      
+    3. 索引只是提高效率的一个因素, 如果你的mysql有大数据的表, 就需要花时间研究建立最优秀的索引, 或优化
+        
     分类:
-        1. 单值索引: 即一个索引只包含单列, 一个表可以有多个单列索引
-        2. 唯一索引: 索引列的值必须唯一, 但允许有空值
-        3. 复合索引: 即一个索引包含多个列
-    语法:
-        创建 
-        create [unique] index indexName on mytable(columnname(length));
-        alter mytable add [unique] index [indexName] on (columnname(length));
-        删除 
-        drop index [indexName] on mytable;
-        查看 
-        show index from table_name;
 
-    alter table tbl_name add primary_key(column_list)	该语句添加一个主键, 这意味着索引值必须唯一, 且不能为空
-    alter table tbl_name add unique index index_name(column_list) 这条语句创建索引的值必须是唯一的, 但可以为NULL, NULL可能出现多次
-    alter table tbl_name add idnex index_name(column_list) 添加普通索引, 索引值可以出现多次
-    alter table tbl_name add fulltext index_name(column_list) 添加全文索引
+    1. 单值索引: 即一个索引只包含单列, 一个表可以有多个单列索引    
+    2. 唯一索引: 索引列的值必须唯一, 但允许有空值     
+    3. 复合索引: 即一个索引包含多个列
+        
+    语法: 
+        
+    * 创建 
+        
+            create [unique] index indexName on mytable(columnname(length));
+        
+            alter mytable add [unique] index [indexName] on (columnname(length));
+        
+    * 删除
+     
+            drop index [indexName] on mytable;
+        
+    * 查看 
+        
+            show index from table_name;
 
-    mysql索引结构:
-    	1.BTree索引 3层的b+树可以表示上百万条数据
-    	2.Hash索引
-    	3.full-text索引
-    	4.R-Tree索引
+            alter table tbl_name add primary_key(column_list)	      该语句添加一个主键, 这意味着索引值必须唯一, 且不能为空
+            alter table tbl_name add unique index index_name(column_list) 这条语句创建索引的值必须是唯一的, 但可以为NULL, NULL可能出现多次
+            alter table tbl_name add idnex index_name(column_list) 添加普通索引, 索引值可以出现多次
+            alter table tbl_name add fulltext index_name(column_list) 添加全文索引
 
-    哪些情况建索引:
-    	1. 主键自动建立唯一索引
-    	2. 频繁作为查询条件的字段
-    	3. 查询中与其他表关联的字段,外键关系建立索引
-    	4. 频繁更新得字段不适合创建索引 - 更新时不单单更新了记录还会更新索引
-    	5. where条件里用不到的字段不要创建索引
-    	6. 单值索引和组合索引的选择?(高并发情况下倾向创建组合索引)
-    	7. 查询中排序的字段, 排序字段若通过索引会大大提高查询速度
-    	8. 查询中统计或者分组的字段
+    * mysql索引结构:     
+    	
+        1. BTree索引 3层的b+树可以表示上百万条数据     
+        2. Hash索引     
+        3. full-text索引     
+        4. R-Tree索引
+
+    * 哪些情况建索引:
+        
+        1. 主键自动建立唯一索引
+        2. 频繁作为查询条件的字段
+        3. 查询中与其他表关联的字段,外键关系建立索引
+        4. 频繁更新得字段不适合创建索引 - 更新时不单单更新了记录还会更新索引
+        5. where条件里用不到的字段不要创建索引
+        6. 单值索引和组合索引的选择?(高并发情况下倾向创建组合索引)
+        7. 查询中排序的字段, 排序字段若通过索引会大大提高查询速度
+        8. 查询中统计或者分组的字段
 	      
-    哪些情况不要建索引:
-    	1. 表记录太少
-    	2. 经常增删改的表 - 提高了查询速度, 同时却会降低更新表的速度
-    	3. 如果某个数据列包含许多重复的内容, 为它建立索引就没有太大的实际效果
+    * 哪些情况不要建索引:
+
+        1. 表记录太少
+        2. 经常增删改的表 - 提高了查询速度, 同时却会降低更新表的速度
+        3. 如果某个数据列包含许多重复的内容, 为它建立索引就没有太大的实际效果
 
 ## 性能分析:
 

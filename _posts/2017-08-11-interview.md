@@ -43,7 +43,7 @@ author: miaoqi
             |-- HashMap: 允许空的键值对, 线程不安全
                 |-- LinkedHashMap
             |-- HashTable: 不允许空的键值对, 线程安全
-            |-- TreeMap
+            |-- TreeMap: 可以进行排序
 2. HashMap中负载因子的作用
 3. ConcurrentHashMap是如何实现的线程安全？
 4. StringBuffer 和 StringBuilder的区别?
@@ -96,10 +96,11 @@ author: miaoqi
 14. SpringMVC前台提交一个表单到数据库，中途都会经过哪些主要的类
 15. SpringMVC的拦截器使用的什么设计模式
 16. SpringMVC如何返回一个页面？
-17. MyBatis取值#和$的区别
+17. MyBatis取值#和$的区别   
 
-    #: 是占位符
-    $: 是字符串拼接(会出现sql注入问题)
+        #: 是占位符
+        $: 是字符串拼接(会出现sql注入问题)
+        
 18. MyBatis有哪几种传参方式
 19. MyBatis如何实现的分页查询
 20. MyBatis如何实现的数据库字段和类属性的绑定
