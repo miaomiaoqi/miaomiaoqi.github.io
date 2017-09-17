@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Python语法"
+title:  "Python基础语法"
 date:   2017-08-10 15:12:38
 categories: Language
 tags: Python
@@ -1248,7 +1248,356 @@ author: miaoqi
 
 ## 模块
 
+### 介绍
 
+* 有过Java语言编程经验的朋友都知道在Java中要使用他人写好的工具类, 要引入相应的jar包, 否则是无否正常调用的
+    
+    那么在Python中，如果要引用一些其他的函数，该怎么处理呢？
+    
+    在Python中有一个概念叫做模块（module），这个和C语言中的头文件以及Java中的包很类似，比如在Python中要调用sqrt函数，必须用import关键字引入math这个模块，下面就来了解一下Python中的模块。
+
+    **说的通俗点：模块就好比是工具包，要想使用这个工具包中的工具(就好比函数)，就需要导入这个模块**
+
+### 使用
+
+* import
+
+    在Python中用关键字import来引入某个模块，比如要引用模块math，就可以在文件最开始的地方用import math来引入
+
+        import module1,mudule2...
+
+    当解释器遇到import语句，如果模块在当前的搜索路径就会被导入。
+
+    在调用math模块中的函数时，必须这样引用：
+
+    模块名.函数名
+    想一想:
+
+    为什么必须加上模块名调用呢？
+
+    答:
+
+    因为可能存在这样一种情况：在多个模块中含有相同名称的函数，此时如果只是通过函数名来调用，解释器无法知道到底要调用哪个函数。所以如果像上述这样引入模块的时候，调用函数必须加上模块名
+
+        import math
+
+        #这样会报错
+        print sqrt(2)
+
+        #这样才能正确输出结果
+        print math.sqrt(2)
+
+    有时候我们只需要用到模块中的某个函数，只需要引入该函数即可，此时可以用下面方法实现：
+
+        from 模块名 import 函数名1,函数名2....
+
+    不仅可以引入函数，还可以引入一些全局变量、类等
+
+    注意:
+
+    通过这种方式引入的时候，调用函数时只能给出函数名，不能给出模块名，但是当两个模块中含有相同名称函数的时候，后面一次引入会覆盖前一次引入。也就是说假如模块A中有函数function( )，在模块B中也有函数function( )，如果引入A中的function在先、B中的function在后，那么当调用function函数的时候，是去执行模块B中的function函数。
+
+    如果想一次性引入math中所有的东西，还可以通过from math import *来实现
+
+* from…import
+
+    Python的from语句让你从模块中导入一个指定的部分到当前命名空间中
+
+    语法如下：
+
+        from modname import name1[, name2[, ... nameN]]
+    
+    例如，要导入模块fib的fibonacci函数，使用如下语句：
+
+        from fib import fibonacci
+
+* from … import *
+
+    把一个模块的所有内容全都导入到当前的命名空间也是可行的，只需使用如下声明：
+    
+        from modname import *
+
+* as
+
+        import time as tt
+
+* \_\_all__
+
+    如果导入这个模块的方式是 from 模块名 import * ,那么仅仅会导入__all__的列表中包含的名字
+
+        __all__ = ["test1","Test"]    
+
+* 定位模块
+
+    当你导入一个模块，Python解析器对模块位置的搜索顺序是：
+    
+    当前目录
+    如果不在当前目录，Python则搜索在shell变量PYTHONPATH下的每个目录。
+    如果都找不到，Python会察看默认路径。UNIX下，默认路径一般为/usr/local/lib/python/
+    模块搜索路径存储在system模块的sys.path变量中。变量里包含当前目录，PYTHONPATH和由安装过程决定的默认目录。
+
+* 模块安装
+
+        pip install 模块名
+
+### 自定义模块
+
+* 定义自己的模块
+
+    在Python中，每个Python文件都可以作为一个模块，模块的名字就是文件的名字。
+
+    比如有这样一个文件test.py，在test.py中定义了函数add
+    
+        def add(a,b):
+            return a+b 
+
+* 调用自己定义的模块
+
+    那么在其他文件中就可以先import test，然后通过test.add(a,b)来调用了，当然也可以通过from test import add来引入
+
+        import test
+
+        result = test.add(11,22)
+        print(result)
+
+### 测试模块
+
+* 在实际开中，当一个开发人员编写完一个模块后，为了让模块能够在项目中达到想要的效果，这个开发人员会自行在py文件中添加一些测试信息，例如：
+
+        def add(a,b):
+            return a+b
+
+        # 用来进行测试
+        ret = add(12,22)
+        print('int test.py file,,,,12+22=%d'%ret)
+        
+* 如果此时，在其他py文件中引入了此文件的话，想想看，测试的那段代码是否也会执行呢！
+
+        import test
+        
+        result = test.add(11,22)
+        print(result)
+
+* 至此，可发现test.py中的测试代码，应该是单独执行test.py文件时才应该执行的，不应该是其他的文件中引用而执行
+
+    为了解决这个问题，python在执行一个文件时有个变量\_\_name__
+
+    可以根据\_\_name__变量的结果能够判断出，是直接执行的python脚本还是被引入执行的，从而能够有选择性的执行测试代码
+
+## 包
+
+* 包将有联系的模块组织在一起，即放到同一个文件夹下，并且在这个文件夹创建一个名字为\_\_init__.py 文件，那么这个文件夹就称之为包, 有效避免模块名称冲突问题，让应用组织结构更加清晰
+
+* \_\_init__.py文件有什么用?
+
+    \_\_init__.py 控制着包的导入行为
+
+* \_\_init__.py为空
+
+    仅仅是把这个包导入，不会导入包中的模块
+
+* \_\_all__
+
+    在\_\_init\_\_.py文件中，定义一个\_\_all__变量，它控制着 from 包名 import *时导入的模块
+
+* 包的嵌套
+
+    假定我们的包的例子有如下的目录结构：
+
+        Phone/
+            __init__.py
+            common_util.py
+            Voicedta/
+                __init__.py
+                Pots.py
+                Isdn.py
+            Fax/
+                __init__.py
+                G3.py
+            Mobile/
+                __init__.py
+                Analog.py
+                igital.py
+            Pager/
+                __init__.py
+                Numeric.py
+
+    Phone 是最顶层的包，Voicedta 等是它的子包。 我们可以这样导入子包：
+
+        import Phone.Mobile.Analog
+        Phone.Mobile.Analog.dial()
+
+    你也可使用 from-import 实现不同需求的导入
+
+    第一种方法是只导入顶层的子包，然后使用属性/点操作符向下引用子包树：
+
+        from Phone import Mobile
+        Mobile.Analog.dial('555-1212')
+
+    此外，我们可以还引用更多的子包：
+
+        from Phone.Mobile import Analog
+        Analog.dial('555-1212')
+    
+    事实上，你可以一直沿子包的树状结构导入：
+
+        from Phone.Mobile.Analog import dial
+        dial('555-1212')
+
+    在我们上边的目录结构中，我们可以发现很多的 \_\_init\_\_.py 文件。这些是初始化模块，from-import 语句导入子包时需要用到它。 如果没有用到，他们可以是空文件。
+
+    包同样支持 from-import all 语句：
+
+        from package.module import *
+
+    然而，这样的语句会导入哪些文件取决于操作系统的文件系统。所以我们在\_\_init\_\_.py 中加入 \_\_all\_\_ 变量。该变量包含执行这样的语句时应该导入的模块的名字。它由一个模块名字符串列表组成.
+
+
+## 制作模块
+
+1. mymodule目录结构体如下：
+
+        .
+        ├── setup.py
+        ├── suba
+        │   ├── aa.py
+        │   ├── bb.py
+        │   └── __init__.py
+        └── subb
+            ├── cc.py
+            ├── dd.py
+            └── __init__.py
+        
+2. 编辑setup.py文件
+
+        py_modules需指明所需包含的py文件
+        
+        from distutils.core import setup
+        
+        setup(name="dongGe", version="1.0", description="dongGe's module", author="dongGe", py_modules=['suba.aa', 'suba.bb', 'subb.cc', 'subb.dd'])
+
+3. 构建模块
+
+        python setup.py build
+    
+        构建后目录结构
+    
+        .
+        ├── build
+        │   └── lib.linux-i686-2.7
+        │       ├── suba
+        │       │   ├── aa.py
+        │       │   ├── bb.py
+        │       │   └── __init__.py
+        │       └── subb
+        │           ├── cc.py
+        │           ├── dd.py
+        │           └── __init__.py
+        ├── setup.py
+        ├── suba
+        │   ├── aa.py
+        │   ├── bb.py
+        │   └── __init__.py
+        └── subb
+            ├── cc.py
+            ├── dd.py
+            └── __init__.py
+    
+4. 生成发布压缩包
+
+        python setup.py sdist
+
+    打包后,生成最终发布压缩包dongGe-1.0.tar.gz , 目录结构
+
+        .
+        ├── build
+        │   └── lib.linux-i686-2.7
+        │       ├── suba
+        │       │   ├── aa.py
+        │       │   ├── bb.py
+        │       │   └── __init__.py
+        │       └── subb
+        │           ├── cc.py
+        │           ├── dd.py
+        │           └── __init__.py
+        ├── dist
+        │   └── dongGe-1.0.tar.gz
+        ├── MANIFEST
+        ├── setup.py
+        ├── suba
+        │   ├── aa.py
+        │   ├── bb.py
+        │   └── __init__.py
+        └── subb
+            ├── cc.py
+            ├── dd.py
+            └── __init__.py
+
+## 强化练习
+
+### 给程序传参
+
+    import sys
+
+        print(sys.argv)
+    
+    python xx.py aa bb cc
+
+### 列表生成式
+
+* 所谓的列表推导式，就是指的轻量级循环创建列表
+
+        a = [i for i in range(1, 18)]
+        
+        b = [11 for i in range(1, 18)] 
+
+    **for只负责循环, 第一个i的值会被赋到a列表中**
+    
+* 在列表生成式中使用if
+
+        c = [i for i in range(10) if i%2 == 0]
+
+* 使用2个for循环
+
+        d = [(i, j) for i in range(3) for j in range(2)]
+
+* 使用3个for循环
+
+        e = [(i, j, k) for i in range(3) for j in range(2) for k in range(3)]
+
+
+## tuple, list, set 
+
+* 元组
+
+        a = (11, 22, 33, 11, 22, 33)
+        type(a)
+    
+* 列表
+
+        b = [11, 22, 33, 11, 22, 33]
+        type(b)
+
+* 集合
+
+        c = {11, 22, 33, 11, 22, 33}
+        type(c)
+    
+* 列表去重
+
+        d = [11, 22, 33, 11, 22, 33]
+        e = set(d)
+        d = list(e)
+    
+    
+    
+
+
+
+    
+![asf](/images/eclipse4.png)
+
+[1]:  www.miaomiaoqi.cn
 
 
 
