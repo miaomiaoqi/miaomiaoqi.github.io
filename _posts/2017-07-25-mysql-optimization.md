@@ -91,78 +91,77 @@ author: miaoqi
 
 * SQL执行顺序:  
     
-    手写
+    * 手写
         
-        select distinct <select_list>
-        from <left_table> <join_type> join <right_table> on <join_condition>
-        where <where_condition>
-        group by <group_by_list>
-        having <having_condition>
-        order by <order_by_condition>
-        limit <limit number>
+            select distinct <select_list>
+            from <left_table> <join_type> join <right_table> on <join_condition>
+            where <where_condition>
+            group by <group_by_list>
+            having <having_condition>
+            order by <order_by_condition>
+            limit <limit number>
         
-    机读
+    * 机读
     
-        from <left_table> on <join_condition> <join_type> join <right_table>
-        where <where_condition>
-        group by <group_by_list>
-        having <having_condition>
-        select distinct <select_list>
-        order by <order_by_condition>
-        limit <limit_number>
-    	
-        http://www.cnblogs.com/qanholas/archive/2010/10/24/1859924.html
+            from <left_table> on <join_condition> <join_type> join <right_table>
+            where <where_condition>
+            group by <group_by_list>
+            having <having_condition>
+            select distinct <select_list>
+            order by <order_by_condition>
+            limit <limit_number>
+        	
+            http://www.cnblogs.com/qanholas/archive/2010/10/24/1859924.html
 
-    练习
+    * 练习
     
-        create table tbl_dept(
-            id int(11) not null auto_increment,
-            dept_name varchar(30) default null,
-            ioc_add varchar(40) default null,
-            primary key(id)
-        )engine=innodb auto_increment=1 default charset=utf8;
+            create table tbl_dept(
+                id int(11) not null auto_increment,
+                dept_name varchar(30) default null,
+                ioc_add varchar(40) default null,
+                primary key(id)
+            )engine=innodb auto_increment=1 default charset=utf8;
+            
+            create table tbl_emp(
+                id int(11) not null auto_increment,
+                name varchar(20) default null,
+                dept_id int(11) default null,
+                primary key(id),
+                key fk_dept_id(dept_id)
+                #constraint fk_dept_id foreign key (dept_id) references tbl_dept(id)
+            )engine=innodb auto_increment=1 default charset=utf8;
+            
+            insert into tbl_dept(dept_name,ioc_add) values('RD',11);
+            insert into tbl_dept(dept_name,ioc_add) values('HR',12);
+            insert into tbl_dept(dept_name,ioc_add) values('MK',13);
+            insert into tbl_dept(dept_name,ioc_add) values('MIS',14);
+            insert into tbl_dept(dept_name,ioc_add) values('FD',15);
+            
+            insert into tbl_emp(name,dept_id) values('z3',1);
+            insert into tbl_emp(name,dept_id) values('z4',1);
+            insert into tbl_emp(name,dept_id) values('z5',1);
+            insert into tbl_emp(name,dept_id) values('w5',2);
+            insert into tbl_emp(name,dept_id) values('w6',2);
+            insert into tbl_emp(name,dept_id) values('s7',3);
+            insert into tbl_emp(name,dept_id) values('s8',4);
+            insert into tbl_emp(name,dept_id) values('s9',51);
+            
+            
+            select * from tbl_dept, tbl_emp;
+            select * from tbl_emp e inner join tbl_dept d on e.dept_id = d.id;
+            select * from tbl_emp e, tbl_dept d on e.dept_id = d.id;
+            select * from tbl_emp e left join tbl_dept d on e.dept_id = d.id;
+            select * from tbl_emp e right join tbl_dept d on e.dept_id = d.id;
+            select * from tbl_emp e left join tbl_dept d on e.dept_id = d.id where d.id is null;
+            select * from tbl_emp e right join tbl_dept d on e.dept_id = d.id where e.dept_id is null;
+            #select * from tbl_emp e full outer join tbl_dept d on e.dept_id = d.id; oracle
+            select * from tbl_emp e left join tbl_dept d on e.dept_id = d.id union select * from tbl_emp e right join tbl_dept d on e.dept_id = d.id;
+            select * from tbl_emp e left join tbl_dept d on e.dept_id = d.id where d.id is null union select * from tbl_emp e right join tbl_dept d on e.dept_id = d.id where e.dept_id is null;
         
-        create table tbl_emp(
-            id int(11) not null auto_increment,
-            name varchar(20) default null,
-            dept_id int(11) default null,
-            primary key(id),
-            key fk_dept_id(dept_id)
-            #constraint fk_dept_id foreign key (dept_id) references tbl_dept(id)
-        )engine=innodb auto_increment=1 default charset=utf8;
-        
-        insert into tbl_dept(dept_name,ioc_add) values('RD',11);
-        insert into tbl_dept(dept_name,ioc_add) values('HR',12);
-        insert into tbl_dept(dept_name,ioc_add) values('MK',13);
-        insert into tbl_dept(dept_name,ioc_add) values('MIS',14);
-        insert into tbl_dept(dept_name,ioc_add) values('FD',15);
-        
-        insert into tbl_emp(name,dept_id) values('z3',1);
-        insert into tbl_emp(name,dept_id) values('z4',1);
-        insert into tbl_emp(name,dept_id) values('z5',1);
-        insert into tbl_emp(name,dept_id) values('w5',2);
-        insert into tbl_emp(name,dept_id) values('w6',2);
-        insert into tbl_emp(name,dept_id) values('s7',3);
-        insert into tbl_emp(name,dept_id) values('s8',4);
-        insert into tbl_emp(name,dept_id) values('s9',51);
-        
-        
-        select * from tbl_dept, tbl_emp;
-        select * from tbl_emp e inner join tbl_dept d on e.dept_id = d.id;
-        select * from tbl_emp e, tbl_dept d on e.dept_id = d.id;
-        select * from tbl_emp e left join tbl_dept d on e.dept_id = d.id;
-        select * from tbl_emp e right join tbl_dept d on e.dept_id = d.id;
-        select * from tbl_emp e left join tbl_dept d on e.dept_id = d.id where d.id is null;
-        select * from tbl_emp e right join tbl_dept d on e.dept_id = d.id where e.dept_id is null;
-        #select * from tbl_emp e full outer join tbl_dept d on e.dept_id = d.id; oracle
-        select * from tbl_emp e left join tbl_dept d on e.dept_id = d.id union select * from tbl_emp e right join tbl_dept d on e.dept_id = d.id;
-        select * from tbl_emp e left join tbl_dept d on e.dept_id = d.id where d.id is null union select * from tbl_emp e right join tbl_dept d on e.dept_id = d.id where e.dept_id is null;
+            union,union all合并结果集
+            union:去重,按照字段排序,效率低
+            union all:不去重,不排序,效率高
     
-        union,union all合并结果集
-        union:去重,按照字段排序,效率低
-        union all:不去重,不排序,效率高
-
-
 ## 索引
 
 * 索引:索引(index)是帮助mysql高效获取数据的数据结构,本质:数据结构
@@ -171,20 +170,20 @@ author: miaoqi
 
     优势: 
        
-    1. 提高数据检索的效率, 降低数据库的IO    
-    2. 降低数据排序成本, 降低了CPU消耗
+    * 提高数据检索的效率, 降低数据库的IO    
+    * 降低数据排序成本, 降低了CPU消耗
         
     劣势:         
 
-    1. 实际上索引也是一张表, 保存了主键与索引字段, 并指向实体表记录, 所以索引列也是占空间的       
-    2. 大大提高了查询速度, 会降低更新表的速度, 如对表insert, update和delete.      
-    3. 索引只是提高效率的一个因素, 如果你的mysql有大数据的表, 就需要花时间研究建立最优秀的索引, 或优化
+    * 实际上索引也是一张表, 保存了主键与索引字段, 并指向实体表记录, 所以索引列也是占空间的       
+    * 大大提高了查询速度, 会降低更新表的速度, 如对表insert, update和delete.      
+    * 索引只是提高效率的一个因素, 如果你的mysql有大数据的表, 就需要花时间研究建立最优秀的索引, 或优化
         
     分类:
 
-    1. 单值索引: 即一个索引只包含单列, 一个表可以有多个单列索引    
-    2. 唯一索引: 索引列的值必须唯一, 但允许有空值     
-    3. 复合索引: 即一个索引包含多个列
+    * 单值索引: 即一个索引只包含单列, 一个表可以有多个单列索引    
+    * 唯一索引: 索引列的值必须唯一, 但允许有空值     
+    * 复合索引: 即一个索引包含多个列
         
     语法: 
         
@@ -209,27 +208,27 @@ author: miaoqi
 
     * mysql索引结构:     
     	
-        1. BTree索引 3层的b+树可以表示上百万条数据     
-        2. Hash索引     
-        3. full-text索引     
-        4. R-Tree索引
+        * BTree索引 3层的b+树可以表示上百万条数据     
+        * Hash索引     
+        * full-text索引     
+        * R-Tree索引
 
     * 哪些情况建索引:
         
-        1. 主键自动建立唯一索引
-        2. 频繁作为查询条件的字段
-        3. 查询中与其他表关联的字段,外键关系建立索引
-        4. 频繁更新得字段不适合创建索引 - 更新时不单单更新了记录还会更新索引
-        5. where条件里用不到的字段不要创建索引
-        6. 单值索引和组合索引的选择?(高并发情况下倾向创建组合索引)
-        7. 查询中排序的字段, 排序字段若通过索引会大大提高查询速度
-        8. 查询中统计或者分组的字段
+        * 主键自动建立唯一索引
+        * 频繁作为查询条件的字段
+        * 查询中与其他表关联的字段,外键关系建立索引
+        * 频繁更新得字段不适合创建索引 - 更新时不单单更新了记录还会更新索引
+        * where条件里用不到的字段不要创建索引
+        * 单值索引和组合索引的选择?(高并发情况下倾向创建组合索引)
+        * 查询中排序的字段, 排序字段若通过索引会大大提高查询速度
+        * 查询中统计或者分组的字段
 	      
     * 哪些情况不要建索引:
 
-        1. 表记录太少
-        2. 经常增删改的表 - 提高了查询速度, 同时却会降低更新表的速度
-        3. 如果某个数据列包含许多重复的内容, 为它建立索引就没有太大的实际效果
+        * 表记录太少
+        * 经常增删改的表 - 提高了查询速度, 同时却会降低更新表的速度
+        * 如果某个数据列包含许多重复的内容, 为它建立索引就没有太大的实际效果
 
 ## 性能分析:
 
@@ -315,8 +314,8 @@ author: miaoqi
     
 * 索引分析:
         
-        单表:
-            sql:
+    * 单表:
+    
             create table if not exists `article`(
                 id int(10) unsigned not null primary key auto_increment,
                 author_id int(10) unsigned not null,
@@ -326,13 +325,14 @@ author: miaoqi
                 title varchar(255) not null,
                 content text not null
             );
-        insert into article(author_id, category_id, views, comments, title, content) values
+            insert into article(author_id, category_id, views, comments, title, content) values
             (1,1,1,1,'1','1'),
             (2,2,2,2,'2','2'),
             (1,1,3,3,'3','3');
+            
 * 案例:
         
-        1. category_id为1且comments大于1的情况下,views最多的article_id
+    * category_id为1且comments大于1的情况下,views最多的article_id
 			
             EXPLAIN SELECT id, author_id from article WHERE category_id = 1 AND comments > 1 ORDER BY views DESC LIMIT 1; 
             #ALTER TABLE article ADD INDEX idx_article_ccv(category_id,comments,views);
@@ -341,70 +341,69 @@ author: miaoqi
             #CREATE INDEX idx_article_cv ON article(category_id,views);
     
     * 两表:
-                sql:
-                create table if not exists `class`(
-                    id int not null auto_increment,
-                    card int not null,
-                    primary key(id)
-                );
-                create table if not exists book(
-                    bookid int not null auto_increment,
-                    card int not null,
-                    primary key(bookid)
-                );
-                insert into class(card)values(floor(1+(rand()*20)));
-                insert into class(card)values(floor(1+(rand()*20)));
-                insert into class(card)values(floor(1+(rand()*20)));
-                insert into class(card)values(floor(1+(rand()*20)));
-                insert into class(card)values(floor(1+(rand()*20)));
-                insert into class(card)values(floor(1+(rand()*20)));
-                insert into class(card)values(floor(1+(rand()*20)));
-                insert into class(card)values(floor(1+(rand()*20)));
-                insert into class(card)values(floor(1+(rand()*20)));
-                insert into class(card)values(floor(1+(rand()*20)));
-                insert into class(card)values(floor(1+(rand()*20)));
-                insert into class(card)values(floor(1+(rand()*20)));
-                insert into class(card)values(floor(1+(rand()*20)));
-                insert into class(card)values(floor(1+(rand()*20)));
-                insert into class(card)values(floor(1+(rand()*20)));
-                insert into class(card)values(floor(1+(rand()*20)));
-                insert into class(card)values(floor(1+(rand()*20)));
-                insert into class(card)values(floor(1+(rand()*20)));
-                insert into class(card)values(floor(1+(rand()*20)));
-                insert into class(card)values(floor(1+(rand()*20)));
+    
+            create table if not exists `class`(
+                id int not null auto_increment,
+                card int not null,
+                primary key(id)
+            );
+            create table if not exists book(
+                bookid int not null auto_increment,
+                card int not null,
+                primary key(bookid)
+            );
+            insert into class(card)values(floor(1+(rand()*20)));
+            insert into class(card)values(floor(1+(rand()*20)));
+            insert into class(card)values(floor(1+(rand()*20)));
+            insert into class(card)values(floor(1+(rand()*20)));
+            insert into class(card)values(floor(1+(rand()*20)));
+            insert into class(card)values(floor(1+(rand()*20)));
+            insert into class(card)values(floor(1+(rand()*20)));
+            insert into class(card)values(floor(1+(rand()*20)));
+            insert into class(card)values(floor(1+(rand()*20)));
+            insert into class(card)values(floor(1+(rand()*20)));
+            insert into class(card)values(floor(1+(rand()*20)));
+            insert into class(card)values(floor(1+(rand()*20)));
+            insert into class(card)values(floor(1+(rand()*20)));
+            insert into class(card)values(floor(1+(rand()*20)));
+            insert into class(card)values(floor(1+(rand()*20)));
+            insert into class(card)values(floor(1+(rand()*20)));
+            insert into class(card)values(floor(1+(rand()*20)));
+            insert into class(card)values(floor(1+(rand()*20)));
+            insert into class(card)values(floor(1+(rand()*20)));
+            insert into class(card)values(floor(1+(rand()*20)));
                 
-                insert into book(card)values(floor(1+(rand()*20)));
-                insert into book(card)values(floor(1+(rand()*20)));
-                insert into book(card)values(floor(1+(rand()*20)));
-                insert into book(card)values(floor(1+(rand()*20)));
-                insert into book(card)values(floor(1+(rand()*20)));
-                insert into book(card)values(floor(1+(rand()*20)));
-                insert into book(card)values(floor(1+(rand()*20)));
-                insert into book(card)values(floor(1+(rand()*20)));
-                insert into book(card)values(floor(1+(rand()*20)));
-                insert into book(card)values(floor(1+(rand()*20)));
-                insert into book(card)values(floor(1+(rand()*20)));
-                insert into book(card)values(floor(1+(rand()*20)));
-                insert into book(card)values(floor(1+(rand()*20)));
-                insert into book(card)values(floor(1+(rand()*20)));
-                insert into book(card)values(floor(1+(rand()*20)));
-                insert into book(card)values(floor(1+(rand()*20)));
-                insert into book(card)values(floor(1+(rand()*20)));
-                insert into book(card)values(floor(1+(rand()*20)));
-                insert into book(card)values(floor(1+(rand()*20)));
-                insert into book(card)values(floor(1+(rand()*20)));
-        
-                explain select * from class left join book on class.card = book.card;
-        
-                alter table book add index Y(card);
-        
-                drop index Y on book;
+            insert into book(card)values(floor(1+(rand()*20)));
+            insert into book(card)values(floor(1+(rand()*20)));
+            insert into book(card)values(floor(1+(rand()*20)));
+            insert into book(card)values(floor(1+(rand()*20)));
+            insert into book(card)values(floor(1+(rand()*20)));
+            insert into book(card)values(floor(1+(rand()*20)));
+            insert into book(card)values(floor(1+(rand()*20)));
+            insert into book(card)values(floor(1+(rand()*20)));
+            insert into book(card)values(floor(1+(rand()*20)));
+            insert into book(card)values(floor(1+(rand()*20)));
+            insert into book(card)values(floor(1+(rand()*20)));
+            insert into book(card)values(floor(1+(rand()*20)));
+            insert into book(card)values(floor(1+(rand()*20)));
+            insert into book(card)values(floor(1+(rand()*20)));
+            insert into book(card)values(floor(1+(rand()*20)));
+            insert into book(card)values(floor(1+(rand()*20)));
+            insert into book(card)values(floor(1+(rand()*20)));
+            insert into book(card)values(floor(1+(rand()*20)));
+            insert into book(card)values(floor(1+(rand()*20)));
+            insert into book(card)values(floor(1+(rand()*20)));
                 
-                alter table class add index Y(card);
+            explain select * from class left join book on class.card = book.card;
+                
+            alter table book add index Y(card);
+                
+            drop index Y on book;
+    
+            alter table class add index Y(card);
 
     * 三表:
                 
-            sql:
             create table if not exists phone(
                 phoneid int not null auto_increment,
                 card int not null,
@@ -577,17 +576,18 @@ author: miaoqi
 
     * 分析
         
-        1. 观察, 至少跑1天, 检查生产的慢sql情况
-        2. 开启慢查询日志, 设置阙值, 比如超过5秒的就是慢sql, 并将它抓取
-        3. explain+慢sql分析
-        4. show profile
-        5. 运维经理或dba进行sql数据库服务器的参数调优
+        * 观察, 至少跑1天, 检查生产的慢sql情况
+        * 开启慢查询日志, 设置阙值, 比如超过5秒的就是慢sql, 并将它抓取
+        * explain+慢sql分析
+        * show profile
+        * 运维经理或dba进行sql数据库服务器的参数调优
 
     * 查询截取分析:
-        1. 慢查询的开启并捕获
-        2. explain + 慢sql分析
-        3. show profile查询sql在mysql服务器里面的执行细节和生命周期
-        4. sql数据库服务器的参数调优
+        
+        * 慢查询的开启并捕获
+        * explain + 慢sql分析
+        * show profile查询sql在mysql服务器里面的执行细节和生命周期
+        * sql数据库服务器的参数调优
 
                 for(int i = 0; i < 5; i++){
                     for(int j = 0; j < 1000; j++){
@@ -649,35 +649,35 @@ author: miaoqi
                 1. order by语句使用索引最左前列
                 2. 使用where子句与order by子句条件组合满足索引最前列
 
-        如果不在索引列上, filesort有两种算法:
+        * 如果不在索引列上, filesort有两种算法:
         
-        1. 双路排序: mysql4.1之前是使用双路排序, 字面意思是两次扫描磁盘, 最终得到数据
+            * 双路排序: mysql4.1之前是使用双路排序, 字面意思是两次扫描磁盘, 最终得到数据
         读取行指针和order by列, 对他们进行排序, 然后扫描已经排序好的列表, 按照列表中的值重新
         从列表中的值从新从列表中读取对应的数据进行输出
         
-        2. 单路排序: 
+            * 单路排序: 
 
-            * 为排序使用索引:
+        * 为排序使用索引:
             
-                    mysql两种排序方式: 文件排序和扫描有序索引排序
-                    mysql能为排序与查询使用相同索引
+                mysql两种排序方式: 文件排序和扫描有序索引排序
+                mysql能为排序与查询使用相同索引
+            
+                key a_b_c(a,b,c);
                 
-                    key a_b_c(a,b,c);
-                    
-                    order by a;
-                    order by a, b;
-                    order by a, b, c;
-                    order by a desc, b desc, c desc;
-                    
-                    where a = const order by b, c;
-                    where a = const and b = const order by c;
-                    where a = const and b > const order by b, c;
-                    
-                    不能使用:
-                    order by a asc, b desc, c desc  排序不一致
-                    where a = const order by c  丢失b索引
-                    where a = const order by a, d;  d不是索引的一部分
-                    where a in (...) order by b, c;  对于排序来说, 多个相等条件也是范围查询
+                order by a;
+                order by a, b;
+                order by a, b, c;
+                order by a desc, b desc, c desc;
+                
+                where a = const order by b, c;
+                where a = const and b = const order by c;
+                where a = const and b > const order by b, c;
+                
+                不能使用:
+                order by a asc, b desc, c desc  排序不一致
+                where a = const order by c  丢失b索引
+                where a = const order by a, d;  d不是索引的一部分
+                where a in (...) order by b, c;  对于排序来说, 多个相等条件也是范围查询
 
         * group by:
             
@@ -780,10 +780,9 @@ author: miaoqi
 
 ## profile:
 
-* 是什么
+* mysql提供可以用来分析当前会话中语句执行的资源消耗情况, 可以用于sql调优的测量    
 
-    是mysql提供可以用来分析当前会话中语句执行的资源消耗情况, 可以用于sql调优的测量
-    默认情况: 处于关闭状态, 并保存最近15次的运行结果
+    默认情况: 处于关闭状态, 并保存最近15次的运行结果     
     分析步骤: 
     
         show variables like 'profiling';
@@ -818,6 +817,6 @@ author: miaoqi
 
 ## 建议:
 
-1. 内容过多的字段要单独抽一张表
-2. 避免过多关联查询, 尽量单表查询
-3. 适当冗余
+* 内容过多的字段要单独抽一张表
+* 避免过多关联查询, 尽量单表查询
+* 适当冗余
