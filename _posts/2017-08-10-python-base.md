@@ -1538,7 +1538,7 @@ author: miaoqi
 ### 给程序传参
 
     import sys
-
+    
         print(sys.argv)
     
     python xx.py aa bb cc

@@ -28,11 +28,11 @@ author: miaoqi
 
 
 ## Java基础
-1. List、Set、Map接口都有哪些实现？
+* List、Set、Map接口都有哪些实现？
 
         Collection
             |-- List: 多了对角标的操作
-                |-- ArrayList: 底层是数组, 线程不安全, 查询快
+                |-- ArrayList: 底层是数组, 线程不安全, 查询快(contains利用了equals方法)
                 |-- LinkedList: 底层是链表, 线程不安全, 增删快
                 |-- Vector: 底层是数组, 线程安全, 查询快
             |-- Set:
@@ -40,37 +40,53 @@ author: miaoqi
                     |-- LinkedHashSet: 底层是哈希表, 同时维护了一个链表, 存入和取出顺序一致
                 |-- TreeSet: 底层是二叉树, 会进行排序
         Map:
-            |-- HashMap: 允许空的键值对, 线程不安全
+            |-- HashMap: 允许空的键值对, 线程不安全(利用了hasCode和equals方法)(在1.7中是数组 + 链表, 在1.8中是数组 + 链表 + 红黑树)
                 |-- LinkedHashMap
             |-- HashTable: 不允许空的键值对, 线程安全
-            |-- TreeMap: 可以进行排序
-2. HashMap中负载因子的作用
-3. ConcurrentHashMap是如何实现的线程安全？
-4. StringBuffer 和 StringBuilder的区别?
+            |-- TreeMap: 可以进行排序(实现Comparable方法, 或者传入Comparator实现类)
+            
+* HashMap中负载因子的作用
+
+        当数组Map中的数组元素数量达到负载因子时, 会进行扩容
+
+* ConcurrentHashMap是如何实现的线程安全？
+* StringBuffer 和 StringBuilder的区别?
 
         StringBuffer: 线程安全, 效率低
         StringBuilder: 线程不安全, 效率高
-5. 接口和抽象类的异同
+* 接口和抽象类的异同
 
         接口: 所有方法都是抽象的(jdk1.8以后接口中可以有实现的方法)
         抽象类: 可以有带实现的方法
-6. JDK1.8新特性
-7. 设计模式
-8. 单例模式的使用场景
-9. Servlet的生命周期
-10. Servlet是否线程安全的？其类内有两个类变量，name和age，会不会有线程问题？如何解决？
-11. JSP的九大内置对象
-12. Session的生命周期
-13. Session如何实现的保持会话
-14. Session如何在浏览器端禁用cookie的情况下保持回话
-15. synchronized关键字可以使用的场景：类？方法？变量？代码块？
-16. 谈谈volatile关键字
-17. 泛型的使用场景及优势
-18. 对象中equals方法的作用
-19. 重定向与请求转发的区别
-20. newCachedThreadPool线程池何时回收闲置的线程？若长时间没有任务，所有的线程会被回收吗？
-21. 线程的状态切换
-22. wait和sleep的区别？对待锁的区别？
+        
+* JDK1.8新特性
+* 设计模式
+* 单例模式的使用场景
+* Servlet的生命周期
+* Servlet是否线程安全的？其类内有两个类变量，name和age，会不会有线程问题？如何解决？
+* JSP的九大内置对象
+
+        page: 当前对象
+        request: 请求对象
+        response: 响应对象
+        session: 会话对象
+        pageContext: 获取其他域对象
+        application: 应用程序
+        out: 输出对象
+        config: 配置
+        exception: 页面中开启异常才有该对象
+
+* Session的生命周期
+* Session如何实现的保持会话
+* Session如何在浏览器端禁用cookie的情况下保持回话
+* synchronized关键字可以使用的场景：类？方法？变量？代码块？
+* 谈谈volatile关键字
+* 泛型的使用场景及优势
+* 对象中equals方法的作用
+* 重定向与请求转发的区别
+* newCachedThreadPool线程池何时回收闲置的线程？若长时间没有任务，所有的线程会被回收吗？
+* 线程的状态切换
+* wait和sleep的区别？对待锁的区别？
 
         锁的区别:
         wait会释放锁, 当前线程进入休眠状态, 等待其他线程唤醒
