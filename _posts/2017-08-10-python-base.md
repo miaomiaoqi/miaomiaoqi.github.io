@@ -407,6 +407,23 @@ author: miaoqi
     names.remove("aaa"): 根据内容去删除
     del names[0]: 根据下标去删除
     
+**循环列表时删除元素会有坑**
+
+    a = [11, 22, 33, 44, 55]
+    # 会存在漏删44的情况, 因为删了33, 44会往前移动
+    for i in a:
+        print(i)
+        if i == 33 or i == 44:
+            a.remove(i)
+
+    # 通过如下方式解决
+    for i in a:
+        if i == 33 or i == 44:
+            b.append(i)
+            
+    for i in b:
+        a.remove(i)
+    
     
     改:
     names[0] = "xxx"
@@ -1588,18 +1605,6 @@ author: miaoqi
         d = [11, 22, 33, 11, 22, 33]
         e = set(d)
         d = list(e)
-
-## 飞机大战
-    
-    
-    
-
-
-
-    
-![asf](/images/eclipse4.png)
-
-[1]:  www.miaomiaoqi.cn
 
 
 
