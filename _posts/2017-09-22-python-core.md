@@ -249,11 +249,11 @@ author: miaoqi
 
 * 以直接作用于 for 循环的数据类型有以下几种:
 
-* 一类是集合数据类型, 如 list、 tuple、 dict、 set、 str 等;
+    一类是集合数据类型, 如 list、 tuple、 dict、 set、 str 等;
 
-* 一类是 generator, 包括生成器和带 yield 的generator function
+    一类是 generator, 包括生成器和带 yield 的generator function
 
-* 这些可以直接作用于 for 循环的对象统称为可迭代对象: Iterable
+    这些可以直接作用于 for 循环的对象统称为可迭代对象: Iterable
 
 * 判断是否可以迭代
 
