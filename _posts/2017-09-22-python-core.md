@@ -149,9 +149,10 @@ author: miaoqi
 
     x >> n x的所有二进制位向右移动n位,移出的位删掉,移进的位补符号位 右移不会改变一个数的符号
 
+
 ## 私有化
 
-### 介绍
+### 几种命名规则
 
 * xx: 公有变量
 
@@ -220,7 +221,7 @@ author: miaoqi
 
 * 使用property取代getter和setter方法
 
-    @property成为属性函数，可以对属性赋值时做必要的检查，并保证代码的清晰短小，主要有2个作用
+    @property称为属性函数，可以对属性赋值时做必要的检查，并保证代码的清晰短小，主要有2个作用
 
     将方法转换为只读, 重新实现一个属性的设置和读取方法, 可做边界判定
 
@@ -240,7 +241,53 @@ author: miaoqi
                     print("error:不是整型数字")
 
 
-## 
+## 迭代器
+
+* 迭代是访问集合元素的一种方式。迭代器是一个可以记住遍历的位置的对象。迭代器对象从集合的第一个元素开始访问，直到所有的元素被访问完结束。迭代器只能往前不会后退。
+
+### 可迭代对象
+
+* 以直接作用于 for 循环的数据类型有以下几种:
+
+* 一类是集合数据类型, 如 list、 tuple、 dict、 set、 str 等;
+
+* 一类是 generator, 包括生成器和带 yield 的generator function
+
+* 这些可以直接作用于 for 循环的对象统称为可迭代对象: Iterable
+
+* 判断是否可以迭代
+
+    可以使用 isinstance() 判断一个对象是否是 Iterable 对象:
+
+        from collections import Iterable
+
+        isinstance([], Iterable)
+
+        isinstance({}, Iterable)
+
+        isinstance('abc', Iterable)
+
+        isinstance((x for x in range(10)), Iterable)
+
+        isinstance(100, Iterable)
+
+    而生成器不但可以作用于 for 循环，还可以被 next() 函数不断调用并返回下一个值，直到最后抛出 StopIteration 错误表示无法继续返回下一个值了。
+
+### 迭代器
+
+* 可以被next()函数调用并不断返回下一个值的对象称为迭代器: Iterator
+
+### iter()函数
+
+* 生成器都是 Iterator 对象，但 list, dict, str 虽然是 Iterable, 却不是 Iterator把 list, dict, str 等 Iterable 变成 Iterator 可以使用 iter() 函数：
+
+### 总结
+
+* 可作用于 for 循环的对象都是 Iterable 类型；
+
+* 凡是可作用于 next() 函数的对象都是 Iterator 类型
+
+* 集合数据类型如 list 、 dict 、 str 等是 Iterable 但不是 Iterator ，不过可以通过 iter() 函数获得一个 Iterator 对象。
 
 
 
