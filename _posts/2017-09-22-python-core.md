@@ -930,11 +930,150 @@ author: miaoqi
             ----test---
 
 
+## 作用域
+
+### 命名空间
+
+* 比如有一个学校，有10个班级，在7班和8班中都有一个叫“小王”的同学，如果在学校的广播中呼叫“小王”时，7班和8班中的这2个人就纳闷了，你是喊谁呢！！！如果是“7班的小王”的话，那么就很明确了，那么此时的7班就是小王所在的范围，即命名空间
 
 
+### globals, locals
+
+* 在之前学习变量的作用域时，经常会提到局部变量和全局变量，之所有称之为局部、全局，就是因为他们的自作用的区域不同，这就是作用域
+
+        # 查看全局变量
+        print(globals())
+        
+        # 查看局部变量
+        print(locals())
+
+### LEGB 规则
+
+* Python 使用 LEGB 的顺序来查找一个符号对应的对象
+
+* locals，当前所在命名空间（如函数、模块），函数的参数也属于命名空间内的变量
+
+* enclosing，外部嵌套函数的命名空间（闭包中常见）
+        
+        def fun1():
+          a = 10
+          def fun2():
+              # a 位于外部嵌套函数的命名空间
+              print(a)
+
+* globals，全局变量，函数定义所在模块的命名空间
+
+        a = 1
+        def fun():
+          # 需要通过 global 指令来声明全局变量
+          global a
+          # 修改全局变量，而不是创建一个新的 local 变量
+          a = 2
+
+* builtins，内建模块的命名空间。
+
+    Python 在启动的时候会自动为我们载入很多内建的函数、类，
+    比如 dict，list，type，print，这些都位于 \_\_builtin\_\_ 模块中，
+    可以使用 dir(\_\_builtin\_\_) 来查看。
+    这也是为什么我们在没有 import任何模块的情况下，
+    就能使用这么多丰富的函数和功能了。
+    
+    在Python中，有一个内建模块，该模块中有一些常用函数;在Python启动后，
+    且没有执行程序员所写的任何代码前，Python会首先加载该内建函数到内存。
+    另外，该内建模块中的功能可以直接使用，不用在其前添加内建模块前缀，
+    其原因是对函数、变量、类等标识符的查找是按LEGB法则，其中B即代表内建模块
+    比如：内建模块中有一个abs()函数，其功能求绝对值，如abs(-20)将返回20。
 
 
+## Python是动态语言
 
+* 动态编程语言 是 高级程序设计语言 的一个类别，在计算机科学领域已被广泛应用。它是一类 在运行时可以改变其结构的语言 ：例如新的函数、对象、甚至代码可以被引进，已有的函数可以被删除或是其他结构上的变化。动态语言目前非常具有活力。例如JavaScript便是一个动态语言，除此之外如 PHP 、 Ruby 、 Python 等也都属于动态语言，而 C 、 C++ 等语言则不属于动态语言。
+
+### 动态添加属性
+
+    class Person(object):
+        def __init__(self, name = None, age = None):
+            self.name = name
+            self.age = age
+    
+    p = Person("小明", "24")
+
+在这里，我们定义了1个类Person，在这个类里，定义了两个初始属性name和age，但是人还有性别啊！如果这个类不是你写的是不是你会尝试访问性别这个属性呢？
+
+    p.sex = "male"
+
+这时候就发现问题了，我们定义的类里面没有sex这个属性啊！怎么回事呢？ 这就是动态语言的魅力和坑！ 这里 实际上就是 动态给实例绑定属性！
+
+### 动态添加方法
+
+    import types
+    
+    #定义了一个类
+    class Person(object):
+        num = 0
+        def __init__(self, name = None, age = None):
+            self.name = name
+            self.age = age
+        def eat(self):
+            print("eat food")
+    
+    #定义一个实例方法
+    def run(self, speed):
+        print("%s在移动, 速度是 %d km/h"%(self.name, speed))
+    
+    #定义一个类方法
+    @classmethod
+    def testClass(cls):
+        cls.num = 100
+    
+    #定义一个静态方法
+    @staticmethod
+    def testStatic():
+        print("---static method----")
+    
+    #创建一个实例对象
+    P = Person("老王", 24)
+    #调用在class中的方法
+    P.eat()
+    
+    #给这个对象添加实例方法
+    P.run = types.MethodType(run, P)
+    #调用实例方法
+    P.run(180)
+    
+    #给Person类绑定类方法
+    Person.testClass = testClass
+    #调用类方法
+    print(Person.num)
+    Person.testClass()
+    print(Person.num)
+    
+    #给Person类绑定静态方法
+    Person.testStatic = testStatic
+    #调用静态方法
+    Person.testStatic()
+
+## \_\_slots\_\_
+
+* 现在我们终于明白了，动态语言与静态语言的不同
+
+* 动态语言：可以在运行的过程中，修改代码
+
+* 静态语言：编译时已经确定好代码，运行过程中不能修改
+
+* 如果我们想要限制实例的属性怎么办？比如，只允许对Person实例添加name和age属性。
+
+    为了达到限制的目的，Python允许在定义class的时候，定义一个特殊的__slots__变量，来限制该class实例能添加的属性：
+
+        class Person(object):
+        __slots__ = ("name", "age")
+        
+        P = Person()
+        P.name = "老王"
+        P.age = 20
+        P.score = 100
+
+    **使用__slots__要注意，__slots__定义的属性仅对当前类实例起作用，对继承的子类是不起作用的**
 
 
 
