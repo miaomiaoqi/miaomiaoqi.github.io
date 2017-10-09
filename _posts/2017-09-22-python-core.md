@@ -1073,7 +1073,666 @@ author: miaoqi
         P.age = 20
         P.score = 100
 
-    **使用__slots__要注意，__slots__定义的属性仅对当前类实例起作用，对继承的子类是不起作用的**
+    **使用\_\_slots\_\_要注意，\_\_slots\_\_定义的属性仅对当前类实例起作用，对继承的子类是不起作用的**
+
+
+## 元类
+
+* 类也是对象
+
+    在大多数编程语言中，类就是一组用来描述如何生成一个对象的代码段。在Python中这一点仍然成立：
+
+        class ObjectCreator(object):
+            pass
+        
+        my_object = ObjectCreator()
+        print my_object
+
+    但是，Python中的类还远不止如此。类同样也是一种对象。是的，没错，就是对象。只要你使用关键字class，Python解释器在执行的时候就会创建一个对象。
+
+    下面的代码段：
+
+        class ObjectCreator(object):
+            pass
+
+    将在内存中创建一个对象，名字就是ObjectCreator。这个对象（类对象ObjectCreator）拥有创建对象（实例对象）的能力。但是，它的本质仍然是一个对象，于是乎你可以对它做如下的操作：
+
+    你可以将它赋值给一个变量  
+    你可以拷贝它   
+    你可以为它增加属性   
+    你可以将它作为函数参数进行传递   
+
+
+        print ObjectCreator     # 你可以打印一个类，因为它其实也是一个对象
+    
+        def echo(o):      
+            print o
+    
+        echo(ObjectCreator)                 # 你可以将类做为参数传给函数
+    
+        print hasattr(ObjectCreator, 'new_attribute')
+    
+        ObjectCreator.new_attribute = 'foo' #  你可以为类增加属性
+        print hasattr(ObjectCreator, 'new_attribute')
+    
+        print ObjectCreator.new_attribute
+    
+        ObjectCreatorMirror = ObjectCreator # 你可以将类赋值给一个变量
+        print ObjectCreatorMirror()
+
+* 动态地创建类
+
+    因为类也是对象，你可以在运行时动态的创建它们，就像其他任何对象一样。首先，你可以在函数中创建类，使用class关键字即可。
+
+        def choose_class(name):
+            if name == 'foo':
+                class Foo(object):
+                    pass
+                return Foo     # 返回的是类，不是类的实例
+            else:
+                class Bar(object):
+                    pass
+                return Bar
+            
+        MyClass = choose_class('foo')
+        print MyClass              # 函数返回的是类，不是类的实例
+        print MyClass()            # 你可以通过这个类创建类实例，也就是对象
+
+    但这还不够动态，因为你仍然需要自己编写整个类的代码。由于类也是对象，所以它们必须是通过什么东西来生成的才对。当你使用class关键字时，Python解释器自动创建这个对象。但就和Python中的大多数事情一样，Python仍然提供给你手动处理的方法。
+
+    还记得内建函数type吗？这个古老但强大的函数能够让你知道一个对象的类型是什么，就像这样：
+
+        print type(1) # 数值的类型 <type 'int'>
+        
+        print type("1") # 字符串的类型 <type 'str'>
+        
+        print type(ObjectCreator()) # 实例对象的类型 <class '__main__.ObjectCreator'>
+        
+        print type(ObjectCreator) # 类的类型 <type 'type'>
+
+    仔细观察上面的运行结果，发现使用type对ObjectCreator查看类型是，答案为type， 是不是有些惊讶。。。看下面
+
+
+* 使用type创建类
+
+    type还有一种完全不同的功能，动态的创建类。
+
+    type可以接受一个类的描述作为参数，然后返回一个类。（要知道，根据传入参数的不同，同一个函数拥有两种完全不同的用法是一件很傻的事情，但这在Python中是为了保持向后兼容性）
+
+    type可以像这样工作：
+
+    type(类名, 由父类名称组成的元组（针对继承的情况，可以为空），包含属性的字典（名称和值）)
+
+    比如下面的代码：
+
+        class Test: #定义了一个Test类
+             pass
+        
+        Test() #创建了一个Test类的实例对象
+
+    可以手动像这样创建：
+
+        Test2 = type("Test2",(),{}) #定了一个Test2类
+        Test2() #创建了一个Test2类的实例对象
+        
+    我们使用"Test2"作为类名，并且也可以把它当做一个变量来作为类的引用。类和变量是不同的，这里没有任何理由把事情弄的复杂。即type函数中第1个实参，也可以叫做其他的名字，这个名字表示类的名字
+
+        MyDogClass = type('MyDog', (), {})
+
+        print MyDogClass
+        
+    使用help来测试这2个类
+
+        help(Test) #用help查看Test类
+
+        Help on class Test in module __main__:
+
+        class Test(builtins.object)
+         |  Data descriptors defined here:
+         |
+         |  __dict__
+         |      dictionary for instance variables (if defined)
+         |
+         |  __weakref__
+         |      list of weak references to the object (if defined)
+         
+        help(Test2) #用help查看Test2类
+        
+        Help on class Test2 in module __main__:
+        
+        class Test2(builtins.object)
+         |  Data descriptors defined here:
+         |
+         |  __dict__
+         |      dictionary for instance variables (if defined)
+         |
+         |  __weakref__
+         |      list of weak references to the object (if defined)
+
+
+* 使用type创建带有属性的类
+
+    type 接受一个字典来为类定义属性，因此
+
+        Foo = type('Foo', (), {'bar':True})
+
+        可以翻译为：
+
+        class Foo(object):
+            bar = True
+        
+        并且可以将Foo当成一个普通的类一样使用：
+        
+        print Foo
+        
+        print Foo.bar
+        f = Foo()
+        print f
+        print f.bar
+        
+        当然，你可以向这个类继承，所以，如下的代码：
+        
+        class FooChild(Foo):
+            pass
+        就可以写成：
+        
+        FooChild = type('FooChild', (Foo,),{})
+        print FooChild
+        print FooChild.bar   # bar属性是由Foo继承而来
+        
+    **注意：type的第2个参数，元组中是父类的名字，而不是字符串
+    添加的属性是类属性，并不是实例属性**
+
+
+* 使用type创建带有方法的类
+
+    最终你会希望为你的类增加方法。只需要定义一个有着恰当签名的函数并将其作为属性赋值就可以了。
+
+    添加实例方法
+
+        def echo_bar(self): #定义了一个普通的函数
+            print(self.bar)
+
+        FooChild = type('FooChild', (Foo,), {'echo_bar': echo_bar}) #让FooChild类中的echo_bar属性，指向了上面定义的函数
+
+        hasattr(Foo, 'echo_bar') #判断Foo类中，是否有echo_bar这个属性
+        
+        hasattr(FooChild, 'echo_bar') #判断FooChild类中，是否有echo_bar这个属性
+
+        my_foo = FooChild()
+
+        my_foo.echo_bar()
+
+    添加静态方法
+
+        @staticmethod
+        def testStatic():
+            print("static method ....")
+
+        Foochild = type('Foochild', (Foo,), {"echo_bar":echo_bar, "testStatic":
+        testStatic})
+
+        fooclid = Foochild()
+
+        fooclid.testStatic
+
+        fooclid.testStatic()
+
+        fooclid.echo_bar()
+        
+    添加类方法
+
+        @classmethod
+        def testClass(cls):
+            print(cls.bar)
+
+        Foochild = type('Foochild', (Foo,), {"echo_bar":echo_bar, "testStatic":
+        testStatic, "testClass":testClass})
+
+        fooclid = Foochild()
+
+        fooclid.testClass()
+
+    你可以看到，在Python中，类也是对象，你可以动态的创建类。这就是当你使用关键字class时Python在幕后做的事情，而这就是通过元类来实现的。
+
+
+* 到底什么是元类（终于到主题了）
+
+    元类就是用来创建类的“东西”。你创建类就是为了创建类的实例对象，不是吗？但是我们已经学习到了Python中的类也是对象。
+
+    元类就是用来创建这些类（对象）的，元类就是类的类，你可以这样理解为：
+
+        MyClass = MetaClass() #使用元类创建出一个对象，这个对象称为“类”
+        MyObject = MyClass() #使用“类”来创建出实例对象
+
+    你已经看到了type可以让你像这样做：
+
+        MyClass = type('MyClass', (), {})
+
+    这是因为函数type实际上是一个元类。type就是Python在背后用来创建所有类的元类。现在你想知道那为什么type会全部采用小写形式而不是Type呢？好吧，我猜这是为了和str保持一致性，str是用来创建字符串对象的类，而int是用来创建整数对象的类。type就是创建类对象的类。你可以通过检查__class__属性来看到这一点。Python中所有的东西，注意，我是指所有的东西——都是对象。这包括整数、字符串、函数以及类。它们全部都是对象，而且它们都是从一个类创建而来，这个类就是type。
+
+        age = 35
+        age.__class__ #<type 'int'>
+        
+        name = 'bob'
+        name.__class__ #<type 'str'>
+        
+        def foo(): 
+            pass
+        foo.__class__ #<type 'function'>
+        
+        class Bar(object): 
+            pass
+        b = Bar()
+        b.__class__ #<class '__main__.Bar'>
+
+    现在，对于任何一个__class__的__class__属性又是什么呢？
+
+        a.__class__.__class__ #<type 'type'>
+        age.__class__.__class__ #<type 'type'>
+        foo.__class__.__class__ #<type 'type'>
+        b.__class__.__class__ #<type 'type'>
+
+    因此，元类就是创建类这种对象的东西。type就是Python的内建元类，当然了，你也可以创建自己的元类。
+
+
+* __metaclass__属性
+
+    你可以在定义一个类的时候为其添加__metaclass__属性。
+
+        class Foo(object):
+            __metaclass__ = something…
+    ...省略...
+    如果你这么做了，Python就会用元类来创建类Foo。小心点，这里面有些技巧。你首先写下class Foo(object)，但是类Foo还没有在内存中创建。Python会在类的定义中寻找\_\_metaclass\_\_属性，如果找到了，Python就会用它来创建类Foo，如果没有找到，就会用内建的type来创建这个类。把下面这段话反复读几次。当你写如下代码时 :
+
+        class Foo(Bar):
+            pass
+
+    Python做了如下的操作：
+    
+    Foo中有\_\_metaclass\_\_这个属性吗？如果是，Python会通过\_\_metaclass\_\_创建一个名字为Foo的类(对象)
+    如果Python没有找到\_\_metaclass\_\_，它会继续在Bar（父类）中寻找\_\_metaclass\_\_属性，并尝试做和前面同样的操作。
+    如果Python在任何父类中都找不到\_\_metaclass\_\_，它就会在模块层次中去寻找\_\_metaclass\_\_，并尝试做同样的操作。
+    如果还是找不到\_\_metaclass\_\_,Python就会用内置的type来创建这个类对象。
+    现在的问题就是，你可以在\_\_metaclass\_\_中放置些什么代码呢？答案就是：可以创建一个类的东西。那么什么可以用来创建一个类呢？type，或者任何使用到type或者子类化type的东东都可以。
+
+* 自定义元类
+
+    元类的主要目的就是为了当创建类时能够自动地改变类。通常，你会为API做这样的事情，你希望可以创建符合当前上下文的类。
+
+    假想一个很傻的例子，你决定在你的模块里所有的类的属性都应该是大写形式。有好几种方法可以办到，但其中一种就是通过在模块级别设定__metaclass__。采用这种方法，这个模块中的所有类都会通过这个元类来创建，我们只需要告诉元类把所有的属性都改成大写形式就万事大吉了。
+
+    幸运的是，__metaclass__实际上可以被任意调用，它并不需要是一个正式的类。所以，我们这里就先以一个简单的函数作为例子开始。
+
+    python2中
+
+        #-*- coding:utf-8 -*-
+        def upper_attr(future_class_name, future_class_parents, future_class_attr):
+        
+            #遍历属性字典，把不是__开头的属性名字变为大写
+            newAttr = {}
+            for name,value in future_class_attr.items():
+                if not name.startswith("__"):
+                    newAttr[name.upper()] = value
+        
+            #调用type来创建一个类
+            return type(future_class_name, future_class_parents, newAttr)
+        
+        class Foo(object):
+            __metaclass__ = upper_attr #设置Foo类的元类为upper_attr
+            bar = 'bip'
+        
+        print(hasattr(Foo, 'bar'))
+        print(hasattr(Foo, 'BAR'))
+        
+        f = Foo()
+        print(f.BAR)
+
+    python3中
+
+        #-*- coding:utf-8 -*-
+        def upper_attr(future_class_name, future_class_parents, future_class_attr):
+        
+            #遍历属性字典，把不是__开头的属性名字变为大写
+            newAttr = {}
+            for name,value in future_class_attr.items():
+                if not name.startswith("__"):
+                    newAttr[name.upper()] = value
+        
+            #调用type来创建一个类
+            return type(future_class_name, future_class_parents, newAttr)
+        
+        class Foo(object, metaclass=upper_attr):
+            bar = 'bip'
+        
+        print(hasattr(Foo, 'bar'))
+        print(hasattr(Foo, 'BAR'))
+        
+        f = Foo()
+        print(f.BAR)
+        现在让我们再做一次，这一次用一个真正的class来当做元类。
+        
+        #coding=utf-8
+        
+        class UpperAttrMetaClass(type):
+            # __new__ 是在__init__之前被调用的特殊方法
+            # __new__是用来创建对象并返回之的方法
+            # 而__init__只是用来将传入的参数初始化给对象
+            # 你很少用到__new__，除非你希望能够控制对象的创建
+            # 这里，创建的对象是类，我们希望能够自定义它，所以我们这里改写__new__
+            # 如果你希望的话，你也可以在__init__中做些事情
+            # 还有一些高级的用法会涉及到改写__call__特殊方法，但是我们这里不用
+            def __new__(cls, future_class_name, future_class_parents, future_class_attr):
+                #遍历属性字典，把不是__开头的属性名字变为大写
+                newAttr = {}
+                for name,value in future_class_attr.items():
+                    if not name.startswith("__"):
+                        newAttr[name.upper()] = value
+        
+                # 方法1：通过'type'来做类对象的创建
+                # return type(future_class_name, future_class_parents, newAttr)
+        
+                # 方法2：复用type.__new__方法
+                # 这就是基本的OOP编程，没什么魔法
+                # return type.__new__(cls, future_class_name, future_class_parents, newAttr)
+        
+                # 方法3：使用super方法
+                return super(UpperAttrMetaClass, cls).__new__(cls, future_class_name, future_class_parents, newAttr)
+    
+    python2的用法
+        
+        class Foo(object):
+            __metaclass__ = UpperAttrMetaClass
+            bar = 'bip'
+
+    python3的用法
+        
+        class Foo(object, metaclass = UpperAttrMetaClass):
+            bar = 'bip'
+
+        print(hasattr(Foo, 'bar'))
+        # 输出: False
+        print(hasattr(Foo, 'BAR'))
+        # 输出:True
+        
+        f = Foo()
+        print(f.BAR)
+        # 输出:'bip'
+
+    就是这样，除此之外，关于元类真的没有别的可说的了。但就元类本身而言，它们其实是很简单的：
+
+    拦截类的创建
+    修改类
+    返回修改之后的类
+    究竟为什么要使用元类？
+
+    现在回到我们的大主题上来，究竟是为什么你会去使用这样一种容易出错且晦涩的特性？好吧，一般来说，你根本就用不上它：
+
+    **“元类就是深度的魔法，99%的用户应该根本不必为此操心。如果你想搞清楚究竟是否需要用到元类，那么你就不需要它。那些实际用到元类的人都非常清楚地知道他们需要做什么，而且根本不需要解释为什么要用元类。” —— Python界的领袖 Tim Peters**
+
+## 垃圾回收(一)
+
+### 小整数对象池
+
+* 整数在程序中的使用非常广泛，Python为了优化速度，使用了小整数对象池， 避免为整数频繁申请和销毁内存空间。
+
+* Python 对小整数的定义是 [-5, 257) 这些整数对象是提前建立好的，不会被垃圾回收。在一个 Python 的程序中，所有位于这个范围内的整数使用的都是同一个对象.
+
+* 同理，单个字母也是这样的。
+
+* 当定义2个相同的字符串时，引用计数为0，触发垃圾回收
+
+### 大整数对象池
+
+* 每一个大整数，均创建一个新的对象。
+
+### intern机制
+
+    a1 = "HelloWorld"
+    a2 = "HelloWorld"
+    a3 = "HelloWorld"
+    a4 = "HelloWorld"
+    a5 = "HelloWorld"
+    a6 = "HelloWorld"
+    a7 = "HelloWorld"
+    a8 = "HelloWorld"
+    a9 = "HelloWorld"
+
+python会不会创建9个对象呢？在内存中会不会开辟9个”HelloWorld”的内存空间呢？ 想一下，如果是这样的话，我们写10000个对象，比如a1=”HelloWorld”…..a1000=”HelloWorld”， 那他岂不是开辟了1000个”HelloWorld”所占的内存空间了呢？如果真这样，内存不就爆了吗？所以python中有这样一个机制——intern机制，让他只占用一个”HelloWorld”所占的内存空间。靠引用计数去维护何时释放。
+
+### 总结
+
+* 小整数[-5,257)共用对象，常驻内存
+* 单个字符共用对象，常驻内存
+* 单个单词，不可修改，默认开启intern机制，共用对象，引用计数为0，则销毁
+* 字符串（含有空格），不可修改，没开启intern机制，不共用对象，引用计数为0，销毁 
+* 大整数不共用内存，引用计数为0，销毁 
+* 数值类型和字符串类型在 Python 中都是不可变的，这意味着你无法修改这个对象的值，每次对变量的修改，实际上是创建一个新的对象 
+
+## 垃圾回收(二)
+
+###Garbage collection(GC垃圾回收)
+
+* 现在的高级语言如java，c#等，都采用了垃圾收集机制，而不再是c，c++里用户自己管理维护内存的方式。自己管理内存极其自由，可以任意申请内存，但如同一把双刃剑，为大量内存泄露，悬空指针等bug埋下隐患。 对于一个字符串、列表、类甚至数值都是对象，且定位简单易用的语言，自然不会让用户去处理如何分配回收内存的问题。 python里也同java一样采用了垃圾收集机制，不过不一样的是: **python采用的是引用计数机制为主，标记-清除和分代收集两种机制为辅的策略**
+
+* 引用计数机制：
+
+    python里每一个东西都是对象，它们的核心就是一个结构体：PyObject
+
+        typedef struct_object {
+            int ob_refcnt;
+            struct_typeobject *ob_type;
+        } PyObject;
+
+    PyObject是每个对象必有的内容，其中ob_refcnt就是做为引用计数。当一个对象有新的引用时，它的ob_refcnt就会增加，当引用它的对象被删除，它的ob_refcnt就会减少
+
+        #define Py_INCREF(op)   ((op)->ob_refcnt++) //增加计数
+        #define Py_DECREF(op) \ //减少计数
+            if (--(op)->ob_refcnt != 0) \
+                ; \
+            else \
+                __Py_Dealloc((PyObject *)(op))
+
+    当引用计数为0时，该对象生命就结束了。
+
+    引用计数机制的优点：
+
+    * 简单       
+    * 实时性：一旦没有引用，内存就直接释放了。不用像其他机制等到特定时机。实时性还带来一个好处：处理回收内存的时间分摊到了平时。
+    
+    引用计数机制的缺点：
+
+    * 维护引用计数消耗资源        
+    * 循环引用     
+        list1 = []     
+        list2 = []     
+        list1.append(list2)    
+        list2.append(list1)     
+        list1与list2相互引用，如果不存在其他对象对它们的引用，list1与list2的引用计数也仍然为1，所占用的内存永远无法被回收，这将是致命的。 对于如今的强大硬件，缺点1尚可接受，但是循环引用导致内存泄露，注定python还将引入新的回收机制。(标记清除和分代收集)
+
+### 画说 Ruby 与 Python 垃圾回收
+
+* 英文原文: [http://patshaughnessy.net/2013/10/24/visualizing-garbage-collection-in-ruby-and-python]()
+
+* GC系统所承担的工作远比"垃圾回收"多得多。实际上，它们负责三个重要任务。它们
+
+    * 为新生成的对象分配内存
+    * 识别那些垃圾对象，并且
+    * 从垃圾对象那回收内存
+
+* 如果将应用程序比作人的身体：所有你所写的那些优雅的代码，业务逻辑，算法，应该就是大脑。以此类推，垃圾回收机制应该是那个身体器官呢？（我从RuPy听众那听到了不少有趣的答案：腰子、白血球 :) ）
+
+* 我认为垃圾回收就是应用程序那颗跃动的心。像心脏为身体其他器官提供血液和营养物那样，垃圾回收器为你的应该程序提供内存和对象。如果心脏停跳，过不了几秒钟人就完了。如果垃圾回收器停止工作或运行迟缓,像动脉阻塞,你的应用程序效率也会下降，直至最终死掉。
+
+## 垃圾回收(三)-gc模块
+
+### 垃圾回收机制
+
+* Python中的垃圾回收是以引用计数为主，分代收集为辅。
+
+* 导致引用计数+1的情况
+
+    * 对象被创建，例如a=23
+    * 对象被引用，例如b=a
+    * 对象被作为参数，传入到一个函数中，例如func(a)
+    * 对象作为一个元素，存储在容器中，例如list1=[a,a]
+
+* 导致引用计数-1的情况
+
+    * 对象的别名被显式销毁，例如del a
+    * 对象的别名被赋予新的对象，例如a=24
+    * 一个对象离开它的作用域，例如f函数执行完毕时，func函数中的局部变量（全局变量不会）
+    * 对象所在的容器被销毁，或从容器中删除对象
+
+* 查看一个对象的引用计数
+
+        import sys
+        a = "hello world"
+        sys.getrefcount(a)
+
+    可以查看a对象的引用计数，但是比正常计数大1，因为调用函数的时候传入a，这会让a的引用计数+1
+
+### 循环引用导致内存泄露
+
+* 引用计数的缺陷是循环引用的问题
+
+        import gc
+
+        class ClassA():
+            def __init__(self):
+                print('object born,id:%s'%str(hex(id(self))))
+        
+        def f2():
+            while True:
+                c1 = ClassA()
+                c2 = ClassA()
+                c1.t = c2
+                c2.t = c1
+                del c1
+                del c2
+        
+        #把python的gc关闭
+        gc.disable()
+        
+        f2()
+
+    执行f2()，进程占用的内存会不断增大。
+
+    创建了c1，c2后这两块内存的引用计数都是1，执行c1.t=c2和c2.t=c1后，这两块内存的引用计数变成2.      
+    
+    在del c1后，内存1的对象的引用计数变为1，由于不是为0，所以内存1的对象不会被销毁，所以内存2的对象的引用数依然是2，在del c2后，同理，内存1的对象，内存2的对象的引用数都是1。      
+    
+    虽然它们两个的对象都是可以被销毁的，但是由于循环引用，导致垃圾回收器都不会回收它们，所以就会导致内存泄露。
+
+### 垃圾回收
+
+    #coding=utf-8
+    import gc
+    
+    class ClassA():
+        def __init__(self):
+            print('object born,id:%s'%str(hex(id(self))))
+        # def __del__(self):
+        #     print('object del,id:%s'%str(hex(id(self))))
+    
+    def f3():
+        print("-----0------")
+        # print(gc.collect())
+        c1 = ClassA()
+        c2 = ClassA()
+        c1.t = c2
+        c2.t = c1
+        print("-----1------")
+        del c1
+        del c2
+        print("-----2------")
+        print(gc.garbage)
+        print("-----3------")
+        print(gc.collect()) #显式执行垃圾回收
+        print("-----4------")
+        print(gc.garbage)
+        print("-----5------")
+    
+    if __name__ == '__main__':
+        gc.set_debug(gc.DEBUG_LEAK) #设置gc模块的日志
+        f3()
+
+* 有三种情况会触发垃圾回收：
+
+    * 调用gc.collect()
+    * 当gc模块的计数器达到阀值的时候
+    * 程序退出的时候
+
+### gc模块常用功能解析
+
+* gc模块提供一个接口给开发者设置垃圾回收的选项。上面说到，采用引用计数的方法管理内存的一个缺陷是循环引用，而gc模块的一个主要功能就是解决循环引用的问题。
+
+* 常用函数：
+
+    * gc.set_debug(flags) 设置gc的debug日志，一般设置为gc.DEBUG_LEAK
+
+    * gc.collect([generation]) 显式进行垃圾回收，可以输入参数，0代表只检查第一代的对象，1代表检查一，二代的对象，2代表检查一，二，三代的对象，如果不传参数，执行一个full collection，也就是等于传2。 返回不可达（unreachable objects）对象的数目
+    
+    * gc.get_threshold() 获取的gc模块中自动执行垃圾回收的频率。
+    
+    * gc.set_threshold(threshold0[, threshold1[, threshold2]) 设置自动执行垃圾回收的频率。
+    
+    * gc.get_count() 获取当前自动执行垃圾回收的计数器，返回一个长度为3的列表
+
+* gc模块的自动垃圾回收机制
+
+    必须要import gc模块，并且is_enable()=True才会启动自动垃圾回收。
+
+    这个机制的主要作用就是发现并处理不可达的垃圾对象。
+
+    垃圾回收 = 垃圾检查+垃圾回收
+
+    在Python中，采用分代收集的方法。把对象分为三代，一开始，对象在创建的时候，放在一代中，如果在一次一代的垃圾检查中，改对象存活下来，就会被放到二代中，同理在一次二代的垃圾检查中，该对象存活下来，就会被放到三代中。
+
+    gc模块里面会有一个长度为3的列表的计数器，可以通过gc.get_count()获取。
+
+    例如(488,3,0)，其中488是指距离上一次一代垃圾检查，Python分配内存的数目减去释放内存的数目，注意是内存分配，而不是引用计数的增加。例如：
+
+        print gc.get_count() # (590, 8, 0)
+        a = ClassA()
+        print gc.get_count() # (591, 8, 0)
+        del a
+        print gc.get_count() # (590, 8, 0)
+
+    3是指距离上一次二代垃圾检查，一代垃圾检查的次数，同理，0是指距离上一次三代垃圾检查，二代垃圾检查的次数。
+
+    gc模快有一个自动垃圾回收的阀值，即通过gc.get_threshold函数获取到的长度为3的元组，例如(700,10,10) 每一次计数器的增加，gc模块就会检查增加后的计数是否达到阀值的数目，如果是，就会执行对应的代数的垃圾检查，然后重置计数器
+
+    例如，假设阀值是(700,10,10)：
+
+    当计数器从(699,3,0)增加到(700,3,0)，gc模块就会执行gc.collect(0),即检查一代对象的垃圾，并重置计数器为(0,4,0)       
+    当计数器从(699,9,0)增加到(700,9,0)，gc模块就会执行gc.collect(1),即检查一、二代对象的垃圾，并重置计数器为(0,0,1)      
+    当计数器从(699,9,9)增加到(700,9,9)，gc模块就会执行gc.collect(2),即检查一、二、三代对象的垃圾，并重置计数器为(0,0,0)    
+
+    **注意点:
+    gc模块唯一处理不了的是循环引用的类都有\_\_del\_\_方法，所以项目中要避免定义\_\_del\_\_方法, object的del方法才是真正释放对象的内存空间**
+
+
+## 内建属性
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
