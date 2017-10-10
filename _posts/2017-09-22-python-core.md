@@ -1715,6 +1715,329 @@ python会不会创建9个对象呢？在内存中会不会开辟9个”HelloWorl
 
 ## 内建属性
 
+|常用专有属性|说明|触发方式|
+|----------|---|-------|
+|\_\_init\_\_|构造初始化函数|创建实例后,赋值时使用,在\_\_new\_\_后|
+|\_\_new\_\_|生成实例所需属性|创建实例时|
+|\_\_class\_\_|实例所在的类|实例.\_\_class\_\_|
+|\_\_str\_\_|实例字符串表示,可读性|print(类实例),如没实现，使用repr结果|
+|\_\_repr\_\_|实例字符串表示,准确性|类实例 回车 或者 print(repr(类实例))|
+|\_\_del\_\_|析构|del删除实例|
+|\_\_dict\_\_|实例自定义属性|vars(实例.\_\_dict\_\_)|
+|\_\_doc\_\_|类文档,子类不继承|help(类或实例)|
+|\_\_getattribute\_\_|属性访问拦截器|访问实例属性时|
+|\_\_bases\_\_|类的所有父类构成元素|类名.\_\_bases\_\_|
+
+
+## 内建函数
+
+* Build-in Function,启动python解释器，输入dir(\_\_builtins\_\_), 可以看到很多python解释器启动后默认加载的属性和函数，这些函数称之为内建函数， 这些函数因为在编程时使用较多，cpython解释器用c语言实现了这些函数，启动解释器 时默认加载。
+
+这些函数数量众多，不宜记忆，开发时不是都用到的，待用到时再help(function), 查看如何使用，或结合百度查询即可，在这里介绍些常用的内建函数。
+
+* range
+
+    range(stop) -> list of integers
+    range(start, stop[, step]) -> list of integers
+
+    start:计数从start开始。默认是从0开始。例如range（5）等价于range（0， 5）;           
+    stop:到stop结束，但不包括stop.例如：range（0， 5） 是[0, 1, 2, 3, 4]没有5        
+    step:每次跳跃的间距，默认为1。例如：range（0， 5） 等价于 range(0, 5, 1)
+
+* map
+
+    map函数会根据提供的函数对指定序列做映射
+
+    map(function, sequence[, sequence, ...]) -> list
+
+    function:是一个函数      
+    sequence:是一个或多个序列,取决于function需要几个参数     
+    返回值是一个list
+
+        #函数需要一个参数
+        map(lambda x: x*x, [1, 2, 3])
+        #结果为:[1, 4, 9]
+        
+        #函数需要两个参数
+        map(lambda x, y: x+y, [1, 2, 3], [4, 5, 6])
+        #结果为:[5, 7, 9]
+        
+        
+        def f1( x, y ):  
+            return (x,y)
+        
+        l1 = [ 0, 1, 2, 3, 4, 5, 6 ]  
+        l2 = [ 'Sun', 'M', 'T', 'W', 'T', 'F', 'S' ]
+        l3 = map( f1, l1, l2 ) 
+        print(list(l3))
+        #结果为:[(0, 'Sun'), (1, 'M'), (2, 'T'), (3, 'W'), (4, 'T'), (5, 'F'), (6, 'S')]
+
+* filter
+
+    filter函数会对指定序列执行过滤操作
+      
+    filter(function or None, sequence) -> list, tuple, or string
+
+    function:接受一个参数，返回布尔值True或False
+    sequence:序列可以是str，tuple，list
+
+    filter函数会对序列参数sequence中的每个元素调用function函数，最后返回的结果包含调用结果为True的元素。
+
+    返回值的类型和参数sequence的类型相同
+
+        filter(lambda x: x%2, [1, 2, 3, 4])
+        [1, 3]
+        
+        filter(None, "she")
+        'she'
+
+
+* reduce
+
+    reduce函数，reduce函数会对参数序列中元素进行累积
+
+    reduce(function, sequence[, initial]) -> value
+
+    function:该函数有两个参数     
+    sequence:序列可以是str，tuple，list       
+    initial:固定初始值      
+    reduce依次从sequence中取一个元素，和上一次调用function的结果做参数再次调用function。 第一次调用function时，如果提供initial参数，会以sequence中的第一个元素和initial 作为参数调用function，否则会以序列sequence中的前两个元素做参数调用function。 注意function函数不能为None。
+
+        reduce(lambda x, y: x+y, [1,2,3,4])
+        10
+        
+        reduce(lambda x, y: x+y, [1,2,3,4], 5)
+        15
+        
+        reduce(lambda x, y: x+y, ['aa', 'bb', 'cc'], 'dd')
+        'ddaabbcc'
+
+    在Python3里,reduce函数已经被从全局名字空间里移除了, 它现在被放置在fucntools模块里用的话要先引入： from functools import reduce
+
+* sorted
+
+    sorted(iterable, cmp=None, key=None, reverse=False) --> new sorted list
+
+
+## 集合set
+
+* 集合与之前列表、元组类似，可以存储多个数据，但是这些数据是不重复的
+
+* 集合对象还支持union(联合), intersection(交), difference(差)和sysmmetric_difference(对称差集)等数学运算.
+
+        >>> x = set('abcd')
+        >>> x
+        {'c', 'a', 'b', 'd'}
+        >>> type(x)
+        <class 'set'>
+        >>> 
+        >>> 
+        >>> y = set(['h','e','l','l','o'])
+        >>> y
+        {'h', 'e', 'o', 'l'}
+        >>> 
+        >>> 
+        >>> z = set('spam')
+        >>> z
+        {'s', 'a', 'm', 'p'}
+        >>> 
+        >>> 
+        >>> y&z #交集
+        set()
+        >>> 
+        >>> 
+        >>> x&z #交集
+        {'a'}
+        >>> 
+        >>> 
+        >>> x|y #并集
+        {'a', 'e', 'd', 'l', 'c', 'h', 'o', 'b'}
+        >>> 
+        >>> x-y #差集
+        {'c', 'a', 'b', 'd'}
+        >>> 
+        >>> 
+        >>> x^z #对称差集(在x或z中，但不会同时出现在二者中)
+        {'m', 'd', 's', 'c', 'b', 'p'}
+        >>> 
+        >>> 
+        >>> len(x)
+        4
+        >>> len(y)
+        4
+        >>> len(z)
+        4
+
+
+## functools
+
+* functools 是python2.5被引人的,一些工具函数放在此包里。
+
+        import functools
+        dir(functools)
+
+* partial函数(偏函数)
+
+    把一个函数的某些参数设置默认值，返回一个新的函数，调用这个新函数会更简单。
+
+        import functools
+        
+        def showarg(*args, **kw):
+            print(args)
+            print(kw)
+        
+        p1=functools.partial(showarg, 1,2,3)
+        p1()
+        p1(4,5,6)
+        p1(a='python', b='itcast')
+        
+        p2=functools.partial(showarg, a=3,b='linux')
+        p2()
+        p2(1,2)
+        p2(a='python', b='itcast')
+
+* wraps函数
+
+    使用装饰器时，有一些细节需要被注意。例如，被装饰后的函数其实已经是另外一个函数了（函数名等函数属性会发生改变）。
+
+    添加后由于函数名和函数的doc发生了改变，对测试结果有一些影响，例如:
+
+        def note(func):
+            "note function"
+            def wrapper():
+                "wrapper function"
+                print('note something')
+                return func()
+            return wrapper
+
+        @note
+        def test():
+            "test function"
+            print('I am test')
+        
+        test()
+        print(test.__doc__)
+        运行结果
+        
+        note something
+        I am test
+        wrapper function
+        
+    所以，Python的functools包中提供了一个叫wraps的装饰器来消除这样的副作用。例如：
+
+        import functools
+        def note(func):
+            "note function"
+            @functools.wraps(func)
+            def wrapper():
+                "wrapper function"
+                print('note something')
+                return func()
+            return wrapper
+        
+        @note
+        def test():
+            "test function"
+            print('I am test')
+        
+        test()
+        print(test.__doc__)
+        运行结果
+        
+        note something
+        I am test
+        test function
+
+
+## 模块进阶
+
+Python有一套很有用的标准库(standard library)。标准库会随着Python解释器，一起安装在你的电脑中的。 它是Python的一个组成部分。这些标准库是Python为你准备好的利器，可以让编程事半功倍。
+
+### 常用标准库
+
+|标准库|说明|
+|-----|---|
+|builtins|内建函数默认加载|
+|os|操作系统接口|
+|sys|Python自身的运行环境|
+|functools|常用的工具|
+|json|编码和解码 JSON 对象|
+|logging|记录日志，调试|
+|multiprocessing|多进程|
+|threading|多线程|
+|copy|拷贝|
+|time|时间|
+|datetime|日期和时间|
+|calendar|日历|
+|hashlib|加密算法|
+|random|生成随机数|
+|re|字符串正则匹配|
+|socket|标准的 BSD Sockets API|
+|shutil|文件和目录管理|
+|glob|基于文件通配符搜索
+
+* hashlib
+
+        import hashlib
+        m = hashlib.md5()   #创建hash对象，md5:(message-Digest Algorithm 5)消息摘要算法,得出一个128位的密文
+        print m             #<md5 HASH object>
+        m.update('itcast')  #更新哈希对象以字符串参数
+        print m.hexdigest() #返回十六进制数字字符串
+
+* 更多标准库
+
+    http://python.usyiyi.cn/translate/python_352/library/index.html
+
+
+### 常用扩展库
+
+|扩展库|说明|
+|-----|---|
+|requests|使用的是 urllib3，继承了urllib2的所有特性|
+|urllib|基于http的高层库|
+|scrapy|爬虫|
+|beautifulsoup4|HTML/XML的解析器|
+|celery|分布式任务调度模块|
+|redis|缓存|
+|Pillow(PIL)|图像处理|
+|xlsxwriter|仅写excle功能,支持xlsx|
+|xlwt|仅写excle功能,支持xls ,2013或更早版office|
+|xlrd|仅读excle功能|
+|elasticsearch|全文搜索引擎|
+|pymysql|数据库连接库|
+|mongoengine/pymongo|mongodbpython接口|
+|matplotlib|画图|
+|numpy/scipy|科学计算|
+|django/tornado/flask|web框架|
+|xmltodict|xml 转 dict|
+|SimpleHTTPServer|简单地HTTP Server,不使用Web框架|
+|gevent|基于协程的Python网络库|
+|fabric|系统管理|
+|pandas|数据处理库|
+|scikit-learn|机器学习库|
+	
+	
+	
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+		
+		
+		
+		
+	
+	
+		
+		
+
 
 
 
