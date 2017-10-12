@@ -60,6 +60,63 @@ author: miaoqi
             
 * getpid()、getppid()
 
+        import os
+
+        rpid = os.fork()
+        if rpid<0:
+            print("fork调用失败。")
+        elif rpid == 0:
+            print("我是子进程（%s），我的父进程是（%s）"%(os.getpid(),os.getppid()))
+            x+=1
+        else:
+            print("我是父进程（%s），我的子进程是（%s）"%(os.getpid(),rpid))
+        
+        print("父子进程都可以执行这里的代码")
+
+### 多进程修改全局变量
+
+    #coding=utf-8
+    import os
+    import time
+    
+    num = 0
+    
+    # 注意，fork函数，只在Unix/Linux/Mac上运行，windows不可以
+    pid = os.fork()
+    
+    if pid == 0:
+        num+=1
+        print('哈哈1---num=%d'%num)
+    else:
+        time.sleep(1)
+        num+=1
+        print('哈哈2---num=%d'%num)
+
+**多进程中，每个进程中所有数据（包括全局变量）都各有拥有一份，互不影响**
+
+### 多次fork问题
+
+* 如果在一个程序，有2次的fork函数调用，是否就会有3个进程呢？
+
+        #coding=utf-8
+        import os
+        import time
+        
+        # 注意，fork函数，只在Unix/Linux/Mac上运行，windows不可以
+        pid = os.fork()
+        if pid == 0:
+            print('哈哈1')
+        else:
+            print('哈哈2')
+        
+        pid = os.fork()
+        if pid == 0:
+            print('哈哈3')
+        else:
+            print('哈哈4')
+        
+        time.sleep(1)
+
 
 ## 线程
 		
