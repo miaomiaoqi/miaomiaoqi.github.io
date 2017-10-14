@@ -400,12 +400,485 @@ Process之间有时需要通信，操作系统提供了很多机制来实现进�
 
 
 ## 线程
+
+### 多线程-threading
+
+python的thread模块是比较底层的模块，python的threading模块是对thread做了一些包装的，可以更加方便的被使用
+
+* 使用threading模块
+
+    单线程执行
+
+        #coding=utf-8
+        import time
+        
+        def saySorry():
+            print("亲爱的，我错了，我能吃饭了吗？")
+            time.sleep(1)
+        
+        if __name__ == "__main__":
+            for i in range(5):
+                saySorry()
+
+    多线程执行
+
+        #coding=utf-8
+        import threading
+        import time
+        
+        def saySorry():
+            print("亲爱的，我错了，我能吃饭了吗？")
+            time.sleep(1)
+        
+        if __name__ == "__main__":
+            for i in range(5):
+                t = threading.Thread(target=saySorry)
+                t.start() #启动线程，即让线程开始执行
+
+    说明
+
+    可以明显看出使用了多线程并发的操作，花费时间要短很多    
+    创建好的线程，需要调用start()方法来启动
+
+*  主线程会等待所有的子线程结束后才结束
+
+        #coding=utf-8
+        import threading
+        from time import sleep,ctime
+        
+        def sing():
+            for i in range(3):
+                print("正在唱歌...%d"%i)
+                sleep(1)
+        
+        def dance():
+            for i in range(3):
+                print("正在跳舞...%d"%i)
+                sleep(1)
+        
+        if __name__ == '__main__':
+            print('---开始---:%s'%ctime())
+        
+            t1 = threading.Thread(target=sing)
+            t2 = threading.Thread(target=dance)
+        
+            t1.start()
+            t2.start()
+        
+            #sleep(5) # 屏蔽此行代码，试试看，程序是否会立马结束？
+            print('---结束---:%s'%ctime())
+
+* 查看线程数量
+
+        #coding=utf-8
+        import threading
+        from time import sleep,ctime
+        
+        def sing():
+            for i in range(3):
+                print("正在唱歌...%d"%i)
+                sleep(1)
+        
+        def dance():
+            for i in range(3):
+                print("正在跳舞...%d"%i)
+                sleep(1)
+        
+        if __name__ == '__main__':
+            print('---开始---:%s'%ctime())
+        
+            t1 = threading.Thread(target=sing)
+            t2 = threading.Thread(target=dance)
+        
+            t1.start()
+            t2.start()
+        
+            while True:
+                length = len(threading.enumerate())
+                print('当前运行的线程数为：%d'%length)
+                if length<=1:
+                    break
+    
+            sleep(0.5)
+
 		
+### 多线程-共享全局变量
+
+    from threading import Thread
+    import time
+    
+    g_num = 100
+    
+    def work1():
+        global g_num
+        for i in range(3):
+            g_num += 1
+    
+        print("----in work1, g_num is %d---"%g_num)
+    
+    
+    def work2():
+        global g_num
+        print("----in work2, g_num is %d---"%g_num)
+    
+    
+    print("---线程创建之前g_num is %d---"%g_num)
+    
+    t1 = Thread(target=work1)
+    t1.start()
+    
+    #延时一会，保证t1线程中的事情做完
+    time.sleep(1)
+    
+    t2 = Thread(target=work2)
+    t2.start()		
+
+* 列表当做实参传递到线程中
+
+        from threading import Thread
+        import time
+        
+        def work1(nums):
+            nums.append(44)
+            print("----in work1---",nums)
+        
+        
+        def work2(nums):
+            #延时一会，保证t1线程中的事情做完
+            time.sleep(1)
+            print("----in work2---",nums)
+        
+        g_nums = [11,22,33]
+        
+        t1 = Thread(target=work1, args=(g_nums,))
+        t1.start()
+        
+        t2 = Thread(target=work2, args=(g_nums,))
+        t2.start()
+
+    总结：
+    
+    在一个进程内的所有线程共享全局变量，能够在不适用其他方式的前提下完成多线程之间的数据共享（这点要比多进程要好）
+    缺点就是，线程是对全局变量随意遂改可能造成多线程之间对全局变量的混乱（即线程非安全）
+
+### 同步的概念
+
+* 多线程开发可能遇到的问题
+
+    假设两个线程t1和t2都要对num=0进行增1运算，t1和t2都各对num修改10次，num的最终的结果应该为20。
+
+    但是由于是多线程访问，有可能出现下面情况：
+    
+    在num=0时，t1取得num=0。此时系统把t1调度为”sleeping”状态，把t2转换为”running”状态，t2也获得num=0。然后t2对得到的值进行加1并赋给num，使得num=1。然后系统又把t2调度为”sleeping”，把t1转为”running”。线程t1又把它之前得到的0加1后赋值给num。这样，明明t1和t2都完成了1次加1工作，但结果仍然是num=1。
+
+        from threading import Thread
+        import time
+        
+        g_num = 0
+        
+        def test1():
+            global g_num
+            for i in range(1000000):
+                g_num += 1
+        
+            print("---test1---g_num=%d"%g_num)
+        
+        def test2():
+            global g_num
+            for i in range(1000000):
+                g_num += 1
+        
+            print("---test2---g_num=%d"%g_num)
+        
+        
+        p1 = Thread(target=test1)
+        p1.start()
+        
+        # time.sleep(3) #取消屏蔽之后 再次运行程序，结果会不一样，，，为啥呢？
+        
+        p2 = Thread(target=test2)
+        p2.start()
+    
+        print("---g_num=%d---"%g_num)
+
+* 什么是同步
+
+    同步就是协同步调，按预定的先后次序进行运行。如:你说完，我再说。
+
+    "同"字从字面上容易理解为一起动作
+    
+    其实不是，"同"字应是指协同、协助、互相配合。
+    
+    如进程、线程同步，可理解为进程或线程A和B一块配合，A执行到一定程度时要依靠B的某个结果，于是停下来，示意B运行;B依言执行，再将结果给A;A再继续操作。
+
+* 解决问题的思路
+
+    思路，如下:
+    
+    系统调用t1，然后获取到num的值为0，此时上一把锁，即不允许其他现在操作num
+    对num的值进行+1
+    解锁，此时num的值为1，其他的线程就可以使用num了，而且是num的值不是0而是1
+    同理其他线程在对num进行修改时，都要先上锁，处理完后再解锁，在上锁的整个过程中不允许其他线程访问，就保证了数据的正确性
+    
+
+### 互斥锁
+
+**当多个线程几乎同时修改某一个共享数据的时候，需要进行同步控制**
+
+线程同步能够保证多个线程安全访问竞争资源，最简单的同步机制是引入互斥锁。
+
+互斥锁为资源引入一个状态：锁定/非锁定。
+
+某个线程要更改共享数据时，先将其锁定，此时资源的状态为“锁定”，其他线程不能更改；直到该线程释放资源，将资源的状态变成“非锁定”，其他的线程才能再次锁定该资源。互斥锁保证了每次只有一个线程进行写入操作，从而保证了多线程情况下数据的正确性。
+
+threading模块中定义了Lock类，可以方便的处理锁定：
+
+    #创建锁
+    mutex = threading.Lock()
+    #锁定
+    mutex.acquire([blocking])
+    #释放
+    mutex.release()
+
+其中，锁定方法acquire可以有一个blocking参数。
+
+如果设定blocking为True，则当前线程会堵塞，直到获取到这个锁为止（如果没有指定，那么默认为True）
+如果设定blocking为False，则当前线程不会堵塞
+
+    from threading import Thread, Lock
+    import time
+    
+    g_num = 0
+    
+    def test1():
+        global g_num
+        for i in range(1000000):
+            #True表示堵塞 即如果这个锁在上锁之前已经被上锁了，那么这个线程会在这里一直等待到解锁为止 
+            #False表示非堵塞，即不管本次调用能够成功上锁，都不会卡在这,而是继续执行下面的代码
+            mutexFlag = mutex.acquire(True) 
+            if mutexFlag:
+                g_num += 1
+                mutex.release()
+    
+        print("---test1---g_num=%d"%g_num)
+    
+    def test2():
+        global g_num
+        for i in range(1000000):
+            mutexFlag = mutex.acquire(True) #True表示堵塞
+            if mutexFlag:
+                g_num += 1
+                mutex.release()
+    
+        print("---test2---g_num=%d"%g_num)
+    
+    #创建一个互斥锁
+    #这个所默认是未上锁的状态
+    mutex = Lock()
+    
+    p1 = Thread(target=test1)
+    p1.start()
+    
+    
+    p2 = Thread(target=test2)
+    p2.start()
+    
+    print("---g_num=%d---"%g_num)
+
+上锁解锁过程
+
+当一个线程调用锁的acquire()方法获得锁时，锁就进入“locked”状态。
+
+每次只有一个线程可以获得锁。如果此时另一个线程试图获得这个锁，该线程就会变为“blocked”状态，称为“阻塞”，直到拥有锁的线程调用锁的release()方法释放锁之后，锁进入“unlocked”状态。
+
+线程调度程序从处于同步阻塞状态的线程中选择一个来获得锁，并使得该线程进入运行（running）状态。
+
+锁的好处：
+
+确保了某段关键代码只能由一个线程从头到尾完整地执行      
+
+锁的坏处：
+
+阻止了多线程并发执行，包含锁的某段代码实际上只能以单线程模式执行，效率就大大地下降了       
+由于可以存在多个锁，不同的线程持有不同的锁，并试图获取对方持有的锁时，可能会造成死锁
+
+### 多线程-非共享数据
+
+对于全局变量，在多线程中要格外小心，否则容易造成数据错乱的情况发生
+
+* 非全局变量是否要加锁呢？
+
+        #coding=utf-8
+        import threading
+        import time
+        
+        class MyThread(threading.Thread):
+            # 重写 构造方法
+            def __init__(self,num,sleepTime):
+                threading.Thread.__init__(self)
+                self.num = num
+                self.sleepTime = sleepTime
+        
+            def run(self):
+                self.num += 1
+                time.sleep(self.sleepTime)
+                print('线程(%s),num=%d'%(self.name, self.num))
+        
+        if __name__ == '__main__':
+            mutex = threading.Lock()
+            t1 = MyThread(100,5)
+            t1.start()
+            t2 = MyThread(200,1)
+            t2.start()
+
+### 死锁
+
+现实社会中，男女双方都在等待对方先道歉
+
+* 死锁
+
+    在线程间共享多个资源的时候，如果两个线程分别占有一部分资源并且同时等待对方的资源，就会造成死锁。
+    
+    尽管死锁很少发生，但一旦发生就会造成应用的停止响应。下面看一个死锁的例子
+
+        #coding=utf-8
+        import threading
+        import time
+        
+        class MyThread1(threading.Thread):
+            def run(self):
+                if mutexA.acquire():
+                    print(self.name+'----do1---up----')
+                    time.sleep(1)
+        
+                    if mutexB.acquire():
+                        print(self.name+'----do1---down----')
+                        mutexB.release()
+                    mutexA.release()
+        
+        class MyThread2(threading.Thread):
+            def run(self):
+                if mutexB.acquire():
+                    print(self.name+'----do2---up----')
+                    time.sleep(1)
+                    if mutexA.acquire():
+                        print(self.name+'----do2---down----')
+                        mutexA.release()
+                    mutexB.release()
+        
+        mutexA = threading.Lock()
+        mutexB = threading.Lock()
+        
+        if __name__ == '__main__':
+            t1 = MyThread1()
+            t2 = MyThread2()
+            t1.start()
+        t2.start()    
+
 		
-		
-		
-		
-		
+### ThreadLocal
+
+在多线程环境下，每个线程都有自己的数据。一个线程使用自己的局部变量比使用全局变量好，因为局部变量只有线程自己能看见，不会影响其他线程，而全局变量的修改必须加锁。
+
+* 使用函数传参的方法
+
+    但是局部变量也有问题，就是在函数调用的时候，传递起来很麻烦：
+
+        def process_student(name):
+        std = Student(name)
+        # std是局部变量，但是每个函数都要用它，因此必须传进去：
+        do_task_1(std)
+        do_task_2(std)
+    
+    def do_task_1(std):
+        do_subtask_1(std)
+        do_subtask_2(std)
+    
+    def do_task_2(std):
+        do_subtask_2(std)
+        do_subtask_2(std)
+
+* 使用全局字典的方法
+
+    如果用一个全局dict存放所有的Student对象，然后以thread自身作为key获得线程对应的Student对象如何？
+
+        global_dict = {}
+
+        def std_thread(name):
+            std = Student(name)
+            # 把std放到全局变量global_dict中：
+            global_dict[threading.current_thread()] = std
+            do_task_1()
+            do_task_2()
+        
+        def do_task_1():
+            # 不传入std，而是根据当前线程查找：
+            std = global_dict[threading.current_thread()]
+            ...
+        
+        def do_task_2():
+            # 任何函数都可以查找出当前线程的std变量：
+            std = global_dict[threading.current_thread()]
+            ...
+
+* 使用ThreadLocal的方法
+
+    ThreadLocal应运而生，不用查找dict，ThreadLocal帮你自动做这件事：
+
+        import threading
+        
+        # 创建全局ThreadLocal对象:
+        local_school = threading.local()
+        
+        def process_student():
+            # 获取当前线程关联的student:
+            std = local_school.student
+            print('Hello, %s (in %s)' % (std, threading.current_thread().name))
+        
+        def process_thread(name):
+            # 绑定ThreadLocal的student:
+            local_school.student = name
+            process_student()
+        
+        t1 = threading.Thread(target= process_thread, args=('dongGe',), name='Thread-A')
+        t2 = threading.Thread(target= process_thread, args=('老王',), name='Thread-B')
+        t1.start()
+        t2.start()
+        t1.join()
+        t2.join()
+
+### 异步
+
+* 同步调用就是你 喊 你朋友吃饭 ，你朋友在忙 ，你就一直在那等，等你朋友忙完了 ，你们一起去    
+* 异步调用就是你 喊 你朋友吃饭 ，你朋友说知道了 ，待会忙完去找你 ，你就去做别的了。
+
+        from multiprocessing import Pool
+        import time
+        import os
+        
+        def test():
+            print("---进程池中的进程---pid=%d,ppid=%d--"%(os.getpid(),os.getppid()))
+            for i in range(3):
+                print("----%d---"%i)
+                time.sleep(1)
+            return "hahah"
+        
+        def test2(args):
+            print("---callback func--pid=%d"%os.getpid())
+            print("---callback func--args=%s"%args)
+        
+        pool = Pool(3)
+        pool.apply_async(func=test,callback=test2)
+        
+        time.sleep(5)
+        
+        print("----主进程-pid=%d----"%os.getpid())
+
+## GIL
+
+全局解释器锁
+
+
 	
 		
 		
