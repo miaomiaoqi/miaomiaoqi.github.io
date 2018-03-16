@@ -33,7 +33,7 @@ author: miaoqi
         Collection
             |-- List: 多了对角标的操作
                 |-- ArrayList: 底层是数组, 线程不安全, 查询快(contains利用了equals方法)
-                |-- LinkedList: 底层是链表, 线程不安全, 增删快
+                |-- LinkedList: 底层是链表, 线程不安全, 增删快, 多了对头部和尾部的操作方法
                 |-- Vector: 底层是数组, 线程安全, 查询快
             |-- Set:
                 |-- HashSet: 底层是哈希表, 无序
@@ -54,6 +54,7 @@ author: miaoqi
 
         StringBuffer: 线程安全, 效率低
         StringBuilder: 线程不安全, 效率高
+        
 * 接口和抽象类的异同
 
         接口: 所有方法都是抽象的(jdk1.8以后接口中可以有实现的方法)
@@ -63,7 +64,13 @@ author: miaoqi
 * 设计模式
 * 单例模式的使用场景
 * Servlet的生命周期
+
+        第一次访问Servlet时创建实例, 调用init方法, 调用service方法, 之后的每次访问调用service方法, 服务器关闭时调用destory方法, 是单例的.
+    
 * Servlet是否线程安全的？其类内有两个类变量，name和age，会不会有线程问题？如何解决？
+
+        线程不是安全的, 会有线程问题, 实现SingleThreadModel
+        
 * JSP的九大内置对象
 
         page: 当前对象
@@ -77,13 +84,40 @@ author: miaoqi
         exception: 页面中开启异常才有该对象
 
 * Session的生命周期
+
+        request.getSession()时第一次创建Session对象，开始计时如在20分钟内没有访问session，那么session生命周期被销毁, 如果在20分钟内（如在第19分钟时）访问过session，那么，将重新计算session的生命周期, 
+        
+        1. 关闭tomcat
+
+        2. reload web应用
+        
+        3. session时间到
+        
+        4. 手动调用invalidate方法
+
 * Session如何实现的保持会话
+
+        Session是基于Cookie的, 在Cookie中保存JSESSIONID, 每次访问根据该值从服务器端获取同一个Session对象
+
 * Session如何在浏览器端禁用cookie的情况下保持回话
+
+        将用到Session的url全部进行url重写, 会在url后追加一个JSESSIONID参数
+
 * synchronized关键字可以使用的场景：类？方法？变量？代码块？
+
+        方法, 代码块
+
 * 谈谈volatile关键字
 * 泛型的使用场景及优势
+
+        泛型多用于集合中, 可以在程序编译时进行校验.
+
 * 对象中equals方法的作用
 * 重定向与请求转发的区别
+
+        重定向是2次请求, 请求参数会刷新
+        转发是1次请求, 参数会保留
+
 * newCachedThreadPool线程池何时回收闲置的线程？若长时间没有任务，所有的线程会被回收吗？
 * 线程的状态切换
 * wait和sleep的区别？对待锁的区别？
@@ -106,8 +140,14 @@ author: miaoqi
 8. Spring创建bean时，必须有构造方法？若有多个构造方法，如何匹配具体某一个？
 9. bean标签下的constructor-arg标签和property标签的区别？
 10. ref属性和value属性的区别？value属性可以传递null么？
+
+
+
 11. BeanFactory和FactoryBean的区别
 12. @Resource注解和@Autowired注解有什么区别
+
+        他们的主要区别就是@Autowired是默认按照类型装配的 @Resource默认是按照名称装配的
+
 13. @Component注解的作用
 14. SpringMVC前台提交一个表单到数据库，中途都会经过哪些主要的类
 15. SpringMVC的拦截器使用的什么设计模式
@@ -120,6 +160,8 @@ author: miaoqi
 18. MyBatis有哪几种传参方式
 19. MyBatis如何实现的分页查询
 20. MyBatis如何实现的数据库字段和类属性的绑定
+
+        使用jdbcType标签
 
 
 ## 数据库
