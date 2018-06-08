@@ -83,36 +83,36 @@ author: miaoqi
 
 * List、Set、Map接口都有哪些实现？
 
-        Collection
-            |-- List: 多了对角标的操作
-                |-- ArrayList: 底层是数组, 线程不安全, 查询快(contains利用了equals方法)
-                |-- LinkedList: 底层是链表, 线程不安全, 增删快, 多了对头部和尾部的操作方法
-                |-- Vector: 底层是数组, 线程安全, 查询快
-            |-- Set:
-                |-- HashSet: 底层是哈希表, 无序
-                    |-- LinkedHashSet: 底层是哈希表, 同时维护了一个链表, 存入和取出顺序一致
-                |-- TreeSet: 底层是二叉树, 会进行排序
+    Collection
+        |-- List: 多了对角标的操作
+            |-- ArrayList: 底层是数组, 线程不安全, 查询快(contains利用了equals方法)
+            |-- LinkedList: 底层是链表, 线程不安全, 增删快, 多了对头部和尾部的操作方法
+            |-- Vector: 底层是数组, 线程安全, 查询快
+        |-- Set:
+            |-- HashSet: 底层是哈希表, 无序
+                |-- LinkedHashSet: 底层是哈希表, 同时维护了一个链表, 存入和取出顺序一致
+            |-- TreeSet: 底层是二叉树, 会进行排序
         Map:
-            |-- HashMap: 允许空的键值对, 线程不安全(利用了hasCode和equals方法)(在1.7中是数组 + 链表, 在1.8中是数组 + 链表 + 红黑树)
-                |-- LinkedHashMap
-            |-- HashTable: 不允许空的键值对, 线程安全
-            |-- TreeMap: 可以进行排序(实现Comparable方法, 或者传入Comparator实现类)
+        |-- HashMap: 允许空的键值对, 线程不安全(利用了hasCode和equals方法)(在1.7中是数组 + 链表, 在1.8中是数组 + 链表 + 红黑树)
+            |-- LinkedHashMap
+        |-- HashTable: 不允许空的键值对, 线程安全
+        |-- TreeMap: 可以进行排序(实现Comparable方法, 或者传入Comparator实现类)
             
 * HashMap中负载因子的作用
 
-    > 当数组Map中的数组元素数量达到负载因子时, 会进行扩容
+    * 当数组Map中的数组元素数量达到负载因子时, 会进行扩容
 
 * StringBuffer 和 StringBuilder的区别?
 
-    > StringBuffer: 线程安全, 效率低    
+    * StringBuffer: 线程安全, 效率低    
     
-    > StringBuilder: 线程不安全, 效率高
+    * StringBuilder: 线程不安全, 效率高
         
 * 接口和抽象类的异同
 
-    > 接口: 所有方法都是抽象的(jdk1.8以后接口中可以有实现的方法)
+    * 接口: 所有方法都是抽象的(jdk1.8以后接口中可以有实现的方法)
     
-    > 抽象类: 可以有带实现的方法
+    * 抽象类: 可以有带实现的方法
         
 * JDK1.8新特性
 * 设计模式
@@ -120,10 +120,9 @@ author: miaoqi
 
 * 泛型的使用场景及优势
 
-    > 泛型多用于集合中, 可以在程序编译时进行校验.
+    * 泛型多用于集合中, 可以在程序编译时进行校验.
 
 * 对象中equals方法的作用
-
 
 
 ### JUC
@@ -956,7 +955,15 @@ pom.xml(project object model)
     
         Google公司实现的粗粒度分布式锁服务，底层利用了Paxos一致性算法。
 
-2. 分布式事务:
+* 分布式事务:
+
+    1. XA二段提交
+
+    1. XA三段提交
+    
+    1. MQ事务
+
+    1. TCC事务
 
 ## HTTP协议:
 
