@@ -234,43 +234,63 @@ author: miaoqi
 
 * MySql Query Optimizer:
 
-        通过计算分析系统中收集的统计信息, 为客户端提供请求的Query提高它认为最优的执行计划(不见得是DBA认为最优的)
-        当客户端向MySql请求一条Query, 命令解析器模块完成请求分类, 区别出是select并转发给mysql query optimizer, 首先会对整条Query进行优化,处理掉一些常量表达式的预算, 直接换算成常量值, 并对Query中的查询进行简化和转换, 如去掉一些无用或显而易见的条件, 结构调整,等, 然后分析Hint
-        (如果有), 看Hint信息是否可以完全确定该Query的执行计划, 如果没有Hint或Hint信息不足以完全确定执行计划, 则会读取所涉及对象的统计信息, 根据
-        Query进行写相应的计算分析, 最后得出执行计划.
+    * 通过计算分析系统中收集的统计信息, 为客户端提供请求的Query提高它认为最优的执行计划(不见得是DBA认为最优的)
+        
+    * 当客户端向MySql请求一条Query, 命令解析器模块完成请求分类, 区别出是select并转发给mysql query optimizer, 首先会对整条Query进行优化,处理掉一些常量表达式的预算, 直接换算成常量值, 并对Query中的查询进行简化和转换, 如去掉一些无用或显而易见的条件, 结构调整,等, 然后分析Hint(如果有), 看Hint信息是否可以完全确定该Query的执行计划, 如果没有Hint或Hint信息不足以完全确定执行计划, 则会读取所涉及对象的统计信息, 根据Query进行写相应的计算分析, 最后得出执行计划.
+
 * MySql的常见瓶颈:
         
-        CPU: CPU在饱和的时候一般发生在数据装入内存或从磁盘上读取数据时候
-        IO: 磁盘I/O瓶颈发生装入数据远大于内存容量的时候
+    * CPU: CPU在饱和的时候一般发生在数据装入内存或从磁盘上读取数据时候
+        
+    * IO: 磁盘I/O瓶颈发生装入数据远大于内存容量的时候
         服务器硬件性能: top, free, iostat和vmstat来查看系统性能
+        
 * Explain
         
-        是什么: 使用explain关键字可以模拟优化器执行SQL查询语句, 从而知道MySql是如何处理你的SQL语句, 分析你的查询语句或是表结构的性能瓶颈.
-        干什么: 表的读取顺序, 数据读取操作的操作类型, 哪些索引可以使用, 哪些索引被实际使用, 表之间的引用, 每张表有多少行被优化器查询
-        怎么用: explain + sql语句
+    * 是什么: 使用explain关键字可以模拟优化器执行SQL查询语句, 从而知道MySql是如何处理你的SQL语句, 分析你的查询语句或是表结构的性能瓶颈.
+        
+    * 干什么: 表的读取顺序, 数据读取操作的操作类型, 哪些索引可以使用, 哪些索引被实际使用, 表之间的引用, 每张表有多少行被优化器查询
+        
+    * 怎么用: explain + sql语句
 		
         id select_type table type possible_keys key key_len ref rows Extra
-        名词解释:
-        id*: select查询的序列号, 包含一组数字, 表示查询中执行select子句或操作表的顺序
-        三种情况: 
+    
+    * 名词解释:
+        
+        * id*: select查询的序列号, 包含一组数字, 表示查询中执行select子句或操作表的顺序
+        
+            三种情况: 
+            
             id相同, 执行顺序由上至下
+        
             id不同, 如果是子查询, id的序号会递增, id值越大优先级越高, 越先被执行
+        
             id相同不同,同时存在
 
-        select_type: 查询类型
+        * select_type: 查询类型
+            
             SIMPLE: 简单的select查询, 查询中不包含子查询或union
+            
             PRIMARY: 查询中包含任何复杂的子部分, 最外层查询则被标记为
+            
             SUBQUERY: 子查询
+            
             DERIVED: 在from列表中包含的子查询被标记为derived, mysql会递归执行这些子查询, 把结果放在临时表
+            
             UNION: 若第二个select出现在union之后, 标记为union, 若union包含在from子句的子查询中, 外层select被标记为derived
+            
             UNION RESULT: 从union表获取结果的select
 
-        table: 显示这一行的数据是关于哪张表
+        * table: 显示这一行的数据是关于哪张表
 
-        type*: 显示查询使用了何种类型
+        * type*: 显示查询使用了何种类型
+            
             最好到最差
+            
             system > const > eq_ref > ref > range > index > all
+            
             system > const > eq_ref > ref > fulltext > ref_or_null > index_merge > unique_query > index_subquery > range > idnex > all
+            
             一般来说,保证查询能到range级别,最好能到ref级别
             
             system: 表只有一行记录(等于系统表), 这是const类型的特例, 平时不会出现
@@ -298,9 +318,12 @@ author: miaoqi
             rows*: 根据表统计信息及索引选用情况, 大致估算出找到所需的记录所需读取的行数
 
             Extra*: 包含不适合在其他列显示但十分重要的信息
-                1. using filesort: 说明mysql会对数据使用一个外部的索引排序, 而不是按照表内的索引顺序进行读取, 称为"文件排序"
-                2. using temporary: 使用了临时表保存中间结果, mysql在对查询结果排序时使用临时表. 常见于排序order by和分组查询group by
-                3. using index: 表示相应的select操作使用了覆盖索引, 避免访问了表的数据行.
+                
+            1. using filesort: 说明mysql会对数据使用一个外部的索引排序, 而不是按照表内的索引顺序进行读取, 称为"文件排序"
+                
+            2. using temporary: 使用了临时表保存中间结果, mysql在对查询结果排序时使用临时表. 常见于排序order by和分组查询group by
+                
+            3. using index: 表示相应的select操作使用了覆盖索引, 避免访问了表的数据行.
             如果同时出现using where 表明索引被用来执行索引键值的查找
             如果没有出现using where 表明索引用来读取数据而非执行查找操作
             覆盖索引: select的数据列只用从索引表就能够取得, 不用读取数据表.条件是查询列的顺序要和索引顺序相同
@@ -466,7 +489,7 @@ author: miaoqi
             2. 最佳左前缀法则: 如果索引了多列, 要遵守最左前缀法则, 指的是查询从索引的最左前缀开始并且不跳过索引中的列.
                 where name = 'july' and pos = 'dev';
                 
-            3. 不在索引列上左任何操作(计算, 函数, 类型转换), 会导致索引失效而转向全表扫描
+            3. 不在索引列上做任何操作(计算, 函数, 类型转换), 会导致索引失效而转向全表扫描
                 explain select * from staffs where left(name,3) = 'july';
             4. 存储引擎不能使用索引中范围条件右边的列
                 explain select * from staffs where name = 'july' and age > 23 and pos = 'dev';
