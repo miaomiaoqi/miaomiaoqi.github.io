@@ -10,26 +10,23 @@ author: miaoqi
 * content
 {:toc}
             
-
-## ZooKeeper学习
-
-### 简介
+## 简介
 
 * Zookeeper的数据存储结构就像一棵树，这棵树由节点组成，这种节点叫做Znode。
 
-### 安装
+## 安装
 
 1. 创建data目录存放ZooKeeper数据
 
 1. conf下编写zoo.cfg指定data目录
 
-### 命令
+## 命令
 
 * 启动
 
         zkServer.sh start
 
-### 节点类型
+## 节点类型
 
 * Znode分为四种类型：
 
@@ -49,7 +46,7 @@ author: miaoqi
 
         顾名思义, 临时顺序节点结合和临时节点和顺序节点的特点: 在创建节点时, Zookeeper根据创建的时间顺序给该节点名称进行编号, 当创建节点的客户端与zookeeper断开连接后, 临时节点会被删除
 
-### Zookeeper分布式锁
+## Zookeeper分布式锁
 
 1. 获取锁
 
