@@ -2,7 +2,7 @@
 layout: post
 title:  "MySQL性能调优"
 date:   2017-03-01 17:28:00
-categories: Database
+categories: RDBMS
 tags: MySQL
 author: miaoqi
 ---
@@ -10,9 +10,12 @@ author: miaoqi
 * content
 {:toc}
 
-## 常用Linux命令
+## MySQL调优
+
+### 常用Linux命令
 
     ps -ef|grep mysql 
+    
     rpm -qa|grep -i mysql qa:query all;rpm:redhat package manage
     rpm -ivh mysql i:install v:日志 h:hash(进度条)
     
@@ -29,7 +32,7 @@ author: miaoqi
     第三方软件目录:/opt
 
 
-## 解决中文乱码
+### 解决中文乱码
 
     mysql配置文件:/usr/share/mysql/my-huge.cnf	/etc/my.cnf
     [client]
@@ -45,7 +48,7 @@ author: miaoqi
     [mysql]
     default-character-set=utf8
 
-## MySQL配置文件
+### MySQL配置文件
     
 * 二进制日志log-bin:主从复制
 
@@ -53,9 +56,12 @@ author: miaoqi
 
 * 查询日志log:默认关闭, 记录查询的sql语句,如果开启会降低mysql的整体性能
 
-* 数据文件 存放路径:/var/lib/myqsl
+* 数据文件存放路径:/var/lib/myqsl
+    
     frm文件-存放表结构
+    
     myd文件-存放表数据
+    
     myi文件-存放表索引
 
 ## MySQL架构
@@ -69,25 +75,30 @@ author: miaoqi
 * 存储层: 硬盘
 
     存储引擎: 常用MyISAM和InnoDB
+    
     查看引擎: show engines;show variables like '%storage_engine%';
     
-    对比项	    MyISAM              InnoDB
-    主外键	    不支持                 支持
-    事物      不支持                 支持
-    行表锁	表锁, 即使操作一条记录也会锁住整个表,不适合高并发操作	行锁,操作时只锁某一行,不对其他行有影响,适合高并发
-    缓存	只缓存索引, 不缓存真实数据				不仅缓存索引还缓存真实数据,对内存要求高,内存决定性能
-    表空间	小							大
-    关注点	性能							事务
+    |对比项|MyISAM|InnoDB|
+    |-----|-----|-----|
+    |主外键|不支持|支持|
+    |事物|不支持|支持|
+    |行表锁|表锁, 即使操作一条记录也会锁住整个表,不适合高并发操作|行锁,操作时只锁某一行,不对其他行有影响,适合高并发|
+    |缓存|只缓存索引, 不缓存真实数据|不仅缓存索引还缓存真实数据,对内存要求高,内存决定性能|
+    |表空间|小|大|
+    |关注点|性能|事务|
+    	                  
 
-## 性能
+### 性能
 
 * 性能下降SQL慢: 查询语句写的不好
+
 * 执行时间长: 索引失效(单值 create index idx_user_name on user(name),复合 create index idx_user_nameEmail on user(name,email))
+
 * 等待时间长: 关联查询太多join(设计缺陷或不得已需求)
     			服务器调优及各个参数设置(缓冲, 线程数等)
 
 
-## JOIN查询
+### JOIN查询
 
 * SQL执行顺序:  
     
@@ -162,7 +173,7 @@ author: miaoqi
             union:去重,按照字段排序,效率低
             union all:不去重,不排序,效率高
     
-## 索引
+### 索引
 
 * 索引:索引(index)是帮助mysql高效获取数据的数据结构,本质:数据结构
 
@@ -230,7 +241,7 @@ author: miaoqi
         * 经常增删改的表 - 提高了查询速度, 同时却会降低更新表的速度
         * 如果某个数据列包含许多重复的内容, 为它建立索引就没有太大的实际效果
 
-## 性能分析:
+### 性能分析:
 
 * MySql Query Optimizer:
 
@@ -333,7 +344,7 @@ author: miaoqi
                 7. select table optimized away: 
                 8. distinct: 
 
-## 索引优化:
+### 索引优化:
     
 * 索引分析:
         
@@ -801,7 +812,7 @@ author: miaoqi
                 call insert_dept(100, 10);
                 call insert_emp(100001, 500000);
 
-## profile:
+### profile:
 
 * mysql提供可以用来分析当前会话中语句执行的资源消耗情况, 可以用于sql调优的测量    
 
@@ -826,7 +837,7 @@ author: miaoqi
         set global general_log = 1;
         set global log_output = 'TABLE';
 
-## 锁
+### 锁
 
 * 对MyISAM表的读操作(加读锁), 不会阻塞其他进程对同一表的读请求, 但会阻塞对同一表的写请求. 只有当读锁释放后, 才会执行其他进行的写操作.
     
@@ -838,8 +849,18 @@ author: miaoqi
     immediate: 代表立即获得锁的情况
     waited: 代表等待次数
 
-## 建议:
+
+
+### 建议:
 
 * 内容过多的字段要单独抽一张表
+
 * 避免过多关联查询, 尽量单表查询
-* 适当冗余
+
+* 适当冗余字段
+    
+* 索引
+
+* 硬件优化
+
+* 参数优化
