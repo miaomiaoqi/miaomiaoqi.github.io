@@ -1,16 +1,14 @@
-
 ---
 layout: post
-title:  "ZooKeeper学习"
+title:  "Zookeeper学习"
 date:   2018-06-16 09:25:38
 categories: BigData
-tags: ZooKeeper
+tags: Zookeeper
 author: miaoqi
 ---
 
 * content
 {:toc}
-
             
 ## 简介
 
