@@ -1,15 +1,14 @@
-
 ---
 layout: post
-title:  "MySQL存储emoji"
-date:   2018-07-21 16:43:23
-categories: RDBMS
-tags: MySQL
+title:  "mysql存储emoji表情"
+date:   2018-07-21 15:12:38
+categories: Others
+tags: Problem
 author: miaoqi
 ---
 
 * content
-{:toc}
+{:toc} 
 
 ## 问题
 
