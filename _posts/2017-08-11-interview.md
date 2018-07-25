@@ -2,7 +2,7 @@
 layout: post
 title:  "面试题"
 date:   2017-08-10 15:12:38
-categories: Work
+categories: Others
 tags: Interview
 author: miaoqi
 ---
