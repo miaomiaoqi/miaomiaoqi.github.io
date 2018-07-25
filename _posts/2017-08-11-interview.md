@@ -9,26 +9,6 @@ author: miaoqi
 
 * content
 {:toc}
-            
-
-## 非技术
-1. 为什么离职
-
-
-## 业务
-1. 在项目开发中遇到的难点有哪些？都是怎么解决的？
-2. 前后端分离的优缺点
-
-
-## 数据结构基础知识
-1. 算法的复杂度
-2. 双层for循环累加一个二维数组的算法复杂度
-3. 一个递归算阶乘的算法复杂度
-4. 写一个程序，判断字符串是否对称，并给出复杂度
-
-1. Hash算法
-
-    MD5, SHA, SHA-256, SHA-512
 
 
 ## JavaSE
@@ -573,26 +553,6 @@ author: miaoqi
     1. MQ事务
 
     1. TCC事务
-
-## HTTP协议:
-
-
-
-## JVM
-
-> https://docs.oracle.com/javase/8/docs/
-
-> JDK: Java Development Kit
-
-> JRE: Java Runtime Enviroment
-
-> JVM: Java Virtual Machine
-
-* 内存溢出
-
-    > 增加jvm启动参数, 生成内存快照, 使用MemoryAnalyzer分析插件分析内存快照, 定位发生问题的位置
-
-    > jvm监控工具: jdk安装目录/bin/jconsole
     
 
 
