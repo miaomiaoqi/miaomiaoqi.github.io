@@ -1,19 +1,16 @@
 ---
 layout: post
 title:  "ElasticSearch学习"
-date:   2018-06-14 15:12:38
-categories: Work
+date:   2018-06-15 15:12:38
+categories: Search
 tags: ElasticSearch
 author: miaoqi
 ---
 
 * content
-{:toc}
-            
+{:toc}     
 
-## ElasticSearch笔记
-
-### 全文检索
+## 全文检索
 
 * 底层是Lucene
 
