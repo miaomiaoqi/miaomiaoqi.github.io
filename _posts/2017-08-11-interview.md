@@ -422,13 +422,6 @@ author: miaoqi
     * 如果注册中心宕机了, 还是可以请求Provider, 因为Consumer缓存了请求地址
 
 
-## Nginx
-
-1. 反向代理服务器, 图片服务器, 静态资源代理
-
-2. 程序员只关心server{}
-
-
 ## Mongodb
 
 1. Mongodb非常吃内存，在生产环境是如何处理的？
