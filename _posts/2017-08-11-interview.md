@@ -17,28 +17,6 @@ author: miaoqi
 
 1. Integer类型中的缓存大小可以改吗? 可以改, 需要加虚拟机参数-Djava.lang.Integer.IntegerCache.high=250, Integer在加载的时候会首先获取这个参数的值
 
-### 多线程
-
-1. 多线程的实现方式
-
-    * 继承Thread类, 重写run方法
-
-    * 方式二: 实现Runnable接口, 作为参数构造Thread类
-
-    * 方式三: 实现Callable接口, 相较于实现 Runnable 接口的方式, 方法可以有返回值, 并且可以抛出异常
-
-    * 方式四: 线程池
-
-1. 解决线程安全问题:
-
-    * 方式一: 同步代码块
-
-    * 方式二: 同步方法
-
-    * 方式三: 1.5以后出现的同步锁(Lock)
-
-1. 线程状态转换
-
 
 
 ### NIO
@@ -228,11 +206,7 @@ author: miaoqi
 
 ## 框架知识
 
-### Solr
 
-1. Document -> Field域 -> Term -> 建立索引 -> IKAnalyzer -> 维护了一个词库
-
-2. 倒排索引:
 
 ### Hibernate
 
@@ -421,25 +395,7 @@ author: miaoqi
 
     * 如果注册中心宕机了, 还是可以请求Provider, 因为Consumer缓存了请求地址
 
-
-## Mongodb
-
-1. Mongodb非常吃内存，在生产环境是如何处理的？
-2. Mongodb可否同时更改一条记录内一个集合中符合条件的多个值？
-
-
-## 性能调优
-
-1. JVM性能调优
-2. Tomcat性能调优
-3. MySQL性能调优
-4. Mongodb性能调优
-
 ## 架构
-
-1. SEO(搜索引擎优化)
-
-    > 静态页面(html)比动态页面(jsp, asp, php)分数要高
 
 2. RPC和消息队列:
 
