@@ -11,7 +11,7 @@ author: miaoqi
 {:toc}
 
 
-## 核心容器注解
+## IOC
 
 * @Configuration
 
@@ -500,7 +500,255 @@ bean的生命周期: bean创建---初始化---销毁的过程
 
     Java规范
 
-## 扩展原理
+
+* 自定义组件想使用Spring底层的一些组件(ApplicationContext, BeanFactory)
+
+    自定义组件实现xxxAware接口, 在创建对象的时候会调用接口规定的方法, 注入相应的组件
+
+
+        @Component
+        public class Red implements ApplicationContextAware, BeanNameAware {
+        
+            private ApplicationContext applicationContext;
+        
+            @Override
+            public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+                System.out.println("传入的ioc: " + applicationContext);
+                this.applicationContext = applicationContext;
+            }
+        
+            @Override
+            public void setBeanName(String name) {
+                System.out.println("当前bean的名字: " + name);
+            }
+        }
+        
+* Profile
+
+    Spring提供的可以根据当前的环境, 动态激活和切换一系列组件的功能
+
+    开发环境, 测试环境, 生产环境
+
+    指定组件在哪个环境下才会被注册到容器中, 不指定@Profile的话任何情况下都能注册到容器中, 加了@Profile的bean, 只有这个环境被激活的时候才能注册到容器中, 默认启动参数是default环境
+
+        @Configuration
+        @PropertySource("classpath:dbconfig.properties")
+        public class MainConfigOfProfile {
+    
+        @Value("${db.username}")
+        private String user;
+    
+        @Profile("dev")
+        @Bean("devDataSource")
+            public DataSource dataSourceDev(@Value("${db.password}") String pwd) throws PropertyVetoException {
+                ComboPooledDataSource comboPooledDataSource = new ComboPooledDataSource();
+                comboPooledDataSource.setUser(user);
+                comboPooledDataSource.setPassword(pwd);
+                comboPooledDataSource.setJdbcUrl("jdbc:mysql://localhost:3306/taotao");
+                comboPooledDataSource.setDriverClass("com.mysql.jdbc.Driver");
+                return comboPooledDataSource;
+            }
+        
+            @Profile("test")
+            @Bean("testDataSource")
+            public DataSource dataSourceTest(@Value("${db.password}") String pwd) throws PropertyVetoException {
+                ComboPooledDataSource comboPooledDataSource = new ComboPooledDataSource();
+                comboPooledDataSource.setUser(user);
+                comboPooledDataSource.setPassword(pwd);
+                comboPooledDataSource.setJdbcUrl("jdbc:mysql://localhost:3306/pinyougoudb");
+                comboPooledDataSource.setDriverClass("com.mysql.jdbc.Driver");
+                return comboPooledDataSource;
+            }
+        }
+
+
+        public class ProfileTest {
+            // 1. 使用命令行参数 -Dspring.profiles.active=test
+            @Test
+            public void test01() {
+                AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(MainConfigOfProfile.class);
+                String[] beanNamesForType = ctx.getBeanNamesForType(DataSource.class);
+                for (String s : beanNamesForType) {
+                    System.out.println(s);
+                }
+                ctx.close();
+            }
+        }
+
+## AOP
+
+AOP: 面向切面编程, 原理是动态代理
+ 
+1. 导入AOP模块, SpringAOP, (spring-aspects)
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aspects</artifactId>
+            <version>4.3.12.RELEASE</version>
+        </dependency>
+
+2. 定义一个业务逻辑类(MathCalculator): 在业务逻辑运行的时候进行日志打印(方法之前, 方法之后, 方法出现异常)
+
+        public class MathCalculator {
+            public int div(int i, int j){
+                System.out.println("MathCalculator...div...");
+                return i / j;
+            }
+        }
+
+3. 定义一个日志切面类(LogAspects): 切面类里面的方法需要动态感知MathCalculator.div运行到哪里然后执行
+ 
+    * 前置通知(@Before): logStart: 在目标方法(div)运行之前运行    
+    * 后置通知(@After): logEnd: 在目标方法(div)运行之后运行(无论方法正常结束还是异常结束)     
+    * 返回通知(@AfterReturning): logReturn: 在目标方法(div)正常返回之后运行         
+    * 异常通知(@AfterThrowing): logException: 在目标方法(div)出现异常以后运行
+    * 环绕通知(@Around): 动态代理: 手动推进目标方法运行(joinPoint.proceed)
+
+4. 给切面类的目标方法标注何时何地运行
+5. 将切面类和业务逻辑类(目标方法所在类)都加入容器中
+6. 告诉Spring哪个类是切面类(给切面类上加一个注解@Aspect)
+
+        // 告诉Spring当前类是一个切面类
+        @Aspect
+        public class LogAspects {
+    
+            // 抽取公共切入点表达式
+            // 1. 本类引用 pointcut()
+            // 2. 其他切面引用 com.miaoqi.aop.LogAspects.pointcut()
+            @Pointcut("execution(public int com.miaoqi.aop.MathCalculator.*(..))")
+            public void pointCut() {
+            }
+        
+            // @Before在目标方法之前切入, 切入点表达式(指定在哪个方法切入)
+            // @Before("public int com.miaoqi.aop.MathCalculator.*(..)")
+            @Before("pointCut()")
+            public void logStart(JoinPoint joinPoint) {
+                Object[] args = joinPoint.getArgs();
+                System.out.println("前置通知, " + joinPoint.getSignature().getName() + "开始...参数列表是: {" + Arrays.asList(args) + "}");
+            }
+        
+            @After("pointCut()")
+            public void logEnd(JoinPoint joinPoint) {
+                System.out.println("后置通知, " + joinPoint.getSignature().getName() + "结束...");
+            }
+        
+            // 指定result接收返回值
+            @AfterReturning(value = "pointCut()", returning = "result")
+            public void logReturn(Object result) {
+                System.out.println("正常返回通知, 除法正常返回...运行结果: {" + result + "}");
+            }
+        
+            @AfterThrowing(value = "pointCut()", throwing = "exception")
+            public void logException(Exception exception) {
+                System.out.println("异常返回通知, 除法异常返回...异常信息: {" + exception + "}");
+            }
+        }
+
+
+7. 开启注解版AOP
+
+        @EnableAspectJAutoProxy
+        @Configuration
+        public class MainConfigOfAOP {
+        
+            // 业务逻辑类加入到容器中
+            @Bean
+            public MathCalculator mathCalculator() {
+                return new MathCalculator();
+            }
+        
+            // 切面类加入到容器中
+            @Bean
+            public LogAspects logAspects() {
+                return new LogAspects();
+            }
+        }
+
+## 声明式事物
+
+1. 导入相关依赖
+
+    数据源, 数据库驱动, Spring-jdbc模块
+
+        <dependency>
+            <groupId>c3p0</groupId>
+            <artifactId>c3p0</artifactId>
+            <version>0.9.1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.44</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <version>4.3.12.RELEASE</version>
+        </dependency>
+
+
+2. 配置数据源, JdbcTemplate(Spring提供的简化数据库操作的工具)操作数据
+
+        @EnableTransactionManagement
+        @Configuration
+        @ComponentScan({"com.miaoqi.tx"})
+        public class MainConfigOfTx {
+        
+            @Bean
+            public DataSource dataSource() throws PropertyVetoException {
+                ComboPooledDataSource dataSource = new ComboPooledDataSource();
+                dataSource.setUser("root");
+                dataSource.setPassword("miaoqi");
+                dataSource.setDriverClass("com.mysql.jdbc.Driver");
+                dataSource.setJdbcUrl("jdbc:mysql://localhost:3306/mytest");
+                return dataSource;
+            }
+        
+            @Bean
+            public JdbcTemplate jdbcTemplate() throws PropertyVetoException {
+                // Spring对@Configuration类会特殊处理, 给容器中加组件的方法, 多次调用都只是从容器中查找组件
+                JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource());
+                return jdbcTemplate;
+            }
+        
+            // 注册事务管理器到容器中
+            @Bean
+            public PlatformTransactionManager platformTransactionManager() throws PropertyVetoException {
+                return new DataSourceTransactionManager(dataSource());
+            }
+        }
+
+3. 给方法上标注@Transactional 表示当前方法是一个事物方法
+
+        @Service
+        public class UserService {
+        
+            @Autowired
+            private UserDao userDao;
+        
+            @Transactional
+            public void insertUser() {
+                userDao.insert();
+                System.out.println("插入完成");
+                int i = 10 / 0;
+            }
+        }
+        
+        @Repository
+        public class UserDao {
+        
+            @Autowired
+            private JdbcTemplate jdbcTemplate;
+        
+            public void insert() {
+                String sql = "INSERT INTO tbl_user(username, age) VALUES(?, ?)";
+                String username = UUID.randomUUID().toString().substring(0, 5);
+                jdbcTemplate.update(sql, username, 19);
+            }
+        }
+
+4. 配置@EnableTransactionManagement开启事物注解
+5. 配置事物管理器
 
 
 ## Web

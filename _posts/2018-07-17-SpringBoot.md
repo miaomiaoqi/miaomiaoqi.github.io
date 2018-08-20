@@ -155,10 +155,21 @@ author: miaoqi
             Spring Boot在启动的时候从类路径下的META-INF/spring.factories中获取EnableAutoConfiguration指定的值，将以前我们需要自己配置的东西, 都由SpringBoot来配置, J2EE的整体整合解决方案和自动配置都在spring-boot-autoconfigure-1.5.9.RELEASE.jar;
 
 
+## 配置文件
 
+修改SpringBoot自动配置的默认值
 
+SpringBoot默认使用两种类型的文件作为配置文件:
 
+* application.properties
 
+* application.yaml
+
+### YAML
+
+* 语法
+
+    
 
 
 
