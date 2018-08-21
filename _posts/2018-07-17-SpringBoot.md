@@ -422,7 +422,7 @@ Spring提供的对不同环境提供不同配置功能的支持, 可以通过激
 
     在主配置文件编写的时候, 文件名可以是 applicaiton-{profile}.properties/yml
 
-    ![http://miaomiaoqi.github.io/images/springboot/profile.png](http://miaomiaoqi.github.io/images/springboot/profile.png)
+    ![http://www.miaomiaoqi.cn/images/springboot/profile.png](http://www.miaomiaoqi.cn/images/springboot/profile.png)
 
 * yml支持多文档块方式
 
