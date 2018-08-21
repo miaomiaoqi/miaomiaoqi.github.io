@@ -188,18 +188,27 @@ YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JS
         对象的一组键值对，使用冒号结构表示
             
             animal: pets
+            
+            person:
+                lastName: miaoqi
+                age: 20
 
         也允许另一种写法，将所有键值对写成一个行内对象
 
-            hash: { name: Steve, foo: bar }
+            person: {lastName: Steve, age: 20}
 
     * 数组: 一组按次序排列的值，又称为序列(sequence)/列表(list), 一组连词线开头的行, 构成一个数组
 
         一组连词线开头的行，构成一个数组
             
-            - Cat
-            - Dog
-            - Goldfish
+            pets:
+              - Cat
+              - Dog
+              - Goldfish
+
+        行内写法
+
+            pets: [Cat, Dog, Goldfish]
 
         数据结构的子成员是一个数组，则可以在该项下面缩进一个空格
 
@@ -207,10 +216,6 @@ YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JS
              - Cat
              - Dog
              - Goldfish
-
-        数组也可以采用行内表示法
-
-            animal: [Cat, Dog]
 
     * 纯量(scalars)：单个的、不可再分的值
 
@@ -288,15 +293,138 @@ YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JS
              Python: python.org
              Perl: use.perl.org
 
+### 绑定配置文件中的值
+
+* yaml写法
+
+        person:
+          lastName: zhangas
+          age: 18
+          boss: false
+          birth: 2017/12/12
+          map: {k1: v1, k2: 12}
+          list:
+            - lisi
+            - wangwu
+            - zhaoliu
+          dog:
+            name: 小狗
+            age: 2
+
+* properties写法
     
+        person.last-name=啊发发
+        person.age=18
+        person.birth=2018/08/20
+        person.map.k1=v1
+        person.map.k2=14
+        person.list=a,b,c
+        person.dog.age=15
+
+* @ConfigurationProperties: 告诉SpringBoot将本类中的所有属性和配置文件中相关的配置进行绑定, prefix = "person": 配置文件中哪个下面的所有属性进行一一映射
+    
+    只有这个组件是容器中的组件, 才能有容器提供的@ConfigurationProperties功能
+    
+    默认从全局配置文件中获取
+    
+        @Component
+        @ConfigurationProperties(prefix = "person") // 从资源文件中自动装配属性值, 优先查找全局配置文件, 使用了@PropertySource就会查找指定配置文件
+        public class Person {
+            // @Value("${person.last-name}")
+            private String lastName;
+            // @Value("#{11*2}")
+            private Integer age;
+            // @Value("true")
+            private Boolean boss;
+            private Date birth;
+        
+            private Map<String, Object> map;
+            private List<Object> list;
+            private Dog dog;
+            
+            // Get和Set方法
+        }
+
+* 使用@Value注解手动注入值
+
+        public class Person {
+            @Value("${person.last-name}")
+            private String lastName;
+            @Value("#{11*2}")
+            private Integer age;
+            @Value("true")
+            private Boolean boss;
+            private Date birth;
+        
+            private Map<String, Object> map;
+            private List<Object> list;
+            private Dog dog;
+        }
 
 
+* @ConfigurationProperties和@Value的区别
+
+    ||@ConfigurationProperties|@Value|
+    |-----|-----|-----|
+    |功能|批量注入配置文件中的值|单独指定|
+    |松散绑定|支持|不支持|
+    |SpEL|不支持|支持|
+    |JSR303数据校验|支持|不支持|
+    |复杂类型封装|支持|不支持|
+
+* @PropertySource
+
+    SpringBoot默认加载全局配置文件中的内容, 使用该注解加载指定的配置文件
+
+        @PropertySource(value = {"classpath:person.properties"})
+
+* 总结
+
+    @ConfigurationProperties自动装配和@Value手动装配默认匹配默认配置文件即application文件, 使用@PropertySource可以额外指定要加载的配置文件, @ConfigurationProperties, @Value, @PropertySource可以配合使用, 加载顺序如下
+
+    1. 自动装配application.properties
+
+    1. 自动装配application.yaml
+
+    1. 自动装配自定义配置文件
+
+    1. 手动装配application.properties
+
+    1. 手动装配application.yaml
+
+    1. 手动装配自定义配置文件
+
+    后边不会覆盖前边的内容
 
 
+### 编写配置文件
 
+* 配置文件占位符
 
+        person.lastName=哈哈哈哈哈${random.uuid}
+        person.age=${random.int}
+        person.birth=2018/08/20
+        person.map.k1=v1
+        person.map.k2=14
+        person.list=a,b,c,d
+        person.dog.name=${person.lastName:xxx}小狗
+        person.dog.age=15
 
+    ${random.uuid}, 生成随机uuid
 
+    ${person.lastName:xxx}, 取上文中配置的person.lastName的属性值, 如果person.lastName不存在取xxx作为值
+
+## Profile
+
+Spring提供的对不同环境提供不同配置功能的支持, 可以通过激活配置快速切换环境
+
+* 多Profile文件
+
+    在主配置文件编写的时候, 文件名可以是 applicaiton-{profile}.properties/yml
+
+* yml支持多文档块方式
+
+* 激活指定profile
 
 
 
