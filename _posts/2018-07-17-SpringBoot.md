@@ -293,6 +293,35 @@ YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JS
              Python: python.org
              Perl: use.perl.org
 
+### 编写配置文件
+
+* 配置文件占位符
+
+        person.lastName=哈哈哈哈哈${random.uuid}
+        person.age=${random.int}
+        person.birth=2018/08/20
+        person.map.k1=v1
+        person.map.k2=14
+        person.list=a,b,c,d
+        person.dog.name=${person.lastName:xxx}小狗
+        person.dog.age=15
+
+    ${random.uuid}, 生成随机uuid
+
+    ${person.lastName:xxx}, 取上文中配置的person.lastName的属性值, 如果person.lastName不存在取xxx作为值
+
+### 配置文件加载位置
+
+1. 项目路径下/config/
+
+1. 项目路径下
+
+1. 类路径下/config/
+
+1. 类路径下/
+
+优先级从高到低, 高优先级的内容会覆盖低优先级的内容
+
 ### 绑定配置文件中的值
 
 * yaml写法
@@ -397,26 +426,9 @@ YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JS
     后边不会覆盖前边的内容
 
 
-### 编写配置文件
-
-* 配置文件占位符
-
-        person.lastName=哈哈哈哈哈${random.uuid}
-        person.age=${random.int}
-        person.birth=2018/08/20
-        person.map.k1=v1
-        person.map.k2=14
-        person.list=a,b,c,d
-        person.dog.name=${person.lastName:xxx}小狗
-        person.dog.age=15
-
-    ${random.uuid}, 生成随机uuid
-
-    ${person.lastName:xxx}, 取上文中配置的person.lastName的属性值, 如果person.lastName不存在取xxx作为值
-
 ## Profile
 
-Spring提供的对不同环境提供不同配置功能的支持, 可以通过激活配置快速切换环境
+Spring提供的对不同环境提供不同配置功能的支持, 可以通过激活配置快速切换环境, 默认使用application.properties文件中的配置
 
 * 多Profile文件
 
@@ -426,7 +438,39 @@ Spring提供的对不同环境提供不同配置功能的支持, 可以通过激
 
 * yml支持多文档块方式
 
+        server:
+          port: 8083
+        spring:
+          profiles:
+            active: dev
+        ---
+        server:
+          port: 8084
+        spring:
+          profiles: dev
+        ---
+        server:
+          port: 8085
+        spring:
+          profiles: prod
+
 * 激活指定profile
+
+    1. 在配置文件中指定激活哪个环境
+
+            spring.profiles.active=dev
+
+    1. 命令行方式激活
+
+            java -jar spring-boot-02-config-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
+
+        会覆盖配置文件中的设置
+
+    1. 虚拟机参数
+
+            -Dspring.profiles.active=prod
+
+        -D是默认语法
 
 
 
