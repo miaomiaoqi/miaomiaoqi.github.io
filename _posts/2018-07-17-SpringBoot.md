@@ -649,14 +649,184 @@ Spring提供的对不同环境提供不同配置功能的支持, 可以通过激
 
 ## 日志
 
+小张;开发一个大型系统:
+
+1. System.out.println("");将关键数据打印在控制台;去掉?写在一个文件? 
+
+2. 框架来记录系统的一些运行时信息;日志框架 ; zhanglogging.jar; 
+
+3. 高大上的几个功能?异步模式?自动归档?xxxx? zhanglogging-good.jar? 
+
+4. 将以前框架卸下来?换上新的框架，重新修改之前相关的API;zhanglogging-prefect.jar; 
+
+5. JDBC---数据库驱动; 写了一个统一的接口层;日志门面(日志的一个抽象层);logging-abstract.jar; 给项目中导入具体的日志实现就行了;我们之前的日志框架都是实现的抽象层;
 
 
+市面上的日志框架:
 
+JUL、JCL、Jboss-logging、logback、log4j、log4j2、slf4j....
 
+### 使用SLF4J
 
+1. 如何在系统中使用SLF4J
 
+    以后开发的时候，日志记录方法的调用，不应该来直接调用日志的实现类，而是调用日志抽象层里面的方法; 给系统里面导入slf4j的jar和 logback的实现jar
+    
+        importorg.slf4j.Logger; 
+        importorg.slf4j.LoggerFactory;
+        
+        publicclassHelloWorld{
+        
+            public static void main(String[] args) {
+        
+                Logger logger = LoggerFactory.getLogger(HelloWorld.class);
+                logger.info("Hello World");
+            }
+        }
 
+    ![http://www.miaomiaoqi.cn/images/springboot/long1.png](http://www.miaomiaoqi.cn/images/springboot/log1.png)
 
+    每一个日志的实现框架都有自己的配置文件。使用slf4j以后，配置文件还是做成日志实现框架自己本身的配置文件
+
+2. 遗留问题
+
+    a(slf4j+logback): Spring(commons-logging)、Hibernate(jboss-logging)、MyBatis、xxxx统一日志记录，即使是别的框架和我一起统一使用slf4j进行输出?
+
+    ![http://www.miaomiaoqi.cn/images/springboot/log2.png](http://www.miaomiaoqi.cn/images/springboot/log2.png)
+
+    如何让系统中所有的日志都统一到slf4j
+    
+    1. **将系统中其他日志框架先排除出去**
+    
+    2. **用中间包来替换原有的日志框架**
+    
+    3. **我们导入slf4j其他的实现**
+
+### SpringBoot的日志关系
+
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring‐boot‐starter</artifactId>
+    </dependency>
+
+SpringBoot使用它来做日志功能;
+
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring‐boot‐starter‐logging</artifactId>
+    </dependency>
+
+![http://www.miaomiaoqi.cn/images/springboot/log3.png](http://www.miaomiaoqi.cn/images/springboot/log3.png)
+
+总结: 
+
+1. SpringBoot底层也是使用slf4j+logback的方式进行日志记录
+
+2. SpringBoot也把其他的日志都替换成了slf4j
+
+3. 中间替换包
+
+**SpringBoot能自动适配所有的日志，而且底层使用slf4j+logback的方式记录日志，引入其他框架的时候，只需要把这个框架依赖的日志框架排除掉即可**
+
+### 日志使用
+
+* 默认配置
+
+    SpringBoot默认帮我们配置好了日志;
+
+        //记录器
+        Logger logger = LoggerFactory.getLogger(getClass()); @Test
+        public void contextLoads() {
+            //System.out.println();
+            //日志的级别;
+            //由低到高 trace < debug < info < warn < error
+            //可以调整输出的日志级别;日志就只会在这个级别以以后的高级别生效       logger.trace("这是trace日志...");
+            logger.debug("这是debug日志..."); //SpringBoot默认给我们使用的是info级别的，没有指定级别的就用SpringBoot默认规定的级别, root级别
+            logger.info("这是info日志...");
+            logger.warn("这是warn日志...");
+            logger.error("这是error日志...");
+        }
+
+* 日志输出格式
+
+        %d表示日期时间，
+        %thread表示线程名，
+        %‐5level:级别从左显示5个字符宽度
+        %logger{50} 表示logger名字最长50个字符，否则按照句点分割。 
+        %msg:日志消息，
+        %n是换行符
+    
+        %d{yyyy‐MM‐dd HH:mm:ss.SSS} [%thread] %‐5level %logger{50} ‐ %msg%n
+
+    SpringBoot修改日志的默认配置
+
+        logging.level.com.miaoqi=trace
+        
+        #logging.path=
+        # 不指定路径在当前项目下生成springboot.log日志
+        # 可以指定完整的路径;
+        #logging.file=G:/springboot.log
+        
+        # 在当前磁盘的根路径下创建spring文件夹和里面的log文件夹;使用 spring.log 作为默认文件
+        logging.path=/spring/log
+        
+        # 在控制台输出的日志的格式
+        logging.pattern.console=%d{yyyy‐MM‐dd}[%thread]%‐5level%logger{50}‐%msg%n
+        # 指定文件中日志输出的格式
+        logging.pattern.file=%d{yyyy‐MM‐dd}===[%thread]===%‐5level===%logger{50}====%msg%n
+
+* 指定配置
+
+    给类路径下放上每个日志框架自己的配置文件即可;SpringBoot就不使用他默认配置的了
+
+    |Logging System|Customization|
+    |-----|-----|    |Logback|logback-spring.xml , logback-spring.groovy , logback.xml or logback.groovy|
+    |Log4j2|log4j2-spring.xml or log4j2.xml|    |JDK (Java Util Logging)|logging.properties|
+
+    logback.xml:直接就被日志框架识别了;
+
+    logback-spring.xml:日志框架就不直接加载日志的配置项，由SpringBoot解析日志配置，可以使用SpringBoot 的高级Profile功能
+
+        <springProfilename="staging">
+            <!‐‐ configuration to be enabled when the "staging" profile is active ‐‐> 
+            可以指定某段配置只在某个环境下生效
+        </springProfile>
+
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <springProfile name="dev">
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} ----> [%thread] ---> %-5level %logger{50} - %msg%n</pattern>
+            </springProfile>
+            <springProfile name="!dev">
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} ==== [%thread] ==== %-5level %logger{50} - %msg%n</pattern>
+            </springProfile>
+        </layout>
+
+* 切换日志框架
+
+    可以按照slf4j的日志适配图，进行相关的切换; 
+
+    slf4j+log4j的方式;
+
+        <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring‐boot‐starter‐web</artifactId>
+          <exclusions>
+            <exclusion>
+              <artifactId>logback‐classic</artifactId>
+              <groupId>ch.qos.logback</groupId>
+            </exclusion>
+            <exclusion>
+                <artifactId>log4j‐over‐slf4j</artifactId>
+                <groupId>org.slf4j</groupId>
+            </exclusion>
+          </exclusions>
+        </dependency>
+        <dependency>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j‐log4j12</artifactId>
+        </dependency>
+
+## WEB开发
 
 
 
