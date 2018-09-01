@@ -3,7 +3,7 @@ layout: post
 title:  "ActiveMQ学习"
 date:   2018-06-14 15:12:38
 categories: MessageQueue
-tags: ActiveMQ
+tags: ActiveMQ&RabbitMQ
 author: miaoqi
 ---
 
@@ -32,7 +32,26 @@ author: miaoqi
 
 ![](http://www.miaomiaoqi.cn/images/mq/mq3.png)
 
-## 首先介绍JMS
+* JMS(Java Message Service)JAVA消息服务:
+
+    基于JVM消息代理的规范。ActiveMQ、HornetMQ是JMS实现
+
+* AMQP(Advanced Message Queuing Protocol)
+
+    高级消息队列协议，也是一个消息代理的规范，兼容JMS
+
+    RabbitMQ是AMQP的实现
+
+||JMS|AMQP|
+|-----|-----|-----|
+|定义|Java api|网络线级协议|
+|跨语言|否|是|
+|跨平台|否|是|
+|Model|提供两种消息模型: <br/>1. Peer-2-Peer <br/>2. Pub/sub|提供了五种消息模型:<br/>1. direct exchange<br/>2. fanout exchange<br/>3. topic change<br/>4. headers exchange<br/>5.system exchange 
+|支持消息类型|多种消息类型:<br/>TextMessage<br/>MapMessage<br/>BytesMessage<br/>StreamMessage<br/>ObjectMessage<br/>Message (只有消息头和属性)|byte[] 当实际应用时，有复杂的消息，可以将消息序列化后发送。|
+|综合评价|JMS 定义了JAVA API层面的标准;在java体系中，<br/>多个client 均可以通过JMS进行交互，不需要应用修改代码，但是其对跨 平台的支持较差;|AMQP定义了wire-level层的协议标准;天然具有跨平台、跨语 言特性。|
+
+## JMS介绍
 
 JMS（Java Messaging Service）是Java平台上有关面向消息中间件的技术规范，它便于消息系统中的Java应用程序进行消息交换,并且通过提供标准的产生、发送、接收消息的接口简化企业应用的开发。
 
