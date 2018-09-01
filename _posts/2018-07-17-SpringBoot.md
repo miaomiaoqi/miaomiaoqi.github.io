@@ -826,10 +826,236 @@ SpringBoot使用它来做日志功能;
           <artifactId>slf4j‐log4j12</artifactId>
         </dependency>
 
-## WEB开发
+## SpringMVC自动配置
+
+1. Spring MVC auto-configuration
+
+    Spring Boot 自动配置好了SpringMVC 以下是SpringBoot对SpringMVC的默认配置:(WebMvcAutoConfiguration)
+    
+    * Inclusion of ContentNegotiatingViewResolver and BeanNameViewResolver beans.
+    
+        * 自动配置了ViewResolver(视图解析器:根据方法的返回值得到视图对象(View)，视图对象决定如何 渲染(转发?重定向?))
+    
+        * ContentNegotiatingViewResolver:组合所有的视图解析器的
+         
+        * 如何定制:我们可以自己给容器中添加一个视图解析器;自动的将其组合进来;
+    
+    * Support for serving static resources, including support for WebJars (see below).静态资源文件夹路 径,webjars
+    
+    * Static index.html support. 静态首页访问
+    
+    * Custom Favicon support (see below). favicon.ico
+    
+    * 自动注册了 of Converter , GenericConverter , Formatter beans
+    
+        * Converter:转换器; public String hello(User user):类型转换使用Converter
+    
+        * Formatter 格式化器; 2017.12.17===Date;
 
 
+2. 自己扩展SpringMVC
 
+        <mvc:view‐controller path="/hello" view‐name="success"/>
+        <mvc:interceptors>
+            <mvc:interceptor>
+                <mvc:mapping path="/hello"/>
+                <bean></bean>
+            </mvc:interceptor>
+        </mvc:interceptors>
+
+    编写一个配置类(@Configuration)，是WebMvcConfigurerAdapter类型;**不能标注@EnableWebMvc;** 既保留了所有的自动配置，也能用我们扩展的配置;
+
+        //使用WebMvcConfigurerAdapter可以来扩展SpringMVC的功能
+        @Configuration
+        public class MyMvcConfig extends WebMvcConfigurerAdapter {
+            @Override
+            public void addViewControllers(ViewControllerRegistry registry) {
+                // super.addViewControllers(registry);
+                //浏览器发送 /miaoqi 请求来到 success
+                registry.addViewController("/miaoqi").setViewName("success");
+            }
+        }
+
+    原理:
+    
+    1. WebMvcAutoConfiguration是SpringMVC的自动配置类
+    1. 在做其他自动配置时会导入;@Import(EnableWebMvcConfiguration.class)
+    1. 容器中所有的WebMvcConfigurer都会一起起作用
+    1. 我们的配置类也会被调用; 效果:SpringMVC的自动配置和我们的扩展配置都会起作用
+
+3. 全面接管SpringMVC
+
+    SpringBoot对SpringMVC的自动配置不需要了，所有都是我们自己配置;所有的SpringMVC的自动配置都失效了
+
+    我们需要在配置类中添加@EnableWebMvc即可;
+
+        @EnableWebMvc
+        @Configuration publicclassMyMvcConfigextendsWebMvcConfigurerAdapter{
+            @Override
+            public void addViewControllers(ViewControllerRegistry registry) {
+                // super.addViewControllers(registry);
+                // 浏览器发送 /miaoqi 请求来到 success
+                registry.addViewController("/miaoqi").setViewName("success");
+            }
+        }
+
+    原理: 为什么自己标注@EnableWebMvc注解会导致SpringMVC自动配置就失效
+
+    1. @EnableWebMvc的核心引入了DelegatingWebMvcConfiguration.class
+
+            @Import(DelegatingWebMvcConfiguration.class)
+            public@interfaceEnableWebMvc{
+
+    2. DelegatingWebMvcConfiguration继承WebMvcConfigurationSupport
+    
+            @Configuration
+            public class DelegatingWebMvcConfiguration extends WebMvcConfigurationSupport{
+
+    3. WebMvcAutoConfiguration中如果没有WebMvcConfigurationSupport才会进行自动配置, 然而@EnableWebMvc引入了该类, 导致自动配置失效
+
+            @Configuration
+            @ConditionalOnWebApplication
+            @ConditionalOnClass({Servlet.class, DispatcherServlet.class, WebMvcConfigurerAdapter.class})
+            @ConditionalOnMissingBean({WebMvcConfigurationSupport.class})
+            @AutoConfigureOrder(-2147483638)
+            @AutoConfigureAfter({DispatcherServletAutoConfiguration.class, ValidationAutoConfiguration.class})
+            public class WebMvcAutoConfiguration {
+
+    4. @EnableWebMvc将WebMvcConfigurationSupport组件导入进来
+
+    1. 导入的WebMvcConfigurationSupport只是SpringMVC最基本的功能
+
+    1. 最终导致自动配置失效
+
+
+## 数据访问
+
+1. 整合JDBC
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring‐boot‐starter‐jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql‐connector‐java</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        spring:
+          datasource:
+            username: root
+            password: 123456
+            url: jdbc:mysql://192.168.15.22:3306/jdbc
+            driver‐class‐name: com.mysql.jdbc.Driver
+
+    默认是用org.apache.tomcat.jdbc.pool.DataSource作为数据源; 
+
+    数据源的相关配置都在DataSourceProperties里面;
+
+    自动配置原理: org.springframework.boot.autoconfigure.jdbc:
+
+    1. 参考DataSourceConfiguration，根据配置创建数据源，默认使用Tomcat连接池;可以使用 spring.datasource.type指定自定义的数据源类型;
+    2. SpringBoot默认可以支持
+
+        org.apache.tomcat.jdbc.pool.DataSource、HikariDataSource、BasicDataSource
+
+1. 整合Druid数据源
+
+        @Configuration
+        public class DruidConfig {
+        
+            @ConfigurationProperties(prefix = "spring.datasource")
+            @Bean
+            public DataSource druid() {
+                return new DruidDataSource();
+            }
+        
+            // 配置Druid的监控
+            // 1. 配置一个管理后台的Servlet
+            @Bean
+            public ServletRegistrationBean statViewServlet() {
+                ServletRegistrationBean bean = new ServletRegistrationBean(new StatViewServlet(), "/druid/*");
+                Map<String, String> initParams = new HashMap<>();
+                initParams.put("loginUsername", "admin");
+                initParams.put("loginPassword", "123456");
+                bean.setInitParameters(initParams);
+                return bean;
+            }
+        
+            // 2. 配置一个监控的filter
+            @Bean
+            public FilterRegistrationBean webStatFilter() {
+                FilterRegistrationBean bean = new FilterRegistrationBean();
+                bean.setFilter(new WebStatFilter());
+                Map<String, String> initParams = new HashMap<>();
+                bean.setInitParameters(initParams);
+                bean.setUrlPatterns(Arrays.asList("/*"));
+                return bean;
+            }
+        }
+
+3. 整合MyBatis
+
+        <dependency>
+            <groupId>org.mybatis.spring.boot</groupId>
+            <artifactId>mybatis‐spring‐boot‐starter</artifactId>
+            <version>1.3.1</version>
+        </dependency>
+
+    * 注解版
+
+            @Mapper
+            public interface DepartmentMapper {
+            
+                @Select("select * from department where id = #{id}")
+                public Department getDeptById(Integer id);
+            
+                @Delete("delete from department where id = #{id}")
+                public int deleteByDeptId(Integer id);
+            
+                @Options(useGeneratedKeys = true, keyProperty = "id")
+                @Insert("insert into department(departmentName) values(#{departmentName})")
+                public int insertDept(Department department);
+            
+                @Update("update dept set departmentName = #{departmentName} where id = #{id}")
+                public int updateDept(Department department);
+    
+            }
+
+        自定义MyBatis的配置规则;给容器中添加一个ConfigurationCustomizer;
+
+            @org.springframework.context.annotation.Configuration
+            public class MyBatisConfig{
+                @Bean
+                public ConfigurationCustomizer configurationCustomizer(){
+                    return new ConfigurationCustomizer(){
+                        @Override
+                        public void customize(Configuration configuration) {
+                            configuration.setMapUnderscoreToCamelCase(true);
+                        } 
+                    };
+                } 
+            }
+
+        扫描所有Mapper
+
+            @MapperScan(basePackages = "com.miaoqi.springboot.mapper")
+            @SpringBootApplication
+            public class SpringBoot06DataMybatisApplication {
+            
+            	public static void main(String[] args) {
+            		SpringApplication.run(SpringBoot06DataMybatisApplication.class, args);
+            	}
+            }
+
+    * 配置文件版
+
+            mybatis:
+              config-location: classpath:mybatis/mybatis-config.xml
+              mapper-locations: classpath:mybatis/mapper/*.xml
+
+        编写xml, 配置文件中指定xml位置
 
 
 
