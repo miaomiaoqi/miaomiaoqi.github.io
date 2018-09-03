@@ -11,11 +11,11 @@ author: miaoqi
 {:toc}
 
 
-### SpringCloud
+## SpringCloud
 
 * 是多种技术的集合
 
-#### Eureka和Zookeeper
+### Eureka和Zookeeper
 
 * Eureka遵守AP
 
@@ -31,17 +31,17 @@ author: miaoqi
 
     * Zookeeper当master节点因为网络故障与其他节点失去联系时, 剩余节点会重新进行leader选举, 选举leader的时间为30~120s, 且选举期间整个Zookeeper集群是不可用的, 这就导致服务瘫痪了
 
-#### Ribbon负载均衡(面向服务)
+### Ribbon负载均衡(面向服务)
 
 * 基于Netflix Ribbon实现的一套客户端  负载均衡的工具, Ribbon + RestTemplate
 
-#### Feign负载均衡(面向接口)
+### Feign负载均衡(面向接口)
 
 * 通过接口 + 注解获取服务地址
 
 * 只需要创建一个接口, 在上边添加注解即可
 
-#### Hystrix断路器
+### Hystrix断路器
 
 * 服务熔断(服务端)
 
@@ -53,7 +53,7 @@ author: miaoqi
 
     * 整体资源不够了, 先关闭一些服务, 待资源充足了, 再将服务打开
 
-#### Zuul路由网关
+### Zuul路由网关
 
 * 代理
 

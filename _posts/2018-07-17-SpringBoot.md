@@ -722,7 +722,7 @@ SpringBoot使用它来做日志功能;
 
 1. SpringBoot底层也是使用slf4j+logback的方式进行日志记录
 
-2. SpringBoot也把其他的日志都替换成了slf4j
+2. SpringBoot也把其他的日志都替换成了slf4j+logback
 
 3. 中间替换包
 
@@ -874,6 +874,13 @@ SpringBoot使用它来做日志功能;
                 //浏览器发送 /miaoqi 请求来到 success
                 registry.addViewController("/miaoqi").setViewName("success");
             }
+            
+            @Override
+            public void addInterceptors(InterceptorRegistry registry) {
+               registry.addInterceptor(new LoginHandlerInterceptor()).addPathPatterns("/**").excludePathPatterns("/index.html")
+                       .excludePathPatterns("/").excludePathPatterns("/user/login").excludePathPatterns("/hello")
+                       .excludePathPatterns("/error/**");
+            }
         }
 
     原理:
@@ -926,6 +933,39 @@ SpringBoot使用它来做日志功能;
     1. 导入的WebMvcConfigurationSupport只是SpringMVC最基本的功能
 
     1. 最终导致自动配置失效
+
+## 注册Servlet三大组件【Servlet、Filter、Listener】
+
+* 由于SpringBoot默认是以jar包的方式启动嵌入式的Servlet容器来启动SpringBoot的web应用，没有web.xml文件
+
+* 注册三大组件
+
+        @Configuration
+        public class MyServerConfig {
+        
+            // servlet
+            @Bean
+            public ServletRegistrationBean myServlet() {
+                return new ServletRegistrationBean(new MyServlet(), "/myServlet");
+            }
+        
+            // filter
+            @Bean
+            public FilterRegistrationBean myFilter() {
+                FilterRegistrationBean registrationBean = new FilterRegistrationBean();
+                registrationBean.setFilter(new MyFilter());
+                registrationBean.setUrlPatterns(Arrays.asList("/hello", "/myServlet"));
+                return registrationBean;
+            }
+        
+            // listener
+            @Bean
+            public ServletListenerRegistrationBean myListener() {
+                ServletListenerRegistrationBean<MyListener> registrationBean = new ServletListenerRegistrationBean<>(
+                        new MyListener());
+                return registrationBean;
+            }
+        }
 
 
 ## 数据访问
@@ -1053,9 +1093,10 @@ SpringBoot使用它来做日志功能;
 
             mybatis:
               config-location: classpath:mybatis/mybatis-config.xml
+              # 如果xml和mapper在同一个目录下, 可以不配该条配置
               mapper-locations: classpath:mybatis/mapper/*.xml
 
-        编写xml, 配置文件中指定xml位置
+        编写xml, springboot配置文件中指定xml位置
 
 
 
