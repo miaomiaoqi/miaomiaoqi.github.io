@@ -1098,6 +1098,40 @@ SpringBoot使用它来做日志功能;
 
         编写xml, springboot配置文件中指定xml位置
 
+## AOP应用
+
+* 全局异常处理器
+
+    对Controller层加入异常通知
+
+        /**
+         * 全局异常捕获处理器
+         * 1. 捕获返回json格式
+         * 2. 捕获返回页面
+         *
+         * @author miaoqi
+         * @date 2018/9/4
+         */
+        @ControllerAdvice(basePackages = "com.miaoqi.controller")
+        public class GlobalExceptionHandler {
+        
+            // @ResponseBody 返回json格式
+            // ModelAndView 返回页面
+            @ExceptionHandler(RuntimeException.class)
+            @ResponseBody
+            public Map<String, Object> errorResult(RuntimeException e) {
+                // 实际开发中, 将异常信息写到日志中(发邮件通知管理者)
+                Map<String, Object> errorResultMap = new HashMap<>();
+                errorResultMap.put("errorCode", "500");
+                errorResultMap.put("errorMsg", "全局捕获异常系统错误: " + e);
+                return errorResultMap;
+            }
+        
+        }
+
+
+* 全局参数拦截
+
 
 
 
