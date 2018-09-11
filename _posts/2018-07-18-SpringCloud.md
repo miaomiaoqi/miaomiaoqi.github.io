@@ -39,7 +39,7 @@ author: miaoqi
 
 ### Ribbon负载均衡(面向服务)
 
-* 基于Netflix Ribbon实现的一套客户端  负载均衡的工具, Ribbon + RestTemplate
+* 基于Netflix Ribbon实现的一套客户端  负载均衡的工具, Ribbon + RestTemplate, 结合eureka使用, 会从eureka中查找可用的机器进行访问
 
 ### Feign负载均衡(面向接口)
 
@@ -79,5 +79,10 @@ author: miaoqi
 
 * 将配置中心以REST接口的形式暴露
 
+/{application}/{profile}/{label}
+/{application}-{profile}.yml
+/{label}/{application}-{profile}.yml
+/{application}-{profile}.properties
+/{label}/{application}-{profile}.properties
     
     

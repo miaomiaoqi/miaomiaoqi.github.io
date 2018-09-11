@@ -26,6 +26,10 @@ author: miaoqi
 
         zkServer.sh start
 
+* 状态
+
+        zkServer.sh status
+
 ## 节点类型
 
 * Znode分为四种类型：
