@@ -16,9 +16,59 @@ author: miaoqi
 
 ## 安装
 
+### 单机版安装
+
 1. 创建data目录存放ZooKeeper数据
 
 1. conf下编写zoo.cfg指定data目录
+
+        # The number of milliseconds of each tick
+        # 心跳周期毫秒
+        tickTime=2000
+        # The number of ticks that the initial
+        # synchronization phase can take
+        # 初始化心跳个数
+        initLimit=10
+        # The number of ticks that can pass between
+        # sending a request and getting an acknowledgement
+        # 发送请求到响应的心跳个数
+        syncLimit=5
+        # the directory where the snapshot is stored.
+        # do not use /tmp for storage, /tmp here is just
+        # example sakes.
+        # 数据目录
+        dataDir=/Users/miaoqi/Documents/zookeeper-3.4.6/data
+        # the port at which the clients will connect
+        # 客户端端口
+        clientPort=2181
+        # the maximum number of client connections.
+        # increase this if you need to handle more clients
+        #maxClientCnxns=60
+        #
+        # Be sure to read the maintenance section of the
+        # administrator guide before turning on autopurge.
+        #
+        # http://zookeeper.apache.org/doc/current/zookeeperAdmin.html#sc_maintenance
+        #
+        # The number of snapshots to retain in dataDir
+        #autopurge.snapRetainCount=3
+        # Purge task interval in hours
+        # Set to "0" to disable auto purge feature
+        #autopurge.purgeInterval=1
+
+### 集群安装
+
+1. 修改每一个zookeeper的配置文件
+
+        # 2881 是leader和follower通信的端口 默认是2888
+        # 3881 是投票的端口 默认是3888
+        server.1=127.0.0.1:2881:3881
+        server.2=127.0.0.1:2882:3882
+        server.3=127.0.0.1:2883:3883
+
+1. 到数据目录下创建文件myid, 文件内容就是myid的值
+
+1. 分别启动三台机器, 使用status查看状态
 
 ## 命令
 
@@ -29,6 +79,19 @@ author: miaoqi
 * 状态
 
         zkServer.sh status
+
+* 客户端连接
+
+        zkCli.sh [-server host:port]
+
+## Zookeeper数据结构
+
+1. 层次化的目录结构，命名符合常规文件系统规范(见下图)
+1. 每个节点在zookeeper中叫做znode,并且其有一个唯一的路径标识
+1. 节点Znode可以包含数据和子节点（但是EPHEMERAL类型的节点不能有子节点，下一页详细讲解）
+1. 客户端应用可以在节点上设置监视器（后续详细讲解）
+
+![http://www.miaomiaoqi.cn/images/zookeeper/1.png](http://www.miaomiaoqi.cn/images/zookeeper/1.png)
 
 ## 节点类型
 
