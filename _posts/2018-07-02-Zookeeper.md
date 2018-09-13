@@ -12,7 +12,19 @@ author: miaoqi
             
 ## 简介
 
-* Zookeeper的数据存储结构就像一棵树，这棵树由节点组成，这种节点叫做Znode。
+* Zookeeper是一个**分布式协调服务**；就是为用户的分布式应用程序提供协调服务
+
+* zookeeper是为别的分布式程序服务的
+
+* Zookeeper本身就是一个分布式程序（只要有半数以上节点存活，zk就能正常服务）
+
+* Zookeeper所提供的服务涵盖：主从协调、服务器节点动态上下线、统一配置管理、分布式共享锁、统一名称服务……
+
+* 虽然说可以提供各种服务，但是zookeeper在底层其实只提供了两个功能
+
+    * 管理(存储，读取)用户程序提交的数据
+
+    * 并为用户程序提供数据节点监听服务
 
 ## 安装
 
@@ -70,7 +82,7 @@ author: miaoqi
 
 1. 分别启动三台机器, 使用status查看状态
 
-## 命令
+## 服务端命令
 
 * 启动
 
@@ -97,7 +109,7 @@ author: miaoqi
 
 * Znode分为四种类型：
 
-    * 持久节点(PERSISTENT)
+    * 持久节点(PERSISTENT)默认
 
         默认的节点类型, 创建节点的客户端与zookeeper断开连接后, 该节点依旧存在 
 
@@ -112,6 +124,72 @@ author: miaoqi
     * 临时顺序节点(EPHEMERAL_SEQUENTIAL)
 
         顾名思义, 临时顺序节点结合和临时节点和顺序节点的特点: 在创建节点时, Zookeeper根据创建的时间顺序给该节点名称进行编号, 当创建节点的客户端与zookeeper断开连接后, 临时节点会被删除
+
+
+## 客户端命令
+
+* ls path [watch]
+
+    查看节点下的子节点
+
+        ls /
+
+* create [-s] [-e] path data acl
+
+    在某个节点下创建节点, 默认是持久节点
+
+        create /app1 "This is app1 server parent"
+
+        create /app1/server01 "192.168.1.1,100"
+
+    -e是短暂节点, 客户端断开连接节点销毁
+
+        create -e /app-e "aaaa"
+
+    -s是顺序节点, 会自动给节点加上序号
+
+        [zk: 127.0.0.1:2220(CONNECTED) 5] create -s /test/aa 999
+        Created /test/aa0000000000
+        [zk: 127.0.0.1:2220(CONNECTED) 6] create -s /test/bb 999
+        Created /test/bb0000000001
+        [zk: 127.0.0.1:2220(CONNECTED) 7] create -s /test/aa 999
+        Created /test/aa0000000002
+        [zk: 127.0.0.1:2220(CONNECTED) 8] ls /test
+        [aa0000000000, aa0000000002, bb0000000001]
+
+    -s和-e结合使用就是临时顺序节点
+
+* get path [watch]
+    
+    获取节点内容
+
+        get /app1/server01
+
+    开启watch功能
+
+        get /app1 watch
+
+    当其他机器修改/app1节点的内容时, 监听会收到通知, 但是只能监听一次, 监听器也分类型
+    
+        WATCHER::
+
+        WatchedEvent state:SyncConnected type:NodeDataChanged path:/app1
+
+* quit
+
+    客户端断开连接
+
+* set
+
+    更新节点内容
+
+        set /app1 "xxx"
+
+    会同步到其他机器上, 如果节点过多, 会有短暂延迟
+    
+## Zookeeper监听器原理
+
+1. 当客户端设置Watch时, 会开启两个线程, 一个线程负责监听器, 一个线程负责和Zookeeper服务端通信告诉服务端监听线程的端口, 当服务端变化时, 服务端主动调用客户端监听器端口, 监听器调用zkClient的watch方法实现监听器, 原理是各种rpc调用
 
 ## Zookeeper分布式锁
 
