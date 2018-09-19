@@ -84,5 +84,7 @@ author: miaoqi
 /{label}/{application}-{profile}.yml
 /{application}-{profile}.properties
 /{label}/{application}-{profile}.properties
+
+* 如果不指定label即分支, 默认是master分支
     
     
