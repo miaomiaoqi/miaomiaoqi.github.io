@@ -1078,25 +1078,28 @@ SpringBoot使用它来做日志功能;
                 } 
             }
 
-        扫描所有Mapper
-
-            @MapperScan(basePackages = "com.miaoqi.springboot.mapper")
-            @SpringBootApplication
-            public class SpringBoot06DataMybatisApplication {
-            
-            	public static void main(String[] args) {
-            		SpringApplication.run(SpringBoot06DataMybatisApplication.class, args);
-            	}
-            }
+        
 
     * 配置文件版
 
-            mybatis:
-              config-location: classpath:mybatis/mybatis-config.xml
-              # 如果xml和mapper在同一个目录下, 可以不配该条配置
-              mapper-locations: classpath:mybatis/mapper/*.xml
+        1. 扫描所有Mapper文件所在的包
 
-        编写xml, springboot配置文件中指定xml位置
+                @MapperScan(basePackages = "com.miaoqi.springboot.mapper")
+                @SpringBootApplication
+                public class SpringBoot06DataMybatisApplication {
+                
+                	public static void main(String[] args) {
+                		SpringApplication.run(SpringBoot06DataMybatisApplication.class, args);
+                	}
+                }
+
+        1. 修改配置文件(可省略)
+
+                mybatis:
+                  # 可以指定mybatis自己的配置文件, 如果不需要可以不配
+                  config-location: classpath:mybatis/mybatis-config.xml
+                  # 如果xml和mapper在同一个目录下, 可以不配该条配置
+                  mapper-locations: classpath:mybatis/mapper/*.xml
 
 ## AOP应用
 
