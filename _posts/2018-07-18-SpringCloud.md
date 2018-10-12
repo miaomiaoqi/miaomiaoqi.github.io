@@ -79,11 +79,15 @@ author: miaoqi
 
 * 将配置中心以REST接口的形式暴露
 
-/{application}/{profile}/{label}
-/{application}-{profile}.yml
-/{label}/{application}-{profile}.yml
-/{application}-{profile}.properties
-/{label}/{application}-{profile}.properties
+    /{application}/{profile}/{label}
+    
+    /{application}-{profile}.yml
+    
+    **/{label}/{application}-{profile}.yml** 常用
+    
+    /{application}-{profile}.properties
+    
+    /{label}/{application}-{profile}.properties
 
 * 如果不指定label即分支, 默认是master分支
     
