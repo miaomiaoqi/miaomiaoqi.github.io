@@ -1149,7 +1149,7 @@ SpringBoot使用它来做日志功能;
             }
         }
 
-3. 整合MyBatis
+1. 整合MyBatis
 
         <dependency>
             <groupId>org.mybatis.spring.boot</groupId>
@@ -1214,6 +1214,200 @@ SpringBoot使用它来做日志功能;
                   config-location: classpath:mybatis/mybatis-config.xml
                   # 如果xml和mapper在同一个目录下, 可以不配该条配置
                   mapper-locations: classpath:mybatis/mapper/*.xml
+
+1. MyBatis整合多数据源
+
+    实际开发中有可能一个项目需要连接多个库, 默认情况下SpringBoot使用默认的SqlSessionFactory, 这时需要我们手动指定多SqlSessionFactory取代默认的配置
+
+        @Configuration
+        @MapperScan(value = "com.miaoqi.mysql.dc",sqlSessionFactoryRef = "dcSqlSessionFactory")
+        public class DcMySqlConfig {
+        
+            @Autowired
+            private ResourceLoader resourceLoader = new DefaultResourceLoader();
+        
+            @Value("${spring.datasource.dc_url}")
+            private String dbUrl;
+        
+            @Value("${spring.datasource.dc_username}")
+            private String username;
+        
+            @Value("${spring.datasource.dc_password}")
+            private String password;
+        
+            @Value("${spring.datasource.dc_driverClassName}")
+            private String driverClassName;
+        
+            @Value("${spring.datasource.dc_initialSize}")
+            private int initialSize;
+        
+            @Value("${spring.datasource.dc_minIdle}")
+            private int minIdle;
+        
+            @Value("${spring.datasource.dc_maxActive}")
+            private int maxActive;
+        
+            @Value("${spring.datasource.dc_maxWait}")
+            private int maxWait;
+        
+            @Value("${spring.datasource.dc_timeBetweenEvictionRunsMillis}")
+            private int timeBetweenEvictionRunsMillis;
+        
+            @Value("${spring.datasource.dc_minEvictableIdleTimeMillis}")
+            private int minEvictableIdleTimeMillis;
+        
+            @Value("${spring.datasource.dc_validationQuery}")
+            private String validationQuery;
+        
+            @Value("${spring.datasource.dc_testWhileIdle}")
+            private boolean testWhileIdle;
+        
+            @Value("${spring.datasource.dc_testOnBorrow}")
+            private boolean testOnBorrow;
+        
+            @Value("${spring.datasource.dc_testOnReturn}")
+            private boolean testOnReturn;
+        
+            @Value("${spring.datasource.dc_filters}")
+            private String filters;
+        
+            @Value("${spring.datasource.dc_logSlowSql}")
+            private String logSlowSql;
+        
+            @Bean(name = "dcDataSource")
+            public DataSource dataSource() throws Exception {
+                DruidDataSource datasource = new DruidDataSource();
+                datasource.setUrl(dbUrl);
+                datasource.setUsername(ConfigTools.decrypt(username));
+                datasource.setPassword(ConfigTools.decrypt(password));
+                datasource.setDriverClassName(driverClassName);
+                datasource.setInitialSize(initialSize);
+                datasource.setMinIdle(minIdle);
+                datasource.setMaxActive(maxActive);
+                datasource.setMaxWait(maxWait);
+                datasource.setTimeBetweenEvictionRunsMillis(timeBetweenEvictionRunsMillis);
+                datasource.setMinEvictableIdleTimeMillis(minEvictableIdleTimeMillis);
+                datasource.setValidationQuery(validationQuery);
+                datasource.setTestWhileIdle(testWhileIdle);
+                datasource.setTestOnBorrow(testOnBorrow);
+                datasource.setTestOnReturn(testOnReturn);
+                datasource.setFilters(filters);
+        
+                return datasource;
+            }
+        
+            @Bean(name = "dcDataSourceTransactionManager")
+            public DataSourceTransactionManager transactionManager() throws Exception {
+                return new DataSourceTransactionManager(dataSource());
+            }
+        
+            @Bean(name = "dcSqlSessionFactory")
+            public SqlSessionFactory sqlSessionFactory() throws Exception {
+                SqlSessionFactoryBean factory = new SqlSessionFactoryBean();
+                factory.setDataSource(dataSource());
+                factory.setVfs(SpringBootVFS.class);
+                factory.setConfigLocation(this.resourceLoader.getResource("classpath:dc-mybatis-config.xml"));
+                return factory.getObject();
+            }
+        }
+
+
+        @Configuration
+        @MapperScan(value = "com.miaoqi.mysql.mapper",sqlSessionFactoryRef = "rdsSqlSessionFactory")
+        public class MySqlConfig {
+        
+            @Autowired
+            private ResourceLoader resourceLoader = new DefaultResourceLoader();
+        
+            @Value("${spring.datasource.url}")
+            private String dbUrl;
+        
+            @Value("${spring.datasource.username}")
+            private String username;
+        
+            @Value("${spring.datasource.password}")
+            private String password;
+        
+            @Value("${spring.datasource.driverClassName}")
+            private String driverClassName;
+        
+            @Value("${spring.datasource.initialSize}")
+            private int initialSize;
+        
+            @Value("${spring.datasource.minIdle}")
+            private int minIdle;
+        
+            @Value("${spring.datasource.maxActive}")
+            private int maxActive;
+        
+            @Value("${spring.datasource.maxWait}")
+            private int maxWait;
+        
+            @Value("${spring.datasource.timeBetweenEvictionRunsMillis}")
+            private int timeBetweenEvictionRunsMillis;
+        
+            @Value("${spring.datasource.minEvictableIdleTimeMillis}")
+            private int minEvictableIdleTimeMillis;
+        
+            @Value("${spring.datasource.validationQuery}")
+            private String validationQuery;
+        
+            @Value("${spring.datasource.testWhileIdle}")
+            private boolean testWhileIdle;
+        
+            @Value("${spring.datasource.testOnBorrow}")
+            private boolean testOnBorrow;
+        
+            @Value("${spring.datasource.testOnReturn}")
+            private boolean testOnReturn;
+        
+            @Value("${spring.datasource.filters}")
+            private String filters;
+        
+            @Value("${spring.datasource.logSlowSql}")
+            private String logSlowSql;
+        
+            @Primary
+            @Bean(name = "rdsDataSource")
+            public DataSource dataSource() throws Exception {
+                DruidDataSource datasource = new DruidDataSource();
+                datasource.setUrl(dbUrl);
+                datasource.setUsername(ConfigTools.decrypt(username));
+                datasource.setPassword(ConfigTools.decrypt(password));
+                datasource.setDriverClassName(driverClassName);
+                datasource.setInitialSize(initialSize);
+                datasource.setMinIdle(minIdle);
+                datasource.setMaxActive(maxActive);
+                datasource.setMaxWait(maxWait);
+                datasource.setTimeBetweenEvictionRunsMillis(timeBetweenEvictionRunsMillis);
+                datasource.setMinEvictableIdleTimeMillis(minEvictableIdleTimeMillis);
+                datasource.setValidationQuery(validationQuery);
+                datasource.setTestWhileIdle(testWhileIdle);
+                datasource.setTestOnBorrow(testOnBorrow);
+                datasource.setTestOnReturn(testOnReturn);
+                datasource.setFilters(filters);
+        
+                return datasource;
+            }
+        
+            @Primary
+            @Bean(name = "rdsDataSourceTransactionManager")
+            public DataSourceTransactionManager transactionManager(DataSource dataSource) {
+                return new DataSourceTransactionManager(dataSource);
+            }
+        
+            @Primary
+            @Bean(name = "rdsSqlSessionFactory")
+            public SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception {
+                SqlSessionFactoryBean factory = new SqlSessionFactoryBean();
+                factory.setDataSource(dataSource);
+                factory.setVfs(SpringBootVFS.class);
+                factory.setConfigLocation(this.resourceLoader.getResource("classpath:mybatis-config.xml"));
+                return factory.getObject();
+            }
+        }
+
+    手动配置了SqlSessionFactory, 从不同的DataSource中获取连接, 注入到不同的mapper中, 即可实现多数据源
 
 ## AOP应用
 
