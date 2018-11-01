@@ -1411,9 +1411,7 @@ SpringBoot使用它来做日志功能;
 
 ## AOP应用
 
-* 全局异常处理器
-
-    对Controller层加入异常通知
+* 全局异常处理器, 对Controller层加入异常通知, 新建全局异常处理器类
 
         /**
          * 全局异常捕获处理器
@@ -1425,7 +1423,7 @@ SpringBoot使用它来做日志功能;
          */
         @ControllerAdvice(basePackages = "com.miaoqi.controller")
         public class GlobalExceptionHandler {
-        
+            
             // @ResponseBody 返回json格式
             // ModelAndView 返回页面
             @ExceptionHandler(RuntimeException.class)
@@ -1437,7 +1435,6 @@ SpringBoot使用它来做日志功能;
                 errorResultMap.put("errorMsg", "全局捕获异常系统错误: " + e);
                 return errorResultMap;
             }
-        
         }
 
 
@@ -1557,6 +1554,82 @@ SpringBoot使用它来做日志功能;
                 return sb.toString();
             }   
         }
+
+* 自定义注解解析器
+
+    自定义注解的原理实际是还是利用了AOP功能
+
+    * 首先定义一个LogAnnotation注解
+
+            @Target(ElementType.METHOD)
+            @Retention(RetentionPolicy.RUNTIME)
+            @Documented
+            public @interface LogAnnotation {
+            
+            }
+
+    * 编写切面类, 重点就在于切面表达式的编写不是一个切入点表达式, 而是一个注解的表达式
+
+            @Component
+            @Aspect
+            public class ControllerLogAspect {
+            
+                private static final Logger logger = LoggerFactory.getLogger(ControllerLogAspect.class);
+            
+                @Autowired(required = false)
+                HttpServletRequest request;
+            
+                @Pointcut("@annotation(com.miaoqi.aop.LogAnnotation)")
+                public void aspect(){	}
+            
+                @Before("aspect()")
+                public void before(JoinPoint joinPoint) {
+                    try {
+                        if (request != null) {
+                            Object rd = request.getAttribute("requestData");
+                            if (rd != null) {
+                                RequestData requestData = (RequestData) rd;
+                                String token = request.getHeader("Authorization");
+                                if (StringUtils.isNotBlank(token)) {
+                                    token = token.substring(7);
+                                }
+                                CommonLogger.doCommonLogInfo(logger,requestData.getBody(), token);
+                            }
+                        }
+                    } catch (Exception e) {
+                        LoggerUtil.error(logger,e.getMessage(),e);
+                    }
+            
+                }
+            
+                @AfterReturning(value = "aspect()", returning = "rtv")
+                public void after(JoinPoint joinPoint, Object rtv) {
+                    try {
+                        if (request != null) {
+                            Object rd = request.getAttribute("requestData");
+                            if (rd != null) {
+                                RequestData requestData = (RequestData) rd;
+                                CommonLogger.doCommonLogInfo(logger, requestData.getBody(), JSON.toJSONString(rtv));
+                            }
+                        }
+                    } catch (Exception e) {
+                        LoggerUtil.error(logger,e.getMessage(),e);
+                    }
+                }
+            
+                @AfterThrowing(pointcut = "aspect()", throwing = "ex")
+                public void afterThrow(JoinPoint joinPoint, Exception ex) {
+                    if (request != null) {
+                        Object rd = request.getAttribute("requestData");
+                        if (rd != null) {
+                            RequestData requestData = (RequestData) rd;
+                            CommonLogger.doCommonLogError(logger, requestData.getBody(), ex.toString());
+                        }
+                    }
+                }
+            }
+
+            
 
 ## 自定义参数解析器
 
