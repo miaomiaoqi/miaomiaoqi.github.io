@@ -1,9 +1,9 @@
 ---
 layout: post
-title:  "MAC下多版本python共存"
+title:  "MAC下多版本python共存(Pyenv)"
 date:   2017-07-30 18:51:20
 categories: Python
-tags: pyenv
+tags: Pyenv
 author: miaoqi
 ---
 
