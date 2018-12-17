@@ -2,8 +2,8 @@
 layout: post
 title:  "mysql存储emoji表情"
 date:   2018-07-21 15:12:38
-categories: Others
-tags: Problem
+categories: RDBMS
+tags: MySQL
 author: miaoqi
 ---
 
@@ -65,23 +65,23 @@ author: miaoqi
 
             <!-- 数据源 -->
             <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
-        		<property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
-        		<property name="url" value="jdbc:mysql://${${data-source.prefix}.data-source.host-name}:3306/${${data-source.prefix}.data-source.db-name}?characterEncoding=utf8&amp;autoReconnect=true&amp;failOverReadOnly=false&amp;maxReconnects=10&amp;allowMultiQueries=true" />
-        		<property name="username" value="${${data-source.prefix}.data-source.username}" />
-        		<property name="password" value="${${data-source.prefix}.data-source.password}" />
-        		<property name="maxActive" value="150" />
-        		<property name="maxIdle" value="2" />
-        		<property name="testOnBorrow" value="true" />
-        		<property name="testOnReturn" value="true" />
-        		<property name="testWhileIdle" value="true" />
-        		<property name="validationQuery" value="select 1" />
-        		<!-- 此配置用于在创建Connection对象时执行指定的初始化sql -->
-        		<property name="connectionInitSqls">
-        			<list>
-        				<value>set names 'utf8mb4'</value>
-        			</list>
-        		</property>
-        	</bean>
+            	<property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
+            	<property name="url" value="jdbc:mysql://${${data-source.prefix}.data-source.host-name}:3306/${${data-source.prefix}.data-source.db-name}?characterEncoding=utf8&amp;autoReconnect=true&amp;failOverReadOnly=false&amp;maxReconnects=10&amp;allowMultiQueries=true" />
+            	<property name="username" value="${${data-source.prefix}.data-source.username}" />
+            	<property name="password" value="${${data-source.prefix}.data-source.password}" />
+            	<property name="maxActive" value="150" />
+            	<property name="maxIdle" value="2" />
+            	<property name="testOnBorrow" value="true" />
+            	<property name="testOnReturn" value="true" />
+            	<property name="testWhileIdle" value="true" />
+            	<property name="validationQuery" value="select 1" />
+            	<!-- 此配置用于在创建Connection对象时执行指定的初始化sql -->
+            	<property name="connectionInitSqls">
+            		<list>
+            			<value>set names 'utf8mb4'</value>
+            		</list>
+            	</property>
+            </bean>
 
     * 在springcloud项目中进行配置
 
@@ -92,7 +92,7 @@ author: miaoqi
     * 该设置的解释引用自mysql参考手册:
 
             SET NAMES 'charset_name'
-
+    
             SET NAMES显示客户端发送的SQL语句中使用什么字符集。
             
             因此，SET NAMES 'utf8mb4'语句告诉服务器：“将来从这个客户端传来的信息采用字符集utf8mb4”。它还为服务器发送回客户端的结果指定了字符集。（例如，如果你使用一个SELECT语句，它表示列值使用了什么字符集。）
