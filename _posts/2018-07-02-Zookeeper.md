@@ -9,7 +9,7 @@ author: miaoqi
 
 * content
 {:toc}
-            
+
 ## 简介
 
 * Zookeeper是一个**分布式协调服务**；就是为用户的分布式应用程序提供协调服务
@@ -103,7 +103,7 @@ author: miaoqi
 1. 节点Znode可以包含数据和子节点（但是EPHEMERAL类型的节点不能有子节点，下一页详细讲解）
 1. 客户端应用可以在节点上设置监视器（后续详细讲解）
 
-![http://www.miaomiaoqi.cn/images/zookeeper/1.png](http://www.miaomiaoqi.cn/images/zookeeper/1.png)
+![http://www.miaomiaoqi.cn/images/bigdata/zookeeper/1.png](http://www.miaomiaoqi.cn/images/bigdata/zookeeper/1.png)
 
 ## 节点类型
 
@@ -139,7 +139,7 @@ author: miaoqi
     在某个节点下创建节点, 默认是持久节点
 
         create /app1 "This is app1 server parent"
-
+    
         create /app1/server01 "192.168.1.1,100"
 
     -e是短暂节点, 客户端断开连接节点销毁
@@ -160,7 +160,7 @@ author: miaoqi
     -s和-e结合使用就是临时顺序节点
 
 * get path [watch]
-    
+  
     获取节点内容
 
         get /app1/server01
@@ -172,7 +172,7 @@ author: miaoqi
     当其他机器修改/app1节点的内容时, 监听会收到通知, 但是只能监听一次, 监听器也分类型
     
         WATCHER::
-
+    
         WatchedEvent state:SyncConnected type:NodeDataChanged path:/app1
 
 * quit
@@ -218,7 +218,7 @@ author: miaoqi
     释放锁分为两种情况：
 
     1. 任务完成，客户端显示释放
-     
+    
         当任务完成时，Client1会显示调用删除节点Lock1的指令。
 
     2. 任务执行过程中，客户端崩溃
