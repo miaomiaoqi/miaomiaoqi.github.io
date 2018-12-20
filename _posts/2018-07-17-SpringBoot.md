@@ -28,9 +28,9 @@ author: miaoqi
                 <artifactId>spring‐boot‐starter‐web</artifactId>
             </dependency>
         </dependencies>
-        
+    
 3. 编写一个主程序;启动Spring Boot应用
-        
+   ​     
         @SpringBootApplication
         public class HelloWorldMainApplication{ 
             public static void main(String[] args) {
@@ -50,11 +50,11 @@ author: miaoqi
                 return "Hello World!";
             }
         }
-        
+    
 5. 运行主程序测试
 
 6. 简化部署
-        
+   ​     
         <build>
             <!‐‐ 这个插件，可以将应用打包成一个可执行的jar包;‐‐> <build>
             <plugins>
@@ -78,7 +78,7 @@ author: miaoqi
             <artifactId>spring‐boot‐starter‐parent</artifactId>
             <version>1.5.9.RELEASE</version>
         </parent>
-
+    
         他的父项目是
         <parent>
             <groupId>org.springframework.boot</groupId>
@@ -186,7 +186,7 @@ YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JS
     * 对象: 键值对的集合, 又称为映射(mapping)/哈希(hashes)/字典(dictionary)
 
         对象的一组键值对，使用冒号结构表示
-            
+        ​    
             animal: pets
             
             person:
@@ -200,7 +200,7 @@ YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JS
     * 数组: 一组按次序排列的值，又称为序列(sequence)/列表(list), 一组连词线开头的行, 构成一个数组
 
         一组连词线开头的行，构成一个数组
-            
+        ​    
             pets:
               - Cat
               - Dog
@@ -236,7 +236,7 @@ YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JS
         * 字符串
 
             字符串默认不使用引号表示
-            
+
                 str: 这是一行字符串
 
             如果字符串之中包含空格或特殊字符，需要放在引号之中
@@ -274,13 +274,14 @@ YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JS
                 
                 s2: |+
                   Foo
-                 
-                 
+
+
+            ​     
                 s3: |-
                   Foo
-
+                
                 {s1: 'Foo\n', s2: 'Foo\n\n\n', s3: 'Foo'}
-            
+
     * 复合结构, 以上三种类型的组合
 
             languages:
@@ -341,7 +342,7 @@ YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JS
             age: 2
 
 * properties写法
-    
+  
         person.last-name=啊发发
         person.age=18
         person.birth=2018/08/20
@@ -351,7 +352,7 @@ YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JS
         person.dog.age=15
 
 * @ConfigurationProperties: 告诉SpringBoot将本类中的所有属性和配置文件中相关的配置进行绑定, prefix = "person": 配置文件中哪个下面的所有属性进行一一映射
-    
+  
     只有这个组件是容器中的组件, 才能有容器提供的@ConfigurationProperties功能
     
     默认从全局配置文件中获取
@@ -589,7 +590,7 @@ Spring提供的对不同环境提供不同配置功能的支持, 可以通过激
         org.springframework.boot.autoconfigure.websocket.WebSocketAutoConfiguration,\
         org.springframework.boot.autoconfigure.websocket.WebSocketMessagingAutoConfiguration,\
         org.springframework.boot.autoconfigure.webservices.WebServicesAutoConfiguration
-
+    
     每一个这样的 xxxAutoConfiguration类都是容器中的一个组件，都加入到容器中;用他们来做自动配置;
 
 * 以HttpEncodingAutoConfiguration(Http编码自动配置)为例解释自动配置原理;
@@ -622,7 +623,7 @@ Spring提供的对不同环境提供不同配置功能的支持, 可以通过激
 
 
     **所有在配置文件中能配置的属性都是在xxxxProperties类中封装着;配置文件能配置什么就可以参照某个功能对应的这个属性类**
-
+    
         @ConfigurationProperties(prefix = "spring.http.encoding") //从配置文件中获取指定的值和bean的属 性进行绑定
         publicclassHttpEncodingProperties{
         
@@ -637,14 +638,25 @@ Spring提供的对不同环境提供不同配置功能的支持, 可以通过激
     1. 我们再来看这个自动配置类中到底配置了哪些组件;(只要我们要用的组件有，我们就不需要再来配置了)
 
     1. 给容器中自动配置类添加组件的时候，会从properties类中获取某些属性。我们就可以在配置文件中指定这 些属性的值;
-     
 
 * @Conditional派生注解(Spring注解版原生的@Conditional作用)
 
     必须是@Conditional指定的条件成立，才给容器中添加组件，配置配里面的所有内容才生效, 加在类上就对类中所有的bean都生效
     
     |@Conditional|扩展注解作用(判断是否满足当前指定条件)|
-    |-----|-----|    |@ConditionalOnJava|系统的java版本是否符合要求|    |@ConditionalOnBean|容器中存在指定Bean|    |@ConditionalOnMissingBean|容器中不存在指定Bean|    |@ConditionalOnExpression|满足SpEL表达式指定|    |@ConditionalOnClass|系统中有指定的类|    |@ConditionalOnMissingClass|系统中没有指定的类|    |@ConditionalOnSingleCandidate|容器中只有一个指定的Bean，或者这个Bean是首选Bean|    |@ConditionalOnProperty|系统中指定的属性是否有指定的值|    |@ConditionalOnResource|类路径下是否存在指定资源文件|    |@ConditionalOnWebApplication|当前是web环境|    |@ConditionalOnNotWebApplication|当前不是web环境|    |@ConditionalOnJndiJNDI|存在指定项|
+    |-----|-----|
+    |@ConditionalOnJava|系统的java版本是否符合要求|
+    |@ConditionalOnBean|容器中存在指定Bean|
+    |@ConditionalOnMissingBean|容器中不存在指定Bean|
+    |@ConditionalOnExpression|满足SpEL表达式指定|
+    |@ConditionalOnClass|系统中有指定的类|
+    |@ConditionalOnMissingClass|系统中没有指定的类|
+    |@ConditionalOnSingleCandidate|容器中只有一个指定的Bean，或者这个Bean是首选Bean|
+    |@ConditionalOnProperty|系统中指定的属性是否有指定的值|
+    |@ConditionalOnResource|类路径下是否存在指定资源文件|
+    |@ConditionalOnWebApplication|当前是web环境|
+    |@ConditionalOnNotWebApplication|当前不是web环境|
+    |@ConditionalOnJndiJNDI|存在指定项|
 
 
 ## 日志
@@ -755,7 +767,7 @@ SpringBoot使用它来做日志功能;
         %logger{50} 表示logger名字最长50个字符，否则按照句点分割。 
         %msg:日志消息，
         %n是换行符
-    
+        
         %d{yyyy‐MM‐dd HH:mm:ss.SSS} [%thread] %‐5level %logger{50} ‐ %msg%n
 
     SpringBoot修改日志的默认配置
@@ -780,8 +792,10 @@ SpringBoot使用它来做日志功能;
     给类路径下放上每个日志框架自己的配置文件即可;SpringBoot就不使用他默认配置的了
 
     |Logging System|Customization|
-    |-----|-----|    |Logback|logback-spring.xml , logback-spring.groovy , logback.xml or logback.groovy|
-    |Log4j2|log4j2-spring.xml or log4j2.xml|    |JDK (Java Util Logging)|logging.properties|
+    |-----|-----|
+    |Logback|logback-spring.xml , logback-spring.groovy , logback.xml or logback.groovy|
+    |Log4j2|log4j2-spring.xml or log4j2.xml|
+    |JDK (Java Util Logging)|logging.properties|
 
     logback.xml:直接就被日志框架识别了;
 
@@ -791,7 +805,7 @@ SpringBoot使用它来做日志功能;
             <!‐‐ configuration to be enabled when the "staging" profile is active ‐‐> 
             可以指定某段配置只在某个环境下生效
         </springProfile>
-
+    
         <layout class="ch.qos.logback.classic.PatternLayout">
             <springProfile name="dev">
                 <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} ----> [%thread] ---> %-5level %logger{50} - %msg%n</pattern>
@@ -837,7 +851,7 @@ SpringBoot使用它来做日志功能;
         * 自动配置了ViewResolver(视图解析器:根据方法的返回值得到视图对象(View)，视图对象决定如何 渲染(转发?重定向?))
     
         * ContentNegotiatingViewResolver:组合所有的视图解析器的
-         
+        
         * 如何定制:我们可以自己给容器中添加一个视图解析器;自动的将其组合进来;
     
     * Support for serving static resources, including support for WebJars (see below).静态资源文件夹路 径,webjars
@@ -1095,7 +1109,7 @@ SpringBoot使用它来做日志功能;
             <artifactId>mysql‐connector‐java</artifactId>
             <scope>runtime</scope>
         </dependency>
-
+    
         spring:
           datasource:
             username: root
@@ -1151,13 +1165,17 @@ SpringBoot使用它来做日志功能;
 
 1. 整合MyBatis
 
-        <dependency>
-            <groupId>org.mybatis.spring.boot</groupId>
-            <artifactId>mybatis‐spring‐boot‐starter</artifactId>
-            <version>1.3.1</version>
-        </dependency>
+    * 引入Mybatis整合SpringBoot所需的jar包
 
-    * 注解版
+    	```
+    	<dependency>
+    	    <groupId>org.mybatis.spring.boot</groupId>
+    	    <artifactId>mybatis‐spring‐boot‐starter</artifactId>
+    	    <version>1.3.1</version>
+    	</dependency>
+    	```
+
+    * 注解版整合
 
             @Mapper
             public interface DepartmentMapper {
@@ -1174,7 +1192,7 @@ SpringBoot使用它来做日志功能;
             
                 @Update("update dept set departmentName = #{departmentName} where id = #{id}")
                 public int updateDept(Department department);
-    
+            
             }
 
         自定义MyBatis的配置规则;给容器中添加一个ConfigurationCustomizer;
@@ -1192,9 +1210,7 @@ SpringBoot使用它来做日志功能;
                 } 
             }
 
-        
-
-    * 配置文件版
+    * 配置文件版整合
 
         1. 扫描所有Mapper文件所在的包
 
@@ -1207,13 +1223,49 @@ SpringBoot使用它来做日志功能;
                 	}
                 }
 
-        1. 修改配置文件(可省略)
+        1. 修改SpringBoot配置文件(可省略)
 
                 mybatis:
                   # 可以指定mybatis自己的配置文件, 如果不需要可以不配
                   config-location: classpath:mybatis/mybatis-config.xml
                   # 如果xml和mapper在同一个目录下, 可以不配该条配置
                   mapper-locations: classpath:mybatis/mapper/*.xml
+
+    * **我们一般在maven环境下整合mybatis此处就有一个问题会发生**
+
+    	```
+    	org.apache.ibatis.binding.BindingException: Invalid bound statement (not found)
+    	```
+
+    	**如果出现上面那个错误, 一般的原因是Mapper interface和xml文件的定义对应不上，需要检查包名，namespace，函数名称等能否对应上，需要比较细致的对比，我经常就是写错了一两个字母搞的很长时间找不到错误**
+
+    	按以下步骤一一执行：
+
+    	1. 检查xml文件所在的package名称是否和interface对应的package名称一一对应
+
+    	2. 检查xml文件的namespace是否和xml文件的package名称一一对应
+
+    	3. 检查函数名称能否对应上
+
+    	4. 去掉xml文件中的中文注释
+
+    	5. 随意在xml文件中加一个空格或者空行然后保存
+
+    	**但是还会出现一个不属于上面任何一种情况的错误, 这个问题的发生的原因是, 如果我们将mapper对应的xml文件与mapper放在同一目录, 一般都是src/main/java/下, 这样使用maven打包的时候, maven是不会将xml打包进编译后的目录中的, (因为maven认为src/main/java下只是java的源代码路径, 所以不会打包资源文件, 而将xml, properties等资源文件放在src/main/resources目录下是可以被打包进去的), 这个时候就需要我们在pom.xml文件中加入一条配置, 告诉maven将src/main/java路径下的某个资源也打进jar包就可以了, 配置如下**
+
+    	```
+    	<build>
+    		<resources>
+    	        <resource>
+    	            <directory>src/main/java</directory>
+    	            <filtering>true</filtering>
+    	            <includes>
+    	                <include>**/*Mapper.xml</include>
+    	            </includes>
+    	        </resource>
+    	    </resources>
+    	</build>
+    	```
 
 1. MyBatis整合多数据源
 
@@ -1311,103 +1363,105 @@ SpringBoot使用它来做日志功能;
             }
         }
 
-
-        @Configuration
-        @MapperScan(value = "com.miaoqi.mysql.mapper",sqlSessionFactoryRef = "rdsSqlSessionFactory")
-        public class MySqlConfig {
+    ```
+    @Configuration
+    @MapperScan(value = "com.miaoqi.mysql.mapper",sqlSessionFactoryRef = "rdsSqlSessionFactory")
+    public class MySqlConfig {
         
-            @Autowired
-            private ResourceLoader resourceLoader = new DefaultResourceLoader();
+        @Autowired
+        private ResourceLoader resourceLoader = new DefaultResourceLoader();
+    
+        @Value("${spring.datasource.url}")
+        private String dbUrl;
+    
+        @Value("${spring.datasource.username}")
+        private String username;
+    
+        @Value("${spring.datasource.password}")
+        private String password;
         
-            @Value("${spring.datasource.url}")
-            private String dbUrl;
+        @Value("${spring.datasource.driverClassName}")
+        private String driverClassName;
+    
+        @Value("${spring.datasource.initialSize}")
+        private int initialSize;
+    
+        @Value("${spring.datasource.minIdle}")
+        private int minIdle;
         
-            @Value("${spring.datasource.username}")
-            private String username;
+        @Value("${spring.datasource.maxActive}")
+        private int maxActive;
+    
+        @Value("${spring.datasource.maxWait}")
+        private int maxWait;
+    
+        @Value("${spring.datasource.timeBetweenEvictionRunsMillis}")
+        private int timeBetweenEvictionRunsMillis;
+    
+        @Value("${spring.datasource.minEvictableIdleTimeMillis}")
+        private int minEvictableIdleTimeMillis;
+    
+        @Value("${spring.datasource.validationQuery}")
+        private String validationQuery;
+    
+        @Value("${spring.datasource.testWhileIdle}")
+        private boolean testWhileIdle;
+    
+        @Value("${spring.datasource.testOnBorrow}")
+        private boolean testOnBorrow;
+    
+        @Value("${spring.datasource.testOnReturn}")
+        private boolean testOnReturn;
+    
+        @Value("${spring.datasource.filters}")
+        private String filters;
+    
+        @Value("${spring.datasource.logSlowSql}")
+        private String logSlowSql;
         
-            @Value("${spring.datasource.password}")
-            private String password;
-        
-            @Value("${spring.datasource.driverClassName}")
-            private String driverClassName;
-        
-            @Value("${spring.datasource.initialSize}")
-            private int initialSize;
-        
-            @Value("${spring.datasource.minIdle}")
-            private int minIdle;
-        
-            @Value("${spring.datasource.maxActive}")
-            private int maxActive;
-        
-            @Value("${spring.datasource.maxWait}")
-            private int maxWait;
-        
-            @Value("${spring.datasource.timeBetweenEvictionRunsMillis}")
-            private int timeBetweenEvictionRunsMillis;
-        
-            @Value("${spring.datasource.minEvictableIdleTimeMillis}")
-            private int minEvictableIdleTimeMillis;
-        
-            @Value("${spring.datasource.validationQuery}")
-            private String validationQuery;
-        
-            @Value("${spring.datasource.testWhileIdle}")
-            private boolean testWhileIdle;
-        
-            @Value("${spring.datasource.testOnBorrow}")
-            private boolean testOnBorrow;
-        
-            @Value("${spring.datasource.testOnReturn}")
-            private boolean testOnReturn;
-        
-            @Value("${spring.datasource.filters}")
-            private String filters;
-        
-            @Value("${spring.datasource.logSlowSql}")
-            private String logSlowSql;
-        
-            @Primary
-            @Bean(name = "rdsDataSource")
-            public DataSource dataSource() throws Exception {
-                DruidDataSource datasource = new DruidDataSource();
-                datasource.setUrl(dbUrl);
-                datasource.setUsername(ConfigTools.decrypt(username));
-                datasource.setPassword(ConfigTools.decrypt(password));
-                datasource.setDriverClassName(driverClassName);
-                datasource.setInitialSize(initialSize);
-                datasource.setMinIdle(minIdle);
-                datasource.setMaxActive(maxActive);
-                datasource.setMaxWait(maxWait);
-                datasource.setTimeBetweenEvictionRunsMillis(timeBetweenEvictionRunsMillis);
-                datasource.setMinEvictableIdleTimeMillis(minEvictableIdleTimeMillis);
-                datasource.setValidationQuery(validationQuery);
-                datasource.setTestWhileIdle(testWhileIdle);
-                datasource.setTestOnBorrow(testOnBorrow);
-                datasource.setTestOnReturn(testOnReturn);
-                datasource.setFilters(filters);
-        
-                return datasource;
-            }
-        
-            @Primary
-            @Bean(name = "rdsDataSourceTransactionManager")
-            public DataSourceTransactionManager transactionManager(DataSource dataSource) {
-                return new DataSourceTransactionManager(dataSource);
-            }
-        
-            @Primary
-            @Bean(name = "rdsSqlSessionFactory")
-            public SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception {
-                SqlSessionFactoryBean factory = new SqlSessionFactoryBean();
-                factory.setDataSource(dataSource);
-                factory.setVfs(SpringBootVFS.class);
-                factory.setConfigLocation(this.resourceLoader.getResource("classpath:mybatis-config.xml"));
-                return factory.getObject();
-            }
+        @Primary
+        @Bean(name = "rdsDataSource")
+        public DataSource dataSource() throws Exception {
+            DruidDataSource datasource = new DruidDataSource();
+            datasource.setUrl(dbUrl);
+            datasource.setUsername(ConfigTools.decrypt(username));
+            datasource.setPassword(ConfigTools.decrypt(password));
+            datasource.setDriverClassName(driverClassName);
+            datasource.setInitialSize(initialSize);
+            datasource.setMinIdle(minIdle);
+            datasource.setMaxActive(maxActive);
+            datasource.setMaxWait(maxWait);
+                	
+    		datasource.setTimeBetweenEvictionRunsMillis(timeBetweenEvictionRunsMillis);
+    		datasource.setMinEvictableIdleTimeMillis(minEvictableIdleTimeMillis);
+            datasource.setValidationQuery(validationQuery);
+            datasource.setTestWhileIdle(testWhileIdle);
+            datasource.setTestOnBorrow(testOnBorrow);
+            datasource.setTestOnReturn(testOnReturn);
+            datasource.setFilters(filters);
+        	return datasource;
         }
-
+        
+        @Primary
+        @Bean(name = "rdsDataSourceTransactionManager")
+        public DataSourceTransactionManager transactionManager(DataSource dataSource) {
+        	return new DataSourceTransactionManager(dataSource);
+        }
+        
+        @Primary
+        @Bean(name = "rdsSqlSessionFactory")
+        public SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception {
+        	SqlSessionFactoryBean factory = new SqlSessionFactoryBean();
+            factory.setDataSource(dataSource);
+            factory.setVfs(SpringBootVFS.class);
+            factory.setConfigLocation(this.resourceLoader.getResource("classpath:mybatis-config.xml"));
+            return factory.getObject();
+    	}
+    }
+    
     手动配置了SqlSessionFactory, 从不同的DataSource中获取连接, 注入到不同的mapper中, 即可实现多数据源
+    ```
+
 
 ## AOP应用
 
@@ -1629,7 +1683,8 @@ SpringBoot使用它来做日志功能;
                 }
             }
 
-            
+
+        ​    
 
 ## 自定义参数解析器
 
@@ -1649,7 +1704,7 @@ SpringBoot使用它来做日志功能;
                 String value() default "";
             
                 boolean required() default false;
-    
+        
             }
 
         DESRequestParam
@@ -1768,25 +1823,25 @@ SpringBoot使用它来做日志功能;
         private HandlerMethodArgumentResolver getArgumentResolver(MethodParameter parameter) {
             // parameter是参数对象
             // 从缓存中, 根据参数对象获取参数解析器
-    		HandlerMethodArgumentResolver result = this.argumentResolverCache.get(parameter);
-    		if (result == null) {
-    		      // 解析器为空的话, 遍历所有的参数解析器
-    			for (HandlerMethodArgumentResolver methodArgumentResolver : this.argumentResolvers) {
-    				if (logger.isTraceEnabled()) {
-    					logger.trace("Testing if argument resolver [" + methodArgumentResolver + "] supports [" +
-    							parameter.getGenericParameterType() + "]");
-    				}
-    				// 根据supportsParameter方法的返回值判断是否支持解析
-    				if (methodArgumentResolver.supportsParameter(parameter)) {
-    					result = methodArgumentResolver;
-    					// 将这个参数解析器以参数对象为key, 参数解析器为value放入缓存中
-    					this.argumentResolverCache.put(parameter, result);
-    					break;
-    				}
-    			}
-    		}
-    		return result;
-    	}
+        	HandlerMethodArgumentResolver result = this.argumentResolverCache.get(parameter);
+        	if (result == null) {
+        	      // 解析器为空的话, 遍历所有的参数解析器
+        		for (HandlerMethodArgumentResolver methodArgumentResolver : this.argumentResolvers) {
+        			if (logger.isTraceEnabled()) {
+        				logger.trace("Testing if argument resolver [" + methodArgumentResolver + "] supports [" +
+        						parameter.getGenericParameterType() + "]");
+        			}
+        			// 根据supportsParameter方法的返回值判断是否支持解析
+        			if (methodArgumentResolver.supportsParameter(parameter)) {
+        				result = methodArgumentResolver;
+        				// 将这个参数解析器以参数对象为key, 参数解析器为value放入缓存中
+        				this.argumentResolverCache.put(parameter, result);
+        				break;
+        			}
+        		}
+        	}
+        	return result;
+        }
 
 
 
