@@ -2,7 +2,7 @@
 layout: post
 title:  "SpringBoot学习"
 date:   2017-07-17 14:34:32
-categories: Java
+categories: Framework
 tags: Spring
 author: miaoqi
 ---
@@ -31,13 +31,13 @@ author: miaoqi
     
 3. 编写一个主程序;启动Spring Boot应用
    ​     
-        @SpringBootApplication
-        public class HelloWorldMainApplication{ 
-            public static void main(String[] args) {
-                // Spring应用启动起来
-                SpringApplication.run(HelloWorldMainApplication.class,args);
-            }
-        }
+   ​     @SpringBootApplication
+   ​     public class HelloWorldMainApplication{ 
+   ​         public static void main(String[] args) {
+   ​             // Spring应用启动起来
+   ​             SpringApplication.run(HelloWorldMainApplication.class,args);
+   ​         }
+   ​     }
 
 4. 编写相关的Controller、Service
 
@@ -55,15 +55,15 @@ author: miaoqi
 
 6. 简化部署
    ​     
-        <build>
-            <!‐‐ 这个插件，可以将应用打包成一个可执行的jar包;‐‐> <build>
-            <plugins>
-                <plugin>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring‐boot‐maven‐plugin</artifactId>
-                </plugin>
-            </plugins>
-        </build>
+   ​     <build>
+   ​         <!‐‐ 这个插件，可以将应用打包成一个可执行的jar包;‐‐> <build>
+   ​         <plugins>
+   ​             <plugin>
+   ​                 <groupId>org.springframework.boot</groupId>
+   ​                 <artifactId>spring‐boot‐maven‐plugin</artifactId>
+   ​             </plugin>
+   ​         </plugins>
+   ​     </build>
 将这个应用打成jar包，直接使用java -jar的命令进行执行;
 
 
@@ -78,7 +78,7 @@ author: miaoqi
             <artifactId>spring‐boot‐starter‐parent</artifactId>
             <version>1.5.9.RELEASE</version>
         </parent>
-    
+        
         他的父项目是
         <parent>
             <groupId>org.springframework.boot</groupId>
@@ -187,8 +187,8 @@ YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JS
 
         对象的一组键值对，使用冒号结构表示
         ​    
-            animal: pets
-            
+        ​    animal: pets
+        ​    
             person:
                 lastName: miaoqi
                 age: 20
@@ -201,10 +201,10 @@ YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JS
 
         一组连词线开头的行，构成一个数组
         ​    
-            pets:
-              - Cat
-              - Dog
-              - Goldfish
+        ​    pets:
+        ​      - Cat
+        ​      - Dog
+        ​      - Goldfish
 
         行内写法
 
@@ -281,9 +281,9 @@ YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JS
                   Foo
                 
                 {s1: 'Foo\n', s2: 'Foo\n\n\n', s3: 'Foo'}
-
+    
     * 复合结构, 以上三种类型的组合
-
+    
             languages:
              - Ruby
              - Perl
@@ -805,7 +805,7 @@ SpringBoot使用它来做日志功能;
             <!‐‐ configuration to be enabled when the "staging" profile is active ‐‐> 
             可以指定某段配置只在某个环境下生效
         </springProfile>
-    
+        
         <layout class="ch.qos.logback.classic.PatternLayout">
             <springProfile name="dev">
                 <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} ----> [%thread] ---> %-5level %logger{50} - %msg%n</pattern>
@@ -1109,7 +1109,7 @@ SpringBoot使用它来做日志功能;
             <artifactId>mysql‐connector‐java</artifactId>
             <scope>runtime</scope>
         </dependency>
-    
+        
         spring:
           datasource:
             username: root
@@ -1704,7 +1704,7 @@ SpringBoot使用它来做日志功能;
                 String value() default "";
             
                 boolean required() default false;
-        
+            
             }
 
         DESRequestParam

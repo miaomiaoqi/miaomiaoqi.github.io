@@ -2,7 +2,7 @@
 layout: post
 title:  "SpringCloud学习"
 date:   2018-07-18 14:36:38
-categories: Java
+categories: Framework
 tags: Spring
 author: miaoqi
 ---
@@ -90,5 +90,5 @@ author: miaoqi
     /{label}/{application}-{profile}.properties
 
 * 如果不指定label即分支, 默认是master分支
-    
+  
     

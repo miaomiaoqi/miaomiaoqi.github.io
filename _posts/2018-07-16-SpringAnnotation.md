@@ -2,7 +2,7 @@
 layout: post
 title:  "Spring注解学习"
 date:   2017-07-16 14:34:32
-categories: Java
+categories: Framework
 tags: Spring
 author: miaoqi
 ---
@@ -45,7 +45,7 @@ author: miaoqi
             @ComponentScan(value = "com.miaoqi", excludeFilters = {
                 @Filter(type = FilterType.ANNOTATION, classes = {Controller.class, Service.class})
             })
-    
+        
             只扫描Controller和Service
             @ComponentScan(value = "com.miaoqi", includeFilters = {
                 @Filter(type = FilterType.ANNOTATION, classes = {Controller.class, Service.class})
@@ -57,7 +57,7 @@ author: miaoqi
                 @Filter(type = FilterType.ANNOTATION, classes = {Controller.class, Service.class}),
                 @Filter(type = FilterType.ASSIGNABLE_TYPE, classes = BookDao.class)
             }, useDefaultFilters = false)
-
+    
             BookDao又被重新包含进来了
     
     * FilterType.ASPECTJ: 使用ASPECTJ表达式, 不太常用
@@ -99,7 +99,7 @@ author: miaoqi
 
     Spring容器中的对象默认是单实例的, 可以通过该注解配置
 
-         
+    
         ConfigurableBeanFactory#SCOPE_PROTOTYPE
         ConfigurableBeanFactory#SCOPE_SINGLETON
         org.springframework.web.context.WebApplicationContext#SCOPE_REQUEST
@@ -109,14 +109,14 @@ author: miaoqi
         singleton: 单实例(默认值), ioc容器启动会调用方法创建对象放到ioc容器中, 以后每次请求就是直接从容器中获取
         request: 同一次请求
         session: 同一个session创建一个实例
-
+    
         @Scope("prototype")
         @Bean("person")
         public Person person() {
             System.out.println("给容器中添加Person...");
             return new Person("李四", 25);
         }
-        
+    
 * @Lazy
 
     针对单实例bean起作用, 单实例bean默认在容器启动的时候创建对象, 配置该注解后, 容器启动时不创建对象, 第一次使用(获取)Bean创建对象并初始化, 实现懒加载
@@ -173,7 +173,7 @@ author: miaoqi
             }
 
     * ImportSelector接口: 返回需要导入的组件的全类名数组
-        
+      
             @Configuration
             @Import({Color.class, Red.class, MyImportSelector.class})
             public class MainConfig2 {}
@@ -187,9 +187,9 @@ author: miaoqi
                     return new String[]{"com.miaoqi.bean.Blue", "com.miaoqi.bean.Yellow"};
                 }
             }
-
+    
     * ImportBeanDefinitionRegistrar接口: 手动注册
-
+    
             @Configuration
             @Import({Color.class, Red.class, MyImportSelector.class, MyImportBeanDefinitionRegistrar.class})
             public class MainConfig2 {}
@@ -214,7 +214,7 @@ author: miaoqi
                 }
             }
         }
-        
+
 * FactoryBean
 
     Spring提供的FactoryBean(工厂Bean)
@@ -241,7 +241,7 @@ author: miaoqi
                 return true;
             }
         }
-
+    
         @Configuration
         @Import({Color.class, Red.class, MyImportSelector.class, MyImportBeanDefinitionRegistrar.class})
         public class MainConfig2 {
@@ -313,7 +313,7 @@ bean的生命周期: bean创建---初始化---销毁的过程
                 System.out.println("car...destroy...");
             }
         }
-
+    
         @Bean(initMethod = "init", destroyMethod = "destroy")
         public Car car() {
             return new Car();
@@ -522,7 +522,7 @@ bean的生命周期: bean创建---初始化---销毁的过程
                 System.out.println("当前bean的名字: " + name);
             }
         }
-        
+
 * Profile
 
     Spring提供的可以根据当前的环境, 动态激活和切换一系列组件的功能
@@ -534,10 +534,10 @@ bean的生命周期: bean创建---初始化---销毁的过程
         @Configuration
         @PropertySource("classpath:dbconfig.properties")
         public class MainConfigOfProfile {
-    
+        
         @Value("${db.username}")
         private String user;
-    
+        
         @Profile("dev")
         @Bean("devDataSource")
             public DataSource dataSourceDev(@Value("${db.password}") String pwd) throws PropertyVetoException {
@@ -578,7 +578,7 @@ bean的生命周期: bean创建---初始化---销毁的过程
 ## AOP
 
 AOP: 面向切面编程, 原理是动态代理
- 
+
 1. 导入AOP模块, SpringAOP, (spring-aspects)
 
         <dependency>
@@ -597,7 +597,7 @@ AOP: 面向切面编程, 原理是动态代理
         }
 
 3. 定义一个日志切面类(LogAspects): 切面类里面的方法需要动态感知MathCalculator.div运行到哪里然后执行
- 
+
     * 前置通知(@Before): logStart: 在目标方法(div)运行之前运行    
     * 后置通知(@After): logEnd: 在目标方法(div)运行之后运行(无论方法正常结束还是异常结束)     
     * 返回通知(@AfterReturning): logReturn: 在目标方法(div)正常返回之后运行         
@@ -611,7 +611,7 @@ AOP: 面向切面编程, 原理是动态代理
         // 告诉Spring当前类是一个切面类
         @Aspect
         public class LogAspects {
-    
+        
             // 抽取公共切入点表达式
             // 1. 本类引用 pointcut()
             // 2. 其他切面引用 com.miaoqi.aop.LogAspects.pointcut()
