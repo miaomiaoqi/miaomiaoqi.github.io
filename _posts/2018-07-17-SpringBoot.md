@@ -189,9 +189,9 @@ YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JS
         ​    
         ​    animal: pets
         ​    
-            person:
-                lastName: miaoqi
-                age: 20
+        ​    person:
+        ​        lastName: miaoqi
+        ​        age: 20
 
         也允许另一种写法，将所有键值对写成一个行内对象
 
@@ -1167,13 +1167,13 @@ SpringBoot使用它来做日志功能;
 
     * 引入Mybatis整合SpringBoot所需的jar包
 
-    	```
-    	<dependency>
-    	    <groupId>org.mybatis.spring.boot</groupId>
-    	    <artifactId>mybatis‐spring‐boot‐starter</artifactId>
-    	    <version>1.3.1</version>
-    	</dependency>
-    	```
+      ```
+      <dependency>
+          <groupId>org.mybatis.spring.boot</groupId>
+          <artifactId>mybatis‐spring‐boot‐starter</artifactId>
+          <version>1.3.1</version>
+      </dependency>
+      ```
 
     * 注解版整合
 
@@ -1233,39 +1233,62 @@ SpringBoot使用它来做日志功能;
 
     * **我们一般在maven环境下整合mybatis此处就有一个问题会发生**
 
-    	```
-    	org.apache.ibatis.binding.BindingException: Invalid bound statement (not found)
-    	```
+      ```
+      org.apache.ibatis.binding.BindingException: Invalid bound statement (not found)
+      ```
 
-    	**如果出现上面那个错误, 一般的原因是Mapper interface和xml文件的定义对应不上，需要检查包名，namespace，函数名称等能否对应上，需要比较细致的对比，我经常就是写错了一两个字母搞的很长时间找不到错误**
+      **如果出现上面那个错误, 一般的原因是Mapper interface和xml文件的定义对应不上，需要检查包名，namespace，函数名称等能否对应上，需要比较细致的对比，我经常就是写错了一两个字母搞的很长时间找不到错误**
 
-    	按以下步骤一一执行：
+      按以下步骤一一执行：
 
-    	1. 检查xml文件所在的package名称是否和interface对应的package名称一一对应
+      1. 检查xml文件所在的package名称是否和interface对应的package名称一一对应
 
-    	2. 检查xml文件的namespace是否和xml文件的package名称一一对应
+      2. 检查xml文件的namespace是否和xml文件的package名称一一对应
 
-    	3. 检查函数名称能否对应上
+      3. 检查函数名称能否对应上
 
-    	4. 去掉xml文件中的中文注释
+      4. 去掉xml文件中的中文注释
 
-    	5. 随意在xml文件中加一个空格或者空行然后保存
+      5. 随意在xml文件中加一个空格或者空行然后保存
 
-    	**但是还会出现一个不属于上面任何一种情况的错误, 这个问题的发生的原因是, 如果我们将mapper对应的xml文件与mapper放在同一目录, 一般都是src/main/java/下, 这样使用maven打包的时候, maven是不会将xml打包进编译后的目录中的, (因为maven认为src/main/java下只是java的源代码路径, 所以不会打包资源文件, 而将xml, properties等资源文件放在src/main/resources目录下是可以被打包进去的), 这个时候就需要我们在pom.xml文件中加入一条配置, 告诉maven将src/main/java路径下的某个资源也打进jar包就可以了, 配置如下**
+      **但是还会出现一个不属于上面任何一种情况的错误, 这个问题的发生的原因是, 如果我们将mapper对应的xml文件与mapper放在同一目录, 一般都是src/main/java/下, 这样使用maven打包的时候, maven是不会将xml打包进编译后的目录中的, (因为maven认为src/main/java下只是java的源代码路径, 所以不会打包资源文件, 而将xml, properties等资源文件放在src/main/resources目录下是可以被打包进去的), 这个时候就需要我们在pom.xml文件中加入一条配置, 告诉maven将src/main/java路径下的某个资源也打进jar包就可以了, 配置如下**
 
-    	```
-    	<build>
-    		<resources>
-    	        <resource>
-    	            <directory>src/main/java</directory>
-    	            <filtering>true</filtering>
-    	            <includes>
-    	                <include>**/*Mapper.xml</include>
-    	            </includes>
-    	        </resource>
-    	    </resources>
-    	</build>
-    	```
+      ```
+      <build>
+      	<resources>
+              <resource>
+                  <directory>src/main/java</directory>
+                  <filtering>true</filtering>
+                  <includes>
+                      <include>**/*Mapper.xml</include>
+                  </includes>
+              </resource>
+          </resources>
+      </build>
+      ```
+
+      **如果配置了上边的插件会覆盖maven默认的加载路径, 导致src/main/resources路径下的资源加载不到, 所以还要添加另外的配置如下**
+
+      ```
+      <build>
+      	<resources>
+              <resource>
+                  <directory>src/main/java</directory>
+                  <filtering>true</filtering>
+                  <includes>
+                      <include>**/*Mapper.xml</include>
+                  </includes>
+              </resource>
+              <resource>
+              	<directory>src/main/resources</directory>
+              	<filtering>true</filtering>
+              	<includes>
+              		<include>**/*.xml</include>
+              	</includes>
+              </resource>
+          </resources>
+      </build>
+      ```
 
 1. MyBatis整合多数据源
 
