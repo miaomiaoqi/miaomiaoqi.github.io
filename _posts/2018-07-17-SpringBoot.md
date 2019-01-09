@@ -3,14 +3,12 @@ layout: post
 title:  "SpringBoot学习"
 date:   2017-07-17 14:34:32
 categories: Framework
-tags: Spring
+tags: SpringBoot
 author: miaoqi
 ---
 
 * content
 {:toc}
-
-
 ## HelloWorld
 
 1. 创建一个maven工程;(jar) 
