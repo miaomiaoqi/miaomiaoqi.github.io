@@ -1221,7 +1221,7 @@ SpringBoot使用它来做日志功能;
                 	}
                 }
 
-        1. 修改SpringBoot配置文件(可省略)
+        1. 修改SpringBoot配置文件, 这里的配置是原来mybatis的全局配置文件如果不需要可省略
 
                 mybatis:
                   # 可以指定mybatis自己的配置文件, 如果不需要可以不配
