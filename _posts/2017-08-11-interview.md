@@ -55,7 +55,7 @@ author: miaoqi
             |-- LinkedHashMap
         |-- HashTable: 不允许空的键值对, 线程安全
         |-- TreeMap: 可以进行排序(实现Comparable方法, 或者传入Comparator实现类)
-            
+    
 * HashMap中负载因子的作用
 
     * 当数组Map中的数组元素数量达到负载因子时, 会进行扩容
@@ -65,13 +65,13 @@ author: miaoqi
     * StringBuffer: 线程安全, 效率低    
     
     * StringBuilder: 线程不安全, 效率高
-        
+    
 * 接口和抽象类的异同
 
     * 接口: 所有方法都是抽象的(jdk1.8以后接口中可以有实现的方法)
     
     * 抽象类: 可以有带实现的方法
-        
+    
 * JDK1.8新特性
 * 设计模式
 * 单例模式的使用场景
@@ -148,11 +148,11 @@ author: miaoqi
 * Servlet是否线程安全的？其类内有两个类变量，name和age，会不会有线程问题？如何解决？
 
     线程不是安全的, 会有多线程并发问题, 实现SingleThreadModel
-        
+    
 * Filter的生命周期
 
     web应用启动时创建filter对象调用init方法, 之后会调用doFilter方法, 服务器停止时调用destory方法, 是单例的.
-        
+    
 * JSP的九大内置对象
 
     page: 当前servlet对象
@@ -180,9 +180,9 @@ author: miaoqi
     > 1. 关闭tomcat
 
     > 2. reload web应用
-        
+    
     > 3. session时间到
-        
+    
     > 4. 手动调用invalidate方法
 
 * Session如何实现的保持会话
@@ -276,7 +276,7 @@ author: miaoqi
     >  #: 是占位符
 
     >  $: 是字符串拼接(会出现sql注入问题)
-        
+    
 18. MyBatis有哪几种传参方式
 19. MyBatis如何实现的分页查询
 20. MyBatis如何实现的数据库字段和类属性的绑定
@@ -285,8 +285,8 @@ author: miaoqi
 
 
 ## 数据库
-    
-    
+
+
 3. 哪些操作会破坏索引
 4. 在使用utf8编码下，varchar(4)可以存储几个汉字？占用多少字节？
 5. 在一个有id，name，score三个字段的表tb中，有数据(1,’b’,5),(2,’a’,3),(3,’d’,4),(4,’c’,1),(5,’e’,2)，执行sql：delete from tb order by score，问，删除的顺序是什么？
@@ -412,9 +412,9 @@ author: miaoqi
                 消费者是否能正常消费消息, 增加消费者, 利用点对点+手动应答(能者多劳模式)
 
 ## 分布式:
-    
+
 4. Chubby
-    
+   
     Google公司实现的粗粒度分布式锁服务，底层利用了Paxos一致性算法。
 
 * 分布式事务:
@@ -430,7 +430,7 @@ author: miaoqi
 ## 美团面试
 
 1. 了解SOA，微服务吗？
-    
+   
 1. 分布式系统如何负载均衡？如何确定访问的资源在哪个服务器上？
 
     一.轮询。二.随机。三.最小响应时间。四. 最小并发数。五.哈希
@@ -471,13 +471,13 @@ author: miaoqi
 
 
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+​    
+​    
+​    
+​    
+​    
+​    
+​    
+​    
+​    
