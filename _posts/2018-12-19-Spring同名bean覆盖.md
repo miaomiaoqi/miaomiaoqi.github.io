@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Spring同名bean覆盖"
+title:  "Spring遇到的问题"
 date:   2018-12-19 13:08:00
 categories: Java
 tags: Spring
@@ -9,7 +9,7 @@ author: miaoqi
 
 * content
 {:toc}
-
+# Spring遇到的问题
 
 ## Spring同名bean覆盖
 
