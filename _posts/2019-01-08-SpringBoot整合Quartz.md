@@ -795,13 +795,35 @@ Quartz任务调度的核心元素为：Scheduler——任务调度器、Trigger�
 
 是用于定义调度时间的元素，即按照什么时间规则去执行任务。Quartz中主要提供了四种类型的trigger：SimpleTrigger，CronTirgger，DateIntervalTrigger，和NthIncludedDayTrigger。这四种trigger可以满足企业应用中的绝大部分需求。
 
+* SimpleTrigger：简单触发器，从某个时间开始，每隔多少时间触发，重复多少次。
+* CronTrigger：使用cron表达式定义触发的时间规则，如"0 0 0,2,4 1/1 * ? *" 表示每天的0，2，4点触发。
+* DailyTimeIntervalTrigger：每天中的一个时间段，每N个时间单元触发，时间单元可以是毫秒，秒，分，小时
+* CalendarIntervalTrigger：每N个时间单元触发，时间单元可以是毫秒，秒，分，小时，日，月，年。
+
+* trigger状态：`WAITING，ACQUIRED，EXECUTING，COMPLETE，BLOCKED，ERROR，PAUSED，PAUSED_BLOCKED，DELETED`
+
+* 未正常触发的任务：misfire job
+
+	没有在正常触发时间点触发的任务。主要由一下几种情况导致：
+
+	* 触发时间在应用不可用的时间内，比如重启
+	* 上次的执行时间过长，超过了下次触发的时间
+	* 任务被暂停一段时间后，重新被调度的时间在下次触发时间之后
+
+	处理misfire job的策略，需要在创建trigger的时候配置，每种trigger对应的枚举值都不同，具体在接口里面有定义。CronTrigger有2种处理misfire的策略：
+
+	| 处理策略                          | 描述                       |
+	| --------------------------------- | -------------------------- |
+	| MISFIRE_INSTRUCTION_FIRE_ONCE_NOW | 立即触发一次               |
+	| MISFIRE_INSTRUCTION_DO_NOTHING    | 忽略，不处理，等待下次触发 |
+
 ### Job
 
-用于表示被调度的任务。主要有两种类型的job：无状态的（stateless）和有状态的（stateful）。对于同一个trigger来说，有状态的job不能被并行执行，只有上一次触发的任务被执行完之后，才能触发下一次执行。Job主要有两种属性：volatility和durability，其中volatility表示任务是否被持久化到数据库存储，而durability表示在没有trigger关联的时候任务是否被保留。两者都是在值为true的时候任务被持久化或保留。一个job可以被多个trigger关联，但是一个trigger只能关联一个job。
+用于表示被调度的任务。主要有两种类型的job：无状态的（stateless）和有状态的（stateful）。对于同一个trigger来说，有状态的job不能被并行执行，只有上一次触发的任务被执行完之后，才能触发下一次执行。Job主要有两种属性：volatility和durability，其中volatility表示任务是否被持久化到数据库存储，而durability表示在没有trigger关联的时候任务是否被保留。两者都是在值为true的时候任务被持久化或保留。**一个job可以被多个trigger关联，但是一个trigger只能关联一个job**。
 
 ### Scheduler
 
-由scheduler工厂创建：DirectSchedulerFactory或者StdSchedulerFactory。第二种工厂StdSchedulerFactory使用较多，因为DirectSchedulerFactory使用起来不够方便，需要作许多详细的手工编码设置。Scheduler主要有三种：RemoteMBeanScheduler，RemoteScheduler和StdScheduler。
+由scheduler工厂创建：DirectSchedulerFactory或者StdSchedulerFactory。第二种工厂StdSchedulerFactory使用较多，因为DirectSchedulerFactory使用起来不够方便，需要作许多详细的手工编码设置。Scheduler主要有三种：RemoteMBeanScheduler，RemoteScheduler和StdScheduler。主要负责job和trigger的持久化管理，包括新增、删除、修改、触发、暂停、恢复调度、停止调度等；
 
 ![http://www.miaomiaoqi.cn/images/distributed/quartz/quartz_1.png](http://www.miaomiaoqi.cn/images/distributed/quartz/quartz_1.png)
 
@@ -813,7 +835,7 @@ Quartz任务调度的核心元素为：Scheduler——任务调度器、Trigger�
 
 ![http://www.miaomiaoqi.cn/images/distributed/quartz/quartz_2.png](http://www.miaomiaoqi.cn/images/distributed/quartz/quartz_2.png)
 
-Scheduler调度线程主要有两个：执行常规调度的线程，和执行misfiredtrigger的线程。常规调度线程轮询存储的所有trigger，如果有需要触发的trigger，即到达了下一次触发的时间，则从任务执行线程池获取一个空闲线程，执行与该trigger关联的任务。Misfire线程是扫描所有的trigger，查看是否有misfiredtrigger，如果有的话根据misfire的策略分别处理(**fire now** OR **wait for the next fire**)。
+Scheduler调度线程主要有两个：执行常规调度的线程，和执行misfiredtrigger的线程。**常规调度线程轮询存储的所有trigger，如果有需要触发的trigger，即到达了下一次触发的时间，则从任务执行线程池获取一个空闲线程，执行与该trigger关联的任务。Misfire线程是扫描所有的trigger，查看是否有misfiredtrigger，如果有的话根据misfire的策略分别处理**(**fire now** OR **wait for the next fire**)。**处理misfire job的线程MisfireHandler：轮训所有misfire的trigger，原理就是从数据库中查询所有下次触发时间小于当前时间的trigger，按照每个trigger设定的misfire策略处理这些trigger。**
 
 
 
@@ -920,3 +942,9 @@ Quartz中的trigger和job需要存储下来才能被使用。Quartz中有两种�
 		一个blob字段，存放持久化job对象。
 
 * QRTZ_CALENDARS
+
+
+
+## 集群原理分析
+
+QRTZ_LOCKS表就是Quartz集群实现同步机制的行锁表，例如htc_scheduler集群下的锁：
