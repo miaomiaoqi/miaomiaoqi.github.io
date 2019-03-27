@@ -9,7 +9,7 @@ author: miaoqi
 
 * content
 {:toc}
-## HelloWorld
+# HelloWorld
 
 1. 创建一个maven工程;(jar) 
 
@@ -65,9 +65,9 @@ author: miaoqi
 将这个应用打成jar包，直接使用java -jar的命令进行执行;
 
 
-## 探究HelloWorld
+# 探究HelloWorld
 
-### POM文件
+## POM文件
 
 * 父项目
 
@@ -101,7 +101,7 @@ author: miaoqi
     
     Spring Boot将所有的功能场景都抽取出来，做成一个个的starters(启动器)，只需要在项目里面引入这些starter 相关场景的所有依赖都会导入进来。要用什么功能就导入什么场景的启动器
 
-### 主程序
+## 主程序
 
 * @SpringBootApplication
 
@@ -153,7 +153,7 @@ author: miaoqi
             Spring Boot在启动的时候从类路径下的META-INF/spring.factories中获取EnableAutoConfiguration指定的值，将以前我们需要自己配置的东西, 都由SpringBoot来配置, J2EE的整体整合解决方案和自动配置都在spring-boot-autoconfigure-1.5.9.RELEASE.jar;
 
 
-## 配置文件
+# 配置文件
 
 修改SpringBoot自动配置的默认值
 
@@ -163,7 +163,7 @@ SpringBoot默认使用两种类型的文件作为配置文件:
 
 * application.yaml
 
-### YAML
+## YAML
 
 YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JSON 格式方便。
 
@@ -292,7 +292,7 @@ YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JS
              Python: python.org
              Perl: use.perl.org
 
-### 编写配置文件
+## 编写配置文件
 
 * 配置文件占位符
 
@@ -309,7 +309,7 @@ YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JS
 
     ${person.lastName:xxx}, 取上文中配置的person.lastName的属性值, 如果person.lastName不存在取xxx作为值
 
-### 配置文件加载位置
+## 配置文件加载位置
 
 1. 项目路径下/config/
 
@@ -321,7 +321,7 @@ YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JS
 
 优先级从高到低, 高优先级的内容会覆盖低优先级的内容
 
-### 绑定配置文件中的值
+## 绑定配置文件中的值
 
 * yaml写法
 
@@ -425,7 +425,7 @@ YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JS
     后边不会覆盖前边的内容
 
 
-## Profile
+# Profile
 
 Spring提供的对不同环境提供不同配置功能的支持, 可以通过激活配置快速切换环境, 默认使用application.properties文件中的配置
 
@@ -472,7 +472,7 @@ Spring提供的对不同环境提供不同配置功能的支持, 可以通过激
         -D是默认语法
 
 
-## 自动配置原理
+# 自动配置原理
 
 * SpringBoot启动的时候加载主配置类，开启了自动配置功能 @EnableAutoConfiguration
 
@@ -657,7 +657,7 @@ Spring提供的对不同环境提供不同配置功能的支持, 可以通过激
     |@ConditionalOnJndiJNDI|存在指定项|
 
 
-## 日志
+# 日志
 
 小张;开发一个大型系统:
 
@@ -676,7 +676,7 @@ Spring提供的对不同环境提供不同配置功能的支持, 可以通过激
 
 JUL、JCL、Jboss-logging、logback、log4j、log4j2、slf4j....
 
-### 使用SLF4J
+## 使用SLF4J
 
 1. 如何在系统中使用SLF4J
 
@@ -712,7 +712,7 @@ JUL、JCL、Jboss-logging、logback、log4j、log4j2、slf4j....
     
     3. **我们导入slf4j其他的实现**
 
-### SpringBoot的日志关系
+## SpringBoot的日志关系
 
     <dependency>
         <groupId>org.springframework.boot</groupId>
@@ -738,7 +738,7 @@ SpringBoot使用它来做日志功能;
 
 **SpringBoot能自动适配所有的日志，而且底层使用slf4j+logback的方式记录日志，引入其他框架的时候，只需要把这个框架依赖的日志框架排除掉即可**
 
-### 日志使用
+## 日志使用
 
 * 默认配置
 
@@ -838,7 +838,7 @@ SpringBoot使用它来做日志功能;
           <artifactId>slf4j‐log4j12</artifactId>
         </dependency>
 
-## SpringMVC自动配置
+# SpringMVC自动配置
 
 1. Spring MVC auto-configuration
 
@@ -946,7 +946,7 @@ SpringBoot使用它来做日志功能;
 
     1. 最终导致自动配置失效
 
-## 注册Servlet三大组件【Servlet、Filter、Listener】
+# 注册Servlet三大组件【Servlet、Filter、Listener】
 
 * 由于SpringBoot默认是以jar包的方式启动嵌入式的Servlet容器来启动SpringBoot的web应用，没有web.xml文件
 
@@ -979,7 +979,7 @@ SpringBoot使用它来做日志功能;
             }
         }
 
-## SpringTask
+# SpringTask
 
 * 在企业级应用中，经常会制定一些“计划任务”，即在某个时间点做某件事情，核心是以时间为关注点，即在一个特定的时间点，系统执行指定的一个操作。常见的任务调度框架有Quartz和SpringTask等
 
@@ -1094,7 +1094,7 @@ SpringBoot使用它来做日志功能;
             }
 
 
-## 数据访问
+# 数据访问
 
 1. 整合JDBC
 
@@ -1484,7 +1484,7 @@ SpringBoot使用它来做日志功能;
     ```
 
 
-## AOP应用
+# AOP应用
 
 * 全局异常处理器, 对Controller层加入异常通知, 新建全局异常处理器类
 
@@ -1705,9 +1705,8 @@ SpringBoot使用它来做日志功能;
             }
 
 
-        ​    
 
-## 自定义参数解析器
+# 自定义参数解析器
 
 * 开发过程中, 在Controller层接收参数SpringMVC提供了@RequestParam进行参数解析, 但在一些特殊情况下这个注解的功能不够用, 比如后台返回页面时对id进行了AES加密操作, 前台传参时, id参数都是经过AES加密后的数据, 这时就需要自定义参数解析器进行解密后传入
 
