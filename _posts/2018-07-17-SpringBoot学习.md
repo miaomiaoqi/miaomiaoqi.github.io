@@ -1452,21 +1452,20 @@ SpringBoot使用它来做日志功能;
             datasource.setMinIdle(minIdle);
             datasource.setMaxActive(maxActive);
             datasource.setMaxWait(maxWait);
-                	
-    		datasource.setTimeBetweenEvictionRunsMillis(timeBetweenEvictionRunsMillis);
-    		datasource.setMinEvictableIdleTimeMillis(minEvictableIdleTimeMillis);
+    			        datasource.setTimeBetweenEvictionRunsMillis(timeBetweenEvictionRunsMillis);
+    		        datasource.setMinEvictableIdleTimeMillis(minEvictableIdleTimeMillis);
             datasource.setValidationQuery(validationQuery);
             datasource.setTestWhileIdle(testWhileIdle);
             datasource.setTestOnBorrow(testOnBorrow);
             datasource.setTestOnReturn(testOnReturn);
             datasource.setFilters(filters);
-        	return datasource;
+        	    return datasource;
         }
         
         @Primary
         @Bean(name = "rdsDataSourceTransactionManager")
         public DataSourceTransactionManager transactionManager(DataSource dataSource) {
-        	return new DataSourceTransactionManager(dataSource);
+        	    return new DataSourceTransactionManager(dataSource);
         }
         
         @Primary
@@ -1477,12 +1476,11 @@ SpringBoot使用它来做日志功能;
             factory.setVfs(SpringBootVFS.class);
             factory.setConfigLocation(this.resourceLoader.getResource("classpath:mybatis-config.xml"));
             return factory.getObject();
-    	}
+    	    }
     }
-    
-    手动配置了SqlSessionFactory, 从不同的DataSource中获取连接, 注入到不同的mapper中, 即可实现多数据源
     ```
 
+    手动配置了SqlSessionFactory, 从不同的DataSource中获取连接, 注入到不同的mapper中, 即可实现多数据源
 
 # AOP应用
 
@@ -1843,24 +1841,24 @@ SpringBoot使用它来做日志功能;
         private HandlerMethodArgumentResolver getArgumentResolver(MethodParameter parameter) {
             // parameter是参数对象
             // 从缓存中, 根据参数对象获取参数解析器
-        	HandlerMethodArgumentResolver result = this.argumentResolverCache.get(parameter);
-        	if (result == null) {
-        	      // 解析器为空的话, 遍历所有的参数解析器
-        		for (HandlerMethodArgumentResolver methodArgumentResolver : this.argumentResolvers) {
-        			if (logger.isTraceEnabled()) {
-        				logger.trace("Testing if argument resolver [" + methodArgumentResolver + "] supports [" +
-        						parameter.getGenericParameterType() + "]");
-        			}
-        			// 根据supportsParameter方法的返回值判断是否支持解析
-        			if (methodArgumentResolver.supportsParameter(parameter)) {
-        				result = methodArgumentResolver;
-        				// 将这个参数解析器以参数对象为key, 参数解析器为value放入缓存中
-        				this.argumentResolverCache.put(parameter, result);
-        				break;
-        			}
-        		}
-        	}
-        	return result;
+            	HandlerMethodArgumentResolver result = this.argumentResolverCache.get(parameter);
+        	    if (result == null) {
+        	        // 解析器为空的话, 遍历所有的参数解析器
+        		        for (HandlerMethodArgumentResolver methodArgumentResolver : this.argumentResolvers) {
+                    if (logger.isTraceEnabled()) {
+                        logger.trace("Testing if argument resolver [" + methodArgumentResolver + "] supports [" +
+              parameter.getGenericParameterType() + "]");
+                    }
+                    // 根据supportsParameter方法的返回值判断是否支持解析
+                    if (methodArgumentResolver.supportsParameter(parameter)) {
+                        result = methodArgumentResolver;
+                        // 将这个参数解析器以参数对象为key, 参数解析器为value放入缓存中
+                        this.argumentResolverCache.put(parameter, result);
+                        break;
+                    }
+                }
+        	    }
+        	    return result;
         }
 
 
