@@ -7,8 +7,6 @@ tags: SpringBoot
 author: miaoqi
 ---
 
-
-
 [TOC]
 
 
@@ -851,7 +849,7 @@ Quartz中的trigger和job需要存储下来才能被使用. Quartz中有两种�
 
 ![http://www.miaomiaoqi.cn/images/distributed/quartz/quartz_3.png](http://www.miaomiaoqi.cn/images/distributed/quartz/quartz_3.png)
 
-## Quartz集群相关数据库表
+## Quartz 集群相关数据库表
 
 因为Quartz集群依赖于数据库, 所以必须首先创建Quartz数据库表, Quartz发布包中包括了所有被支持的数据库平台的SQL脚本. 这些SQL脚本存放于<quartz_home>/docs/dbTables 目录下. 这里采用的Quartz 2.3.0版本, 总共11张表, 不同版本, 表个数可能不同. 数据库为mysql, 用tables_mysql_innodb.sql创建数据库表
 
