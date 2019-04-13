@@ -1,13 +1,16 @@
 ---
+
 layout: post
-title:  "SpringBoot整合Quartz"
-date:   2019-01-08 17:00:51
-categories: Framework
-tags: SpringBoot
+title:  "分布式事务"
+date:   2018-12-05 14:01:35
+categories: Distributed
+tags: Transaction
 author: miaoqi
 ---
 
 
+
+[TOC]
 
 
 
@@ -825,7 +828,7 @@ Quartz任务调度的核心元素为：Scheduler——任务调度器、Trigger�
 
 
 
-## Quartz 线程视图
+## Quartz线程视图
 
 在Quartz中, 有两类线程, Scheduler调度线程和任务执行线程, 其中任务执行线程通常使用一个线程池维护一组线程. 
 
@@ -835,7 +838,7 @@ Scheduler调度线程主要有两个：执行常规调度的线程, 和执行mis
 
 
 
-## Quartz Job数据存储
+## QuartzJob数据存储
 
 Quartz中的trigger和job需要存储下来才能被使用. Quartz中有两种存储方式：RAMJobStore,JobStoreSupport, 其中RAMJobStore是将trigger和job存储在内存中, 而JobStoreSupport是基于jdbc将trigger和job存储到数据库中. **RAMJobStore的存取速度非常快, 但是由于其在系统被停止后所有的数据都会丢失, 所以在集群应用中, 必须使用JobStoreSupport. **
 
