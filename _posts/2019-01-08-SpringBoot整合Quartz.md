@@ -1,5 +1,4 @@
 ---
-
 layout: post
 title:  "SpringBoot整合Quartz"
 date:   2019-01-08 17:00:51
@@ -8,12 +7,8 @@ tags: SpringBoot
 author: miaoqi
 ---
 
-
-
-[TOC]
-
-
-
+* content
+{:toc}
 # 基于SpringBoot & Quartz完成定时任务分布式单节点持久化
 
 定时任务在企业项目比较常用到, 几乎所有的项目都会牵扯该功能模块, 定时任务一般会处理指定时间点执行某一些业务逻辑、间隔时间执行某一些业务逻辑等. 
@@ -96,274 +91,274 @@ author: miaoqi
 
 `quartz`与`Spring`相关框架的整合方式有很多种, 我们采用`jobDetail`使用`Spring Ioc`托管方式来完成整合, 我们可以在定时任务实例中使用`Spring`注入注解完成业务逻辑处理, 配置类如下:
 
-* **AutowiringSpringBeanJobFactory**
+- **AutowiringSpringBeanJobFactory**
 
-	```
-	package com.miaoqi.springboot.springbootquartz.configuration;
-	
-	import org.quartz.spi.TriggerFiredBundle;
-	import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-	import org.springframework.context.ApplicationContext;
-	import org.springframework.context.ApplicationContextAware;
-	import org.springframework.scheduling.quartz.SpringBeanJobFactory;
-	import org.springframework.stereotype.Component;
-	
-	/**
-	 * 继承org.springframework.scheduling.quartz.SpringBeanJobFactory
-	 * 实现任务实例化方式
-	 */
-	@Component
-	public class AutowiringSpringBeanJobFactory extends SpringBeanJobFactory implements
-	        ApplicationContextAware {
-	
-	    private transient AutowireCapableBeanFactory beanFactory;
-	
-	    @Override
-	    public void setApplicationContext(final ApplicationContext context) {
-	        beanFactory = context.getAutowireCapableBeanFactory();
-	    }
-	
-	    /**
-	     * 将job实例交给spring ioc托管
-	     * 我们在job实例实现类内可以直接使用spring注入的调用被spring ioc管理的实例
-	     *
-	     * @author miaoqi
-	     * @date 2019/1/15
-	     * @param bundle
-	     * @return
-	     */
-	    @Override
-	    protected Object createJobInstance(final TriggerFiredBundle bundle) throws Exception {
-	        final Object job = super.createJobInstance(bundle);
-	        // 将job实例交付给spring ioc
-	        beanFactory.autowireBean(job);
-	        return job;
-	    }
-	}
-	```
+    ```
+    package com.miaoqi.springboot.springbootquartz.configuration;
+    
+    import org.quartz.spi.TriggerFiredBundle;
+    import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+    import org.springframework.context.ApplicationContext;
+    import org.springframework.context.ApplicationContextAware;
+    import org.springframework.scheduling.quartz.SpringBeanJobFactory;
+    import org.springframework.stereotype.Component;
+    
+    /**
+     * 继承org.springframework.scheduling.quartz.SpringBeanJobFactory
+     * 实现任务实例化方式
+     */
+    @Component
+    public class AutowiringSpringBeanJobFactory extends SpringBeanJobFactory implements
+            ApplicationContextAware {
+    
+        private transient AutowireCapableBeanFactory beanFactory;
+    
+        @Override
+        public void setApplicationContext(final ApplicationContext context) {
+            beanFactory = context.getAutowireCapableBeanFactory();
+        }
+    
+        /**
+         * 将job实例交给spring ioc托管
+         * 我们在job实例实现类内可以直接使用spring注入的调用被spring ioc管理的实例
+         *
+         * @author miaoqi
+         * @date 2019/1/15
+         * @param bundle
+         * @return
+         */
+        @Override
+        protected Object createJobInstance(final TriggerFiredBundle bundle) throws Exception {
+            final Object job = super.createJobInstance(bundle);
+            // 将job实例交付给spring ioc
+            beanFactory.autowireBean(job);
+            return job;
+        }
+    }
+    ```
 
-	可以看到上面配置类中, AutowiringSpringBeanJobFactory我们继承了SpringBeanJobFactory类, 并且通过实现ApplicationContextAware接口获取ApplicationContext设置方法, 通过外部实例化时设置ApplicationContext实例对象, 在createJobInstance方法内, 我们采用AutowireCapableBeanFactory来托管SpringBeanJobFactory类中createJobInstance方法返回的定时任务实例, **这样我们就可以在定时任务类内使用Spring Ioc相关的注解进行注入业务逻辑实例了. **
+    可以看到上面配置类中, AutowiringSpringBeanJobFactory我们继承了SpringBeanJobFactory类, 并且通过实现ApplicationContextAware接口获取ApplicationContext设置方法, 通过外部实例化时设置ApplicationContext实例对象, 在createJobInstance方法内, 我们采用AutowireCapableBeanFactory来托管SpringBeanJobFactory类中createJobInstance方法返回的定时任务实例, **这样我们就可以在定时任务类内使用Spring Ioc相关的注解进行注入业务逻辑实例了. **
 
-* **QuartzPropertiesConfig**
+- **QuartzPropertiesConfig**
 
-	```
-	package com.miaoqi.springboot.springbootquartz.configuration;
-	
-	import org.springframework.boot.context.properties.ConfigurationProperties;
-	import org.springframework.context.annotation.Configuration;
-	
-	import java.util.Properties;
-	
-	/**
-	 * quartz配置类
-	 *
-	 * @author miaoqi
-	 * @date 2019/1/14
-	 */
-	@Configuration
-	@ConfigurationProperties(prefix = "org")
-	public class QuartzPropertiesConfig {
-	
-	    private Properties quartz = new Properties();
-	
-	    public Properties getQuartz() {
-	        return quartz;
-	    }
-	
-	    public void setQuartz(Properties quartz) {
-	        this.quartz = quartz;
-	    }
-	}
-	```
+    ```
+    package com.miaoqi.springboot.springbootquartz.configuration;
+    
+    import org.springframework.boot.context.properties.ConfigurationProperties;
+    import org.springframework.context.annotation.Configuration;
+    
+    import java.util.Properties;
+    
+    /**
+     * quartz配置类
+     *
+     * @author miaoqi
+     * @date 2019/1/14
+     */
+    @Configuration
+    @ConfigurationProperties(prefix = "org")
+    public class QuartzPropertiesConfig {
+    
+        private Properties quartz = new Properties();
+    
+        public Properties getQuartz() {
+            return quartz;
+        }
+    
+        public void setQuartz(Properties quartz) {
+            this.quartz = quartz;
+        }
+    }
+    ```
 
-	该配置类是读取SpringBoot的配置信息的配置对象, 不熟悉的人可以了解一下SprongBoot的自动配置
+    该配置类是读取SpringBoot的配置信息的配置对象, 不熟悉的人可以了解一下SprongBoot的自动配置
 
-* **QuartzThreadPoolConfiguration**
+- **QuartzThreadPoolConfiguration**
 
-	```
-	package com.miaoqi.springboot.springbootquartz.configuration;
-	
-	import org.springframework.context.annotation.Bean;
-	import org.springframework.context.annotation.Configuration;
-	import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-	
-	/**
-	 * Quartz执行任务的线程池配置
-	 *
-	 * @author miaoqi
-	 * @date 2019/1/15
-	 */
-	@Configuration
-	public class QuartzThreadPoolConfiguration {
-	
-	    @Bean
-	    ThreadPoolTaskExecutor quartzThreadPoolExecutor() {
-	        ThreadPoolTaskExecutor poolTaskExecutor = new ThreadPoolTaskExecutor();
-	        // 线程池所使用的缓冲队列
-	        poolTaskExecutor.setQueueCapacity(0);
-	        // 线程池维护线程的最少数量
-	        poolTaskExecutor.setCorePoolSize(5);
-	        // 线程池维护线程的最大数量
-	        poolTaskExecutor.setMaxPoolSize(1000);
-	        // 线程池维护线程所允许的空闲时间
-	        poolTaskExecutor.setKeepAliveSeconds(30000);
-	        return poolTaskExecutor;
-	    }
-	}
-	```
+    ```
+    package com.miaoqi.springboot.springbootquartz.configuration;
+    
+    import org.springframework.context.annotation.Bean;
+    import org.springframework.context.annotation.Configuration;
+    import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+    
+    /**
+     * Quartz执行任务的线程池配置
+     *
+     * @author miaoqi
+     * @date 2019/1/15
+     */
+    @Configuration
+    public class QuartzThreadPoolConfiguration {
+    
+        @Bean
+        ThreadPoolTaskExecutor quartzThreadPoolExecutor() {
+            ThreadPoolTaskExecutor poolTaskExecutor = new ThreadPoolTaskExecutor();
+            // 线程池所使用的缓冲队列
+            poolTaskExecutor.setQueueCapacity(0);
+            // 线程池维护线程的最少数量
+            poolTaskExecutor.setCorePoolSize(5);
+            // 线程池维护线程的最大数量
+            poolTaskExecutor.setMaxPoolSize(1000);
+            // 线程池维护线程所允许的空闲时间
+            poolTaskExecutor.setKeepAliveSeconds(30000);
+            return poolTaskExecutor;
+        }
+    }
+    ```
 
-	这个类配置的是与Quartz线程池相关的信息
+    这个类配置的是与Quartz线程池相关的信息
 
-* **SchedulerFactoryConfiguration**
+- **SchedulerFactoryConfiguration**
 
-	```
-	package com.miaoqi.springboot.springbootquartz.configuration;
-	
-	import org.quartz.spi.JobFactory;
-	import org.springframework.beans.factory.annotation.Autowire;
-	import org.springframework.beans.factory.annotation.Autowired;
-	import org.springframework.boot.context.properties.ConfigurationProperties;
-	import org.springframework.context.annotation.Bean;
-	import org.springframework.context.annotation.Configuration;
-	import org.springframework.scheduling.annotation.EnableScheduling;
-	import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-	import org.springframework.scheduling.quartz.SchedulerFactoryBean;
-	
-	import java.util.Properties;
-	
-	@Configuration
-	@EnableScheduling
-	public class SchedulerFactoryConfiguration {
-	
-	    @Autowired
-	    private ThreadPoolTaskExecutor threadPoolTaskExecutor;
-	    @Autowired
-	    private QuartzPropertiesConfig quartzPropertiesConfig;
-	
-	    /**
-	     * 配置任务调度器
-	     * 使用项目数据源作为quartz数据源
-	     * @param jobFactory 自定义配置任务工厂
-	     * @return
-	     * @throws Exception
-	     */
-	    @Bean(destroyMethod = "destroy", autowire = Autowire.NO)
-	    public SchedulerFactoryBean schedulerFactoryBean(JobFactory jobFactory) throws Exception {
-	        SchedulerFactoryBean schedulerFactoryBean = new SchedulerFactoryBean();
-	        // 将spring管理job自定义工厂交由调度器维护
-	        schedulerFactoryBean.setJobFactory(jobFactory);
-	        // 设置覆盖已存在的任务
-	        schedulerFactoryBean.setOverwriteExistingJobs(true);
-	        // 项目启动完成后, 等待2秒后开始执行调度器初始化
-	        schedulerFactoryBean.setStartupDelay(2);
-	        // 设置调度器自动运行
-	        schedulerFactoryBean.setAutoStartup(true);
-	        // 设置数据源(使用系统的主数据源, 覆盖propertis文件的dataSource配置)
-	        // schedulerFactoryBean.setDataSource(dataSource);
-	        // 设置上下文spring bean name
-	        schedulerFactoryBean.setApplicationContextSchedulerContextKey("applicationContext");
-	        // 设置配置文件位置
-	        // schedulerFactoryBean.setConfigLocation(new ClassPathResource("/quartz.properties"));
-	        // 将配置文件的内容以properties对象的方式配置
-	        Properties raw = quartzPropertiesConfig.getQuartz();
-	        Properties quartzProperties = new Properties();
-	        ConfigurationProperties annotation = QuartzPropertiesConfig.class.getDeclaredAnnotation(
-	                ConfigurationProperties.class);
-	        for (Object key : raw.keySet()) {
-	            Object value = raw.get(key);
-	            quartzProperties.setProperty(annotation.prefix() + ".quartz." + key, value.toString());
-	        }
-	        schedulerFactoryBean.setQuartzProperties(quartzProperties);
-	        // 设置线程池
-	        schedulerFactoryBean.setTaskExecutor(threadPoolTaskExecutor);
-	        // 设置调度器名称, 手动设置 > bean实例名称 > 配置文件
-	        schedulerFactoryBean.setSchedulerName("mySchedulerFactoryBean");
-	        return schedulerFactoryBean;
-	    }
-	}
-	```
+    ```
+    package com.miaoqi.springboot.springbootquartz.configuration;
+    
+    import org.quartz.spi.JobFactory;
+    import org.springframework.beans.factory.annotation.Autowire;
+    import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.boot.context.properties.ConfigurationProperties;
+    import org.springframework.context.annotation.Bean;
+    import org.springframework.context.annotation.Configuration;
+    import org.springframework.scheduling.annotation.EnableScheduling;
+    import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+    import org.springframework.scheduling.quartz.SchedulerFactoryBean;
+    
+    import java.util.Properties;
+    
+    @Configuration
+    @EnableScheduling
+    public class SchedulerFactoryConfiguration {
+    
+        @Autowired
+        private ThreadPoolTaskExecutor threadPoolTaskExecutor;
+        @Autowired
+        private QuartzPropertiesConfig quartzPropertiesConfig;
+    
+        /**
+         * 配置任务调度器
+         * 使用项目数据源作为quartz数据源
+         * @param jobFactory 自定义配置任务工厂
+         * @return
+         * @throws Exception
+         */
+        @Bean(destroyMethod = "destroy", autowire = Autowire.NO)
+        public SchedulerFactoryBean schedulerFactoryBean(JobFactory jobFactory) throws Exception {
+            SchedulerFactoryBean schedulerFactoryBean = new SchedulerFactoryBean();
+            // 将spring管理job自定义工厂交由调度器维护
+            schedulerFactoryBean.setJobFactory(jobFactory);
+            // 设置覆盖已存在的任务
+            schedulerFactoryBean.setOverwriteExistingJobs(true);
+            // 项目启动完成后, 等待2秒后开始执行调度器初始化
+            schedulerFactoryBean.setStartupDelay(2);
+            // 设置调度器自动运行
+            schedulerFactoryBean.setAutoStartup(true);
+            // 设置数据源(使用系统的主数据源, 覆盖propertis文件的dataSource配置)
+            // schedulerFactoryBean.setDataSource(dataSource);
+            // 设置上下文spring bean name
+            schedulerFactoryBean.setApplicationContextSchedulerContextKey("applicationContext");
+            // 设置配置文件位置
+            // schedulerFactoryBean.setConfigLocation(new ClassPathResource("/quartz.properties"));
+            // 将配置文件的内容以properties对象的方式配置
+            Properties raw = quartzPropertiesConfig.getQuartz();
+            Properties quartzProperties = new Properties();
+            ConfigurationProperties annotation = QuartzPropertiesConfig.class.getDeclaredAnnotation(
+                    ConfigurationProperties.class);
+            for (Object key : raw.keySet()) {
+                Object value = raw.get(key);
+                quartzProperties.setProperty(annotation.prefix() + ".quartz." + key, value.toString());
+            }
+            schedulerFactoryBean.setQuartzProperties(quartzProperties);
+            // 设置线程池
+            schedulerFactoryBean.setTaskExecutor(threadPoolTaskExecutor);
+            // 设置调度器名称, 手动设置 > bean实例名称 > 配置文件
+            schedulerFactoryBean.setSchedulerName("mySchedulerFactoryBean");
+            return schedulerFactoryBean;
+        }
+    }
+    ```
 
-	创建调度器的工厂bean对象, Quartz可以使用独立的数据源, 也可以与业务类使用相同的数据源, 如果使用与业务相同的数据源只需要在创建SchedulerFactoryBean的时候手动注入DataSource即可, 如果使用独立的数据源需要在配置文件中进行配置, 配置文件有两种方式, 一种是采用quartz.properties配置文件, 这种是官网原生的配置方式, 另外一种是将配置写入SpringBoot的配置文件中, 在自动配置到一个Properties对象中注入给SchedulerFactoryBean, **两种方法本质上是一样的, 我采用的是第二种**, 另外一个重要的属性是schedulerName, 这个属性默认会使用配置文件中的值, 如果配置文件中没有配置则会取bean的名字, 如果在代码中手动设置, 则手动的优先级最高, **并且这个属性的值在不同的项目中不能重复, 否则有可能造成错误消费, 导致定时任务找不到执行的类而影响业务逻辑, 这一点一定要注意**
+    创建调度器的工厂bean对象, Quartz可以使用独立的数据源, 也可以与业务类使用相同的数据源, 如果使用与业务相同的数据源只需要在创建SchedulerFactoryBean的时候手动注入DataSource即可, 如果使用独立的数据源需要在配置文件中进行配置, 配置文件有两种方式, 一种是采用quartz.properties配置文件, 这种是官网原生的配置方式, 另外一种是将配置写入SpringBoot的配置文件中, 在自动配置到一个Properties对象中注入给SchedulerFactoryBean, **两种方法本质上是一样的, 我采用的是第二种**, 另外一个重要的属性是schedulerName, 这个属性默认会使用配置文件中的值, 如果配置文件中没有配置则会取bean的名字, 如果在代码中手动设置, 则手动的优先级最高, **并且这个属性的值在不同的项目中不能重复, 否则有可能造成错误消费, 导致定时任务找不到执行的类而影响业务逻辑, 这一点一定要注意**
 
-	
+    
 
-	下面我们来看下`application.yml`文件内的配置, 如下所示：
+    下面我们来看下`application.yml`文件内的配置, 如下所示：
 
-	```
-	# 业务数据源
-	spring:
-	  datasource:
-	    username: root
-	    password: miaoqi
-	    url: jdbc:mysql://127.0.0.1:3306/quartz_business_db
-	    driver‐class‐name: com.mysql.jdbc.Driver
-	    
-	org:
-	  quartz:
-	    scheduler:
-	      # 调度器实例名称
-	      instanceName: quartzScheduler
-	      # 调度器实例编号自动生成
-	      instanceId: AUTO
-	    jobStore:
-	      # 持久化方式配置(存储方式使用JobStoreTX, 也就是数据库)
-	      class: org.quartz.impl.jdbcjobstore.JobStoreTX
-	      # 持久化方式配置数据驱动, MySQL数据库
-	      driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
-	      # quartz相关数据表前缀名
-	      tablePrefix: QRTZ_
-	      # quartz相关的数据库
-	      dataSource: Qrtz
-	      # 开启分布式部署
-	      isClustered: true
-	      # 配置是否使用
-	      useProperties: false
-	      # 分布式节点有效性检查时间间隔, 单位：毫秒
-	      clusterCheckinInterval: 20000
-	    threadPool:
-	      # 线程池实现类
-	      class: org.quartz.simpl.SimpleThreadPool
-	      # 执行最大并发线程数量
-	      threadCount: 10
-	      # 线程优先级
-	      threadPriority: 5
-	      # 配置为守护线程, 设置后任务将不会执行
-	      # makeThreadsDaemons: true
-	      # 配置是否启动自动加载数据库内的定时任务, 默认true
-	      threadsInheritContextClassLoaderOfInitializingThread: true
-	    
-	    #============================================================================
-	    # Configure Datasources配置数据源(可被覆盖, 如果在schedulerFactoryBean指定数据源)
-	    #============================================================================
-	    # 单独配置quartz的数据源, 与业务数据库隔离开来
-	    dataSource:
-	      # 这个名字与org.quartz.scheduler.jobStore.dataSource的值一直
-	      Qrtz:
-	        driver: com.mysql.jdbc.Driver
-	        URL: jdbc:mysql://127.0.0.1:3306/quartz_job_db?useUnicode=true&characterEncoding=utf8
-	        user: root
-	        password: miaoqi
-	        validationQuery: select 1
-	```
+    ```
+    # 业务数据源
+    spring:
+      datasource:
+        username: root
+        password: miaoqi
+        url: jdbc:mysql://127.0.0.1:3306/quartz_business_db
+        driver‐class‐name: com.mysql.jdbc.Driver
+        
+    org:
+      quartz:
+        scheduler:
+          # 调度器实例名称
+          instanceName: quartzScheduler
+          # 调度器实例编号自动生成
+          instanceId: AUTO
+        jobStore:
+          # 持久化方式配置(存储方式使用JobStoreTX, 也就是数据库)
+          class: org.quartz.impl.jdbcjobstore.JobStoreTX
+          # 持久化方式配置数据驱动, MySQL数据库
+          driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+          # quartz相关数据表前缀名
+          tablePrefix: QRTZ_
+          # quartz相关的数据库
+          dataSource: Qrtz
+          # 开启分布式部署
+          isClustered: true
+          # 配置是否使用
+          useProperties: false
+          # 分布式节点有效性检查时间间隔, 单位：毫秒
+          clusterCheckinInterval: 20000
+        threadPool:
+          # 线程池实现类
+          class: org.quartz.simpl.SimpleThreadPool
+          # 执行最大并发线程数量
+          threadCount: 10
+          # 线程优先级
+          threadPriority: 5
+          # 配置为守护线程, 设置后任务将不会执行
+          # makeThreadsDaemons: true
+          # 配置是否启动自动加载数据库内的定时任务, 默认true
+          threadsInheritContextClassLoaderOfInitializingThread: true
+        
+        #============================================================================
+        # Configure Datasources配置数据源(可被覆盖, 如果在schedulerFactoryBean指定数据源)
+        #============================================================================
+        # 单独配置quartz的数据源, 与业务数据库隔离开来
+        dataSource:
+          # 这个名字与org.quartz.scheduler.jobStore.dataSource的值一直
+          Qrtz:
+            driver: com.mysql.jdbc.Driver
+            URL: jdbc:mysql://127.0.0.1:3306/quartz_job_db?useUnicode=true&characterEncoding=utf8
+            user: root
+            password: miaoqi
+            validationQuery: select 1
+    ```
 
-	由于我们后续需要做分布式多节点自动交付高可用, 配置文件加入了分布式相关的配置. 
-		
+    由于我们后续需要做分布式多节点自动交付高可用, 配置文件加入了分布式相关的配置. 
+    	
 
-	在上面配置中org.quartz.jobStore.class与org.quartz.jobStore.driverDelegateClass是定时任务持久化的关键配置, 配置了数据库持久化定时任务以及采用MySQL数据库进行连接, 当然这里我们也可以配置其他的数据库, 如下所示:
+    在上面配置中org.quartz.jobStore.class与org.quartz.jobStore.driverDelegateClass是定时任务持久化的关键配置, 配置了数据库持久化定时任务以及采用MySQL数据库进行连接, 当然这里我们也可以配置其他的数据库, 如下所示:
 
-	​	PostgreSQL ： org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
+    ​	PostgreSQL ： org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
 
-	​	Sybase : org.quartz.impl.jdbcjobstore.SybaseDelegate
+    ​	Sybase : org.quartz.impl.jdbcjobstore.SybaseDelegate
 
-	​	MSSQL : org.quartz.impl.jdbcjobstore.MSSQLDelegate
+    ​	MSSQL : org.quartz.impl.jdbcjobstore.MSSQLDelegate
 
-	​	HSQLDB : org.quartz.impl.jdbcjobstore.HSQLDBDelegate
+    ​	HSQLDB : org.quartz.impl.jdbcjobstore.HSQLDBDelegate
 
-	​	Oracle : org.quartz.impl.jdbcjobstore.oracle.OracleDelegate
+    ​	Oracle : org.quartz.impl.jdbcjobstore.oracle.OracleDelegate
 
-	org.quartz.jobStore.tablePrefix属性配置了定时任务数据表的前缀, 在quartz官方提供的创建表SQL脚本默认就是qrtz_, 在对应的XxxDelegate驱动类内也是使用的默认值, 所以这里我们如果修改表名前缀, 配置可以去掉. 
+    org.quartz.jobStore.tablePrefix属性配置了定时任务数据表的前缀, 在quartz官方提供的创建表SQL脚本默认就是qrtz_, 在对应的XxxDelegate驱动类内也是使用的默认值, 所以这里我们如果修改表名前缀, 配置可以去掉. 
 
-	org.quartz.jobStore.isClustered属性配置了开启定时任务分布式功能, 再开启分布式时对应属性org.quartz.scheduler.instanceId 改成Auto配置即可, 实例唯一标识会自动生成, 这个标识具体生成的内容, 我们一会
+    org.quartz.jobStore.isClustered属性配置了开启定时任务分布式功能, 再开启分布式时对应属性org.quartz.scheduler.instanceId 改成Auto配置即可, 实例唯一标识会自动生成, 这个标识具体生成的内容, 我们一会
 
 ​	在运行的控制台就可以看到了, 定时任务分布式准备好后会输出相关的分布式节点配置信息. 
 
@@ -621,23 +616,23 @@ manualScheduler	CronScheduler	TestQuartz		com.miaoqi.springboot.springbootquartz
 
 ## 配置分布式
 
-* **org.quartz.scheduler.instanceId**
+- **org.quartz.scheduler.instanceId**
 
-	定时任务的实例编号, 如果手动指定需要保证每个节点的唯一性, 因为`quartz`不允许出现两个相同`instanceId`的节点, 我们这里指定为`Auto`就可以了, 我们把生成编号的任务交给`quartz`. 
+    定时任务的实例编号, 如果手动指定需要保证每个节点的唯一性, 因为`quartz`不允许出现两个相同`instanceId`的节点, 我们这里指定为`Auto`就可以了, 我们把生成编号的任务交给`quartz`. 
 
-* **org.quartz.jobStore.isClustered**
+- **org.quartz.jobStore.isClustered**
 
-	这个属性才是真正的开启了定时任务的分布式配置, 当我们配置为`true`时`quartz`框架就会调用`ClusterManager`来初始化分布式节点. 
+    这个属性才是真正的开启了定时任务的分布式配置, 当我们配置为`true`时`quartz`框架就会调用`ClusterManager`来初始化分布式节点. 
 
-* **org.quartz.jobStore.clusterCheckinInterval**
+- **org.quartz.jobStore.clusterCheckinInterval**
 
-	配置了分布式节点的检查时间间隔, 单位：毫秒. 
+    配置了分布式节点的检查时间间隔, 单位：毫秒. 
 
-* **threadsInheritContextClassLoaderOfInitializingThread**
+- **threadsInheritContextClassLoaderOfInitializingThread**
 
-	配置进行是否自动加载任务, 默认`true`自动加载数据库内的任务到节点. 
+    配置进行是否自动加载任务, 默认`true`自动加载数据库内的任务到节点. 
 
-* 修改第二个项目的端口号不要与第一个项目冲突
+- 修改第二个项目的端口号不要与第一个项目冲突
 
 ## 修改job的代码区分两个项目
 
@@ -790,31 +785,34 @@ Quartz任务调度的核心元素为：Scheduler——任务调度器、Trigger�
 
 是用于定义调度时间的元素, 即按照什么时间规则去执行任务. Quartz中主要提供了**四种类型的trigger：SimpleTrigger, CronTirgger, DateIntervalTrigger, 和NthIncludedDayTrigger.** 这四种trigger可以满足企业应用中的绝大部分需求. 
 
-* SimpleTrigger：简单触发器, 从某个时间开始, 每隔多少时间触发, 重复多少次. 
-* CronTrigger：使用cron表达式定义触发的时间规则, 如"0 0 0,2,4 1/1 * ? *" 表示每天的0, 2, 4点触发. 
-* DailyTimeIntervalTrigger：每天中的一个时间段, 每N个时间单元触发, 时间单元可以是毫秒, 秒, 分, 小时
-* CalendarIntervalTrigger：每N个时间单元触发, 时间单元可以是毫秒, 秒, 分, 小时, 日, 月, 年. 
+- SimpleTrigger：简单触发器, 从某个时间开始, 每隔多少时间触发, 重复多少次. 
 
-* trigger状态：`WAITING, ACQUIRED, EXECUTING, COMPLETE, BLOCKED, ERROR, PAUSED, PAUSED_BLOCKED, DELETED`
+- CronTrigger：使用cron表达式定义触发的时间规则, 如"0 0 0,2,4 1/1 * ? *" 表示每天的0, 2, 4点触发. 
 
-	![![http://www.miaomiaoqi.cn/images/distributed/quartz/quartz_4.png](http://www.miaomiaoqi.cn/images/distributed/quartz/quartz_4.png)]()
+- DailyTimeIntervalTrigger：每天中的一个时间段, 每N个时间单元触发, 时间单元可以是毫秒, 秒, 分, 小时
 
-	trigger的初始状态是**WAITING**，处于**WAITING**状态的trigger等待被触发。调度线程会不停地扫triggers表，根据NEXT_FIRE_TIME提前拉取即将触发的trigger，如果这个trigger被该调度线程拉取到，它的状态就会变为**ACQUIRED**。因为是提前拉取trigger，并未到达trigger真正的触发时刻，所以调度线程会等到真正触发的时刻，再将trigger状态由**ACQUIRED**改为**EXECUTING**。如果这个trigger不再执行，就将状态改为**COMPLETE**,否则为**WAITING**，开始新的周期。如果这个周期中的任何环节抛出异常，trigger的状态会变成**ERROR**。如果手动暂停这个trigger，状态会变成**PAUSED**。
+- CalendarIntervalTrigger：每N个时间单元触发, 时间单元可以是毫秒, 秒, 分, 小时, 日, 月, 年. 
 
-* 未正常触发的任务：misfire job
+- trigger状态：`WAITING, ACQUIRED, EXECUTING, COMPLETE, BLOCKED, ERROR, PAUSED, PAUSED_BLOCKED, DELETED`
 
-	没有在正常触发时间点触发的任务. 主要由一下几种情况导致：
+    ![![http://www.miaomiaoqi.cn/images/distributed/quartz/quartz_4.png]()]()
 
-	* 触发时间在应用不可用的时间内, 比如重启
-	* 上次的执行时间过长, 超过了下次触发的时间
-	* 任务被暂停一段时间后, 重新被调度的时间在下次触发时间之后
+    trigger的初始状态是**WAITING**，处于**WAITING**状态的trigger等待被触发。调度线程会不停地扫triggers表，根据NEXT_FIRE_TIME提前拉取即将触发的trigger，如果这个trigger被该调度线程拉取到，它的状态就会变为**ACQUIRED**。因为是提前拉取trigger，并未到达trigger真正的触发时刻，所以调度线程会等到真正触发的时刻，再将trigger状态由**ACQUIRED**改为**EXECUTING**。如果这个trigger不再执行，就将状态改为**COMPLETE**,否则为**WAITING**，开始新的周期。如果这个周期中的任何环节抛出异常，trigger的状态会变成**ERROR**。如果手动暂停这个trigger，状态会变成**PAUSED**。
 
-	处理misfire job的策略, 需要在创建trigger的时候配置, 每种trigger对应的枚举值都不同, 具体在接口里面有定义. CronTrigger有2种处理misfire的策略：
+- 未正常触发的任务：misfire job
 
-	| 处理策略                          | 描述                       |
-	| --------------------------------- | -------------------------- |
-	| MISFIRE_INSTRUCTION_FIRE_ONCE_NOW | 立即触发一次               |
-	| MISFIRE_INSTRUCTION_DO_NOTHING    | 忽略, 不处理, 等待下次触发 |
+    没有在正常触发时间点触发的任务. 主要由一下几种情况导致：
+
+    - 触发时间在应用不可用的时间内, 比如重启
+    - 上次的执行时间过长, 超过了下次触发的时间
+    - 任务被暂停一段时间后, 重新被调度的时间在下次触发时间之后
+
+    处理misfire job的策略, 需要在创建trigger的时候配置, 每种trigger对应的枚举值都不同, 具体在接口里面有定义. CronTrigger有2种处理misfire的策略：
+
+    | 处理策略                          | 描述                       |
+    | --------------------------------- | -------------------------- |
+    | MISFIRE_INSTRUCTION_FIRE_ONCE_NOW | 立即触发一次               |
+    | MISFIRE_INSTRUCTION_DO_NOTHING    | 忽略, 不处理, 等待下次触发 |
 
 ### Job
 
@@ -856,91 +854,91 @@ Quartz中的trigger和job需要存储下来才能被使用. Quartz中有两种�
 
 因为Quartz集群依赖于数据库, 所以必须首先创建Quartz数据库表, Quartz发布包中包括了所有被支持的数据库平台的SQL脚本. 这些SQL脚本存放于<quartz_home>/docs/dbTables 目录下. 这里采用的Quartz 2.3.0版本, 总共11张表, 不同版本, 表个数可能不同. 数据库为mysql, 用tables_mysql_innodb.sql创建数据库表
 
-* QRTZ_FIRED_TRIGGERS(触发器与任务关联表)
+- QRTZ_FIRED_TRIGGERS(触发器与任务关联表)
 
-	存储与已触发的Trigger相关的状态信息, 以及相联Job的执行信息. 
+    存储与已触发的Trigger相关的状态信息, 以及相联Job的执行信息. 
 
-* QRTZ_PAUSED_TRIGGER_GRPS
+- QRTZ_PAUSED_TRIGGER_GRPS
 
-* QRTZ_SCHEDULER_STATE(调度器状态表)
+- QRTZ_SCHEDULER_STATE(调度器状态表)
 
-	集群中节点实例信息, Quartz定时读取该表的信息判断集群中每个实例的当前状态. 
+    集群中节点实例信息, Quartz定时读取该表的信息判断集群中每个实例的当前状态. 
 
-	* instance_name
+    - instance_name
 
-		配置文件中org.quartz.scheduler.instanceId配置的名字, 如果设置为AUTO,quartz会根据物理机名和当前时间产生一个名字. 
+        配置文件中org.quartz.scheduler.instanceId配置的名字, 如果设置为AUTO,quartz会根据物理机名和当前时间产生一个名字. 
 
-	* last_checkin_time
+    - last_checkin_time
 
-		上次检入时间
+        上次检入时间
 
-	* checkin_interval
+    - checkin_interval
 
-		检入间隔时间
+        检入间隔时间
 
-* QRTZ_LOCKS(实现同步机制的锁表)
+- QRTZ_LOCKS(实现同步机制的锁表)
 
-	QRTZ_LOCKS表就是Quartz集群实现同步机制的行锁表
+    QRTZ_LOCKS表就是Quartz集群实现同步机制的行锁表
 
-* QRTZ_SIMPLE_TRIGGERS
+- QRTZ_SIMPLE_TRIGGERS
 
-* QRTZ_SIMPROP_TRIGGERS
+- QRTZ_SIMPROP_TRIGGERS
 
-* QRTZ_CRON_TRIGGERS
+- QRTZ_CRON_TRIGGERS
 
-* QRTZ_BLOB_TRIGGERS
+- QRTZ_BLOB_TRIGGERS
 
-* QRTZ_TRIGGERS(触发器信息表)
+- QRTZ_TRIGGERS(触发器信息表)
 
-	* trigger_name
+    - trigger_name
 
-		trigger的名字,该名字用户自己可以随意定制,无强行要求
+        trigger的名字,该名字用户自己可以随意定制,无强行要求
 
-	* trigger_group
+    - trigger_group
 
-		trigger所属组的名字,该名字用户自己随意定制,无强行要求
+        trigger所属组的名字,该名字用户自己随意定制,无强行要求
 
-	* job_name
+    - job_name
 
-		qrtz_job_details表job_name的外键
+        qrtz_job_details表job_name的外键
 
-	* job_group
+    - job_group
 
-		qrtz_job_details表job_group的外键
+        qrtz_job_details表job_group的外键
 
-	* trigger_state
+    - trigger_state
 
-		当前trigger状态设置为ACQUIRED,如果设为WAITING,则job不会触发
+        当前trigger状态设置为ACQUIRED,如果设为WAITING,则job不会触发
 
-	* trigger_cron
+    - trigger_cron
 
-		触发器类型,使用cron表达式
+        触发器类型,使用cron表达式
 
-* QRTZ_JOB_DETAILS(任务详细信息表)
+- QRTZ_JOB_DETAILS(任务详细信息表)
 
-	保存job详细信息,该表需要用户根据实际情况初始化
+    保存job详细信息,该表需要用户根据实际情况初始化
 
-	* job_name
+    - job_name
 
-		集群中job的名字,该名字用户自己可以随意定制,无强行要求. 
+        集群中job的名字,该名字用户自己可以随意定制,无强行要求. 
 
-	* job_group
+    - job_group
 
-		集群中job的所属组的名字,该名字用户自己随意定制,无强行要求. 
+        集群中job的所属组的名字,该名字用户自己随意定制,无强行要求. 
 
-	* job_class_name
+    - job_class_name
 
-		集群中job实现类的完全包名,quartz就是根据这个路径到classpath找到该job类的. 
+        集群中job实现类的完全包名,quartz就是根据这个路径到classpath找到该job类的. 
 
-	* is_durable
+    - is_durable
 
-		是否持久化,把该属性设置为1, quartz会把job持久化到数据库中
+        是否持久化,把该属性设置为1, quartz会把job持久化到数据库中
 
-	* job_data
+    - job_data
 
-		一个blob字段, 存放持久化job对象. 
+        一个blob字段, 存放持久化job对象. 
 
-* QRTZ_CALENDARS
+- QRTZ_CALENDARS
 
 
 
@@ -983,3 +981,9 @@ SELECT * FROM QRTZ_LOCKS WHERE CHED_NAME = 'quartzScheduler' AND LOCK_NAME = ? F
 在`JobRunShell`的`run()`方法，Quartz会在执行`job.execute()`的前后通知之前绑定的监听器，如果`job.execute()`执行的过程中有异常抛出，则执行结果`jobExEx`会保存异常信息，反之如果没有异常抛出，则`jobExEx`为null。然后根据`jobExEx`的不同，得到不同的执行指令`instCode`。
 
 `JobRunShell`将trigger信息，job信息和执行指令传给`triggeredJobComplete()`方法来完成最后的数据表更新操作。例如如果job执行过程有异常抛出，就将这个trigger状态变为**ERROR**，如果是**BLOCKED**状态，就将其变为**WAITING**等等，最后从fired_triggers表中删除这个已经执行完成的trigger。注意，这些是在工作线程池异步完成。
+
+
+
+
+
+
