@@ -1,9 +1,9 @@
 ---
 layout: post
-title:  "SpringBoot整合Quartz2"
-date:   2019-01-08 17:00:51
-categories: Xxx
-tags: aaa
+title:  "SpringBoot整合Q uartz"
+date:   2018-01-08 14:06:15
+categories: Framework
+tags: SpringBoot
 author: miaoqi
 ---
 
