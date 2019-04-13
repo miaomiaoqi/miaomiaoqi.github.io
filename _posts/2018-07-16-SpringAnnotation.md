@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Spring注解学习"
-date:   2017-07-16 14:34:32
+date:   2018-07-16 14:34:32
 categories: Framework
 tags: Spring
 author: miaoqi
@@ -45,7 +45,7 @@ author: miaoqi
             @ComponentScan(value = "com.miaoqi", excludeFilters = {
                 @Filter(type = FilterType.ANNOTATION, classes = {Controller.class, Service.class})
             })
-        
+            
             只扫描Controller和Service
             @ComponentScan(value = "com.miaoqi", includeFilters = {
                 @Filter(type = FilterType.ANNOTATION, classes = {Controller.class, Service.class})
@@ -57,7 +57,7 @@ author: miaoqi
                 @Filter(type = FilterType.ANNOTATION, classes = {Controller.class, Service.class}),
                 @Filter(type = FilterType.ASSIGNABLE_TYPE, classes = BookDao.class)
             }, useDefaultFilters = false)
-    
+        
             BookDao又被重新包含进来了
     
     * FilterType.ASPECTJ: 使用ASPECTJ表达式, 不太常用
@@ -109,7 +109,7 @@ author: miaoqi
         singleton: 单实例(默认值), ioc容器启动会调用方法创建对象放到ioc容器中, 以后每次请求就是直接从容器中获取
         request: 同一次请求
         session: 同一个session创建一个实例
-    
+        
         @Scope("prototype")
         @Bean("person")
         public Person person() {
@@ -313,7 +313,7 @@ bean的生命周期: bean创建---初始化---销毁的过程
                 System.out.println("car...destroy...");
             }
         }
-    
+        
         @Bean(initMethod = "init", destroyMethod = "destroy")
         public Car car() {
             return new Car();
