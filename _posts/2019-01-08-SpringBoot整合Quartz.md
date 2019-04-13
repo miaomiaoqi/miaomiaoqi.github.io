@@ -1,10 +1,10 @@
 ---
 
 layout: post
-title:  "分布式事务"
-date:   2018-12-05 14:01:35
-categories: Distributed
-tags: Transaction
+title:  "SpringBoot整合Quartz"
+date:   2019-01-08 17:00:51
+categories: Framework
+tags: SpringBoot
 author: miaoqi
 ---
 
