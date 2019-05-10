@@ -11,7 +11,7 @@ author: miaoqi
 {:toc}
 
 
-## SpringCloud
+# SpringCloud
 
 * 是多种技术的集合, 提倡将单一的应用拆分成一组小的服务, 每个服务运行在其独立的进程中
 
@@ -21,7 +21,7 @@ author: miaoqi
     |-----|-----|-----|
     |通信方式|RPC|HTTP|
 
-### Eureka和Zookeeper
+# Eureka和Zookeeper
 
 * Eureka遵守AP
 
@@ -41,13 +41,13 @@ author: miaoqi
 
 * 基于Netflix Ribbon实现的一套客户端  负载均衡的工具, Ribbon + RestTemplate, 结合eureka使用, 会从eureka中查找可用的机器进行访问
 
-### Feign负载均衡(面向接口)
+# Feign负载均衡(面向接口)
 
 * 通过接口 + 注解获取服务地址
 
 * 只需要创建一个接口, 在上边添加注解即可
 
-### Hystrix断路器
+# Hystrix断路器
 
 * 服务熔断(服务端)
 
@@ -59,7 +59,7 @@ author: miaoqi
 
     * 整体资源不够了, 先关闭一些服务, 待资源充足了, 再将服务打开
 
-### Zuul路由网关
+# Zuul路由网关
 
 * 代理
 
@@ -67,7 +67,7 @@ author: miaoqi
 
 * 过滤
 
-### Config分布式配置中心
+# Config分布式配置中心
 
 * 集中管理配置文件
 
