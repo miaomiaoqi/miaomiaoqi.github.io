@@ -9,43 +9,289 @@ author: miaoqi
 
 * content
 {:toc}
+# 微服务
+
+一系列微小的服务组成
+
+跑在自己的进程中
+
+每个服务为独立的业务
+
+独立部署
+
+分布式的管理
+
+## 不适合微服务的场景
+
+**系统中包含很多强事务场景的不适合做微服务**
+
+**业务相对稳定, 迭代周期长(稳定项目)**
+
+**访问压力不大, 可用性要求不高(后台 OA)**
+
+**...**
+
+## 如何拆分功能
+
+单一职责, 松耦合(不同服务尽量不影响), 高内聚(所有行为放到一个服务)
+
+关注点分离
+
+## 服务和数据的关系
+
+先考虑业务功能, 在考虑数据
+
+无状态服务
+
+# 注册中心Spring Cloud Eureka
+
+@EnableEurekaServer, @EnableEurekaClient, @EnableDiscoveryClient
+
+基于Netflix Eureka做了二次封装
+
+两部分组成
+
+* Eureka Server 注册中心
+* Eureka Client 服务注册
+
+Eureka遵守AP
+
+* Eureka各个节点是平等的, 几个节点挂掉不会影响正常的工作, 剩余的节点依然可以提供注册和查询服务. Eureka的客户端再向某个Eureka注册时如果发现连接失败, 则会自动切换至其他节点, 只要有一台Eureka还在, 就可以保证服务可用, 只不过查询到的信息可能不是最新的. Eureka还用一种自我保护机制, 如果在15分钟内超过85%的节点没有正常心跳, 那么Eureka就认为客户端与注册中心出现网络故障, 会出现以下几种情况: 
+
+    1. Eureka不在从注册列表中移除因为长时间没收到心跳而应该过期的服务
+2. Eureka仍然能够接受新服务注册和查询请求, 但是不会同步到其他节点上
+    3. 当网络稳定时, 当前实例新的注册信息会同步到其他节点中
+
+## Spring Cloud Eureka Server
+
+启动类加入 `@EnableEurekaServer` 注解
+
+```
+@SpringBootApplication
+@EnableEurekaServer
+public class SpringcloudSellEurekaApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(SpringcloudSellEurekaApplication.class, args);
+    }
+}
+```
+
+SpringCloudEurekaServer既是服务端又是客户端, 启动时会默认查找 defaultZone 注册, 也会注册自己, 采用心跳的方式每隔一段时间注册一次, 可以改变配置不让自己注册
+
+```
+server:
+  port: 9900
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:9900/eureka/ # 寻找注册中心地址
+    register-with-eureka: false # 不向注册中心注册自己
+    fetch-registry: false # 不向注册中心拉取配置
+spring:
+  application:
+    name: springcloud-sell-eureka
+```
+
+自我保护模式: Eureka 采用心跳机制, Server 端会一直检查 Client 端是否在线, 当 Client 上线率过低时会报出警告, 但是 Server 会认为是否是网络问题导致的, 此时并不会立刻剔除客户端注册信息, 开发时建议关闭, 可以实时更新服务注册信息**(生产不要关)**
+
+```
+eureka:
+  server:
+    enable-self-preservation: false # 是否开启自我保护机制
+```
+
+查看注册信息
+
+```
+http://127.0.0.1:9901/eureka/apps
+```
 
 
-# SpringCloud
 
-* 是多种技术的集合, 提倡将单一的应用拆分成一组小的服务, 每个服务运行在其独立的进程中
+## Spring Cloud Eureka Client
 
-* Dubbo和SpringCloud的区别
+启动类加入 `@EnableDiscoveryClient` 注解
 
-    ||Dubbo|SpringCloud|
-    |-----|-----|-----|
-    |通信方式|RPC|HTTP|
+```
+@SpringBootApplication
+@EnableDiscoveryClient
+public class SpringcloudSellClientApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(SpringcloudSellClientApplication.class, args);
+    }
+}
+```
 
-# Eureka和Zookeeper
+## 高可用
 
-* Eureka遵守AP
+拷贝 EurekaServer 项目, 修改端口号, 修改服务注册地址为其他 EurekaServer 的地址
 
-    * Eureka各个节点是平等的, 几个节点挂掉不会影响正常的工作, 剩余的节点依然可以提供注册和查询服务. Eureka的客户端再向某个Eureka注册时如果发现连接失败, 则会自动切换至其他节点, 只要有一台Eureka还在, 就可以保证服务可用, 只不过查询到的信息可能不是最新的. Eureka还用一种自我保护机制, 如果在15分钟内超过85%的节点没有正常心跳, 那么Eureka就认为客户端与注册中心出现网络故障, 会出现以下几种情况: 
+```
+server:
+  port: 9901
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka9902:9902/eureka/,http://eureka9903:9903/eureka/ # 寻找注册中心地址
+```
 
-        1. Eureka不在从注册列表中移除因为长时间没收到心跳而应该过期的服务
+EurekaClient 的地址填写集群的每一个地址
 
-        2. Eureka仍然能够接受新服务注册和查询请求, 但是不会同步到其他节点上
+```
+server:
+  port: 9910
+eureka:
+  client:
+    service-url:
+      # 寻找注册中心地址
+      defaultZone: http://eureka9901:9901/eureka/,http://eureka9902:9902/eureka/,http://eureka9903:9903/eureka/
+```
 
-        3. 当网络稳定时, 当前实例新的注册信息会同步到其他节点中
+## 服务发现的两种方式
 
-* Zookeeper遵守CP
+### 客户端发现
 
-    * Zookeeper当master节点因为网络故障与其他节点失去联系时, 剩余节点会重新进行leader选举, 选举leader的时间为30~120s, 且选举期间整个Zookeeper集群是不可用的, 这就导致服务瘫痪了
+客户端获取所有服务端地址, 需要自己实现负载均衡逻辑去调用, SpringCloud 就采用这种方式
 
-### Ribbon负载均衡(面向服务)
+Eureka: http://eureka9901:9901/eureka/apps 可以查看注册信息
 
-* 基于Netflix Ribbon实现的一套客户端  负载均衡的工具, Ribbon + RestTemplate, 结合eureka使用, 会从eureka中查找可用的机器进行访问
+### 服务端发现
 
-# Feign负载均衡(面向接口)
+需要代理服务的介入, 对客户端是完全透明的
 
-* 通过接口 + 注解获取服务地址
+Nginx
 
-* 只需要创建一个接口, 在上边添加注解即可
+Zookeeper
+
+Kubernetes
+
+# 应用间通信 RestTemplate 和 Feign
+
+## RestTemplate(面向服务)
+
+基于 Netflix Ribbon 实现的一套 http 客户端负载均衡工具, Ribbon + RestTemplate, 结合 eureka 使用, 会从 eureka 中查找可用的机器进行访问
+
+```
+@RestController
+@Slf4j
+public class ClientController {
+
+    // @Autowired
+    // private LoadBalancerClient loadBalancerClient;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @GetMapping("/getProductMsg")
+    public String getProductMsg() {
+        // 1. 第一种方式(直接使用 RestTemplate, url 写死)
+        // RestTemplate restTemplate = new RestTemplate();
+        // String response = restTemplate.getForObject("http://localhost:9916/msg", String.class);
+
+
+        // 2. 第二种方式(利用 LoadBalancerClient 通过应用名获取 url, 然后再使用 RestTemplate)
+        // ServiceInstance serviceInstance = loadBalancerClient.choose("SPRINGCLOUD-SELL-PRODUCT");
+        // String url = String.format("http://%s:%s/msg", serviceInstance.getHost(), serviceInstance.getPort());
+        // RestTemplate restTemplate = new RestTemplate();
+        // String response = restTemplate.getForObject(url, String.class);
+
+        // 3. 第三种方式(利用 @LoadBalanced 注解, 可在 RestTemplate 里使用应用名字)
+        String response = this.restTemplate.getForObject("http://SPRINGCLOUD-SELL-PRODUCT/msg", String.class);
+        log.error("response = [{}]", response);
+        return response;
+    }
+
+}
+```
+
+```
+@Component
+public class RestTemplateConfig {
+
+    @Bean
+    @LoadBalanced
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+
+}
+```
+
+### Ribbon组件
+
+Netflix Ribbon 是客户端负载均衡器, 是 LoadBalance 实现负载均衡的组件, 可以实现**服务发现, 服务选择规则, 服务监听**, **RestTemplate, Feign, Zuul 均使用该组件**
+
+* ServerList: 获取所有可用列表
+* IRule: 根据规则获取一个地址
+* ServerListFilter: 过滤掉一部分服务地址
+
+## Feign(面向接口)
+
+声明式 REST 客户端(伪RPC), 采用了基于接口的注解 @FeignClient, 内部也使用了 Ribbon 做负载均衡
+
+加入 Feign 依赖
+
+```
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-feign</artifactId>
+</dependency>
+```
+
+启动类加入 @EnableFeignClients 注解
+
+```
+@SpringBootApplication
+@EnableDiscoveryClient
+@EnableFeignClients
+public class SpringcloudSellOrderApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(SpringcloudSellOrderApplication.class, args);
+    }
+
+}
+```
+
+编写客户端接口, 使用 @FeignClient 标明服务端名称, 接口方法是服务接口地址
+
+```
+@FeignClient(name = "SPRINGCLOUD-SELL-PRODUCT")
+public interface ProductClient {
+
+    @GetMapping("/msg")
+    String productMsg();
+
+}
+```
+
+# Config分布式统一配置中心
+
+![http://www.miaomiaoqi.cn/images/springcloud/springcloud_sell_1.png](http://www.miaomiaoqi.cn/images/springcloud/springcloud_sell_1.png)
+
+使用统一的配置中心, 方便维护配置文件, 配置的内容安全与权限, 更新配置不需要重启
+
+- 集中管理配置文件
+
+- 不同环境不同配置, 动态化配置更新, 分环境部署比如dev/test/prod
+
+- 运行期间动态调整配置, 不需要再每个服务部署的机器上编写配置文件, 服务会向配置中心统一拉取配置自己的信息
+
+- 当配置发生变动时, 服务不需要重启即可感知到配置的变化并应用新的配置
+
+- 将配置中心以REST接口的形式暴露
+
+    /{application}/{profile}/{label}
+
+    /{application}-{profile}.yml
+
+    **/{label}/{application}-{profile}.yml** 常用
+
+    /{application}-{profile}.properties
+
+    /{label}/{application}-{profile}.properties
+
+- 如果不指定label即分支, 默认是master分支
 
 # Hystrix断路器
 
@@ -67,28 +313,4 @@ author: miaoqi
 
 * 过滤
 
-# Config分布式配置中心
-
-* 集中管理配置文件
-
-* 不同环境不同配置, 动态化配置更新, 分环境部署比如dev/test/prod
-
-* 运行期间动态调整配置, 不需要再每个服务部署的机器上编写配置文件, 服务会向配置中心统一拉取配置自己的信息
-
-* 当配置发生变动时, 服务不需要重启即可感知到配置的变化并应用新的配置
-
-* 将配置中心以REST接口的形式暴露
-
-    /{application}/{profile}/{label}
-    
-    /{application}-{profile}.yml
-    
-    **/{label}/{application}-{profile}.yml** 常用
-    
-    /{application}-{profile}.properties
-    
-    /{label}/{application}-{profile}.properties
-
-* 如果不指定label即分支, 默认是master分支
   
-    
