@@ -265,13 +265,13 @@ public interface ProductClient {
 }
 ```
 
-# Config分布式统一配置中心
+# 分布式统一配置中心 Config
 
 ![http://www.miaomiaoqi.cn/images/springcloud/springcloud_sell_1.png](http://www.miaomiaoqi.cn/images/springcloud/springcloud_sell_1.png)
 
-使用统一的配置中心, 方便维护配置文件, 配置的内容安全与权限, 更新配置不需要重启
+* 配置的内容安全与权限
 
-- 集中管理配置文件
+- 集中管理配置文件方便维护
 
 - 不同环境不同配置, 动态化配置更新, 分环境部署比如dev/test/prod
 
@@ -279,19 +279,114 @@ public interface ProductClient {
 
 - 当配置发生变动时, 服务不需要重启即可感知到配置的变化并应用新的配置
 
-- 将配置中心以REST接口的形式暴露
+- 将配置中心以REST接口的形式暴露, 后缀可以是 **yml, properties, json**
 
-    /{application}/{profile}/{label}
+    /{name}-{profiles}.yml
 
-    /{application}-{profile}.yml
+    **/{label}/{name}-{profiles}.yml** 常用
 
-    **/{label}/{application}-{profile}.yml** 常用
+    name: 即文件名
 
-    /{application}-{profile}.properties
+    profiles: 环境
 
-    /{label}/{application}-{profile}.properties
+    label: git 中的分支branch, 不写的话默认是 master 分支
 
-- 如果不指定label即分支, 默认是master分支
+## ConfigServer
+
+加入 ConfigServer 依赖, config 本身也是一个微服务, 需要注册到 eureka 中
+
+```
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-config-server</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+    </dependency>
+</dependencies>
+```
+
+开启服务端配置中心
+
+```
+@SpringBootApplication
+@EnableDiscoveryClient
+@EnableConfigServer
+public class SpringcloudSellConfigApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(SpringcloudSellConfigApplication.class, args);
+    }
+
+}
+```
+
+编写配置文件
+
+```
+server:
+  port: 9936
+spring:
+  application:
+    name: springcloud-sell-config
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/miaomiaoqi/springcloud-sell-config # 拉取 git 仓库
+          username: 363962900@qq.com
+          password: # 自己填写
+          # 项目启动时会拷贝一份配置到本地,因为权限问题可以指定拷贝的目录
+          basedir: /Users/miaoqi/Documents/study/language/java/springcloud-sell/localconfig
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka9901:9901/eureka,http://eureka9902:9902/eureka,http://eureka9903:9903/eureka
+```
+
+访问地址举例:
+
+http://localhost:9936/release/springcloud-sell-order-test.yml
+
+
+
+## ConfigClient
+
+加入依赖
+
+```
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-config-client</artifactId>
+</dependency>
+```
+
+**修改配置文件 bootstrap.yml, bootstrap.yml 加载优先级最高, 所以需要先加载 config server 的配置文件**
+
+```
+spring:
+  application:
+    name: springcloud-sell-order
+  cloud:
+    config:
+      profile: dev # 指定环境
+      uri: http://localhost:9936 # config server 服务 uri, 集群指定多个
+      label: master
+#      discovery:
+#        service-id: SPRINGCLOUD-SELL-CONFIG
+#        enabled: true
+```
+
+* **如果配置 spring.cloud.config.uri 就不需要指定 eureka 与 discovery 了, 该配置会直接从 config server 拉取配置. 如果配置 discovery 就需要配置 eureka, 要从注册中心找到 config server 服务拉取配置, uri 与 discovery 二者选一**
+* **上述配置会从 config server 服务拉取 label 指定的分支(默认为 master 分支) 文件名为 springcloud-sell-order-dev.yml(spring.application.name-spring.cloud.config.profie.yml) 的配置文件, 在拉取该配置文件前, 还会拉取 application.yml(所有项目通用配置文件) 与 springcloud-sell-order.yml(同一项目不同 profile 的通用配置文件)配置文件, 三个配置文件的内容会合到一起, application.yml > springcloud-sell-order.yml > springcloud-sell-order-dev.yml**
+
+
+
+# 自动刷新配置 Spring Cloud Bus
+
+![http://www.miaomiaoqi.cn/images/springcloud/springcloud_sell_2.png](http://www.miaomiaoqi.cn/images/springcloud/springcloud_sell_2.png)
 
 # Hystrix断路器
 
