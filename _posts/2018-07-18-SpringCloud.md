@@ -395,9 +395,9 @@ public interface ProductClient {
 
 ![http://www.miaomiaoqi.cn/images/springcloud/springcloud_sell_2.png](http://www.miaomiaoqi.cn/images/springcloud/springcloud_sell_2.png)
 
-通过 mq 发消息实现服务自动更新配置
+SpringCloudBus 依赖 mq 发消息实现服务自动更新配置
 
-* Config Server 服务加入依赖
+* Config Server 服务加入 SpringCloudBus 依赖
 
     ```
     <dependency>
@@ -416,13 +416,241 @@ public interface ProductClient {
         password: guest
         virtual-host: /springcloud-sell
         connection-timeout: 15000
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: "*" # 暴露对外访问的接口, 使得我们可以访问 http://localhost:9936/actuator/bus-refresh
     ```
 
 * 启动 ConfigServer 服务, 会在 rabbitmq 中自动创建一个 queue, 如下图
 
     ![http://www.miaomiaoqi.cn/images/springcloud/springcloud_sell_3.png](http://www.miaomiaoqi.cn/images/springcloud/springcloud_sell_3.png)
 
+    
 
+* Config Client 即 Order 服务加入 SpringCloudBus 依赖
+
+    ```
+    <dependency>
+    	<groupId>org.springframework.cloud</groupId>
+    	<artifactId>spring-cloud-starter-bus-amqp</artifactId>
+    </dependency>
+    ```
+
+* Config Client 即 Order 服务在 git 配置文件中加入 rabbitmq 配置
+
+    ```
+    spring:
+      rabbitmq:
+        addresses: 127.0.0.1:6672
+        username: guest
+        password: guest
+        virtual-host: /springcloud-sell
+        connection-timeout: 15000
+    ```
+
+* Config Client 的 Controller 类中加入 @RefreshScope 注解
+
+    ```
+    @RestController
+    @RequestMapping("/env")
+    @RefreshScope # 哪里需要自动刷新哪里就加该注解
+    public class EnvController {
+    
+        @Value("${env}")
+        private String env;
+    
+        @GetMapping("/print")
+        public String print() {
+            return env;
+        }
+    }
+    ```
+
+* 启动 Config Client 服务, 会在 rabbitmq 中自动创建一个 queue, 如下图
+
+    ![http://www.miaomiaoqi.cn/images/springcloud/springcloud_sell_4.png](http://www.miaomiaoqi.cn/images/springcloud/springcloud_sell_4.png)
+
+* 修改 git 仓库中的配置文件内容, 向 ConfigServer 发送一条 POST 请求
+
+    curl -X POST "http://localhost:9936/actuator/bus-refresh", 发送该请求后可以看到 queue 中多了一条消息
+
+* 查看 order 服务中获取到的配置文件内容已经发生了变化
+
+* **目前为止我们实现了手动的自动刷新, 接下来要配置 git 服务器的 webhooks 实现更改配置后自动 push**
+
+    ![http://www.miaomiaoqi.cn/images/springcloud/springcloud_sell_5.png](http://www.miaomiaoqi.cn/images/springcloud/springcloud_sell_5.png)
+
+    **我使用的是 git 所以需要配置外网域名进行 push, 生产环境我们可以搭建 gitlab 在内网中使用更安全**
+
+# 消息队列 AMQP
+
+amqp 定义了一系列消息接口, 典型的实现是 rabbitmq, springcloud 默认使用的实现就是 rabbitmq
+
+* 加入 amqp 依赖
+
+    ```
+    <dependencies>
+    	<dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+    </dependencies>
+    ```
+
+* 修改 git 中的配置文件
+
+    ```
+    spring:
+      rabbitmq:
+        addresses: 127.0.0.1:6672
+        username: guest
+        password: guest
+        virtual-host: /springcloud-sell
+        connection-timeout: 15000
+    ```
+
+
+
+# 路由网关Zuul
+
+Zuul 的核心是一系列的过滤器, 过滤器配合路由就是 Zuul 的本质了, Zuul 是 Netflix 公司的产品, Zuul1.x 的内部是 servlet 阻塞模型, Zuul2.x 采用的是 netty 的非阻塞模型, 但是 Zuul2.x 没有整合进入 SpringCloud, SpringCloud 推出了自己的网关 SpringCloudGateway 需要结合 Webflux 使用
+
+- 稳定性, 高可用
+- 性能, 并发
+- 安全性
+- 扩展性
+
+![http://www.miaomiaoqi.cn/images/springcloud/springcloud_sell_6.png](http://www.miaomiaoqi.cn/images/springcloud/springcloud_sell_6.png)
+
+* 加入 Zuul 依赖
+
+    ```
+    <dependency>
+    	<groupId>org.springframework.cloud</groupId>
+    	<artifactId>spring-cloud-starter-netflix-zuul</artifactId>
+    </dependency>
+    ```
+
+* 启动类加入 @EnableZuulProxy 注解
+
+    ```
+    @SpringBootApplication
+    @EnableZuulProxy
+    public class SpringcloudSellGatewayApplication {
+    
+        public static void main(String[] args) {
+            SpringApplication.run(SpringcloudSellGatewayApplication.class, args);
+        }
+    
+    }
+    ```
+
+* 修改 git 中的配置文件
+
+    ```
+    eureka:
+      client:
+        service-url:
+          defaultZone: http://eureka9901:9901/eureka/,http://eureka9902:9902/eureka/,http://eureka9903:9903/eureka/
+        register-with-eureka: true
+        fetch-registry: true
+    server:
+      port: 9946
+    spring:
+      application:
+        name: springcloud-sell-gateway
+    env: dev33
+    ```
+
+* 修改项目中 bootstrap.yml 文件
+
+    ```
+    spring:
+      application:
+        name: springcloud-sell-gateway
+      cloud:
+        config:
+          profile: dev # 指定环境
+          uri: http://localhost:9936 # config server地址
+          label: master # git 分支
+    ```
+
+* 启动项目, 通过 zuul 服务访问 product 服务, 这里是默认路由
+
+    http://localhost:9946/springcloud-sell-product/product/list
+
+    springcloud-sell-product 就是 product 服务在 eureka 中的服务 id, gateway-zuul 会默认配置
+
+## 自定义路由
+
+修改 git 中配置文件
+
+```
+zuul:
+  routes:
+    myPorudct: # 定义一个路由规则, 规则名字可以任意起
+      path: /myProduct/** # 路由匹配的路径
+      serviceId: SPRINGCLOUD-SELL-PRODUCT # 转发到的服务
+      stripPrefix: true # 是否去除前缀
+      sensitiveHeaders:
+    # SPRINGCLOUD-SELL-PRODUCT: /myProduct/** 如果只有 serviceId 和 path 可以简写成这样, 默认去掉前缀
+  ignored-patterns: # 忽略的路由规则, 即禁止访问
+    - /**/product/listForOrder
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*" # 暴露对外访问的接口, 以便使用 http://localhost:9946/actuator/routes
+```
+
+访问 http://localhost:9946/myProduct/product/list 依旧有效, 证明我们自定义的规则生效了, 会将 myProdut 转发到 product 服务中, 并且默认去除掉 myProduct 前缀
+
+使用 http://localhost:9946/actuator/routes 查看全部的路由规则
+
+## 传递 Cookie
+
+路由规则中默认设置了敏感头, Zuul 会过滤掉这些值, 我们需要手动去除敏感头, 见上述配置
+
+默认的敏感头
+
+```
+private Set<String> sensitiveHeaders = new LinkedHashSet(Arrays.asList("Cookie", "Set-Cookie", "Authorization"));
+```
+
+## 动态更新配置
+
+* 将配置文件放到 git 中
+
+* 集成 springcloud-bus
+
+* 配置刷新域
+
+    第一种方式, 自己管理 ZuulProperties, 配置 @RefreshScope 注解
+
+    ```
+    @Component
+    public class ZuulConfig {
+    
+        @ConfigurationProperties(prefix = "zuul")
+        @RefreshScope
+        public ZuulProperties zuulProperties() {
+            return new ZuulProperties();
+        }
+    
+    }
+    ```
+
+    
+
+## 过滤器
+
+- 前置(Pre): 限流, 鉴权, 参数校验调整
+- 路由(Route)
+- 后置(Post): 统计, 日志, 跨域
+
+- 错误(Error)
 
 # Hystrix断路器
 
@@ -435,13 +663,5 @@ public interface ProductClient {
 * 服务降级(客户端)
 
     * 整体资源不够了, 先关闭一些服务, 待资源充足了, 再将服务打开
-
-# Zuul路由网关
-
-* 代理
-
-* 路由
-
-* 过滤
 
   
