@@ -596,7 +596,7 @@ zuul:
       stripPrefix: true # 是否去除前缀
       sensitiveHeaders:
     # SPRINGCLOUD-SELL-PRODUCT: /myProduct/** 如果只有 serviceId 和 path 可以简写成这样, 默认去掉前缀
-  ignored-patterns: # 忽略的路由规则, 即禁止访问
+  ignored-patterns: # 忽略的路由规则, 即禁止访问, 是个 Set 集合
     - /**/product/listForOrder
 management:
   endpoints:
@@ -623,9 +623,9 @@ private Set<String> sensitiveHeaders = new LinkedHashSet(Arrays.asList("Cookie",
 
 * 将配置文件放到 git 中
 
-* 集成 springcloud-bus
+* Zuul 服务集成 springcloud-bus
 
-* 配置刷新域
+* 配置刷新域, 我们在配置文件中配置的 zuul 开头的配置, 都是配置的 ZuulProperties 中的属性
 
     第一种方式, 自己管理 ZuulProperties, 配置 @RefreshScope 注解
 
@@ -642,8 +642,6 @@ private Set<String> sensitiveHeaders = new LinkedHashSet(Arrays.asList("Cookie",
     }
     ```
 
-    
-
 ## 过滤器
 
 - 前置(Pre): 限流, 鉴权, 参数校验调整
@@ -651,6 +649,145 @@ private Set<String> sensitiveHeaders = new LinkedHashSet(Arrays.asList("Cookie",
 - 后置(Post): 统计, 日志, 跨域
 
 - 错误(Error)
+
+## 鉴权
+
+利用前置过滤器, 需要前端携带参数 token 才能通过, 生产中校验 cookie 中的 jwt
+
+```
+@Component
+public class TokenFilter extends ZuulFilter {
+
+    @Override
+    public String filterType() {
+        // FilterConstants
+        // public static final String ERROR_TYPE = "error";
+        // public static final String POST_TYPE = "post";
+        // public static final String PRE_TYPE = "pre";
+        // public static final String ROUTE_TYPE = "route";
+        // 前置过滤器
+        return FilterConstants.PRE_TYPE;
+    }
+
+    @Override
+    public int filterOrder() {
+        return FilterConstants.PRE_DECORATION_FILTER_ORDER - 1;
+    }
+
+    @Override
+    public boolean shouldFilter() {
+    	// 判断是否需要拦截, 假如是登录就不需要拦截
+    	// RequestContext requestContext = RequestContext.getCurrentContext();
+        // HttpServletRequest request = requestContext.getRequest();
+        // String uri = request.getRequestURI();
+        return true;
+    }
+
+    @Override
+    public Object run() throws ZuulException {
+        RequestContext requestContext = RequestContext.getCurrentContext();
+        HttpServletRequest request = requestContext.getRequest();
+        // 这里从 url 参数中, 也可以从 cookie, header 中获取
+        String token = request.getParameter("token");
+        if (StringUtils.isEmpty(token)) {
+            requestContext.setSendZuulResponse(false);
+            requestContext.setResponseStatusCode(HttpStatus.UNAUTHORIZED.value());
+        }
+        return null;
+    }
+}
+```
+
+## 限流
+
+利用前置过滤器, **在请求被转发之前调用, 我们放在鉴权过滤器前**
+
+```
+package com.miaoqi.springcloudsell.gateway.filter;
+
+import com.google.common.util.concurrent.RateLimiter;
+import com.miaoqi.springcloudsell.gateway.exception.RateLimitException;
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.exception.ZuulException;
+import org.springframework.cloud.netflix.zuul.filters.support.FilterConstants;
+
+/**
+ * 限流拦截器
+ *
+ * @author miaoqi
+ * @date 2019-06-12
+ */
+public class RateLimitFilter extends ZuulFilter {
+
+    /**
+     * google guava 中封装好的令牌限流桶, 每秒放入 100 个
+     */
+    private static final RateLimiter RATE_LIMITER = RateLimiter.create(100);
+
+    @Override
+    public String filterType() {
+        return FilterConstants.PRE_TYPE;
+    }
+
+    /**
+     * 优先级要最高
+     */
+    @Override
+    public int filterOrder() {
+        return FilterConstants.SERVLET_DETECTION_FILTER_ORDER - 1;
+    }
+
+    @Override
+    public boolean shouldFilter() {
+        return true;
+    }
+
+    @Override
+    public Object run() throws ZuulException {
+        // 尝试获取一个令牌
+        if (!RATE_LIMITER.tryAcquire()) {
+            // 如果令牌桶中的令牌不够, 就直接返回错误状态, 或者抛异常
+            // requestContext.setSendZuulResponse(false);
+            // requestContext.setResponseStatusCode(HttpStatus.UNAUTHORIZED.value());
+            throw new RateLimitException();
+        }
+        return null;
+    }
+}
+
+```
+
+
+
+## 全局加响应头, 利用后置过滤器
+
+```
+@Component
+public class AddResponseHeaderFilter extends ZuulFilter {
+    @Override
+    public String filterType() {
+        return FilterConstants.POST_TYPE;
+    }
+
+    @Override
+    public int filterOrder() {
+        return FilterConstants.SEND_RESPONSE_FILTER_ORDER - 1;
+    }
+
+    @Override
+    public boolean shouldFilter() {
+        return true;
+    }
+
+    @Override
+    public Object run() throws ZuulException {
+        RequestContext currentContext = RequestContext.getCurrentContext();
+        HttpServletResponse response = currentContext.getResponse();
+        response.setHeader("X-Foo", UUID.randomUUID().toString());
+        return null;
+    }
+}
+```
 
 # Hystrix断路器
 
