@@ -1040,6 +1040,133 @@ http://localhost:9926/getProductInfoList?number=2 会正常访问
 
 ## Zuul超时设置(降级)
 
+Zuul 使用 ribbon 负载均衡组件, 所以 zuul 的超时配置时配置 ribbon 的超时时间, 同时也可以指定 hystrix 超时配置, 两者可以同时存在, 哪个时间小就先触发哪个
+
+```
+zuul:
+  routes:
+    springcloud-sell-product: # 定义一个路由规则, 规则名字可以任意起
+      path: /myProduct/** # 路由匹配的路径
+      serviceId: SPRINGCLOUD-SELL-PRODUCT # 转发到的服务
+      stripPrefix: true # 是否去除前缀
+      sensitiveHeaders:
+    springcloud-sell-order:
+      path: /api/order/**
+      serviceid: SPRINGCLOUD-SELL-ORDER
+      stripPrefix: true # 是否去除前缀
+      sensitiveHeaders:
+  host: # 如果路由方式是 url 的方式，那么该超时配置生效
+    connect-timeout-millis: 100 # HTTP连接超时
+    socket-timeout-millis: 100  # socket超时
+
+ribbon: # 如果路由方式是 serviceId 的方式，那么该全局超时配置生效
+  eureka:
+    enabled: true
+  ReadTimeout: 1000
+  ConnectTimeout: 1000
+  MaxAutoRetries: 0
+  MaxAutoRetriesNextServer: 1
+  OkToRetryOnAllOperations: false
+
+SPRINGCLOUD-SELL-ORDER: # 指定服务超时设置, 优先级高于全局
+  ribbon:
+    eureka:
+      enabled: true
+    ReadTimeout: 3000
+    ConnectTimeout: 3000
+    MaxAutoRetries: 0
+    MaxAutoRetriesNextServer: 1
+    OkToRetryOnAllOperations: false
+
+SPRINGCLOUD-SELL-PRODUCT:
+  ribbon: 
+    eureka:
+      enabled: true
+    ReadTimeout: 3000
+    ConnectTimeout: 3000
+    MaxAutoRetries: 0
+    MaxAutoRetriesNextServer: 1
+    OkToRetryOnAllOperations: false
+
+# 因为懒加载, 所以设置默认超时加大一些, 防止第一次请求失败
+# ribbon 超时与 hystrix 超时可以并存, 哪个超时时间小, 哪个生效
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 500
+    SPRINGCLOUD-SELL-PRODUCT: # 指定特定服务或方法的超时时间
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 3000
+```
+
+超时 fallback 设置, 实现 FallbackProvider 接口
+
+```
+@Component
+public class GatewayFallback implements FallbackProvider {
+
+	// 指定哪些服务支持 fallback
+    @Override
+    public String getRoute() {
+        // api服务id，如果需要所有调用都支持回退，则return "*"或return null
+        // return "api-user-server";
+        return "*";
+    }
+
+    @Override
+    public ClientHttpResponse fallbackResponse(String route, Throwable cause) {
+        return new ClientHttpResponse() {
+
+			// 响应体
+            @Override
+            public InputStream getBody() throws IOException {
+                Map<String, String> result = new HashMap<>();
+                result.put("state", "9999");
+                result.put("msg", "系统错误，请求失败");
+                return new ByteArrayInputStream(JsonUtil.toJson(result).getBytes("UTF-8"));
+            }
+
+            @Override
+            public HttpHeaders getHeaders() {
+                HttpHeaders headers = new HttpHeaders();
+                // 和body中的内容编码一致，否则容易乱码
+                headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+                return headers;
+            }
+
+            /**
+             * 网关向api服务请求是失败了，但是消费者客户端向网关发起的请求是OK的，
+             * 不应该把api的404,500等问题抛给客户端
+             * 网关和api服务集群对于客户端来说是黑盒子
+             */
+            @Override
+            public HttpStatus getStatusCode() throws IOException {
+                return HttpStatus.OK;
+            }
+
+            @Override
+            public int getRawStatusCode() throws IOException {
+                return HttpStatus.OK.value();
+            }
+
+            @Override
+            public String getStatusText() throws IOException {
+                return HttpStatus.OK.getReasonPhrase();
+            }
+
+            @Override
+            public void close() {
+            }
+        };
+    }
+}
+```
+
 
 
 # 链路监控 Spring Cloud Sleuth
