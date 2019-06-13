@@ -598,6 +598,8 @@ zuul:
     # SPRINGCLOUD-SELL-PRODUCT: /myProduct/** 如果只有 serviceId 和 path 可以简写成这样, 默认去掉前缀
   ignored-patterns: # 忽略的路由规则, 即禁止访问, 是个 Set 集合
     - /**/product/listForOrder
+#   忽略全部服务敏感头
+  sensitive-headers:
 management:
   endpoints:
     web:
@@ -789,7 +791,262 @@ public class AddResponseHeaderFilter extends ZuulFilter {
 }
 ```
 
-# Hystrix断路器
+## 跨域
+
+* 在被调用的类或方法上增加 @CrossOrigin 注解
+* 在 Zuul 里增加 CorsFilter 过滤器
+
+```
+@Configuration
+public class CorsConfig {
+
+    @Bean
+    public CorsFilter corsFilter() {
+        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        final CorsConfiguration config = new CorsConfiguration();
+
+        config.setAllowCredentials(true); // 是否允许 cookie 跨域
+        config.setAllowedOrigins(Arrays.asList("*")); // 允许的域名
+        config.setAllowedHeaders(Arrays.asList("*")); // 允许的头
+        config.setAllowedMethods(Arrays.asList("*")); // 允许的头
+        config.setMaxAge(300L);
+
+        source.registerCorsConfiguration("/**", config);
+        return new CorsFilter(source);
+    }
+
+}
+```
+
+# Spring Cloud Hystrix
+
+基于 Netflix 的 Hystrix 开发的防雪崩利器, 为服务提供一系列容错保护功能
+
+## 服务降级
+
+**优先核心服务可用, 非核心服务不可用或若可用**, 通过 HystrixCommand 注解指定, fallbackMethod(回退函数)中具体实现降级逻辑
+
+* 加入 hystrix 依赖
+
+    ```
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-hystrix</artifactId>
+        <version>LATEST</version>
+    </dependency>
+    ```
+
+* 加入注解
+
+    ```
+    @EnableFeignClients
+    // @SpringBootApplication
+    // @EnableDiscoveryClient 开启 eureka
+    // @EnableCircuitBreaker 开启 hystrix
+    @SpringCloudApplication // 包含上边 3 个注解
+    public class SpringcloudSellOrderApplication {
+    
+        public static void main(String[] args) {
+            SpringApplication.run(SpringcloudSellOrderApplication.class, args);
+        }
+    
+    }
+    ```
+
+* 请求方法加入 @HysttixCommand 注解
+
+    ```
+    @RestController
+    // @DefaultProperties(defaultFallback = "defaultFallback")
+    public class HystrixController {
+    
+    	// @HystrixCommand 配合 @DefaultProperties 会触发默认降级方法
+        @HystrixCommand(fallbackMethod = "fallback",
+        	commandProperties = @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value =
+                        "3000")) // 会指定特殊的降级方法, 优先级高于默认降级, 默认超时 1s, 这个配置会改为 3s
+        @GetMapping("/getProductInfoList")
+        public String getProductInfoList() {
+            RestTemplate restTemplate = new RestTemplate();
+            return restTemplate.postForObject("http://localhost:9916/product/listForOrder",
+                    Arrays.asList("157875196366160022"),
+                    String.class);
+            // throw new RuntimeException("发送异常了"); 抛异常就会触发降级
+        }
+    
+        private String fallback() {
+            return "太拥挤了, 请稍后再试~";
+        }
+    
+        private String defaultFallback() {
+            return "默认提示: 太拥挤了, 请稍后再试~";
+        }
+    
+    }
+    ```
+
+* 关闭 product 服务, 访问 http://localhost:9926/getProductInfoList, 页面返回太拥挤了, 请稍后再试~
+
+* 也可以采用配置文件的方式进行配置, 但是方法上一定要配置 @HystrixCommand 注解
+
+    ```
+    hystrix:
+      command:
+        default:
+          execution:
+            isolation:
+              thread:
+                timeoutInMilliseconds: 1000
+        getProductInfoList: # 单独为某一方法设置超时时间
+          execution:
+            isolation:
+              thread:
+                timeoutInMilliseconds: 3000
+    ```
+
+### Feign-Hystrix
+
+feign 整合 hystrix 进行降级, feign 已经自动依赖了 hystrix 包
+
+* 配置 feign 的配置文件
+
+    ```
+    feign:
+      hystrix:
+        enabled: true
+    ```
+
+* 修改 feign 接口
+
+    ```
+    @FeignClient(name = "SPRINGCLOUD-SELL-PRODUCT", fallback = ProductClient.ProductClientFallback.class)
+    public interface ProductClient {
+    
+        @PostMapping("/product/listForOrder")
+        List<ProductInfoOutput> listForOrder(List<String> productIdList);
+    
+        @PostMapping("/product/decreaseStock")
+        void decreaseStock(@RequestBody List<DecreaseStockInput> cartDTOList);
+    
+        @Component
+        class ProductClientFallback implements ProductClient {
+    
+            @Override
+            public List<ProductInfoOutput> listForOrder(List<String> productIdList) {
+                return null;
+            }
+    
+            @Override
+            public void decreaseStock(List<DecreaseStockInput> cartDTOList) {
+    
+            }
+        }
+    
+    }
+    ```
+
+### 可视化 hystrix 工具 Hystrix-Dashboard
+
+* 加入依赖
+
+    ```
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-hystrix-dashboard</artifactId>
+        <version>LATEST</version>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+    ```
+
+* 启动类加入注解
+
+    ```
+    @EnableFeignClients
+    // @SpringBootApplication
+    // @EnableDiscoveryClient 开启 eureka
+    // @EnableCircuitBreaker 开启 hystrix
+    @EnableHystrixDashboard
+    @SpringCloudApplication
+    public class SpringcloudSellOrderApplication {
+    
+        public static void main(String[] args) {
+            SpringApplication.run(SpringcloudSellOrderApplication.class, args);
+        }
+    
+    }
+    ```
+
+* 配置文件配置去除访问前缀
+
+    ```
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: "*"
+          base-path: /
+    ```
+
+* 访问图形化界面
+
+    http://localhost:9926/hystrix 填入 http://localhost:9926/hystrix.stream
+
+
+
+## 服务熔断
+
+当某个服务发生降级数量达到一定的百分比, 那么正常的逻辑也会直接触发降级, 将整个服务熔断, 一定时间后再恢复访问, 在 SpringCloud 中的熔断就是配置 4 个属性
+
+![http://www.miaomiaoqi.cn/images/springcloud/springcloud_sell_7.png](http://www.miaomiaoqi.cn/images/springcloud/springcloud_sell_7.png)
+
+**Closed:** 默认熔断器是关闭的, 当失败次数达到一定阈值, 会变为打开状态
+
+**Open:** 此时所有的请求都会触发降级, 一定时间后, 会变为半打开状态
+
+**Half Open:** 此时会释放一定的请求, 当请求成功达到一定比例, 会恢复为 Closed 状态
+
+```
+// 熔断
+@HystrixCommand(commandProperties = {
+        @HystrixProperty(name = "circuitBreaker.enabled", value = "true"), // 设置熔断
+        @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "10"), // 默认值20.意思是至少有20个请求才进行 errorThresholdPercentage 错误百分比计算。
+        @HystrixProperty(name = "circuitBreaker.sleepWindowInMilliseconds", value = "10000"), // 半开试探休眠时间，默认值5000ms。当熔断器开启一段时间之后比如5000ms，会尝试放过去一部分流量进行试探，确定依赖服务是否恢复。
+        @HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value = "60") // 设定错误百分比，默认值50%，例如一段时间（10s）内有100个请求，其中有55个超时或者异常返回了，那么这段时间内的错误百分比是55%，大于了默认值50%，这种情况下触发熔断器-打开。 
+})
+@GetMapping("/getProductInfoList")
+public String getProductInfoList(@RequestParam("number") Integer number) {
+    if (number % 2 == 0) {
+        return "success";
+    }
+    RestTemplate restTemplate = new RestTemplate();
+    return restTemplate.postForObject("http://localhost:9916/product/listForOrder",
+            Arrays.asList("157875196366160022"),
+            String.class);
+    // throw new RuntimeException("发送异常了"); 抛异常就会触发降级
+}
+```
+
+http://localhost:9926/getProductInfoList?number=1 会触发降级
+
+http://localhost:9926/getProductInfoList?number=2 会正常访问
+
+**当降级请求达到 60%的比例后, 正常访问的接口, 也会直接降级整个服务熔断 , 10s 后恢复一定量访问**
+
+## 依赖隔离
+
+线程池隔离, Hystrix 自动实现了依赖隔离
+
+## 监控(Hystrix Dashboard)
+
+
+
+
+
+
+
+
 
 * 服务熔断(服务端)
 
@@ -801,4 +1058,12 @@ public class AddResponseHeaderFilter extends ZuulFilter {
 
     * 整体资源不够了, 先关闭一些服务, 待资源充足了, 再将服务打开
 
-  
+# 链路监控 Spring Cloud Sleuth
+
+* 加入依赖
+
+    ```
+    
+    ```
+
+    
