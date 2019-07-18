@@ -11,57 +11,62 @@ author: miaoqi
 {:toc}
 # HelloWorld
 
-1. 创建一个maven工程;(jar) 
+创建一个maven工程;(jar) 
 
-2. 导入spring boot相关的依赖
+导入spring boot相关的依赖
 
-        <parent>
+```
+<parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring‐boot‐starter‐parent</artifactId>
+    <version>1.5.9.RELEASE</version>
+</parent>
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring‐boot‐starter‐web</artifactId>
+    </dependency>
+</dependencies>
+```
+编写一个主程序;启动Spring Boot应用
+​     
+​     @SpringBootApplication
+​     public class HelloWorldMainApplication{ 
+​         public static void main(String[] args) {
+​             // Spring应用启动起来
+​             SpringApplication.run(HelloWorldMainApplication.class,args);
+​         }
+​     }
+
+编写相关的Controller、Service
+
+```
+@Controller
+public class HelloController{
+
+    @ResponseBody
+    @RequestMapping("/hello")
+    public String hello(){
+        return "Hello World!";
+    }
+}
+```
+运行主程序测试
+
+简化部署
+
+```
+<build>
+    <!‐‐ 这个插件，可以将应用打包成一个可执行的jar包;‐‐> <build>
+    <plugins>
+        <plugin>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring‐boot‐starter‐parent</artifactId>
-            <version>1.5.9.RELEASE</version>
-        </parent>
-        <dependencies>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring‐boot‐starter‐web</artifactId>
-            </dependency>
-        </dependencies>
-    
-3. 编写一个主程序;启动Spring Boot应用
-   ​     
-   ​     @SpringBootApplication
-   ​     public class HelloWorldMainApplication{ 
-   ​         public static void main(String[] args) {
-   ​             // Spring应用启动起来
-   ​             SpringApplication.run(HelloWorldMainApplication.class,args);
-   ​         }
-   ​     }
+            <artifactId>spring‐boot‐maven‐plugin</artifactId>
+        </plugin>
+    </plugins>
+</build>
+```
 
-4. 编写相关的Controller、Service
-
-        @Controller
-        public class HelloController{
-        
-            @ResponseBody
-            @RequestMapping("/hello")
-            public String hello(){
-                return "Hello World!";
-            }
-        }
-    
-5. 运行主程序测试
-
-6. 简化部署
-   ​     
-   ​     <build>
-   ​         <!‐‐ 这个插件，可以将应用打包成一个可执行的jar包;‐‐> <build>
-   ​         <plugins>
-   ​             <plugin>
-   ​                 <groupId>org.springframework.boot</groupId>
-   ​                 <artifactId>spring‐boot‐maven‐plugin</artifactId>
-   ​             </plugin>
-   ​         </plugins>
-   ​     </build>
 将这个应用打成jar包，直接使用java -jar的命令进行执行;
 
 
@@ -103,54 +108,56 @@ author: miaoqi
 
 ## 主程序
 
-* @SpringBootApplication
+@SpringBootApplication
 
-    @SpringBootApplication: Spring Boot应用标注在某个类上说明这个类是SpringBoot的主配置类，SpringBoot 就应该运行这个类的main方法来启动SpringBoot应用;
+@SpringBootApplication: Spring Boot应用标注在某个类上说明这个类是SpringBoot的主配置类，SpringBoot 就应该运行这个类的main方法来启动SpringBoot应用;
 
-        @Target(ElementType.TYPE)
-        @Retention(RetentionPolicy.RUNTIME)
-        @Documented
-        @Inherited
-        @SpringBootConfiguration
-        @EnableAutoConfiguration
-        @ComponentScan(excludeFilters = {
-              @Filter(type = FilterType.CUSTOM, classes = TypeExcludeFilter.class),
-              @Filter(type = FilterType.CUSTOM, classes = AutoConfigurationExcludeFilter.class) })
-        public @interface SpringBootApplication {
+```
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Inherited
+@SpringBootConfiguration
+@EnableAutoConfiguration
+@ComponentScan(excludeFilters = {
+      @Filter(type = FilterType.CUSTOM, classes = TypeExcludeFilter.class),
+      @Filter(type = FilterType.CUSTOM, classes = AutoConfigurationExcludeFilter.class) })
+public @interface SpringBootApplication {
+```
 
-    * @SpringBootConfiguration
+* @SpringBootConfiguration
+
+    标注在某个类上，表示这是一个Spring Boot的配置类;
+
+    * @Configuration:配置类上来标注这个注解;
+
+        配置类 ----- 配置文件;配置类也是容器中的一个组件;@Component
+
+* @EnableAutoConfiguration
+
+    以前我们需要配置的东西，Spring Boot帮我们自动配置;
     
-        标注在某个类上，表示这是一个Spring Boot的配置类;
-    
-        * @Configuration:配置类上来标注这个注解;
-    
-            配置类 ----- 配置文件;配置类也是容器中的一个组件;@Component
+    @EnableAutoConfiguration告诉SpringBoot开启自动配置功能;这样自动配置才能生效;
 
-    * @EnableAutoConfiguration
+        @AutoConfigurationPackage
+        @Import(EnableAutoConfigurationImportSelector.class)
+        public @interface EnableAutoConfiguration{
 
-        以前我们需要配置的东西，Spring Boot帮我们自动配置;
-        
-        @EnableAutoConfiguration告诉SpringBoot开启自动配置功能;这样自动配置才能生效;
+    * @AutoConfigurationPackage
 
-            @AutoConfigurationPackage
-            @Import(EnableAutoConfigurationImportSelector.class)
-            public @interface EnableAutoConfiguration{
+        自动配置包
 
-        * @AutoConfigurationPackage
+        **将主配置类(@SpringBootApplication标注的类)的所在包及下面所有子包里面的所有组件扫描到Spring容器;**
 
-            自动配置包
+    * @Import(EnableAutoConfigurationImportSelector.class)
 
-            **将主配置类(@SpringBootApplication标注的类)的所在包及下面所有子包里面的所有组件扫描到Spring容器;**
+        Spring的底层注解@Import，给容器中导入一个组件;导入的组件由EnableAutoConfigurationImportSelector.class决定
 
-        * @Import(EnableAutoConfigurationImportSelector.class)
+        将所有需要导入的组件以全类名的方式返回;这些组件就会被添加到容器中;
 
-            Spring的底层注解@Import，给容器中导入一个组件;导入的组件由EnableAutoConfigurationImportSelector.class决定
+        会给容器中导入非常多的自动配置类(xxxAutoConfiguration);就是给容器中导入这个场景需要的所有组件， 并配置好这些组件;
 
-            将所有需要导入的组件以全类名的方式返回;这些组件就会被添加到容器中;
-
-            会给容器中导入非常多的自动配置类(xxxAutoConfiguration);就是给容器中导入这个场景需要的所有组件， 并配置好这些组件;
-
-            Spring Boot在启动的时候从类路径下的META-INF/spring.factories中获取EnableAutoConfiguration指定的值，将以前我们需要自己配置的东西, 都由SpringBoot来配置, J2EE的整体整合解决方案和自动配置都在spring-boot-autoconfigure-1.5.9.RELEASE.jar;
+    **Spring Boot在启动的时候从类路径下的META-INF/spring.factories中获取EnableAutoConfiguration指定的值，将以前我们需要自己配置的东西, 都由SpringBoot来配置, J2EE的整体整合解决方案和自动配置都在spring-boot-autoconfigure-1.5.9.RELEASE.jar;**
 
 
 # 配置文件
@@ -1484,383 +1491,524 @@ SpringBoot使用它来做日志功能;
 
 # AOP应用
 
-* 全局异常处理器, 对Controller层加入异常通知, 新建全局异常处理器类
+## 全局异常处理器, 对Controller层加入异常通知, 新建全局异常处理器类
 
-        /**
-         * 全局异常捕获处理器
-         * 1. 捕获返回json格式
-         * 2. 捕获返回页面
-         *
-         * @author miaoqi
-         * @date 2018/9/4
-         */
-        @ControllerAdvice(basePackages = "com.miaoqi.controller")
-        public class GlobalExceptionHandler {
-            
-            // @ResponseBody 返回json格式
-            // ModelAndView 返回页面
-            @ExceptionHandler(RuntimeException.class)
-            @ResponseBody
-            public Map<String, Object> errorResult(RuntimeException e) {
-                // 实际开发中, 将异常信息写到日志中(发邮件通知管理者)
-                Map<String, Object> errorResultMap = new HashMap<>();
-                errorResultMap.put("errorCode", "500");
-                errorResultMap.put("errorMsg", "全局捕获异常系统错误: " + e);
-                return errorResultMap;
+@ControllerAdvice 是 Spring 提供的注解, 改注解监听了所有 Controller 类抛出的异常
+
+```
+/**
+ * 全局异常捕获处理器
+ * 1. 捕获返回json格式
+ * 2. 捕获返回页面
+ *
+ * @author miaoqi
+ * @date 2018/9/4
+ */
+@ControllerAdvice(basePackages = "com.miaoqi.controller")
+public class GlobalExceptionHandler {
+    
+    // @ResponseBody 返回json格式
+    // ModelAndView 返回页面
+    @ExceptionHandler(RuntimeException.class)
+    @ResponseBody
+    public Map<String, Object> errorResult(RuntimeException e) {
+        // 实际开发中, 将异常信息写到日志中(发邮件通知管理者)
+        Map<String, Object> errorResultMap = new HashMap<>();
+        errorResultMap.put("errorCode", "500");
+        errorResultMap.put("errorMsg", "全局捕获异常系统错误: " + e);
+        return errorResultMap;
+    }
+}
+```
+## 全局参数拦截
+
+自定义切面类, 拦截所有的 Controller 方法
+
+```
+@Component
+@Aspect
+public class HttpRequestLogAOP {
+
+    private static final Logger logger = LoggerFactory.getLogger(HttpRequestLogAOP.class);
+
+    @Pointcut("execution(public * com.miaoqi.controller.*.*(..))")
+    private void controllerAspect(){}
+
+    public void preHandle(HttpServletRequest request) {
+        String headers = getRequestHeaders(request);
+        String params = getRequestParameter(request);
+        logger.info("api request -> [url: {} {}], [headers --> {}] [params --> {}]", request.getMethod(), request.getRequestURL(), headers, params);
+    }
+
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object object) {
+        String headers = getResponseHeaders(response);
+        logger.info("api response -> [url: {} {}], [headers --> {}] [data --> {}]", request.getMethod(), request.getRequestURL(), headers, JSON.toJSONString(object));
+    }
+
+    // 环绕通知
+    @Around("controllerAspect()")
+    public Object around(ProceedingJoinPoint pjp) throws Throwable{
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        this.preHandle(request);
+        Object object = pjp.proceed();
+        HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getResponse();
+        this.afterCompletion(request, response, object);
+        return object;
+    }
+
+    /**
+     * 解析 ResponseHeader 参数
+     *
+     * @param response
+     */
+    private String getResponseHeaders(HttpServletResponse response) {
+        StringBuffer sb = new StringBuffer();
+        try {
+            Collection<String> headers = response.getHeaderNames();
+            headers.forEach(s -> {
+                if (!s.toLowerCase().contains("password")) {
+                    sb.append(s + ":");
+                    Collection<String> values = response.getHeaders(s);
+                    values.forEach(v -> sb.append(v));
+                    sb.append(",");
+                }
+            });
+        } catch (Exception e) {
+            logger.warn("获取请求 Headers 异常, 该异常不必惊慌 ", e);
+        }
+        return sb.toString();
+    }
+
+    /**
+     * 解析 RequestHeader 参数
+     *
+     * @param request
+     */
+    private String getRequestHeaders(HttpServletRequest request) {
+        StringBuffer sb = new StringBuffer();
+        try {
+            Enumeration<String> headers = request.getHeaderNames();
+            while (headers.hasMoreElements()) {
+                String header = headers.nextElement();
+                //过滤掉密码
+                if (header.toLowerCase().contains("password")) {
+                    continue;
+                }
+                sb.append(header + ":");
+                Enumeration<String> hvs = request.getHeaders(header);
+                while (hvs.hasMoreElements()) {
+                    sb.append(hvs.nextElement());
+                }
+                sb.append(", ");
             }
+        } catch (Exception e) {
+            logger.warn("获取请求 Headers 异常, 该异常不必惊慌 ", e);
+        }
+        return sb.toString();
+    }
+
+    /**
+     * 解析 param 参数
+     *
+     * @param request
+     * @return
+     */
+    private String getRequestParameter(HttpServletRequest request) {
+        StringBuffer sb = new StringBuffer();
+        try {
+            Enumeration<String> enu = request.getParameterNames();
+            while (enu.hasMoreElements()) {
+                String paraName = enu.nextElement();
+                //过滤掉密码
+                if (paraName.toLowerCase().contains("password")) {
+                    continue;
+                }
+                String[] arrs = request.getParameterValues(paraName);
+                if (arrs != null && arrs.length > 1) {
+                    sb.append(paraName).append("=");
+                    for (String arr : arrs) {
+                        sb.append(arr + ",");
+                    }
+                } else {
+                    sb.append(paraName).append("=").append(request.getParameter(paraName) + ";");
+                }
+            }
+        } catch (Exception e) {
+            logger.warn("获取请求 Params 异常, 该异常不必惊慌 ", e);
+        }
+        return sb.toString();
+    }   
+}
+```
+## 自定义注解解析器
+
+**自定义注解解析器的原理实际是还是利用了AOP功能**
+
+首先定义一个LogAnnotation注解
+
+```
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface LogAnnotation {
+
+}
+```
+**编写切面类, 重点就在于切面表达式的编写不是一个切入点表达式, 而是一个注解的表达式**
+
+```
+@Component
+@Aspect
+public class ControllerLogAspect {
+
+    private static final Logger logger = LoggerFactory.getLogger(ControllerLogAspect.class);
+
+    @Autowired(required = false)
+    HttpServletRequest request;
+
+    @Pointcut("@annotation(com.miaoqi.aop.LogAnnotation)")
+    public void aspect(){	}
+
+    @Before("aspect()")
+    public void before(JoinPoint joinPoint) {
+        try {
+            if (request != null) {
+                Object rd = request.getAttribute("requestData");
+                if (rd != null) {
+                    RequestData requestData = (RequestData) rd;
+                    String token = request.getHeader("Authorization");
+                    if (StringUtils.isNotBlank(token)) {
+                        token = token.substring(7);
+                    }
+                    CommonLogger.doCommonLogInfo(logger,requestData.getBody(), token);
+                }
+            }
+        } catch (Exception e) {
+            LoggerUtil.error(logger,e.getMessage(),e);
         }
 
+    }
 
-* 全局参数拦截
+    @AfterReturning(value = "aspect()", returning = "rtv")
+    public void after(JoinPoint joinPoint, Object rtv) {
+        try {
+            if (request != null) {
+                Object rd = request.getAttribute("requestData");
+                if (rd != null) {
+                    RequestData requestData = (RequestData) rd;
+                    CommonLogger.doCommonLogInfo(logger, requestData.getBody(), JSON.toJSONString(rtv));
+                }
+            }
+        } catch (Exception e) {
+            LoggerUtil.error(logger,e.getMessage(),e);
+        }
+    }
+
+    @AfterThrowing(pointcut = "aspect()", throwing = "ex")
+    public void afterThrow(JoinPoint joinPoint, Exception ex) {
+        if (request != null) {
+            Object rd = request.getAttribute("requestData");
+            if (rd != null) {
+                RequestData requestData = (RequestData) rd;
+                CommonLogger.doCommonLogError(logger, requestData.getBody(), ex.toString());
+            }
+        }
+    }
+}
+```
+
+
+## 自定义缓存注解
+
+新建缓存注解
+
+```
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface XRedisCache {
+
+    /**
+     * 缓存前缀
+     */
+    RedisKeyPrefixEnum prefixEnum();
+
+    /**
+     * 缓存 key
+     */
+    String prefixKey() default "";
+
+    /**
+     * 缓存过期时间, 默认 1
+     */
+    int timeout() default 1;
+
+    /**
+     * 缓存时间单元, 默认小时
+     */
+    TimeUnit unit() default TimeUnit.HOURS;
+
+}
+```
+
+新建缓存注解解析器
+
+```
+/**
+ * 从 redis 中获取缓存之, 如果未找到就查库
+ *
+ * @author miaoqi
+ * @date 2019-07-17
+ */
+@Aspect
+@Component
+@Slf4j(topic = XLoggerUtil.DEFAULT_LOG_NAME)
+public class XRedisCacheAspects {
+
+    @Autowired
+    private RedisTemplate redisTemplate;
+
+    @Around("@annotation(cn.xdf.calc.aop.XRedisCache)")
+    public Object cacheAdvice4XCache(ProceedingJoinPoint joinPoint) throws Throwable {
+        BoundValueOperations<String, String> valueOps;
+        String redisKey;
+
+        Object result;
+        try {
+            // 获取 redis 中的缓存值
+            redisKey = this.getRedisKey(joinPoint);
+            valueOps = this.redisTemplate.boundValueOps(redisKey);
+            String cacheData = valueOps.get();
+            // 缓存命中
+            if (!StringUtils.isEmpty(cacheData)) {
+                // 转换为 jackson 的 javaType
+                JavaType javaType = XJsonUtil.getJavaType(this.getMethod(joinPoint).getGenericReturnType());
+                // 多级泛型反序列化
+                return XJsonUtil.fromJson(cacheData, javaType);
+            }
+        } catch (Exception e) {
+            log.error("query data from redis error", e);
+        }
+
+        // 缓存未命中, 执行目标方法获取返回值(查库)
+        result = joinPoint.proceed();
+
+        try {
+            // 设置缓存
+            redisKey = this.getRedisKey(joinPoint);
+            int timeout = this.getRedisCacheAnnotation(joinPoint).timeout();
+            TimeUnit unit = this.getRedisCacheAnnotation(joinPoint).unit();
+            valueOps = this.redisTemplate.boundValueOps(redisKey);
+            valueOps.set(XJsonUtil.toJson(result), timeout, unit);
+        } catch (Exception e) {
+            log.error("set data to redis error", e);
+        }
+        return result;
+    }
+
+    /**
+     * 获取 redisKey
+     *
+     * @author miaoqi
+     * @date 2019-07-17
+     * @param joinPoint
+     * @return
+     */
+    private String getRedisKey(ProceedingJoinPoint joinPoint) {
+        XRedisCache cache = this.getRedisCacheAnnotation(joinPoint);
+        RedisKeyPrefixEnum redisKeyPrefixEnum = cache.prefixEnum();
+        String key = cache.prefixKey();
+        return redisKeyPrefixEnum.of(key);
+    }
+
+    /**
+     * 获取注解信息
+     *
+     * @author miaoqi
+     * @date 2019-07-17
+     * @param joinPoint
+     * @return
+     */
+    private XRedisCache getRedisCacheAnnotation(ProceedingJoinPoint joinPoint) {
+        // 获取注解信息
+        return this.getMethod(joinPoint).getAnnotation(XRedisCache.class);
+    }
+
+    private Method getMethod(ProceedingJoinPoint joinPoint) {
+        // 判断是否是方法签名
+        Signature signature = joinPoint.getSignature();
+        // 判断是否是方法签名
+        if (!(signature instanceof MethodSignature)) {
+            throw new RuntimeException("signature is not method signature");
+        }
+        // 获取方法签名
+        MethodSignature methodSignature = (MethodSignature) (joinPoint.getSignature());
+        return methodSignature.getMethod();
+    }
+}
+```
+
+
+
+
+
+## 自定义参数解析器
+
+开发过程中, 在Controller层接收参数SpringMVC提供了@RequestParam进行参数解析, 但在一些特殊情况下这个注解的功能不够用, 比如后台返回页面时对id进行了AES加密操作, 前台传参时, id参数都是经过AES加密后的数据, 这时就需要自定义参数解析器进行解密后传入
+
+Spring提供了自定义参数解析器的功能
+
+1. 自定义两个注解, 该注解类似@RequestParam
+
+    AESRequestParam
+
+        @Target(value = ElementType.PARAMETER)
+        @Retention(RetentionPolicy.RUNTIME)
+        @Documented
+        public @interface AESRequestParam {
+        
+            String value() default "";
+        
+            boolean required() default false;
+        
+        }
+
+    DESRequestParam
+
+        @Target(value = ElementType.PARAMETER)
+        @Retention(RetentionPolicy.RUNTIME)
+        @Documented
+        public @interface DESRequestParam {
+        
+        }
+
+1. 自定义参数解析器实现HandlerMethodArgumentResolver接口, 该接口有两个方法需要实现, supprts方法用于判断是否满足解析条件, resolve方法真正进行解析
 
         @Component
-        @Aspect
-        public class HttpRequestLogAOP {
-        
-            private static final Logger logger = LoggerFactory.getLogger(HttpRequestLogAOP.class);
-        
-            @Pointcut("execution(public * com.miaoqi.controller.*.*(..))")
-            private void controllerAspect(){}
-        
-            public void preHandle(HttpServletRequest request) {
-                String headers = getRequestHeaders(request);
-                String params = getRequestParameter(request);
-                logger.info("api request -> [url: {} {}], [headers --> {}] [params --> {}]", request.getMethod(), request.getRequestURL(), headers, params);
+        public class AESHandlerMethodArgumentResolver implements HandlerMethodArgumentResolver {
+            @Override
+            public boolean supportsParameter(MethodParameter parameter) {
+                System.out.println("判断是否支持AES解密");
+                // 获取方法名
+                System.out.println(parameter.getMethod().getName());
+                // 获取参数名称
+                System.out.println(parameter.getParameterName());
+                // 判断是否包含注解
+                return parameter.hasParameterAnnotation(AESRequestParam.class);
             }
         
-            public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object object) {
-                String headers = getResponseHeaders(response);
-                logger.info("api response -> [url: {} {}], [headers --> {}] [data --> {}]", request.getMethod(), request.getRequestURL(), headers, JSON.toJSONString(object));
-            }
-        
-            // 环绕通知
-            @Around("controllerAspect()")
-            public Object around(ProceedingJoinPoint pjp) throws Throwable{
-                HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-                this.preHandle(request);
-                Object object = pjp.proceed();
-                HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getResponse();
-                this.afterCompletion(request, response, object);
-                return object;
-            }
-        
-            /**
-             * 解析 ResponseHeader 参数
-             *
-             * @param response
-             */
-            private String getResponseHeaders(HttpServletResponse response) {
-                StringBuffer sb = new StringBuffer();
-                try {
-                    Collection<String> headers = response.getHeaderNames();
-                    headers.forEach(s -> {
-                        if (!s.toLowerCase().contains("password")) {
-                            sb.append(s + ":");
-                            Collection<String> values = response.getHeaders(s);
-                            values.forEach(v -> sb.append(v));
-                            sb.append(",");
-                        }
-                    });
-                } catch (Exception e) {
-                    logger.warn("获取请求 Headers 异常, 该异常不必惊慌 ", e);
+            @Override
+            public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
+                    NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+                System.out.println("进到了AES参数解析器中");
+                // 获取HttpServletRequest
+                HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
+                // 获取注解信息
+                AESRequestParam requestParam = parameter.getParameterAnnotation(AESRequestParam.class);
+                // 获取传递过来的值, 如果AESRequestParam指定了value属性按照value属性获取, 否则按照参数名获取
+                String parameterValue;
+                if (!StringUtils.isEmpty(requestParam.value())) {
+                    parameterValue = request.getParameter(requestParam.value());
+                } else {
+                    parameterValue = request.getParameter(parameter.getParameterName());
                 }
-                return sb.toString();
+        
+                // 此处模拟RquestParam的require属性
+                if (requestParam.required() && Objects.isNull(parameterValue)) {
+                    throw new IllegalArgumentException("参数不合法");
+                }
+                // 模拟进行AES解密
+                return this.deCrypt(parameterValue);
             }
         
-            /**
-             * 解析 RequestHeader 参数
-             *
-             * @param request
-             */
-            private String getRequestHeaders(HttpServletRequest request) {
-                StringBuffer sb = new StringBuffer();
-                try {
-                    Enumeration<String> headers = request.getHeaderNames();
-                    while (headers.hasMoreElements()) {
-                        String header = headers.nextElement();
-                        //过滤掉密码
-                        if (header.toLowerCase().contains("password")) {
-                            continue;
-                        }
-                        sb.append(header + ":");
-                        Enumeration<String> hvs = request.getHeaders(header);
-                        while (hvs.hasMoreElements()) {
-                            sb.append(hvs.nextElement());
-                        }
-                        sb.append(", ");
-                    }
-                } catch (Exception e) {
-                    logger.warn("获取请求 Headers 异常, 该异常不必惊慌 ", e);
-                }
-                return sb.toString();
+            private Object deCrypt(String parameterValue) {
+                return parameterValue + "jiemi";
             }
-        
-            /**
-             * 解析 param 参数
-             *
-             * @param request
-             * @return
-             */
-            private String getRequestParameter(HttpServletRequest request) {
-                StringBuffer sb = new StringBuffer();
-                try {
-                    Enumeration<String> enu = request.getParameterNames();
-                    while (enu.hasMoreElements()) {
-                        String paraName = enu.nextElement();
-                        //过滤掉密码
-                        if (paraName.toLowerCase().contains("password")) {
-                            continue;
-                        }
-                        String[] arrs = request.getParameterValues(paraName);
-                        if (arrs != null && arrs.length > 1) {
-                            sb.append(paraName).append("=");
-                            for (String arr : arrs) {
-                                sb.append(arr + ",");
-                            }
-                        } else {
-                            sb.append(paraName).append("=").append(request.getParameter(paraName) + ";");
-                        }
-                    }
-                } catch (Exception e) {
-                    logger.warn("获取请求 Params 异常, 该异常不必惊慌 ", e);
-                }
-                return sb.toString();
-            }   
         }
 
-* 自定义注解解析器
+1. 将参数解析器注入到容器中
 
-    自定义注解的原理实际是还是利用了AOP功能
-
-    * 首先定义一个LogAnnotation注解
-
-            @Target(ElementType.METHOD)
-            @Retention(RetentionPolicy.RUNTIME)
-            @Documented
-            public @interface LogAnnotation {
-            
+        @Configuration
+        public class MyConfig extends WebMvcConfigurerAdapter {
+        
+            @Override
+            public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
+                argumentResolvers.add(new AESHandlerMethodArgumentResolver());
+                argumentResolvers.add(new DESHandlerMethodArgumentResolver());
+                super.addArgumentResolvers(argumentResolvers);
             }
-
-    * 编写切面类, 重点就在于切面表达式的编写不是一个切入点表达式, 而是一个注解的表达式
-
-            @Component
-            @Aspect
-            public class ControllerLogAspect {
-            
-                private static final Logger logger = LoggerFactory.getLogger(ControllerLogAspect.class);
-            
-                @Autowired(required = false)
-                HttpServletRequest request;
-            
-                @Pointcut("@annotation(com.miaoqi.aop.LogAnnotation)")
-                public void aspect(){	}
-            
-                @Before("aspect()")
-                public void before(JoinPoint joinPoint) {
-                    try {
-                        if (request != null) {
-                            Object rd = request.getAttribute("requestData");
-                            if (rd != null) {
-                                RequestData requestData = (RequestData) rd;
-                                String token = request.getHeader("Authorization");
-                                if (StringUtils.isNotBlank(token)) {
-                                    token = token.substring(7);
-                                }
-                                CommonLogger.doCommonLogInfo(logger,requestData.getBody(), token);
-                            }
-                        }
-                    } catch (Exception e) {
-                        LoggerUtil.error(logger,e.getMessage(),e);
-                    }
-            
-                }
-            
-                @AfterReturning(value = "aspect()", returning = "rtv")
-                public void after(JoinPoint joinPoint, Object rtv) {
-                    try {
-                        if (request != null) {
-                            Object rd = request.getAttribute("requestData");
-                            if (rd != null) {
-                                RequestData requestData = (RequestData) rd;
-                                CommonLogger.doCommonLogInfo(logger, requestData.getBody(), JSON.toJSONString(rtv));
-                            }
-                        }
-                    } catch (Exception e) {
-                        LoggerUtil.error(logger,e.getMessage(),e);
-                    }
-                }
-            
-                @AfterThrowing(pointcut = "aspect()", throwing = "ex")
-                public void afterThrow(JoinPoint joinPoint, Exception ex) {
-                    if (request != null) {
-                        Object rd = request.getAttribute("requestData");
-                        if (rd != null) {
-                            RequestData requestData = (RequestData) rd;
-                            CommonLogger.doCommonLogError(logger, requestData.getBody(), ex.toString());
-                        }
-                    }
-                }
-            }
-
-
-
-# 自定义参数解析器
-
-* 开发过程中, 在Controller层接收参数SpringMVC提供了@RequestParam进行参数解析, 但在一些特殊情况下这个注解的功能不够用, 比如后台返回页面时对id进行了AES加密操作, 前台传参时, id参数都是经过AES加密后的数据, 这时就需要自定义参数解析器进行解密后传入
-
-* Spring提供了自定义参数解析器的功能
-
-    1. 自定义两个注解, 该注解类似@RequestParam
-
-        AESRequestParam
-
-            @Target(value = ElementType.PARAMETER)
-            @Retention(RetentionPolicy.RUNTIME)
-            @Documented
-            public @interface AESRequestParam {
-            
-                String value() default "";
-            
-                boolean required() default false;
-            
-            }
-
-        DESRequestParam
-
-            @Target(value = ElementType.PARAMETER)
-            @Retention(RetentionPolicy.RUNTIME)
-            @Documented
-            public @interface DESRequestParam {
-            
-            }
-
-    1. 自定义参数解析器实现HandlerMethodArgumentResolver接口, 该接口有两个方法需要实现, supprts方法用于判断是否满足解析条件, resolve方法真正进行解析
-
-            @Component
-            public class AESHandlerMethodArgumentResolver implements HandlerMethodArgumentResolver {
-                @Override
-                public boolean supportsParameter(MethodParameter parameter) {
-                    System.out.println("判断是否支持AES解密");
-                    // 获取方法名
-                    System.out.println(parameter.getMethod().getName());
-                    // 获取参数名称
-                    System.out.println(parameter.getParameterName());
-                    // 判断是否包含注解
-                    return parameter.hasParameterAnnotation(AESRequestParam.class);
-                }
-            
-                @Override
-                public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
-                        NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
-                    System.out.println("进到了AES参数解析器中");
-                    // 获取HttpServletRequest
-                    HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
-                    // 获取注解信息
-                    AESRequestParam requestParam = parameter.getParameterAnnotation(AESRequestParam.class);
-                    // 获取传递过来的值, 如果AESRequestParam指定了value属性按照value属性获取, 否则按照参数名获取
-                    String parameterValue;
-                    if (!StringUtils.isEmpty(requestParam.value())) {
-                        parameterValue = request.getParameter(requestParam.value());
-                    } else {
-                        parameterValue = request.getParameter(parameter.getParameterName());
-                    }
-            
-                    // 此处模拟RquestParam的require属性
-                    if (requestParam.required() && Objects.isNull(parameterValue)) {
-                        throw new IllegalArgumentException("参数不合法");
-                    }
-                    // 模拟进行AES解密
-                    return this.deCrypt(parameterValue);
-                }
-            
-                private Object deCrypt(String parameterValue) {
-                    return parameterValue + "jiemi";
-                }
-            }
-
-    1. 将参数解析器注入到容器中
-
-            @Configuration
-            public class MyConfig extends WebMvcConfigurerAdapter {
-            
-                @Override
-                public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
-                    argumentResolvers.add(new AESHandlerMethodArgumentResolver());
-                    argumentResolvers.add(new DESHandlerMethodArgumentResolver());
-                    super.addArgumentResolvers(argumentResolvers);
-                }
-            }
-
-    1. Controller层在入参上标明注解
-
-            @RestController
-            @RequestMapping("/param")
-            public class ParamParserController {
-            
-                @RequestMapping("/test")
-                public String testParamParser(@AESRequestParam(value = "param", required = true) String param1, String param2) {
-                    System.out.println("------------------");
-                    System.out.println(param1);
-                    System.out.println(param2);
-                    return "success";
-                }
-            
-            }
-
-    1. 浏览器中访问接口
-
-            http://localhost:8089/param/test?param=aa&param2=ll
-
-        第一次访问控制台打印如下
-
-            判断是否支持AES解密
-            testParamParser
-            param1
-            进到了AES参数解析器中
-            判断是否支持AES解密
-            testParamParser
-            param2
-            判断是否支持DES解密
-            testParamParser
-            param2
-            ------------------
-            aajiemi
-            ll
-
-        第二次访问控制台打印如下
-
-            进到了AES参数解析器中
-            ------------------
-            vvvvjiemi
-            ll
-
-    第一次访问接口, 会依次调用参数解析器根据supportsParameter方法的返回值判断是否进行参数解析, 如果返回为true, 则立刻进入到resolveArgument方法进行参数解析, 并将返回值赋值给标注的参数, 并且不会进入到后续的参数解析器中, 如果返回为false, 则进入到下一个参数解析器中继续判断. **每个参数都会执行一次参数解析器链**
-
-    第二次访问接口, 会根据之前supportsParameter方法的返回值直接进入resolveArgument方法中, 原因是SpringMVC对参数解析器加了缓存
-
-        private HandlerMethodArgumentResolver getArgumentResolver(MethodParameter parameter) {
-            // parameter是参数对象
-            // 从缓存中, 根据参数对象获取参数解析器
-            	HandlerMethodArgumentResolver result = this.argumentResolverCache.get(parameter);
-        	    if (result == null) {
-        	        // 解析器为空的话, 遍历所有的参数解析器
-        		        for (HandlerMethodArgumentResolver methodArgumentResolver : this.argumentResolvers) {
-                    if (logger.isTraceEnabled()) {
-                        logger.trace("Testing if argument resolver [" + methodArgumentResolver + "] supports [" +
-              parameter.getGenericParameterType() + "]");
-                    }
-                    // 根据supportsParameter方法的返回值判断是否支持解析
-                    if (methodArgumentResolver.supportsParameter(parameter)) {
-                        result = methodArgumentResolver;
-                        // 将这个参数解析器以参数对象为key, 参数解析器为value放入缓存中
-                        this.argumentResolverCache.put(parameter, result);
-                        break;
-                    }
-                }
-        	    }
-        	    return result;
         }
 
+1. Controller层在入参上标明注解
+
+        @RestController
+        @RequestMapping("/param")
+        public class ParamParserController {
+        
+            @RequestMapping("/test")
+            public String testParamParser(@AESRequestParam(value = "param", required = true) String param1, String param2) {
+                System.out.println("------------------");
+                System.out.println(param1);
+                System.out.println(param2);
+                return "success";
+            }
+        
+        }
+
+1. 浏览器中访问接口
+
+        http://localhost:8089/param/test?param=aa&param2=ll
+
+    第一次访问控制台打印如下
+
+        判断是否支持AES解密
+        testParamParser
+        param1
+        进到了AES参数解析器中
+        判断是否支持AES解密
+        testParamParser
+        param2
+        判断是否支持DES解密
+        testParamParser
+        param2
+        ------------------
+        aajiemi
+        ll
+
+    第二次访问控制台打印如下
+
+        进到了AES参数解析器中
+        ------------------
+        vvvvjiemi
+        ll
+
+第一次访问接口, 会依次调用参数解析器根据supportsParameter方法的返回值判断是否进行参数解析, 如果返回为true, 则立刻进入到resolveArgument方法进行参数解析, 并将返回值赋值给标注的参数, 并且不会进入到后续的参数解析器中, 如果返回为false, 则进入到下一个参数解析器中继续判断. **每个参数都会执行一次参数解析器链**
+
+第二次访问接口, 会根据之前supportsParameter方法的返回值直接进入resolveArgument方法中, 原因是SpringMVC对参数解析器加了缓存
+
+```
+private HandlerMethodArgumentResolver getArgumentResolver(MethodParameter parameter) {
+    // parameter是参数对象
+    // 从缓存中, 根据参数对象获取参数解析器
+    HandlerMethodArgumentResolver result = this.argumentResolverCache.get(parameter);
+	if (result == null) {
+		// 解析器为空的话, 遍历所有的参数解析器
+		for (HandlerMethodArgumentResolver methodArgumentResolver : this.argumentResolvers) {
+            if (logger.isTraceEnabled()) {
+                logger.trace("Testing if argument resolver [" + methodArgumentResolver + "] supports [" +
+      parameter.getGenericParameterType() + "]");
+            }
+            // 根据supportsParameter方法的返回值判断是否支持解析
+            if (methodArgumentResolver.supportsParameter(parameter)) {
+                result = methodArgumentResolver;
+                // 将这个参数解析器以参数对象为key, 参数解析器为value放入缓存中
+                this.argumentResolverCache.put(parameter, result);
+                break;
+            }
+        }
+	}
+	return result;
+}
+```
 
 
 
