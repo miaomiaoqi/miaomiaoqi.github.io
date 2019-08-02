@@ -870,7 +870,7 @@ SpringBoot使用它来做日志功能;
     logback-spring.xml:日志框架就不直接加载日志的配置项，由SpringBoot解析日志配置，可以使用SpringBoot 的高级Profile功能
 
     ```xml
-    <springProfilename="staging">
+    <springProfile name="staging">
         <!‐‐ configuration to be enabled when the "staging" profile is active ‐‐> 
         可以指定某段配置只在某个环境下生效
     </springProfile>
@@ -1002,26 +1002,28 @@ SpringBoot使用它来做日志功能;
 
     1. @EnableWebMvc的核心引入了DelegatingWebMvcConfiguration.class
     
-    ```java
+        ```
         @Import(DelegatingWebMvcConfiguration.class)
         public @interface EnableWebMvc{
         }
-    ```
+        ```
 
     2. DelegatingWebMvcConfiguration继承WebMvcConfigurationSupport
 
-        ```java
+        ```
         @Configuration
         public class Delegating WebMvcConfiguration extends WebMvcConfigurationSupport{
         }
         ```
     
-    3. WebMvcAutoConfiguration中如果没有WebMvcConfigurationSupport才会进行自动配置, 然而@EnableWebMvc引入了该类, 导致自动配置失效
+        
 
-        ```java
-    @Configuration
+    3. WebMvcAutoConfiguration中如果没有WebMvcConfigurationSupport才会进行自动配置, 然而@EnableWebMvc引入了该类, 导致自动配置失效
+    
+        ```
+        @Configuration
         @ConditionalOnWebApplication
-    @ConditionalOnClass({Servlet.class, DispatcherServlet.class, WebMvcConfigurerAdapter.class})
+        @ConditionalOnClass({Servlet.class, DispatcherServlet.class, WebMvcConfigurerAdapter.class})
         @ConditionalOnMissingBean({WebMvcConfigurationSupport.class})
         @AutoConfigureOrder(-2147483638)
         @AutoConfigureAfter({DispatcherServletAutoConfiguration.class, ValidationAutoConfiguration.class})
@@ -1031,9 +1033,9 @@ SpringBoot使用它来做日志功能;
     
     4. @EnableWebMvc将WebMvcConfigurationSupport组件导入进来
     
-    1. 导入的WebMvcConfigurationSupport只是SpringMVC最基本的功能
+    5. 导入的WebMvcConfigurationSupport只是SpringMVC最基本的功能
     
-    1. 最终导致自动配置失效
+    6. 最终导致自动配置失效
 
 # 注册Servlet三大组件【Servlet、Filter、Listener】
 
@@ -1123,22 +1125,22 @@ SpringBoot使用它来做日志功能;
         0 0 10,14,16 * * ? 每天上午10点，下午2点，4点 
         0 0/30 9-17 * * ? 朝九晚五工作时间内每半小时 
         0 0 12 ? * WED 表示每个星期三中午12点 
-        "0 0 12 * * ?" 每天中午12点触发 
-        "0 15 10 ? * *" 每天上午10:15触发 
-        "0 15 10 * * ?" 每天上午10:15触发 
-        "0 15 10 * * ? *" 每天上午10:15触发 
-        "0 15 10 * * ? 2005" 2005年的每天上午10:15触发 
-        "0 * 14 * * ?" 在每天下午2点到下午2:59期间的每1分钟触发 
-        "0 0/5 14 * * ?" 在每天下午2点到下午2:55期间的每5分钟触发 
-        "0 0/5 14,18 * * ?" 在每天下午2点到2:55期间和下午6点到6:55期间的每5分钟触发 
-        "0 0-5 14 * * ?" 在每天下午2点到下午2:05期间的每1分钟触发 
-        "0 10,44 14 ? 3 WED" 每年三月的星期三的下午2:10和2:44触发 
-        "0 15 10 ? * MON-FRI" 周一至周五的上午10:15触发 
-        "0 15 10 15 * ?" 每月15日上午10:15触发 
-        "0 15 10 L * ?" 每月最后一日的上午10:15触发 
-        "0 15 10 ? * 6L" 每月的最后一个星期五上午10:15触发 
-        "0 15 10 ? * 6L 2002-2005" 2002年至2005年的每月的最后一个星期五上午10:15触发 
-        "0 15 10 ? * 6#3" 每月的第三个星期五上午10:15触发
+        0 0 12 * * ? 每天中午12点触发 
+        0 15 10 ? * * 每天上午10:15触发 
+        0 15 10 * * ? 每天上午10:15触发 
+        0 15 10 * * ? * 每天上午10:15触发 
+        0 15 10 * * ? 2005 2005年的每天上午10:15触发 
+        0 * 14 * * ? 在每天下午2点到下午2:59期间的每1分钟触发 
+        0 0/5 14 * * ? 在每天下午2点到下午2:55期间的每5分钟触发 
+        0 0/5 14,18 * * ? 在每天下午2点到2:55期间和下午6点到6:55期间的每5分钟触发 
+        0 0-5 14 * * ? 在每天下午2点到下午2:05期间的每1分钟触发 
+        0 10,44 14 ? 3 WED 每年三月的星期三的下午2:10和2:44触发 
+        0 15 10 ? * MON-FRI 周一至周五的上午10:15触发 
+        0 15 10 15 * ? 每月15日上午10:15触发 
+        0 15 10 L * ? 每月最后一日的上午10:15触发 
+        0 15 10 ? * 6L 每月的最后一个星期五上午10:15触发 
+        0 15 10 ? * 6L 2002-2005" 2002年至2005年的每月的最后一个星期五上午10:15触发 
+        0 15 10 ? * 6#3 每月的第三个星期五上午10:15触发
 
 * 在SpringBoot中使用SpringTask
 
@@ -1157,12 +1159,12 @@ SpringBoot使用它来做日志功能;
 
     1. 编写定时任务类
     
-        ```jade
+        ```java
         @Service
         public class ScheduledService {
         
             /**
-             * second(秒), minute（分）, hour（时）, day of month（日）, month（月）, day of week（周几）.
+             * second(秒), minute（分）, hour（时）, day of month（日）, month（月）, day of week（周几）
              * 0 * * * * MON-FRI
              *  【0 0/5 14,18 * * ?】 每天14点整，和18点整，每隔5分钟执行一次
              *  【0 15 10 ? * 1-6】 每个月的周一至周六10:15分执行一次
