@@ -515,7 +515,7 @@ amqp 定义了一系列消息接口, 典型的实现是 rabbitmq, springcloud �
 
 # 路由网关Zuul
 
-Zuul 的核心是一系列的过滤器, 过滤器配合路由就是 Zuul 的本质了, Zuul 是 Netflix 公司的产品, Zuul1.x 的内部是 servlet 阻塞模型, Zuul2.x 采用的是 netty 的非阻塞模型, 但是 Zuul2.x 没有整合进入 SpringCloud, SpringCloud 推出了自己的网关 SpringCloudGateway 需要结合 Webflux 使用
+**Zuul 的核心是一系列的过滤器**, 过滤器配合路由就是 Zuul 的本质了, Zuul 是 Netflix 公司的产品, Zuul1.x 的内部是 servlet 阻塞模型, Zuul2.x 采用的是 netty 的非阻塞模型, 但是 Zuul2.x 没有整合进入 SpringCloud, SpringCloud 推出了自己的网关 SpringCloudGateway 需要结合 Webflux 使用
 
 - 稳定性, 高可用
 - 性能, 并发

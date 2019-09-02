@@ -15,7 +15,7 @@ author: miaoqi
 
 导入spring boot相关的依赖
 
-```
+```xml
 <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring‐boot‐starter‐parent</artifactId>
@@ -29,18 +29,20 @@ author: miaoqi
 </dependencies>
 ```
 编写一个主程序;启动Spring Boot应用
-​     
-​     @SpringBootApplication
-​     public class HelloWorldMainApplication{ 
-​         public static void main(String[] args) {
-​             // Spring应用启动起来
-​             SpringApplication.run(HelloWorldMainApplication.class,args);
-​         }
-​     }
+
+```java
+@SpringBootApplication
+public class HelloWorldMainApplication{ 
+	public static void main(String[] args) {
+		// Spring应用启动起来
+		SpringApplication.run(HelloWorldMainApplication.class,args);
+	}
+}
+```
 
 编写相关的Controller、Service
 
-```
+```java
 @Controller
 public class HelloController{
 
@@ -55,7 +57,7 @@ public class HelloController{
 
 简化部署
 
-```
+```xml
 <build>
     <!‐‐ 这个插件，可以将应用打包成一个可执行的jar包;‐‐> <build>
     <plugins>
@@ -76,30 +78,34 @@ public class HelloController{
 
 * 父项目
 
-        <parent>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring‐boot‐starter‐parent</artifactId>
-            <version>1.5.9.RELEASE</version>
-        </parent>
-        
-        他的父项目是
-        <parent>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring‐boot‐dependencies</artifactId>
-            <version>1.5.9.RELEASE</version>
-            <relativePath>../../spring‐boot‐dependencies</relativePath>
-        </parent>
-        他来真正管理Spring Boot应用里面的所有依赖版本;
+    ```xml
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring‐boot‐starter‐parent</artifactId>
+        <version>1.5.9.RELEASE</version>
+    </parent>
+    
+    他的父项目是
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring‐boot‐dependencies</artifactId>
+        <version>1.5.9.RELEASE</version>
+        <relativePath>../../spring‐boot‐dependencies</relativePath>
+    </parent>
+    他来真正管理Spring Boot应用里面的所有依赖版本;
+    ```
 
     以后我们导入依赖默认是不需要写版本;(没有在dependencies里面管理的依赖自然需要声明版本号)
 
 * 启动器
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-
+    ```xml
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+    ```
+    
     spring-boot-starter-web: 
     
     spring-boot-starter:spring-boot场景启动器;帮我们导入了web模块正常运行所依赖的组件;
@@ -112,7 +118,7 @@ public class HelloController{
 
 @SpringBootApplication: Spring Boot应用标注在某个类上说明这个类是SpringBoot的主配置类，SpringBoot 就应该运行这个类的main方法来启动SpringBoot应用;
 
-```
+```java
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
@@ -139,9 +145,11 @@ public @interface SpringBootApplication {
     
     @EnableAutoConfiguration告诉SpringBoot开启自动配置功能;这样自动配置才能生效;
 
-        @AutoConfigurationPackage
-        @Import(EnableAutoConfigurationImportSelector.class)
-        public @interface EnableAutoConfiguration{
+    ```java
+    @AutoConfigurationPackage
+    @Import(EnableAutoConfigurationImportSelector.class)
+public @interface EnableAutoConfiguration{
+    ```
 
     * @AutoConfigurationPackage
 
@@ -156,7 +164,7 @@ public @interface SpringBootApplication {
         将所有需要导入的组件以全类名的方式返回;这些组件就会被添加到容器中;
 
         会给容器中导入非常多的自动配置类(xxxAutoConfiguration);就是给容器中导入这个场景需要的所有组件， 并配置好这些组件;
-
+    
     **Spring Boot在启动的时候从类路径下的META-INF/spring.factories中获取EnableAutoConfiguration指定的值，将以前我们需要自己配置的东西, 都由SpringBoot来配置, J2EE的整体整合解决方案和自动配置都在spring-boot-autoconfigure-1.5.9.RELEASE.jar;**
 
 
@@ -191,129 +199,145 @@ YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JS
     * 对象: 键值对的集合, 又称为映射(mapping)/哈希(hashes)/字典(dictionary)
 
         对象的一组键值对，使用冒号结构表示
-        ​    
-        ​    animal: pets
-        ​    
-        ​    person:
-        ​        lastName: miaoqi
-        ​        age: 20
-
-        也允许另一种写法，将所有键值对写成一个行内对象
-
-            person: {lastName: Steve, age: 20}
-
+    
+        ```yaml
+        animal: pets
+        person:
+          lastName: miaoqi
+          age: 20
+        ```
+    ```
+    
+    也允许另一种写法，将所有键值对写成一个行内对象
+    
+    ​```yaml
+        person: {lastName: Steve, age: 20}
+    ```
+    
     * 数组: 一组按次序排列的值，又称为序列(sequence)/列表(list), 一组连词线开头的行, 构成一个数组
-
+    
         一组连词线开头的行，构成一个数组
-        ​    
-        ​    pets:
-        ​      - Cat
-        ​      - Dog
-        ​      - Goldfish
-
-        行内写法
-
-            pets: [Cat, Dog, Goldfish]
+    
+        ```yaml
+    pets:
+          - Cat
+      - Dog
+          - Goldfish
+      ```
+    ```
+    
+    行内写法
+    
+        ```yaml
+    pets: [Cat, Dog, Goldfish]
+    ```
 
         数据结构的子成员是一个数组，则可以在该项下面缩进一个空格
-
-            -
-             - Cat
-             - Dog
-             - Goldfish
-
-    * 纯量(scalars)：单个的、不可再分的值
-
-        * 布尔值:
-
-                布尔值用true和false表示
-
-        * 数值:
-
-                分为整数和浮点数
-
-        * Null
-
-            null用 ~ 表示
-
-                parent: ~ 
-
-        * 字符串
-
-            字符串默认不使用引号表示
-
-                str: 这是一行字符串
+        
+        ```yaml
+    -
+         - Cat
+     - Dog
+         - Goldfish
+    ```
+    
+    ```
+    
+* 纯量(scalars)：单个的、不可再分的值
+  
+    * 布尔值:
+    
+            布尔值用true和false表示
+    
+    * 数值:
+    
+            分为整数和浮点数
+    
+    * Null
+    
+        null用 ~ 表示
+    
+            parent: ~ 
+    
+    * 字符串
+    
+        字符串默认不使用引号表示
+    
+            ```yaml
+str: 这是一行字符串
+            ```
 
             如果字符串之中包含空格或特殊字符，需要放在引号之中
-
-                str: '内容： 字符串'
-
-            单引号和双引号都可以使用，双引号不会对特殊字符转义：
-
-                s1: '内容\n字符串'
-                s2: "内容\n字符串"
-
+    
+            ```yaml
+str: '内容： 字符串'
+            ```
+            
+    
+    单引号和双引号都可以使用，双引号不会对特殊字符转义：
+        
+    ```yaml
+        s1: '内容\n字符串'
+    s2: "内容\n字符串"
+    ```
+    
             单引号之中如果还有单引号，必须连续使用两个单引号转义
-
-                str: 'labor''s day'
-
+            
+        ```yaml
+    str: 'labor''s day'
+        ```
+    
             字符串可以写成多行，从第二行开始，必须有一个单空格缩进。换行符会被转为空格
-
-                str: 这是一段
-                  多行
-                  字符串
-
-            多行字符串可以使用“|”保留换行符，也可以使用>折叠换行
-
-                this: |
-                  Foo
-                  Bar
-                that: >
-                  Foo
-                  Bar
-
+            
+            ```yaml
+            str: 这是一段
+              多行
+              字符串
+    ```
+            
+    多行字符串可以使用“|”保留换行符，也可以使用>折叠换行
+            
+            ```yaml
+            this: |
+              Foo
+              Bar
+            that: >
+              Foo
+              Bar
+    ```
+    
             +表示保留文字块末尾的换行，-表示删除字符串末尾的换行
-
-                s1: |
-                  Foo
-                
-                s2: |+
-                  Foo
-
-
-            ​     
-                s3: |-
-                  Foo
-                
-                {s1: 'Foo\n', s2: 'Foo\n\n\n', s3: 'Foo'}
-    
-    * 复合结构, 以上三种类型的组合
-    
-            languages:
-             - Ruby
-             - Perl
-             - Python
-            websites:
-             YAML: yaml.org
-             Ruby: ruby-lang.org
-             Python: python.org
-             Perl: use.perl.org
+            
+            ```yaml
+            s1: |
+              Foo
+            
+            s2: |+
+              Foo
+            
+            s3: |-
+              Foo
+              
+            {s1: 'Foo\n', s2: 'Foo\n\n\n', s3: 'Foo'}
+            ```
 
 ## 编写配置文件
 
 * 配置文件占位符
 
-        person.lastName=哈哈哈哈哈${random.uuid}
-        person.age=${random.int}
-        person.birth=2018/08/20
-        person.map.k1=v1
-        person.map.k2=14
-        person.list=a,b,c,d
-        person.dog.name=${person.lastName:xxx}小狗
-        person.dog.age=15
+    ```properties
+    person.lastName=哈哈哈哈哈${random.uuid}
+    person.age=${random.int}
+    person.birth=2018/08/20
+    person.map.k1=v1
+    person.map.k2=14
+    person.list=a,b,c,d
+    person.dog.name=${person.lastName:xxx}小狗
+person.dog.age=15
+    ```
 
     ${random.uuid}, 生成随机uuid
-
+    
     ${person.lastName:xxx}, 取上文中配置的person.lastName的属性值, 如果person.lastName不存在取xxx作为值
 
 ## 配置文件加载位置
@@ -332,69 +356,77 @@ YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JS
 
 * yaml写法
 
-        person:
-          lastName: zhangas
-          age: 18
-          boss: false
-          birth: 2017/12/12
-          map: {k1: v1, k2: 12}
-          list:
-            - lisi
-            - wangwu
-            - zhaoliu
-          dog:
-            name: 小狗
-            age: 2
+    ```yaml
+    person:
+      lastName: zhangas
+      age: 18
+      boss: false
+      birth: 2017/12/12
+      map: {k1: v1, k2: 12}
+      list:
+        - lisi
+        - wangwu
+        - zhaoliu
+      dog:
+        name: 小狗
+        age: 2
+    ```
 
 * properties写法
   
-        person.last-name=啊发发
-        person.age=18
-        person.birth=2018/08/20
-        person.map.k1=v1
-        person.map.k2=14
-        person.list=a,b,c
-        person.dog.age=15
-
+    ```properties
+    person.last-name=啊发发
+    person.age=18
+    person.birth=2018/08/20
+    person.map.k1=v1
+    person.map.k2=14
+    person.list=a,b,c
+person.dog.age=15
+  ```
+  
 * @ConfigurationProperties: 告诉SpringBoot将本类中的所有属性和配置文件中相关的配置进行绑定, prefix = "person": 配置文件中哪个下面的所有属性进行一一映射
   
     只有这个组件是容器中的组件, 才能有容器提供的@ConfigurationProperties功能
     
     默认从全局配置文件中获取
     
-        @Component
-        @ConfigurationProperties(prefix = "person") // 从资源文件中自动装配属性值, 优先查找全局配置文件, 使用了@PropertySource就会查找指定配置文件
-        public class Person {
-            // @Value("${person.last-name}")
-            private String lastName;
-            // @Value("#{11*2}")
-            private Integer age;
-            // @Value("true")
-            private Boolean boss;
-            private Date birth;
+    ```java
+    @Component
+    @ConfigurationProperties(prefix = "person") // 从资源文件中自动装配属性值, 优先查找全局配置文件, 使用了@PropertySource就会查找指定配置文件
+    public class Person {
+        // @Value("${person.last-name}")
+        private String lastName;
+        // @Value("#{11*2}")
+        private Integer age;
+        // @Value("true")
+        private Boolean boss;
+        private Date birth;
+    
+        private Map<String, Object> map;
+        private List<Object> list;
+        private Dog dog;
         
-            private Map<String, Object> map;
-            private List<Object> list;
-            private Dog dog;
-            
-            // Get和Set方法
-        }
-
+        // Get和Set方法
+}
+  ```
+  
 * 使用@Value注解手动注入值
 
-        public class Person {
-            @Value("${person.last-name}")
-            private String lastName;
-            @Value("#{11*2}")
-            private Integer age;
-            @Value("true")
-            private Boolean boss;
-            private Date birth;
-        
-            private Map<String, Object> map;
-            private List<Object> list;
-            private Dog dog;
-        }
+    ```java
+    public class Person {
+        @Value("${person.last-name}")
+        private String lastName;
+        @Value("#{11*2}")
+        private Integer age;
+        @Value("true")
+        private Boolean boss;
+        private Date birth;
+    
+        private Map<String, Object> map;
+        private List<Object> list;
+        private Dog dog;
+    }
+    ```
 
 
 * @ConfigurationProperties和@Value的区别
@@ -411,7 +443,9 @@ YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JS
 
     SpringBoot默认加载全局配置文件中的内容, 使用该注解加载指定的配置文件
 
-        @PropertySource(value = {"classpath:person.properties"})
+    ```java
+    @PropertySource(value = {"classpath:person.properties"})
+    ```
 
 * 总结
 
@@ -444,38 +478,46 @@ Spring提供的对不同环境提供不同配置功能的支持, 可以通过激
 
 * yml支持多文档块方式
 
-        server:
-          port: 8083
-        spring:
-          profiles:
-            active: dev
-        ---
-        server:
-          port: 8084
-        spring:
-          profiles: dev
-        ---
-        server:
-          port: 8085
-        spring:
-          profiles: prod
+    ```yaml
+    server:
+      port: 8083
+    spring:
+      profiles:
+        active: dev
+    ---
+    server:
+      port: 8084
+    spring:
+      profiles: dev
+    ---
+    server:
+      port: 8085
+    spring:
+      profiles: prod
+    ```
 
 * 激活指定profile
 
     1. 在配置文件中指定激活哪个环境
 
-            spring.profiles.active=dev
+        ```properties
+    spring.profiles.active=dev
+        ```
 
     1. 命令行方式激活
 
-            java -jar spring-boot-02-config-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
+        ```bash
+    java -jar spring-boot-02-config-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
+        ```
 
         会覆盖配置文件中的设置
 
     1. 虚拟机参数
-
-            -Dspring.profiles.active=prod
-
+    
+        ```bash
+    -Dspring.profiles.active=prod
+        ```
+        
         -D是默认语法
 
 
@@ -487,152 +529,162 @@ Spring提供的对不同环境提供不同配置功能的支持, 可以通过激
     
     可以查看selectImports()方法的内容;
 
-        List configurations = getCandidateConfigurations(annotationMetadata, attributes);获取候选的配置
-
-
-        SpringFactoriesLoader.loadFactoryNames()
+    ```java
+    // 获取候选的配置
+    List configurations = getCandidateConfigurations(annotationMetadata, attributes);
+    ```
+    
+    ```
+    SpringFactoriesLoader.loadFactoryNames()
         
-        扫描所有jar包类路径下 META‐INF/spring.factories
-        把扫描到的这些文件的内容包装成properties对象
-        从properties中获取到EnableAutoConfiguration.class类(全类名)对应的值，然后把他们添加在容器中
-
-
-        # Auto Configure
-        org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-        org.springframework.boot.autoconfigure.admin.SpringApplicationAdminJmxAutoConfiguration,\
-        org.springframework.boot.autoconfigure.aop.AopAutoConfiguration,\
-        org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration,\
-        org.springframework.boot.autoconfigure.batch.BatchAutoConfiguration,\
-        org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration,\
-        org.springframework.boot.autoconfigure.cassandra.CassandraAutoConfiguration,\
-        org.springframework.boot.autoconfigure.cloud.CloudAutoConfiguration,\
-        org.springframework.boot.autoconfigure.context.ConfigurationPropertiesAutoConfiguration,\
-        org.springframework.boot.autoconfigure.context.MessageSourceAutoConfiguration,\
-        org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration,\
-        org.springframework.boot.autoconfigure.couchbase.CouchbaseAutoConfiguration,\
+    扫描所有jar包类路径下 META‐INF/spring.factories
+    把扫描到的这些文件的内容包装成properties对象
+    从properties中获取到EnableAutoConfiguration.class类(全类名)对应的值，然后把他们添加在容器中
+    ```
+    
+    ```properties
+    # Auto Configure
+    org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+    org.springframework.boot.autoconfigure.admin.SpringApplicationAdminJmxAutoConfiguration,\
+    org.springframework.boot.autoconfigure.aop.AopAutoConfiguration,\
+    org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration,\
+    org.springframework.boot.autoconfigure.batch.BatchAutoConfiguration,\
+    org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration,\
+    org.springframework.boot.autoconfigure.cassandra.CassandraAutoConfiguration,\
+    org.springframework.boot.autoconfigure.cloud.CloudAutoConfiguration,\
+    org.springframework.boot.autoconfigure.context.ConfigurationPropertiesAutoConfiguration,\
+    org.springframework.boot.autoconfigure.context.MessageSourceAutoConfiguration,\
+    org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration,\
+    org.springframework.boot.autoconfigure.couchbase.CouchbaseAutoConfiguration,\
         org.springframework.boot.autoconfigure.dao.PersistenceExceptionTranslationAutoConfiguration,\
-        org.springframework.boot.autoconfigure.data.cassandra.CassandraDataAutoConfiguration,\
+    org.springframework.boot.autoconfigure.data.cassandra.CassandraDataAutoConfiguration,\
         org.springframework.boot.autoconfigure.data.cassandra.CassandraRepositoriesAutoConfiguration,\
-        org.springframework.boot.autoconfigure.data.couchbase.CouchbaseDataAutoConfiguration,\
+    org.springframework.boot.autoconfigure.data.couchbase.CouchbaseDataAutoConfiguration,\
         org.springframework.boot.autoconfigure.data.couchbase.CouchbaseRepositoriesAutoConfiguration,\
-        org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchAutoConfiguration,\
+    org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchAutoConfiguration,\
         org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchDataAutoConfiguration,\
         org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchRepositoriesAutoConfiguration,\
-        org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration,\
-        org.springframework.boot.autoconfigure.data.ldap.LdapDataAutoConfiguration,\
-        org.springframework.boot.autoconfigure.data.ldap.LdapRepositoriesAutoConfiguration,\
-        org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration,\
-        org.springframework.boot.autoconfigure.data.mongo.MongoRepositoriesAutoConfiguration,\
-        org.springframework.boot.autoconfigure.data.neo4j.Neo4jDataAutoConfiguration,\
-        org.springframework.boot.autoconfigure.data.neo4j.Neo4jRepositoriesAutoConfiguration,\
-        org.springframework.boot.autoconfigure.data.solr.SolrRepositoriesAutoConfiguration,\
-        org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration,\
-        org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration,\
-        org.springframework.boot.autoconfigure.data.rest.RepositoryRestMvcAutoConfiguration,\
-        org.springframework.boot.autoconfigure.data.web.SpringDataWebAutoConfiguration,\
-        org.springframework.boot.autoconfigure.elasticsearch.jest.JestAutoConfiguration,\
-        org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration,\
-        org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration,\
-        org.springframework.boot.autoconfigure.h2.H2ConsoleAutoConfiguration,\
-        org.springframework.boot.autoconfigure.hateoas.HypermediaAutoConfiguration,\
-        org.springframework.boot.autoconfigure.hazelcast.HazelcastAutoConfiguration,\
-        org.springframework.boot.autoconfigure.hazelcast.HazelcastJpaDependencyAutoConfiguration,\
-        org.springframework.boot.autoconfigure.info.ProjectInfoAutoConfiguration,\
-        org.springframework.boot.autoconfigure.integration.IntegrationAutoConfiguration,\
-        org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration,\
-        org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration,\
-        org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration,\
-        org.springframework.boot.autoconfigure.jdbc.JndiDataSourceAutoConfiguration,\
-        org.springframework.boot.autoconfigure.jdbc.XADataSourceAutoConfiguration,\
-        org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration,\
-        org.springframework.boot.autoconfigure.jms.JmsAutoConfiguration,\
-        org.springframework.boot.autoconfigure.jmx.JmxAutoConfiguration,\
-        org.springframework.boot.autoconfigure.jms.JndiConnectionFactoryAutoConfiguration,\
-        org.springframework.boot.autoconfigure.jms.activemq.ActiveMQAutoConfiguration,\
-        org.springframework.boot.autoconfigure.jms.artemis.ArtemisAutoConfiguration,\
-        org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration,\
-        org.springframework.boot.autoconfigure.groovy.template.GroovyTemplateAutoConfiguration,\
-        org.springframework.boot.autoconfigure.jersey.JerseyAutoConfiguration,\
-        org.springframework.boot.autoconfigure.jooq.JooqAutoConfiguration,\
-        org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration,\
-        org.springframework.boot.autoconfigure.ldap.embedded.EmbeddedLdapAutoConfiguration,\
-        org.springframework.boot.autoconfigure.ldap.LdapAutoConfiguration,\
-        org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration,\
-        org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration,\
-        org.springframework.boot.autoconfigure.mail.MailSenderValidatorAutoConfiguration,\
-        org.springframework.boot.autoconfigure.mobile.DeviceResolverAutoConfiguration,\
+    org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration,\
+    org.springframework.boot.autoconfigure.data.ldap.LdapDataAutoConfiguration,\
+    org.springframework.boot.autoconfigure.data.ldap.LdapRepositoriesAutoConfiguration,\
+    org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration,\
+    org.springframework.boot.autoconfigure.data.mongo.MongoRepositoriesAutoConfiguration,\
+    org.springframework.boot.autoconfigure.data.neo4j.Neo4jDataAutoConfiguration,\
+    org.springframework.boot.autoconfigure.data.neo4j.Neo4jRepositoriesAutoConfiguration,\
+    org.springframework.boot.autoconfigure.data.solr.SolrRepositoriesAutoConfiguration,\
+    org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration,\
+    org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration,\
+    org.springframework.boot.autoconfigure.data.rest.RepositoryRestMvcAutoConfiguration,\
+    org.springframework.boot.autoconfigure.data.web.SpringDataWebAutoConfiguration,\
+    org.springframework.boot.autoconfigure.elasticsearch.jest.JestAutoConfiguration,\
+    org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration,\
+    org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration,\
+    org.springframework.boot.autoconfigure.h2.H2ConsoleAutoConfiguration,\
+    org.springframework.boot.autoconfigure.hateoas.HypermediaAutoConfiguration,\
+    org.springframework.boot.autoconfigure.hazelcast.HazelcastAutoConfiguration,\
+    org.springframework.boot.autoconfigure.hazelcast.HazelcastJpaDependencyAutoConfiguration,\
+    org.springframework.boot.autoconfigure.info.ProjectInfoAutoConfiguration,\
+    org.springframework.boot.autoconfigure.integration.IntegrationAutoConfiguration,\
+    org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration,\
+    org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration,\
+    org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration,\
+    org.springframework.boot.autoconfigure.jdbc.JndiDataSourceAutoConfiguration,\
+    org.springframework.boot.autoconfigure.jdbc.XADataSourceAutoConfiguration,\
+    org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration,\
+    org.springframework.boot.autoconfigure.jms.JmsAutoConfiguration,\
+    org.springframework.boot.autoconfigure.jmx.JmxAutoConfiguration,\
+    org.springframework.boot.autoconfigure.jms.JndiConnectionFactoryAutoConfiguration,\
+    org.springframework.boot.autoconfigure.jms.activemq.ActiveMQAutoConfiguration,\
+    org.springframework.boot.autoconfigure.jms.artemis.ArtemisAutoConfiguration,\
+    org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration,\
+    org.springframework.boot.autoconfigure.groovy.template.GroovyTemplateAutoConfiguration,\
+    org.springframework.boot.autoconfigure.jersey.JerseyAutoConfiguration,\
+    org.springframework.boot.autoconfigure.jooq.JooqAutoConfiguration,\
+    org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration,\
+    org.springframework.boot.autoconfigure.ldap.embedded.EmbeddedLdapAutoConfiguration,\
+    org.springframework.boot.autoconfigure.ldap.LdapAutoConfiguration,\
+    org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration,\
+    org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration,\
+    org.springframework.boot.autoconfigure.mail.MailSenderValidatorAutoConfiguration,\
+    org.springframework.boot.autoconfigure.mobile.DeviceResolverAutoConfiguration,\
         org.springframework.boot.autoconfigure.mobile.DeviceDelegatingViewResolverAutoConfiguration,\
-        org.springframework.boot.autoconfigure.mobile.SitePreferenceAutoConfiguration,\
-        org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration,\
-        org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration,\
-        org.springframework.boot.autoconfigure.mustache.MustacheAutoConfiguration,\
-        org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration,\
-        org.springframework.boot.autoconfigure.reactor.ReactorAutoConfiguration,\
-        org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration,\
-        org.springframework.boot.autoconfigure.security.SecurityFilterAutoConfiguration,\
-        org.springframework.boot.autoconfigure.security.FallbackWebSecurityAutoConfiguration,\
-        org.springframework.boot.autoconfigure.security.oauth2.OAuth2AutoConfiguration,\
-        org.springframework.boot.autoconfigure.sendgrid.SendGridAutoConfiguration,\
-        org.springframework.boot.autoconfigure.session.SessionAutoConfiguration,\
-        org.springframework.boot.autoconfigure.social.SocialWebAutoConfiguration,\
-        org.springframework.boot.autoconfigure.social.FacebookAutoConfiguration,\
-        org.springframework.boot.autoconfigure.social.LinkedInAutoConfiguration,\
-        org.springframework.boot.autoconfigure.social.TwitterAutoConfiguration,\
-        org.springframework.boot.autoconfigure.solr.SolrAutoConfiguration,\
-        org.springframework.boot.autoconfigure.thymeleaf.ThymeleafAutoConfiguration,\
-        org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration,\
-        org.springframework.boot.autoconfigure.transaction.jta.JtaAutoConfiguration,\
-        org.springframework.boot.autoconfigure.validation.ValidationAutoConfiguration,\
-        org.springframework.boot.autoconfigure.web.DispatcherServletAutoConfiguration,\
-        org.springframework.boot.autoconfigure.web.EmbeddedServletContainerAutoConfiguration,\
-        org.springframework.boot.autoconfigure.web.ErrorMvcAutoConfiguration,\
-        org.springframework.boot.autoconfigure.web.HttpEncodingAutoConfiguration,\
-        org.springframework.boot.autoconfigure.web.HttpMessageConvertersAutoConfiguration,\
-        org.springframework.boot.autoconfigure.web.MultipartAutoConfiguration,\
-        org.springframework.boot.autoconfigure.web.ServerPropertiesAutoConfiguration,\
-        org.springframework.boot.autoconfigure.web.WebClientAutoConfiguration,\
-        org.springframework.boot.autoconfigure.web.WebMvcAutoConfiguration,\
-        org.springframework.boot.autoconfigure.websocket.WebSocketAutoConfiguration,\
-        org.springframework.boot.autoconfigure.websocket.WebSocketMessagingAutoConfiguration,\
-        org.springframework.boot.autoconfigure.webservices.WebServicesAutoConfiguration
+    org.springframework.boot.autoconfigure.mobile.SitePreferenceAutoConfiguration,\
+    org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration,\
+    org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration,\
+    org.springframework.boot.autoconfigure.mustache.MustacheAutoConfiguration,\
+    org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration,\
+    org.springframework.boot.autoconfigure.reactor.ReactorAutoConfiguration,\
+    org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration,\
+    org.springframework.boot.autoconfigure.security.SecurityFilterAutoConfiguration,\
+    org.springframework.boot.autoconfigure.security.FallbackWebSecurityAutoConfiguration,\
+    org.springframework.boot.autoconfigure.security.oauth2.OAuth2AutoConfiguration,\
+    org.springframework.boot.autoconfigure.sendgrid.SendGridAutoConfiguration,\
+    org.springframework.boot.autoconfigure.session.SessionAutoConfiguration,\
+    org.springframework.boot.autoconfigure.social.SocialWebAutoConfiguration,\
+    org.springframework.boot.autoconfigure.social.FacebookAutoConfiguration,\
+    org.springframework.boot.autoconfigure.social.LinkedInAutoConfiguration,\
+    org.springframework.boot.autoconfigure.social.TwitterAutoConfiguration,\
+    org.springframework.boot.autoconfigure.solr.SolrAutoConfiguration,\
+    org.springframework.boot.autoconfigure.thymeleaf.ThymeleafAutoConfiguration,\
+    org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration,\
+    org.springframework.boot.autoconfigure.transaction.jta.JtaAutoConfiguration,\
+    org.springframework.boot.autoconfigure.validation.ValidationAutoConfiguration,\
+    org.springframework.boot.autoconfigure.web.DispatcherServletAutoConfiguration,\
+    org.springframework.boot.autoconfigure.web.EmbeddedServletContainerAutoConfiguration,\
+    org.springframework.boot.autoconfigure.web.ErrorMvcAutoConfiguration,\
+    org.springframework.boot.autoconfigure.web.HttpEncodingAutoConfiguration,\
+    org.springframework.boot.autoconfigure.web.HttpMessageConvertersAutoConfiguration,\
+    org.springframework.boot.autoconfigure.web.MultipartAutoConfiguration,\
+    org.springframework.boot.autoconfigure.web.ServerPropertiesAutoConfiguration,\
+    org.springframework.boot.autoconfigure.web.WebClientAutoConfiguration,\
+    org.springframework.boot.autoconfigure.web.WebMvcAutoConfiguration,\
+    org.springframework.boot.autoconfigure.websocket.WebSocketAutoConfiguration,\
+    org.springframework.boot.autoconfigure.websocket.WebSocketMessagingAutoConfiguration,\
+    org.springframework.boot.autoconfigure.webservices.WebServicesAutoConfiguration
     
-    每一个这样的 xxxAutoConfiguration类都是容器中的一个组件，都加入到容器中;用他们来做自动配置;
+    
+    ```
+    
+    **每一个这样的 xxxAutoConfiguration类都是容器中的一个组件，都加入到容器中;用他们来做自动配置**
 
 * 以HttpEncodingAutoConfiguration(Http编码自动配置)为例解释自动配置原理;
 
-        @Configuration // 表示这是一个配置类，以前编写的配置文件一样，也可以给容器中添加组件
-        @EnableConfigurationProperties(HttpEncodingProperties.class) // 启动指定类的ConfigurationProperties功能;将配置文件中对应的值和HttpEncodingProperties绑定起来;并把HttpEncodingProperties加入到ioc容器中
-        @ConditionalOnWebApplication // Spring底层@Conditional注解(Spring注解版)，根据不同的条件，如果满足指定的条件，整个配置类里面的配置就会生效; 判断当前应用是否是web应用，如果是，当前配置类生效
-        @ConditionalOnClass(CharacterEncodingFilter.class) // 判断当前项目有没有这个类CharacterEncodingFilter;SpringMVC中进行乱码解决的过滤器;
-        @ConditionalOnProperty(prefix="spring.http.encoding",value="enabled",matchIfMissing= true) // 判断配置文件中是否存在某个配置 spring.http.encoding.enabled; matchIfMissing 如果不存在，判断也是成立的
-        // 即使我们配置文件中不配置spring.http.encoding.enabled=true，也是默认生效的;
-        publicclassHttpEncodingAutoConfiguration{
-        
-            // 他已经和SpringBoot的配置文件映射了
-            private final HttpEncodingProperties properties;
-          
-            // 只有一个有参构造器的情况下，参数的值就会从容器中拿
-            public HttpEncodingAutoConfiguration(HttpEncodingProperties properties) {
-                this.properties = properties;
-            }
-            
-            @Bean // 给容器中添加一个组件，这个组件的某些值需要从properties中获取
-            @ConditionalOnMissingBean(CharacterEncodingFilter.class) // 判断容器没有这个组件?
-            public CharacterEncodingFilter characterEncodingFilter() {
-                CharacterEncodingFilter filter = new OrderedCharacterEncodingFilter();
-                filter.setEncoding(this.properties.getCharset().name());
-                filter.setForceRequestEncoding(this.properties.shouldForce(Type.REQUEST));
-                filter.setForceResponseEncoding(this.properties.shouldForce(Type.RESPONSE));
-                return filter;
-            }
-
-
+    ```java
+    @Configuration // 表示这是一个配置类，以前编写的配置文件一样，也可以给容器中添加组件
+    @EnableConfigurationProperties(HttpEncodingProperties.class) // 启动指定类的ConfigurationProperties功能;将配置文件中对应的值和HttpEncodingProperties绑定起来;并把HttpEncodingProperties加入到ioc容器中
+    @ConditionalOnWebApplication // Spring底层@Conditional注解(Spring注解版)，根据不同的条件，如果满足指定的条件，整个配置类里面的配置就会生效; 判断当前应用是否是web应用，如果是，当前配置类生效
+    @ConditionalOnClass(CharacterEncodingFilter.class) // 判断当前项目有没有这个类CharacterEncodingFilter;SpringMVC中进行乱码解决的过滤器;
+    @ConditionalOnProperty(prefix="spring.http.encoding",value="enabled",matchIfMissing= true) // 判断配置文件中是否存在某个配置 spring.http.encoding.enabled; matchIfMissing 如果不存在，判断也是成立的
+    // 即使我们配置文件中不配置spring.http.encoding.enabled=true，也是默认生效的;
+    public class HttpEncodingAutoConfiguration{
+    
+    	// 他已经和SpringBoot的配置文件映射了
+    	private final HttpEncodingProperties properties;
+    
+    	// 只有一个有参构造器的情况下，参数的值就会从容器中拿
+    	public HttpEncodingAutoConfiguration(HttpEncodingProperties properties) {
+    		this.properties = properties;
+    	}
+    
+    	@Bean // 给容器中添加一个组件，这个组件的某些值需要从properties中获取
+    	@ConditionalOnMissingBean(CharacterEncodingFilter.class) // 判断容器没有这个组件?
+    	public CharacterEncodingFilter characterEncodingFilter() {
+    		CharacterEncodingFilter filter = new OrderedCharacterEncodingFilter();
+    		filter.setEncoding(this.properties.getCharset().name());
+    		filter.setForceRequestEncoding(this.properties.shouldForce(Type.REQUEST));
+    		filter.setForceResponseEncoding(this.properties.shouldForce(Type.RESPONSE));
+    		return filter;
+    	}
+    }
+    ```
     **所有在配置文件中能配置的属性都是在xxxxProperties类中封装着;配置文件能配置什么就可以参照某个功能对应的这个属性类**
     
-        @ConfigurationProperties(prefix = "spring.http.encoding") //从配置文件中获取指定的值和bean的属 性进行绑定
-        publicclassHttpEncodingProperties{
-        
-            public static final Charset DEFAULT_CHARSET = Charset.forName("UTF‐8");
+    ```java
+    @ConfigurationProperties(prefix = "spring.http.encoding") //从配置文件中获取指定的值和bean的属 性进行绑定
+    publicclassHttpEncodingProperties{
+    	public static final Charset DEFAULT_CHARSET = Charset.forName("UTF‐8");
+    }
+    ```
 
 * 精髓:
 
@@ -688,18 +740,20 @@ JUL、JCL、Jboss-logging、logback、log4j、log4j2、slf4j....
 1. 如何在系统中使用SLF4J
 
     以后开发的时候，日志记录方法的调用，不应该来直接调用日志的实现类，而是调用日志抽象层里面的方法; 给系统里面导入slf4j的jar和 logback的实现jar
+
+    ```java
+    import org.slf4j.Logger; 
+    import org.slf4j.LoggerFactory;
     
-        importorg.slf4j.Logger; 
-        importorg.slf4j.LoggerFactory;
-        
-        publicclassHelloWorld{
-        
-            public static void main(String[] args) {
-        
-                Logger logger = LoggerFactory.getLogger(HelloWorld.class);
-                logger.info("Hello World");
-            }
+    public class HelloWorld{
+    
+        public static void main(String[] args) {
+    
+            Logger logger = LoggerFactory.getLogger(HelloWorld.class);
+            logger.info("Hello World");
         }
+    }
+    ```
 
     ![http://www.miaomiaoqi.cn/images/springboot/long1.png](http://www.miaomiaoqi.cn/images/springboot/log1.png)
 
@@ -721,17 +775,21 @@ JUL、JCL、Jboss-logging、logback、log4j、log4j2、slf4j....
 
 ## SpringBoot的日志关系
 
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring‐boot‐starter</artifactId>
-    </dependency>
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring‐boot‐starter</artifactId>
+</dependency>
+```
 
 SpringBoot使用它来做日志功能;
 
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring‐boot‐starter‐logging</artifactId>
-    </dependency>
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring‐boot‐starter‐logging</artifactId>
+</dependency>
+```
 
 ![http://www.miaomiaoqi.cn/images/springboot/log3.png](http://www.miaomiaoqi.cn/images/springboot/log3.png)
 
@@ -751,46 +809,49 @@ SpringBoot使用它来做日志功能;
 
     SpringBoot默认帮我们配置好了日志;
 
-        //记录器
-        Logger logger = LoggerFactory.getLogger(getClass()); @Test
-        public void contextLoads() {
-            //System.out.println();
-            //日志的级别;
-            //由低到高 trace < debug < info < warn < error
-            //可以调整输出的日志级别;日志就只会在这个级别以以后的高级别生效       logger.trace("这是trace日志...");
-            logger.debug("这是debug日志..."); //SpringBoot默认给我们使用的是info级别的，没有指定级别的就用SpringBoot默认规定的级别, root级别
-            logger.info("这是info日志...");
-            logger.warn("这是warn日志...");
-            logger.error("这是error日志...");
-        }
-
+    ```java
+    //记录器
+    Logger logger = LoggerFactory.getLogger(getClass()); @Test
+    public void contextLoads() {
+        // 日志的级别由低到高 trace < debug < info < warn < error
+        // 可以调整输出的日志级别;日志就只会在这个级别以以后的高级别生效       logger.trace("这是trace日志...");
+        logger.debug("这是debug日志..."); //SpringBoot默认给我们使用的是info级别的，没有指定级别的就用SpringBoot默认规定的级别, root级别
+        logger.info("这是info日志...");
+        logger.warn("这是warn日志...");
+        logger.error("这是error日志...");
+    }
+    ```
+    
 * 日志输出格式
 
-        %d表示日期时间，
-        %thread表示线程名，
-        %‐5level:级别从左显示5个字符宽度
-        %logger{50} 表示logger名字最长50个字符，否则按照句点分割。 
-        %msg:日志消息，
-        %n是换行符
-        
-        %d{yyyy‐MM‐dd HH:mm:ss.SSS} [%thread] %‐5level %logger{50} ‐ %msg%n
+    ```
+    %d表示日期时间，
+    %thread表示线程名，
+    %‐5level:级别从左显示5个字符宽度
+    %logger{50} 表示logger名字最长50个字符，否则按照句点分割。 
+    %msg:日志消息，
+    %n是换行符
+    
+    %d{yyyy‐MM‐dd HH:mm:ss.SSS} [%thread] %‐5level %logger{50} ‐ %msg%n
+    ```
 
     SpringBoot修改日志的默认配置
 
-        logging.level.com.miaoqi=trace
-        
-        #logging.path=
-        # 不指定路径在当前项目下生成springboot.log日志
-        # 可以指定完整的路径;
-        #logging.file=G:/springboot.log
-        
-        # 在当前磁盘的根路径下创建spring文件夹和里面的log文件夹;使用 spring.log 作为默认文件
-        logging.path=/spring/log
-        
-        # 在控制台输出的日志的格式
-        logging.pattern.console=%d{yyyy‐MM‐dd}[%thread]%‐5level%logger{50}‐%msg%n
-        # 指定文件中日志输出的格式
-        logging.pattern.file=%d{yyyy‐MM‐dd}===[%thread]===%‐5level===%logger{50}====%msg%n
+    ```properties
+    logging.level.com.miaoqi=trace
+    
+    # logging.path=
+    # 不指定路径在当前项目下生成springboot.log日志
+    # 可以指定完整的路径;
+    # logging.file=G:/springboot.log
+    
+    # 在当前磁盘的根路径下创建spring文件夹和里面的log文件夹;使用 spring.log 作为默认文件logging.path=/spring/log
+    
+    # 在控制台输出的日志的格式
+    logging.pattern.console=%d{yyyy‐MM‐dd}[%thread]%‐5level%logger{50}‐%msg%n
+    # 指定文件中日志输出的格式
+    logging.pattern.file=%d{yyyy‐MM‐dd}===[%thread]===%‐5level===%logger{50}====%msg%n
+    ```
 
 * 指定配置
 
@@ -806,19 +867,21 @@ SpringBoot使用它来做日志功能;
 
     logback-spring.xml:日志框架就不直接加载日志的配置项，由SpringBoot解析日志配置，可以使用SpringBoot 的高级Profile功能
 
-        <springProfilename="staging">
-            <!‐‐ configuration to be enabled when the "staging" profile is active ‐‐> 
-            可以指定某段配置只在某个环境下生效
+    ```xml
+    <springProfile name="staging">
+        <!‐‐ configuration to be enabled when the "staging" profile is active ‐‐> 
+        可以指定某段配置只在某个环境下生效
+    </springProfile>
+    
+    <layout class="ch.qos.logback.classic.PatternLayout">
+        <springProfile name="dev">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} ----> [%thread] ---> %-5level %logger{50} - %msg%n</pattern>
         </springProfile>
-        
-        <layout class="ch.qos.logback.classic.PatternLayout">
-            <springProfile name="dev">
-                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} ----> [%thread] ---> %-5level %logger{50} - %msg%n</pattern>
-            </springProfile>
-            <springProfile name="!dev">
-                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} ==== [%thread] ==== %-5level %logger{50} - %msg%n</pattern>
-            </springProfile>
-        </layout>
+        <springProfile name="!dev">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} ==== [%thread] ==== %-5level %logger{50} - %msg%n</pattern>
+        </springProfile>
+    </layout>
+    ```
 
 * 切换日志框架
 
@@ -826,24 +889,26 @@ SpringBoot使用它来做日志功能;
 
     slf4j+log4j的方式;
 
-        <dependency>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring‐boot‐starter‐web</artifactId>
-          <exclusions>
-            <exclusion>
-              <artifactId>logback‐classic</artifactId>
-              <groupId>ch.qos.logback</groupId>
-            </exclusion>
-            <exclusion>
-                <artifactId>log4j‐over‐slf4j</artifactId>
-                <groupId>org.slf4j</groupId>
-            </exclusion>
-          </exclusions>
-        </dependency>
-        <dependency>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j‐log4j12</artifactId>
-        </dependency>
+    ```xml
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring‐boot‐starter‐web</artifactId>
+      <exclusions>
+        <exclusion>
+          <artifactId>logback‐classic</artifactId>
+          <groupId>ch.qos.logback</groupId>
+        </exclusion>
+        <exclusion>
+            <artifactId>log4j‐over‐slf4j</artifactId>
+            <groupId>org.slf4j</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j‐log4j12</artifactId>
+    </dependency>
+    ```
 
 # SpringMVC自动配置
 
@@ -874,36 +939,40 @@ SpringBoot使用它来做日志功能;
 
 2. 自己扩展SpringMVC
 
-        <mvc:view‐controller path="/hello" view‐name="success"/>
-        <mvc:interceptors>
-            <mvc:interceptor>
-                <mvc:mapping path="/hello"/>
-                <bean></bean>
-            </mvc:interceptor>
-        </mvc:interceptors>
+    ```xml
+    <mvc:view‐controller path="/hello" view‐name="success"/>
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/hello"/>
+            <bean></bean>
+        </mvc:interceptor>
+    </mvc:interceptors>
+    ```
 
     编写一个配置类(@Configuration)，是WebMvcConfigurerAdapter类型;**不能标注@EnableWebMvc;** 既保留了所有的自动配置，也能用我们扩展的配置;
 
-        //使用WebMvcConfigurerAdapter可以来扩展SpringMVC的功能
-        @Configuration
-        public class MyMvcConfig extends WebMvcConfigurerAdapter {
-            @Override
-            public void addViewControllers(ViewControllerRegistry registry) {
-                // super.addViewControllers(registry);
-                //浏览器发送 /miaoqi 请求来到 success
-                registry.addViewController("/miaoqi").setViewName("success");
-            }
-            
-            @Override
-            public void addInterceptors(InterceptorRegistry registry) {
-               registry.addInterceptor(new LoginHandlerInterceptor()).addPathPatterns("/**").excludePathPatterns("/index.html")
-                       .excludePathPatterns("/").excludePathPatterns("/user/login").excludePathPatterns("/hello")
-                       .excludePathPatterns("/error/**");
-            }
+    ```java
+    //使用WebMvcConfigurerAdapter可以来扩展SpringMVC的功能
+    @Configuration
+    public class MyMvcConfig extends WebMvcConfigurerAdapter {
+        @Override
+        public void addViewControllers(ViewControllerRegistry registry) {
+            // super.addViewControllers(registry);
+            //浏览器发送 /miaoqi 请求来到 success
+            registry.addViewController("/miaoqi").setViewName("success");
         }
+        
+        @Override
+        public void addInterceptors(InterceptorRegistry registry) {
+           registry.addInterceptor(new LoginHandlerInterceptor()).addPathPatterns("/**").excludePathPatterns("/index.html")
+                   .excludePathPatterns("/").excludePathPatterns("/user/login").excludePathPatterns("/hello")
+                   .excludePathPatterns("/error/**");
+        }
+    }
+    ```
 
     原理:
-    
+
     1. WebMvcAutoConfiguration是SpringMVC的自动配置类
     1. 在做其他自动配置时会导入;@Import(EnableWebMvcConfiguration.class)
     1. 容器中所有的WebMvcConfigurer都会一起起作用
@@ -915,43 +984,56 @@ SpringBoot使用它来做日志功能;
 
     我们需要在配置类中添加@EnableWebMvc即可;
 
-        @EnableWebMvc
-        @Configuration publicclassMyMvcConfigextendsWebMvcConfigurerAdapter{
-            @Override
-            public void addViewControllers(ViewControllerRegistry registry) {
-                // super.addViewControllers(registry);
-                // 浏览器发送 /miaoqi 请求来到 success
-                registry.addViewController("/miaoqi").setViewName("success");
-            }
+    ```java
+    @EnableWebMvc
+    @Configuration publicclassMyMvcConfigextendsWebMvcConfigurerAdapter{
+        @Override
+        public void addViewControllers(ViewControllerRegistry registry) {
+            // super.addViewControllers(registry);
+            // 浏览器发送 /miaoqi 请求来到 success
+            registry.addViewController("/miaoqi").setViewName("success");
         }
+}
+    ```
 
     原理: 为什么自己标注@EnableWebMvc注解会导致SpringMVC自动配置就失效
 
     1. @EnableWebMvc的核心引入了DelegatingWebMvcConfiguration.class
-
-            @Import(DelegatingWebMvcConfiguration.class)
-            public@interfaceEnableWebMvc{
+    
+        ```
+        @Import(DelegatingWebMvcConfiguration.class)
+        public @interface EnableWebMvc{
+        }
+        ```
 
     2. DelegatingWebMvcConfiguration继承WebMvcConfigurationSupport
+
+        ```
+        @Configuration
+        public class Delegating WebMvcConfiguration extends WebMvcConfigurationSupport{
+        }
+        ```
     
-            @Configuration
-            public class DelegatingWebMvcConfiguration extends WebMvcConfigurationSupport{
+        
 
     3. WebMvcAutoConfiguration中如果没有WebMvcConfigurationSupport才会进行自动配置, 然而@EnableWebMvc引入了该类, 导致自动配置失效
-
-            @Configuration
-            @ConditionalOnWebApplication
-            @ConditionalOnClass({Servlet.class, DispatcherServlet.class, WebMvcConfigurerAdapter.class})
-            @ConditionalOnMissingBean({WebMvcConfigurationSupport.class})
-            @AutoConfigureOrder(-2147483638)
-            @AutoConfigureAfter({DispatcherServletAutoConfiguration.class, ValidationAutoConfiguration.class})
-            public class WebMvcAutoConfiguration {
-
+    
+        ```
+        @Configuration
+        @ConditionalOnWebApplication
+        @ConditionalOnClass({Servlet.class, DispatcherServlet.class, WebMvcConfigurerAdapter.class})
+        @ConditionalOnMissingBean({WebMvcConfigurationSupport.class})
+        @AutoConfigureOrder(-2147483638)
+        @AutoConfigureAfter({DispatcherServletAutoConfiguration.class, ValidationAutoConfiguration.class})
+        public class WebMvcAutoConfiguration {
+        }
+        ```
+    
     4. @EnableWebMvc将WebMvcConfigurationSupport组件导入进来
-
-    1. 导入的WebMvcConfigurationSupport只是SpringMVC最基本的功能
-
-    1. 最终导致自动配置失效
+    
+    5. 导入的WebMvcConfigurationSupport只是SpringMVC最基本的功能
+    
+    6. 最终导致自动配置失效
 
 # 注册Servlet三大组件【Servlet、Filter、Listener】
 
@@ -959,32 +1041,34 @@ SpringBoot使用它来做日志功能;
 
 * 注册三大组件
 
-        @Configuration
-        public class MyServerConfig {
-        
-            // servlet
-            @Bean
-            public ServletRegistrationBean myServlet() {
-                return new ServletRegistrationBean(new MyServlet(), "/myServlet");
-            }
-        
-            // filter
-            @Bean
-            public FilterRegistrationBean myFilter() {
-                FilterRegistrationBean registrationBean = new FilterRegistrationBean();
-                registrationBean.setFilter(new MyFilter());
-                registrationBean.setUrlPatterns(Arrays.asList("/hello", "/myServlet"));
-                return registrationBean;
-            }
-        
-            // listener
-            @Bean
-            public ServletListenerRegistrationBean myListener() {
-                ServletListenerRegistrationBean<MyListener> registrationBean = new ServletListenerRegistrationBean<>(
-                        new MyListener());
-                return registrationBean;
-            }
+    ```java
+    @Configuration
+    public class MyServerConfig {
+    
+        // servlet
+        @Bean
+        public ServletRegistrationBean myServlet() {
+            return new ServletRegistrationBean(new MyServlet(), "/myServlet");
         }
+    
+        // filter
+        @Bean
+        public FilterRegistrationBean myFilter() {
+            FilterRegistrationBean registrationBean = new FilterRegistrationBean();
+            registrationBean.setFilter(new MyFilter());
+            registrationBean.setUrlPatterns(Arrays.asList("/hello", "/myServlet"));
+            return registrationBean;
+        }
+    
+        // listener
+        @Bean
+        public ServletListenerRegistrationBean myListener() {
+            ServletListenerRegistrationBean<MyListener> registrationBean = new ServletListenerRegistrationBean<>(
+                    new MyListener());
+            return registrationBean;
+        }
+    }
+    ```
 
 # SpringTask
 
@@ -1039,88 +1123,98 @@ SpringBoot使用它来做日志功能;
         0 0 10,14,16 * * ? 每天上午10点，下午2点，4点 
         0 0/30 9-17 * * ? 朝九晚五工作时间内每半小时 
         0 0 12 ? * WED 表示每个星期三中午12点 
-        "0 0 12 * * ?" 每天中午12点触发 
-        "0 15 10 ? * *" 每天上午10:15触发 
-        "0 15 10 * * ?" 每天上午10:15触发 
-        "0 15 10 * * ? *" 每天上午10:15触发 
-        "0 15 10 * * ? 2005" 2005年的每天上午10:15触发 
-        "0 * 14 * * ?" 在每天下午2点到下午2:59期间的每1分钟触发 
-        "0 0/5 14 * * ?" 在每天下午2点到下午2:55期间的每5分钟触发 
-        "0 0/5 14,18 * * ?" 在每天下午2点到2:55期间和下午6点到6:55期间的每5分钟触发 
-        "0 0-5 14 * * ?" 在每天下午2点到下午2:05期间的每1分钟触发 
-        "0 10,44 14 ? 3 WED" 每年三月的星期三的下午2:10和2:44触发 
-        "0 15 10 ? * MON-FRI" 周一至周五的上午10:15触发 
-        "0 15 10 15 * ?" 每月15日上午10:15触发 
-        "0 15 10 L * ?" 每月最后一日的上午10:15触发 
-        "0 15 10 ? * 6L" 每月的最后一个星期五上午10:15触发 
-        "0 15 10 ? * 6L 2002-2005" 2002年至2005年的每月的最后一个星期五上午10:15触发 
-        "0 15 10 ? * 6#3" 每月的第三个星期五上午10:15触发
+        0 0 12 * * ? 每天中午12点触发 
+        0 15 10 ? * * 每天上午10:15触发 
+        0 15 10 * * ? 每天上午10:15触发 
+        0 15 10 * * ? * 每天上午10:15触发 
+        0 15 10 * * ? 2005 2005年的每天上午10:15触发 
+        0 * 14 * * ? 在每天下午2点到下午2:59期间的每1分钟触发 
+        0 0/5 14 * * ? 在每天下午2点到下午2:55期间的每5分钟触发 
+        0 0/5 14,18 * * ? 在每天下午2点到2:55期间和下午6点到6:55期间的每5分钟触发 
+        0 0-5 14 * * ? 在每天下午2点到下午2:05期间的每1分钟触发 
+        0 10,44 14 ? 3 WED 每年三月的星期三的下午2:10和2:44触发 
+        0 15 10 ? * MON-FRI 周一至周五的上午10:15触发 
+        0 15 10 15 * ? 每月15日上午10:15触发 
+        0 15 10 L * ? 每月最后一日的上午10:15触发 
+        0 15 10 ? * 6L 每月的最后一个星期五上午10:15触发 
+        0 15 10 ? * 6L 2002-2005" 2002年至2005年的每月的最后一个星期五上午10:15触发 
+        0 15 10 ? * 6#3 每月的第三个星期五上午10:15触发
 
 * 在SpringBoot中使用SpringTask
 
     1. 开启任务注解
 
-            @EnableAsync // 开启异步注解
-            @EnableScheduling // 开启定时任务注解
-            @SpringBootApplication
-            public class SpringBoot10TaskApplication {
-                public static void main(String[] args) {
-                    SpringApplication.run(SpringBoot10TaskApplication.class, args);
-                }
+        ```java
+        @EnableAsync // 开启异步注解
+        @EnableScheduling // 开启定时任务注解
+        @SpringBootApplication
+        public class SpringBoot10TaskApplication {
+            public static void main(String[] args) {
+                SpringApplication.run(SpringBoot10TaskApplication.class, args);
             }
+    }
+        ```
 
     1. 编写定时任务类
-
-            @Service
-            public class ScheduledService {
-            
-                /**
-                 * second(秒), minute（分）, hour（时）, day of month（日）, month（月）, day of week（周几）.
-                 * 0 * * * * MON-FRI
-                 *  【0 0/5 14,18 * * ?】 每天14点整，和18点整，每隔5分钟执行一次
-                 *  【0 15 10 ? * 1-6】 每个月的周一至周六10:15分执行一次
-                 *  【0 0 2 ? * 6L】每个月的最后一个周六凌晨2点执行一次
-                 *  【0 0 2 LW * ?】每个月的最后一个工作日凌晨2点执行一次
-                 *  【0 0 2-4 ? * 1#1】每个月的第一个周一凌晨2点到4点期间，每个整点都执行一次；
-                 */
-                /*
-                 * second(秒 0-59), minute(分 0-59), hour(时 0-23), day of month(日 1-31), month(月 1-12), day of week(周几 0-7或SUN-SAT)
-                 * 0 * * * * MON-FRI
-                 */
-                //    @Scheduled(cron = "0 * * ? * MON-FRI")
-                //    @Scheduled(cron = "0,1,2,3 * * ? * MON-FRI") // , 代表枚举
-                //    @Scheduled(cron = "0-3 * * ? * MON-FRI") // - 代表区间
-                @Scheduled(cron = "0/4 * * * * MON-FRI") // / 代表步长, 从0秒开始每4秒启动一次
-                // ? 日和星期冲突匹配, 指定了一个的值, 另外一个就需要指定为?, 代表放弃
-                // L 最后
-                // W 工作日
-                // # 星期 4#2 第二个星期4
-                public void hello() {
-                    System.out.println("hello...");
-                }
+    
+        ```java
+        @Service
+        public class ScheduledService {
+        
+            /**
+             * second(秒), minute（分）, hour（时）, day of month（日）, month（月）, day of week（周几）
+             * 0 * * * * MON-FRI
+             *  【0 0/5 14,18 * * ?】 每天14点整，和18点整，每隔5分钟执行一次
+             *  【0 15 10 ? * 1-6】 每个月的周一至周六10:15分执行一次
+             *  【0 0 2 ? * 6L】每个月的最后一个周六凌晨2点执行一次
+             *  【0 0 2 LW * ?】每个月的最后一个工作日凌晨2点执行一次
+             *  【0 0 2-4 ? * 1#1】每个月的第一个周一凌晨2点到4点期间，每个整点都执行一次；
+             */
+            /*
+             * second(秒 0-59), minute(分 0-59), hour(时 0-23), day of month(日 1-31), month(月 1-12), day of week(周几 0-7或SUN-SAT)
+             * 0 * * * * MON-FRI
+             */
+            //    @Scheduled(cron = "0 * * ? * MON-FRI")
+            //    @Scheduled(cron = "0,1,2,3 * * ? * MON-FRI") // , 代表枚举
+            //    @Scheduled(cron = "0-3 * * ? * MON-FRI") // - 代表区间
+            @Scheduled(cron = "0/4 * * * * MON-FRI") // / 代表步长, 从0秒开始每4秒启动一次
+            // ? 日和星期冲突匹配, 指定了一个的值, 另外一个就需要指定为?, 代表放弃
+            // L 最后
+            // W 工作日
+            // # 星期 4#2 第二个星期4
+            public void hello() {
+                System.out.println("hello...");
             }
+        }
+        ```
 
 
 # 数据访问
 
 1. 整合JDBC
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring‐boot‐starter‐jdbc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql‐connector‐java</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        
-        spring:
-          datasource:
-            username: root
-            password: 123456
-            url: jdbc:mysql://192.168.15.22:3306/jdbc
-            driver‐class‐name: com.mysql.jdbc.Driver
+    ```xml
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring‐boot‐starter‐jdbc</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql‐connector‐java</artifactId>
+        <scope>runtime</scope>
+    </dependency>
+    ```
+
+    
+
+    ```yaml
+    spring:
+      datasource:
+        username: root
+        password: 123456
+        url: jdbc:mysql://192.168.15.22:3306/jdbc
+        driver‐class‐name: com.mysql.jdbc.Driver
+    ```
 
     默认是用org.apache.tomcat.jdbc.pool.DataSource作为数据源; 
 
@@ -1135,44 +1229,46 @@ SpringBoot使用它来做日志功能;
 
 1. 整合Druid数据源
 
-        @Configuration
-        public class DruidConfig {
-        
-            @ConfigurationProperties(prefix = "spring.datasource")
-            @Bean
-            public DataSource druid() {
-                return new DruidDataSource();
-            }
-        
-            // 配置Druid的监控
-            // 1. 配置一个管理后台的Servlet
-            @Bean
-            public ServletRegistrationBean statViewServlet() {
-                ServletRegistrationBean bean = new ServletRegistrationBean(new StatViewServlet(), "/druid/*");
-                Map<String, String> initParams = new HashMap<>();
-                initParams.put("loginUsername", "admin");
-                initParams.put("loginPassword", "123456");
-                bean.setInitParameters(initParams);
-                return bean;
-            }
-        
-            // 2. 配置一个监控的filter
-            @Bean
-            public FilterRegistrationBean webStatFilter() {
-                FilterRegistrationBean bean = new FilterRegistrationBean();
-                bean.setFilter(new WebStatFilter());
-                Map<String, String> initParams = new HashMap<>();
-                bean.setInitParameters(initParams);
-                bean.setUrlPatterns(Arrays.asList("/*"));
-                return bean;
-            }
+    ```java
+    @Configuration
+    public class DruidConfig {
+    
+        @ConfigurationProperties(prefix = "spring.datasource")
+        @Bean
+        public DataSource druid() {
+            return new DruidDataSource();
         }
+    
+        // 配置Druid的监控
+        // 1. 配置一个管理后台的Servlet
+        @Bean
+        public ServletRegistrationBean statViewServlet() {
+            ServletRegistrationBean bean = new ServletRegistrationBean(new StatViewServlet(), "/druid/*");
+            Map<String, String> initParams = new HashMap<>();
+            initParams.put("loginUsername", "admin");
+            initParams.put("loginPassword", "123456");
+            bean.setInitParameters(initParams);
+            return bean;
+        }
+    
+        // 2. 配置一个监控的filter
+        @Bean
+        public FilterRegistrationBean webStatFilter() {
+            FilterRegistrationBean bean = new FilterRegistrationBean();
+            bean.setFilter(new WebStatFilter());
+            Map<String, String> initParams = new HashMap<>();
+            bean.setInitParameters(initParams);
+            bean.setUrlPatterns(Arrays.asList("/*"));
+            return bean;
+        }
+    }
+    ```
 
 1. 整合MyBatis
 
     * 引入Mybatis整合SpringBoot所需的jar包
 
-      ```
+      ```xml
       <dependency>
           <groupId>org.mybatis.spring.boot</groupId>
           <artifactId>mybatis‐spring‐boot‐starter</artifactId>
@@ -1182,59 +1278,67 @@ SpringBoot使用它来做日志功能;
 
     * 注解版整合
 
-            @Mapper
-            public interface DepartmentMapper {
-            
-                @Select("select * from department where id = #{id}")
-                public Department getDeptById(Integer id);
-            
-                @Delete("delete from department where id = #{id}")
-                public int deleteByDeptId(Integer id);
-            
-                @Options(useGeneratedKeys = true, keyProperty = "id")
-                @Insert("insert into department(departmentName) values(#{departmentName})")
-                public int insertDept(Department department);
-            
-                @Update("update dept set departmentName = #{departmentName} where id = #{id}")
-                public int updateDept(Department department);
-            
-            }
+        ```java
+        @Mapper
+        public interface DepartmentMapper {
+        
+            @Select("select * from department where id = #{id}")
+            public Department getDeptById(Integer id);
+        
+            @Delete("delete from department where id = #{id}")
+            public int deleteByDeptId(Integer id);
+        
+            @Options(useGeneratedKeys = true, keyProperty = "id")
+            @Insert("insert into department(departmentName) values(#{departmentName})")
+            public int insertDept(Department department);
+        
+            @Update("update dept set departmentName = #{departmentName} where id = #{id}")
+            public int updateDept(Department department);
+        
+        }
+        ```
 
         自定义MyBatis的配置规则;给容器中添加一个ConfigurationCustomizer;
 
-            @org.springframework.context.annotation.Configuration
-            public class MyBatisConfig{
-                @Bean
-                public ConfigurationCustomizer configurationCustomizer(){
-                    return new ConfigurationCustomizer(){
-                        @Override
-                        public void customize(Configuration configuration) {
-                            configuration.setMapUnderscoreToCamelCase(true);
-                        } 
-                    };
-                } 
-            }
+        ```java
+        @org.springframework.context.annotation.Configuration
+        public class MyBatisConfig{
+            @Bean
+            public ConfigurationCustomizer configurationCustomizer(){
+                return new ConfigurationCustomizer(){
+                    @Override
+                    public void customize(Configuration configuration) {
+                        configuration.setMapUnderscoreToCamelCase(true);
+                    } 
+                };
+            } 
+        }
+        ```
 
     * 配置文件版整合
 
         1. 扫描所有Mapper文件所在的包
 
-                @MapperScan(basePackages = "com.miaoqi.springboot.mapper")
-                @SpringBootApplication
-                public class SpringBoot06DataMybatisApplication {
-                
-                	public static void main(String[] args) {
-                		SpringApplication.run(SpringBoot06DataMybatisApplication.class, args);
-                	}
-                }
+            ```java
+            @MapperScan(basePackages = "com.miaoqi.springboot.mapper")
+            @SpringBootApplication
+            public class SpringBoot06DataMybatisApplication {
+            
+            	public static void main(String[] args) {
+            		SpringApplication.run(SpringBoot06DataMybatisApplication.class, args);
+            	}
+            }
+            ```
 
         1. 修改SpringBoot配置文件, 这里的配置是原来mybatis的全局配置文件如果不需要可省略
 
-                mybatis:
-                  # 可以指定mybatis自己的配置文件, 如果不需要可以不配
-                  config-location: classpath:mybatis/mybatis-config.xml
-                  # 如果xml和mapper在同一个目录下, 可以不配该条配置
-                  mapper-locations: classpath:mybatis/mapper/*.xml
+            ```yaml
+            mybatis:
+              # 可以指定mybatis自己的配置文件, 如果不需要可以不配
+              config-location: classpath:mybatis/mybatis-config.xml
+              # 如果xml和mapper在同一个目录下, 可以不配该条配置
+              mapper-locations: classpath:mybatis/mapper/*.xml
+            ```
 
     * **我们一般在maven环境下整合mybatis此处就有一个问题会发生**
 
@@ -1258,7 +1362,7 @@ SpringBoot使用它来做日志功能;
 
       **但是还会出现一个不属于上面任何一种情况的错误, 这个问题的发生的原因是, 如果我们将mapper对应的xml文件与mapper放在同一目录, 一般都是src/main/java/下, 这样使用maven打包的时候, maven是不会将xml打包进编译后的目录中的, (因为maven认为src/main/java下只是java的源代码路径, 所以不会打包资源文件, 而将xml, properties等资源文件放在src/main/resources目录下是可以被打包进去的), 这个时候就需要我们在pom.xml文件中加入一条配置, 告诉maven将src/main/java路径下的某个资源也打进jar包就可以了, 配置如下**
 
-      ```
+      ```xml
       <build>
       	<resources>
               <resource>
@@ -1274,7 +1378,7 @@ SpringBoot使用它来做日志功能;
 
       **如果配置了上边的插件会覆盖maven默认的加载路径, 导致src/main/resources路径下的资源加载不到, 所以还要添加另外的配置如下**
 
-      ```
+      ```xml
       <build>
       	<resources>
               <resource>
@@ -1299,99 +1403,101 @@ SpringBoot使用它来做日志功能;
 
     实际开发中有可能一个项目需要连接多个库, 默认情况下SpringBoot使用默认的SqlSessionFactory, 这时需要我们手动指定多SqlSessionFactory取代默认的配置
 
-        @Configuration
-        @MapperScan(value = "com.miaoqi.mysql.dc",sqlSessionFactoryRef = "dcSqlSessionFactory")
-        public class DcMySqlConfig {
-        
-            @Autowired
-            private ResourceLoader resourceLoader = new DefaultResourceLoader();
-        
-            @Value("${spring.datasource.dc_url}")
-            private String dbUrl;
-        
-            @Value("${spring.datasource.dc_username}")
-            private String username;
-        
-            @Value("${spring.datasource.dc_password}")
-            private String password;
-        
-            @Value("${spring.datasource.dc_driverClassName}")
-            private String driverClassName;
-        
-            @Value("${spring.datasource.dc_initialSize}")
-            private int initialSize;
-        
-            @Value("${spring.datasource.dc_minIdle}")
-            private int minIdle;
-        
-            @Value("${spring.datasource.dc_maxActive}")
-            private int maxActive;
-        
-            @Value("${spring.datasource.dc_maxWait}")
-            private int maxWait;
-        
-            @Value("${spring.datasource.dc_timeBetweenEvictionRunsMillis}")
-            private int timeBetweenEvictionRunsMillis;
-        
-            @Value("${spring.datasource.dc_minEvictableIdleTimeMillis}")
-            private int minEvictableIdleTimeMillis;
-        
-            @Value("${spring.datasource.dc_validationQuery}")
-            private String validationQuery;
-        
-            @Value("${spring.datasource.dc_testWhileIdle}")
-            private boolean testWhileIdle;
-        
-            @Value("${spring.datasource.dc_testOnBorrow}")
-            private boolean testOnBorrow;
-        
-            @Value("${spring.datasource.dc_testOnReturn}")
-            private boolean testOnReturn;
-        
-            @Value("${spring.datasource.dc_filters}")
-            private String filters;
-        
-            @Value("${spring.datasource.dc_logSlowSql}")
-            private String logSlowSql;
-        
-            @Bean(name = "dcDataSource")
-            public DataSource dataSource() throws Exception {
-                DruidDataSource datasource = new DruidDataSource();
-                datasource.setUrl(dbUrl);
-                datasource.setUsername(ConfigTools.decrypt(username));
-                datasource.setPassword(ConfigTools.decrypt(password));
-                datasource.setDriverClassName(driverClassName);
-                datasource.setInitialSize(initialSize);
-                datasource.setMinIdle(minIdle);
-                datasource.setMaxActive(maxActive);
-                datasource.setMaxWait(maxWait);
-                datasource.setTimeBetweenEvictionRunsMillis(timeBetweenEvictionRunsMillis);
-                datasource.setMinEvictableIdleTimeMillis(minEvictableIdleTimeMillis);
-                datasource.setValidationQuery(validationQuery);
-                datasource.setTestWhileIdle(testWhileIdle);
-                datasource.setTestOnBorrow(testOnBorrow);
-                datasource.setTestOnReturn(testOnReturn);
-                datasource.setFilters(filters);
-        
-                return datasource;
-            }
-        
-            @Bean(name = "dcDataSourceTransactionManager")
-            public DataSourceTransactionManager transactionManager() throws Exception {
-                return new DataSourceTransactionManager(dataSource());
-            }
-        
-            @Bean(name = "dcSqlSessionFactory")
-            public SqlSessionFactory sqlSessionFactory() throws Exception {
-                SqlSessionFactoryBean factory = new SqlSessionFactoryBean();
-                factory.setDataSource(dataSource());
-                factory.setVfs(SpringBootVFS.class);
-                factory.setConfigLocation(this.resourceLoader.getResource("classpath:dc-mybatis-config.xml"));
-                return factory.getObject();
-            }
+    ```java
+    @Configuration
+    @MapperScan(value = "com.miaoqi.mysql.dc",sqlSessionFactoryRef = "dcSqlSessionFactory")
+    public class DcMySqlConfig {
+    
+        @Autowired
+        private ResourceLoader resourceLoader = new DefaultResourceLoader();
+    
+        @Value("${spring.datasource.dc_url}")
+        private String dbUrl;
+    
+        @Value("${spring.datasource.dc_username}")
+        private String username;
+    
+        @Value("${spring.datasource.dc_password}")
+        private String password;
+    
+        @Value("${spring.datasource.dc_driverClassName}")
+        private String driverClassName;
+    
+        @Value("${spring.datasource.dc_initialSize}")
+        private int initialSize;
+    
+        @Value("${spring.datasource.dc_minIdle}")
+        private int minIdle;
+    
+        @Value("${spring.datasource.dc_maxActive}")
+        private int maxActive;
+    
+        @Value("${spring.datasource.dc_maxWait}")
+        private int maxWait;
+    
+        @Value("${spring.datasource.dc_timeBetweenEvictionRunsMillis}")
+        private int timeBetweenEvictionRunsMillis;
+    
+        @Value("${spring.datasource.dc_minEvictableIdleTimeMillis}")
+        private int minEvictableIdleTimeMillis;
+    
+        @Value("${spring.datasource.dc_validationQuery}")
+        private String validationQuery;
+    
+        @Value("${spring.datasource.dc_testWhileIdle}")
+        private boolean testWhileIdle;
+    
+        @Value("${spring.datasource.dc_testOnBorrow}")
+        private boolean testOnBorrow;
+    
+        @Value("${spring.datasource.dc_testOnReturn}")
+        private boolean testOnReturn;
+    
+        @Value("${spring.datasource.dc_filters}")
+        private String filters;
+    
+        @Value("${spring.datasource.dc_logSlowSql}")
+        private String logSlowSql;
+    
+        @Bean(name = "dcDataSource")
+        public DataSource dataSource() throws Exception {
+            DruidDataSource datasource = new DruidDataSource();
+            datasource.setUrl(dbUrl);
+            datasource.setUsername(ConfigTools.decrypt(username));
+            datasource.setPassword(ConfigTools.decrypt(password));
+            datasource.setDriverClassName(driverClassName);
+            datasource.setInitialSize(initialSize);
+            datasource.setMinIdle(minIdle);
+            datasource.setMaxActive(maxActive);
+            datasource.setMaxWait(maxWait);
+            datasource.setTimeBetweenEvictionRunsMillis(timeBetweenEvictionRunsMillis);
+            datasource.setMinEvictableIdleTimeMillis(minEvictableIdleTimeMillis);
+            datasource.setValidationQuery(validationQuery);
+            datasource.setTestWhileIdle(testWhileIdle);
+            datasource.setTestOnBorrow(testOnBorrow);
+            datasource.setTestOnReturn(testOnReturn);
+            datasource.setFilters(filters);
+    
+            return datasource;
         }
-
+    
+        @Bean(name = "dcDataSourceTransactionManager")
+        public DataSourceTransactionManager transactionManager() throws Exception {
+            return new DataSourceTransactionManager(dataSource());
+        }
+    
+        @Bean(name = "dcSqlSessionFactory")
+        public SqlSessionFactory sqlSessionFactory() throws Exception {
+            SqlSessionFactoryBean factory = new SqlSessionFactoryBean();
+            factory.setDataSource(dataSource());
+            factory.setVfs(SpringBootVFS.class);
+            factory.setConfigLocation(this.resourceLoader.getResource("classpath:dc-mybatis-config.xml"));
+            return factory.getObject();
+        }
+}
     ```
+    
+    ```java
     @Configuration
     @MapperScan(value = "com.miaoqi.mysql.mapper",sqlSessionFactoryRef = "rdsSqlSessionFactory")
     public class MySqlConfig {
@@ -1484,9 +1590,9 @@ SpringBoot使用它来做日志功能;
             factory.setConfigLocation(this.resourceLoader.getResource("classpath:mybatis-config.xml"));
             return factory.getObject();
     	    }
-    }
+}
     ```
-
+    
     手动配置了SqlSessionFactory, 从不同的DataSource中获取连接, 注入到不同的mapper中, 即可实现多数据源
 
 # AOP应用
@@ -1495,7 +1601,7 @@ SpringBoot使用它来做日志功能;
 
 @ControllerAdvice 是 Spring 提供的注解, 改注解监听了所有 Controller 类抛出的异常
 
-```
+```java
 /**
  * 全局异常捕获处理器
  * 1. 捕获返回json格式
@@ -1524,7 +1630,7 @@ public class GlobalExceptionHandler {
 
 自定义切面类, 拦截所有的 Controller 方法
 
-```
+```java
 @Component
 @Aspect
 public class HttpRequestLogAOP {
@@ -1646,7 +1752,7 @@ public class HttpRequestLogAOP {
 
 首先定义一个LogAnnotation注解
 
-```
+```java
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
@@ -1656,7 +1762,7 @@ public @interface LogAnnotation {
 ```
 **编写切面类, 重点就在于切面表达式的编写不是一个切入点表达式, 而是一个注解的表达式**
 
-```
+```java
 @Component
 @Aspect
 public class ControllerLogAspect {
@@ -1722,7 +1828,7 @@ public class ControllerLogAspect {
 
 新建缓存注解
 
-```
+```java
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface XRedisCache {
@@ -1752,7 +1858,7 @@ public @interface XRedisCache {
 
 新建缓存注解解析器
 
-```
+```java
 /**
  * 从 redis 中获取缓存之, 如果未找到就查库
  *
@@ -1861,98 +1967,108 @@ Spring提供了自定义参数解析器的功能
 
     AESRequestParam
 
-        @Target(value = ElementType.PARAMETER)
-        @Retention(RetentionPolicy.RUNTIME)
-        @Documented
-        public @interface AESRequestParam {
-        
-            String value() default "";
-        
-            boolean required() default false;
-        
-        }
+    ```java
+    @Target(value = ElementType.PARAMETER)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Documented
+    public @interface AESRequestParam {
+    
+        String value() default "";
+    
+        boolean required() default false;
+    
+    }
+    ```
 
     DESRequestParam
 
-        @Target(value = ElementType.PARAMETER)
-        @Retention(RetentionPolicy.RUNTIME)
-        @Documented
-        public @interface DESRequestParam {
-        
-        }
+    ```java
+    @Target(value = ElementType.PARAMETER)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Documented
+    public @interface DESRequestParam {
+    
+    }
+    ```
 
 1. 自定义参数解析器实现HandlerMethodArgumentResolver接口, 该接口有两个方法需要实现, supprts方法用于判断是否满足解析条件, resolve方法真正进行解析
 
-        @Component
-        public class AESHandlerMethodArgumentResolver implements HandlerMethodArgumentResolver {
-            @Override
-            public boolean supportsParameter(MethodParameter parameter) {
-                System.out.println("判断是否支持AES解密");
-                // 获取方法名
-                System.out.println(parameter.getMethod().getName());
-                // 获取参数名称
-                System.out.println(parameter.getParameterName());
-                // 判断是否包含注解
-                return parameter.hasParameterAnnotation(AESRequestParam.class);
-            }
-        
-            @Override
-            public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
-                    NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
-                System.out.println("进到了AES参数解析器中");
-                // 获取HttpServletRequest
-                HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
-                // 获取注解信息
-                AESRequestParam requestParam = parameter.getParameterAnnotation(AESRequestParam.class);
-                // 获取传递过来的值, 如果AESRequestParam指定了value属性按照value属性获取, 否则按照参数名获取
-                String parameterValue;
-                if (!StringUtils.isEmpty(requestParam.value())) {
-                    parameterValue = request.getParameter(requestParam.value());
-                } else {
-                    parameterValue = request.getParameter(parameter.getParameterName());
-                }
-        
-                // 此处模拟RquestParam的require属性
-                if (requestParam.required() && Objects.isNull(parameterValue)) {
-                    throw new IllegalArgumentException("参数不合法");
-                }
-                // 模拟进行AES解密
-                return this.deCrypt(parameterValue);
-            }
-        
-            private Object deCrypt(String parameterValue) {
-                return parameterValue + "jiemi";
-            }
+    ```java
+    @Component
+    public class AESHandlerMethodArgumentResolver implements HandlerMethodArgumentResolver {
+        @Override
+        public boolean supportsParameter(MethodParameter parameter) {
+            System.out.println("判断是否支持AES解密");
+            // 获取方法名
+            System.out.println(parameter.getMethod().getName());
+            // 获取参数名称
+            System.out.println(parameter.getParameterName());
+            // 判断是否包含注解
+            return parameter.hasParameterAnnotation(AESRequestParam.class);
         }
+    
+        @Override
+        public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
+                NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+            System.out.println("进到了AES参数解析器中");
+            // 获取HttpServletRequest
+            HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
+            // 获取注解信息
+            AESRequestParam requestParam = parameter.getParameterAnnotation(AESRequestParam.class);
+            // 获取传递过来的值, 如果AESRequestParam指定了value属性按照value属性获取, 否则按照参数名获取
+            String parameterValue;
+            if (!StringUtils.isEmpty(requestParam.value())) {
+                parameterValue = request.getParameter(requestParam.value());
+            } else {
+                parameterValue = request.getParameter(parameter.getParameterName());
+            }
+    
+            // 此处模拟RquestParam的require属性
+            if (requestParam.required() && Objects.isNull(parameterValue)) {
+                throw new IllegalArgumentException("参数不合法");
+            }
+            // 模拟进行AES解密
+            return this.deCrypt(parameterValue);
+        }
+    
+        private Object deCrypt(String parameterValue) {
+            return parameterValue + "jiemi";
+        }
+    }
+    ```
 
 1. 将参数解析器注入到容器中
 
-        @Configuration
-        public class MyConfig extends WebMvcConfigurerAdapter {
-        
-            @Override
-            public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
-                argumentResolvers.add(new AESHandlerMethodArgumentResolver());
-                argumentResolvers.add(new DESHandlerMethodArgumentResolver());
-                super.addArgumentResolvers(argumentResolvers);
-            }
+    ```java
+    @Configuration
+    public class MyConfig extends WebMvcConfigurerAdapter {
+    
+        @Override
+        public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
+            argumentResolvers.add(new AESHandlerMethodArgumentResolver());
+            argumentResolvers.add(new DESHandlerMethodArgumentResolver());
+            super.addArgumentResolvers(argumentResolvers);
         }
+    }
+    ```
 
 1. Controller层在入参上标明注解
 
-        @RestController
-        @RequestMapping("/param")
-        public class ParamParserController {
-        
-            @RequestMapping("/test")
-            public String testParamParser(@AESRequestParam(value = "param", required = true) String param1, String param2) {
-                System.out.println("------------------");
-                System.out.println(param1);
-                System.out.println(param2);
-                return "success";
-            }
-        
+    ```java
+    @RestController
+    @RequestMapping("/param")
+    public class ParamParserController {
+    
+        @RequestMapping("/test")
+        public String testParamParser(@AESRequestParam(value = "param", required = true) String param1, String param2) {
+            System.out.println("------------------");
+            System.out.println(param1);
+            System.out.println(param2);
+            return "success";
         }
+    
+    }
+    ```
 
 1. 浏览器中访问接口
 
@@ -1985,7 +2101,7 @@ Spring提供了自定义参数解析器的功能
 
 第二次访问接口, 会根据之前supportsParameter方法的返回值直接进入resolveArgument方法中, 原因是SpringMVC对参数解析器加了缓存
 
-```
+```java
 private HandlerMethodArgumentResolver getArgumentResolver(MethodParameter parameter) {
     // parameter是参数对象
     // 从缓存中, 根据参数对象获取参数解析器
