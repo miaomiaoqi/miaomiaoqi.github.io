@@ -15,36 +15,129 @@ ElasticSearch是一个基于Lucene的搜索服务器。它提供了一个分布�
 
 ## 安装
 
-我的是 mac, 使用命令 `brew install elasticsearch` 可以一键安装, 安装后的目录在 `/usr/local/Cellar/elasticsearch/6.8.2` 配置文件目录为`/usr/local/etc/elasticsearch`
+### 安装 ES
 
-使用`brew services start elasticsearch` 可以将 es 作为服务启动, 我在启动项目的时候遇到了两个问题
+我的是 mac, 使用命令 `brew install elasticsearch` 可以一键安装, 安装后的目录在 `/usr/local/Cellar/elasticsearch/6.8.3` 配置文件目录为`/usr/local/etc/elasticsearch`
+
+mac 上使用 brew 安装的 es 的配置文件目录位于 `/usr/local/etc/elasticsearch`
+
+- elasticsearch.yml: es 相关配置
+    - cluster.name: 集群名称, 以此作为是否同一集群的判断条件
+    - node.name: 节点名称, 以此作为集群中不同节点的区分条件
+    - network.host/http.port: 网络地址和端口, 用于 http 和 transport 服务使用
+    - path.data: 数据存储地址
+    - path.log: 日志存储地址
+- jvm.options: jvm 相关配置
+- log4j2.properties: 日志相关配置
+
+**使用`brew services start elasticsearch` 可以将 es 作为服务启动, 我在启动项目的时候遇到了两个问题**
 
 * **Cannot open file logs/gc.log due to No such file or directory**
 
     这个问题是因为日志文件的路径有问题, 可以修改配置文件 `jvm.options` 配置文件, 指定 `8:-Xloggc:/Users/miaoqi/Documents/elasticsearch/logs/gc.log` 日志文件的路径
 
-* **Plugin [analysis-ik] was built for Elasticsearch version 6.7.2 but version 6.8.2 is running**
+* **Plugin [analysis-ik] was built for Elasticsearch version 6.7.2 but version 6.8.3 is running**
+
+    es 插件的目录是`/usr/local/var/elasticsearch/plugins`
 
     这个问题是因为安装了 IKAnalysis 插件, 但是插件的版本与 es 的版本不对应
 
     可以使用 `elasticsearch-plugin list` 查看已经安装的插件
 
     然后使用 `elasticsearch-plugin remove plugin-name` 删除已有的插件
+    
+    最后使用 `elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v6.8.3/elasticsearch-analysis-ik-6.8.3.zip` 安装对应版本的插件
 
-    最后使用 `elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v6.8.2/elasticsearch-analysis-ik-6.8.2.zip` 安装对应版本的插件
+### 安装 HEAD 插件
 
-## 配置
+Head是elasticsearch的集群管理工具，可以直观的看到ES运行和数据存储的情况
 
-mac 上使用 brew 安装的 es 的配置目录位于 `/usr/local/etc/elasticsearch`
+**elasticsearch-head是一款开源软件，被托管在github上面，所以如果我们要使用它，必须先安装git，通过git获取elasticsearch-head**
 
-* elasticsearch.yml: es 相关配置
-    * cluster.name: 集群名称, 以此作为是否同一集群的判断条件
-    * node.name: 节点名称, 以此作为集群中不同节点的区分条件
-    * network.host/http.port: 网络地址和端口, 用于 http 和 transport 服务使用
-    * path.data: 数据存储地址
-    * path.log: 日志存储地址
-* jvm.options: jvm 相关配置
-* log4j2.properties: 日志相关配置
+**运行elasticsearch-head会用到grunt，而grunt需要npm包管理器，所以nodejs是必须要安装的**
+
+**elasticsearch5.0之后，elasticsearch-head不做为插件放在其plugins目录下了。
+使用git拷贝elasticsearch-head到本地**
+
+```
+cd /Users/miaoqi/Documents/elasticsearch
+
+git clone git://github.com/mobz/elasticsearch-head.git
+```
+
+**切换到刚刚的下载目录下, 安装elasticsearch-head依赖包**
+
+```
+cd /Users/miaoqi/Documents/elasticsearch/elasticsearch-head
+
+npm install
+```
+
+**修改Gruntfile.js**
+
+```
+cd /Users/miaoqi/Documents/elasticsearch/elasticsearch-head
+
+vim Gruntfile.js
+
+在connect-->server-->options下面添加：hostname:’*’，允许所有IP可以访问
+```
+
+**修改elasticsearch-head默认连接地址**
+
+```
+cd /Users/miaoqi/Documents/elasticsearch/elasticsearch-head/_site
+
+vim app.js
+
+将this.base_uri = this.config.base_uri || this.prefs.get("app-base_uri") || "http://localhost:9200";中的localhost修改成你es的服务器地址
+```
+
+**配置elasticsearch允许跨域访问, 打开elasticsearch的配置文件elasticsearch.yml，在文件末尾追加下面两行代码即可：**
+
+```
+cd /usr/local/etc/elasticsearch
+
+vim elasticsearch.yml
+
+添加下面两行代码允许跨域
+
+http.cors.enabled: true
+
+http.cors.allow-origin: "*"
+```
+
+**启动 elasticsearch-head**
+
+```
+cd /Users/miaoqi/Documents/elasticsearch/elasticsearch-head/node_modules/grunt/bin/
+
+./grunt server
+```
+
+**访问 elasticsearch-head, 查看 es 信息**
+
+```
+http://localhost:9100
+```
+
+
+
+### 安装中文分词器插件
+
+`elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v6.8.3/elasticsearch-analysis-ik-6.8.3.zip`
+
+
+
+### 安装 Kibana
+
+Kibana是一个针对Elasticsearch的开源分析及可视化平台，使用Kibana可以查询、查看并与存储在ES索引的数据进行交互操作，使用Kibana能执行高级的数据分析，并能以图表、表格和地图的形式查看数据
+
+我的是 mac, 使用命令 `brew install kibana` 可以一键安装, 安装后的目录在 `/usr/local/Cellar/kibana/6.8.1` 配置文件目录为`/usr/local/etc/kibana`
+
+`http://localhost:5601 ` 访问 kibana
+
+
 
 ## 启动
 
@@ -63,12 +156,6 @@ elasticsearch -Ehttp.port=7200 -Epath.data=node3
 
 
 使用 `http://localhost:9200/_cat/nodes?v` 查看集群是否启动成功
-
-
-
-
-
-
 
 
 
@@ -92,11 +179,7 @@ GET/PUT/POST/DELETE: 分别类似与mysql中的select/update/delete......
 
 
 
-
-
-
-
-## ElasticSearch的架构
+## ElasticSearch架构
 
 ![http://www.miaomiaoqi.cn/images/elastic/search/es_1.png](http://www.miaomiaoqi.cn/images/elastic/search/es_1.png)
 
@@ -112,7 +195,7 @@ Gateway上层就是一个lucene的分布式框架，lucene是做检索的，但�
 
 districted lucene directory之上就是一些es的模块，Index Module是索引模块，就是对数据建立索引也就是通常所说的建立一些倒排索引等；Search Module是搜索模块，就是对数据进行查询搜索；Mapping模块是数据映射与解析模块，就是你的数据的每个字段可以根据你建立的表结构通过mapping进行映射解析，如果你没有建立表结构，es就会根据你的数据类型推测你的数据结构之后自己生成一个mapping，然后都是根据这个mapping进行解析你的数据；River模块在es2.0之后应该是被取消了，它的意思表示是第三方插件，例如可以通过一些自定义的脚本将传统的数据库（mysql）等数据源通过格式化转换后直接同步到es集群里，这个river大部分是自己写的，写出来的东西质量参差不齐，将这些东西集成到es中会引发很多内部bug，严重影响了es的正常应用，所以在es2.0之后考虑将其去掉。
 
-### **Discovery、Script**
+### **Discovery, Script**
 
 es4大模块组件之上有 Discovery模块：es是一个集群包含很多节点，很多节点需要互相发现对方，然后组成一个集群包括选主的，这些es都是用的discovery模块，默认使用的是 Zen，也可是使用EC2；es查询还可以支撑多种script即脚本语言，包括mvel、js、python等等。
 
@@ -126,23 +209,434 @@ es4大模块组件之上有 Discovery模块：es是一个集群包含很多节�
 
 
 
+## ElasticSearch倒排索引
+
+Elasticsearch 使用一种称为 倒排索引 的结构，它适用于快速的全文搜索。一个倒排索引由文档中所有不重复词的列表构成，对于其中每个词，有一个包含它的文档列表。
+
+假设文档集合包含五个文档，每个文档内容如图所示，在图中最左端一栏是每个文档对应的文档编号。我们的任务就是对这个文档集合建立倒排索引。
+![http://www.miaomiaoqi.cn/images/elastic/search/es_2.png](http://www.miaomiaoqi.cn/images/elastic/search/es_2.png)
+
+(2):中文和英文等语言不同，单词之间没有明确分隔符号，所以首先要用分词系统将文档自动切分成单词序列。这样每个文档就转换为由单词序列构成的数据流，为了系统后续处理方便，需要对每个不同的单词赋予唯一的单词编号，同时记录下哪些文档包含这个单词，在如此处理结束后，我们可以得到最简单的倒排索引
+![http://www.miaomiaoqi.cn/images/elastic/search/es_3.png](http://www.miaomiaoqi.cn/images/elastic/search/es_3.png)
+“单词ID”一栏记录了每个单词的单词编号，第二栏是对应的单词，第三栏即每个单词对应的倒排列表
+
+(3):索引系统还可以记录除此之外的更多信息,下图还记载了单词频率信息（TF）即这个单词在某个文档中的出现次数，之所以要记录这个信息，是因为词频信息在搜索结果排序时，计算查询和文档相似度是很重要的一个计算因子，所以将其记录在倒排列表中，以方便后续排序时进行分值计算。
+
+![http://www.miaomiaoqi.cn/images/elastic/search/es_4.png](http://www.miaomiaoqi.cn/images/elastic/search/es_4.png)
+
+(4):倒排列表中还可以记录单词在某个文档出现的位置信息
+
+(1,<11>,1),(2,<7>,1),(3,<3,9>,2)
+
+有了这个索引系统，搜索引擎可以很方便地响应用户的查询，比如用户输入查询词“Facebook”，搜索系统查找倒排索引，从中可以读出包含这个单词的文档，这些文档就是提供给用户的搜索结果，而利用单词频率信息、文档频率信息即可以对这些候选搜索结果进行排序，计算文档和查询的相似性，按照相似性得分由高到低排序输出，此即为搜索系统的部分内部流程。
+
+### 倒排索引原理
+
+1.The quick brown fox jumped over the lazy dog
+
+2.Quick brown foxes leap over lazy dogs in summer
+
+倒排索引：
+
+|  Term  | Doc_1 | Doc_2 |
+| :----: | :---: | :---: |
+| Quick  |       |   X   |
+|  The   |   X   |       |
+| brown  |   X   |   X   |
+|  dog   |   X   |       |
+|  dogs  |       |   X   |
+|  fox   |   X   |       |
+| foxes  |       |   X   |
+|   in   |       |   X   |
+| jumped |   X   |       |
+|  lazy  |   X   |   X   |
+|  leap  |       |   X   |
+|  over  |   X   |   X   |
+| quick  |   X   |       |
+| summer |       |   X   |
+|  The   |   X   |       |
+
+**搜索含有 quick 或者 brown 的文档：**
+
+| Term  | Doc_1 | Doc_2 |
+| ----- | ----- | ----- |
+| brown | X     | X     |
+| quick | X     |       |
+
+---------------------
+
+Total   |   2   |  1  |
+
+计算相关度分数时，文档1的匹配度高，分数会比文档2高
+
+
+
+**问题：**
+
+Quick 和 quick 以独立的词条出现，然而用户可能认为它们是相同的词。
+
+fox 和 foxes 非常相似, 就像 dog 和 dogs ；他们有相同的词根。
+
+jumped 和 leap, 尽管没有相同的词根，但他们的意思很相近。他们是同义词。
+
+搜索含有 Quick fox的文档是搜索不到的, 因为是区分大小写的
+
+**ES使用标准化规则(normalization)解决上述问题：**
+建立倒排索引的时候，会对拆分出的各个单词进行相应的处理，以提升后面搜索的时候能够搜索到相关联的文档的概率
+
+|  Term  | Doc_1 | Doc_2 |
+| :----: | :---: | :---: |
+| brown  |   X   |   X   |
+|  dog   |   X   |   X   |
+|  fox   |   X   |   X   |
+|   in   |       |   X   |
+|  jump  |   X   |   X   |
+|  lazy  |   X   |   X   |
+|  over  |   X   |   X   |
+| quick  |   X   |   X   |
+| summer |       |   X   |
+|  the   |   X   |   X   |
 
 
 
 
+### 分词器介绍及内置分词器
+
+分词器：从一串文本中切分出一个一个的词条，并对每个词条进行**标准化**
+
+包括三部分：
+
+**character filter：分词之前的预处理，过滤掉HTML标签，特殊符号转换等**
+
+**tokenizer：分词**
+
+**token filter：标准化**
+
+内置分词器：
+
+standard 分词器：(默认的)他会将词汇单元转换成小写形式，并去除停用词和标点符号，支持中文采用的方法为单字切分
+
+simple 分词器：首先会通过非字母字符来分割文本信息，然后将词汇单元统一为小写形式。该分析器会去掉数字类型的字符。
+
+Whitespace 分词器：仅仅是去除空格，对字符没有lowcase化,不支持中文；
+并且不对生成的词汇单元进行其他的标准化处理。
+
+language 分词器：特定语言的分词器，不支持中文
 
 
-# 术语
 
-Index索引: 类似于 mysql 中的数据库
+## 使用 Kibana 进行操作
 
-Type: 索引中的数据类型, 类似 mysql 中的表
+### 索引操作
 
-Document文档数据类似, 具体存在 es 中的一条数据, 类似 mysql 的一条记录
+**添加索引, 指定配置信息**
 
-Field: 字段, 文档的属性, 类似 mysql 的字段
+```yaml
+PUT /lib/
+{
+	"settings": {
+		"index": {
+			"number_of_shards": 3,
+			"number_of_replicas": 0
+		}
+	}
+}
+```
 
-QueryDSL: 查询语法
+number_of_shards: 分片, 确定后不能修改
+
+number_of_replicas: 备份数量
+
+**使用默认配置添加索引**
+
+```
+PUT lib2
+```
+
+**删除索引**
+
+```
+DELETE /lib
+```
+
+**查看索引配置信息**
+
+```
+GET /lib/_settings
+GET /lib2/_settings
+```
+
+**查看所有索引配置信息**
+
+```
+GET /_all/_settings
+```
+
+### 文档操作
+
+**添加文档, 指定 id 为 1, 使用 PUT 方式**
+
+```yaml
+PUT /lib/user/1
+{
+	"first_name": "Jane",
+	"last_name": "Smith",
+	"age": 32,
+	"about": "I like to collect rock albums",
+	"interests": ["music"]
+}
+```
+
+**添加文档, 随机分配 id, 使用 POST 方式**
+
+```yaml
+POST /lib/user/
+{
+	"first_name": "Douglas",
+	"last_name": "Fir",
+	"age": 23,
+	"about": "I like to build cabinets",
+	"interests": ["forestry"]
+}
+```
+
+**查看文档**
+
+```yaml
+GET /lib/user/1
+```
+
+```yaml
+GET /lib/user/hS72qW0B7Wijl9prHIPm
+```
+
+**查看文档, 指定查看的 field**
+
+```yaml
+GET /lib/user/1?_source=age,interests
+```
+
+**更新文档, 使用覆盖的方式, 相当于删除从建, id 需要相同**
+
+```yaml
+PUT /lib/user/1
+{
+	"first_name": "Jane",
+	"last_name": "Smith",
+	"age": 36,
+	"about": "I like to collect rock albums",
+	"interests": ["music"]
+}
+```
+
+**更新文档, 使用修改的方式, id 需要相同**
+
+```yaml
+POST /lib/user/1/_update
+{
+	"doc":{
+		"age": 33
+	}
+}
+```
+
+**删除一个文档**
+
+```
+DELETE /lib/user/1
+```
+
+### 使用 Multi Get API 批量获取文档
+
+使用es提供的Multi Get API：
+
+使用Multi Get API可以通过索引名, 类型名, 文档id一次得到一个文档集合，**文档可以来自同一个索引库，也可以来自不同索引库**
+
+**使用 curl 的方式**
+
+```sh
+curl 'http://localhost:9200/_mget' -d '{
+	"docs"：[
+		{
+			"_index": "lib",
+			"_type": "user",
+			"_id": 1
+		},
+		{
+			"_index": "lib",
+			"_type": "user",
+			"_id": 2
+		}
+	]
+}'
+```
+
+**使用 kibana 的方式**
+
+```
+GET /_mget
+{
+	"docs": [
+		{
+			"_index": "lib",
+			"_type": "user",
+			"_id": 1
+		},
+		{
+			"_index": "lib",
+			"_type": "user",
+			"_id": 2
+		},
+		{
+			"_index": "lib",
+			"_type": "user",
+			"_id": 3
+		}
+	]
+}
+
+可以指定具体的字段：
+
+GET /_mget
+{
+	"docs": [
+		{
+			"_index": "lib",
+			"_type": "user",
+			"_id": 1,
+			"_source": "interests"
+		},
+		{
+			"_index": "lib",
+			"_type": "user",
+			"_id": 2,
+			"_source": ["age","interests"]
+		},
+		{
+			"_index": "lib",
+			"_type": "user",
+			"_id": 3
+		}
+	]
+}
+
+获取同索引同类型下的不同文档, 上边的简化写法
+
+GET /lib/user/_mget
+{
+	"docs": [
+		{
+			"_id": 1
+		},
+		{
+			"_id": 2
+		}
+	]
+}
+
+GET /lib/user/_mget
+{
+	"ids": ["1","2"]
+}
+```
+
+### 使用Bulk API实现批量操作
+
+**bulk的格式**
+
+```
+{action:{metadata}}\n
+{requstbody}\n
+
+action:(行为)
+  create: 文档不存在时创建
+  update: 更新文档
+  index: 创建新文档或替换已有文档
+  delete: 删除一个文档
+
+metadata：_index,_type,_id
+
+create 和 index 的区别
+  如果数据存在，使用 create 操作失败，会提示文档已经存在，使用index则可以成功执行。
+
+示例：
+{"delete":{"_index":"lib","_type":"user","_id":"1"}}
+```
+
+**批量添加**
+
+```
+POST /lib2/books/_bulk
+
+{"index": {"_id": 1}}
+{"title": "Java", "price": 55}
+
+{"index": {"_id": 2}}
+{"title": "Html5", "price": 45}
+
+{"index": {"_id":3}}
+{"title": "Php", "price": 35}
+
+{"index": {"_id": 4}}
+{"title": "Python", "price": 50}
+```
+
+**批量获取**
+
+```
+GET /lib2/books/_mget
+{
+	"ids": ["1","2","3","4"]
+}
+```
+
+**删除, 没有请求体**
+
+```
+POST /lib2/books/_bulk
+
+{"delete": {"_index": "lib2", "_type": "books", "_id": 4}}
+
+{"create": {"_index": "tt", "_type": "ttt", "_id": "100"}}
+{"name": "lisi"}
+
+{"index": {"_index": "tt", "_type": "ttt"}}
+{"name": "zhaosi"}
+
+{"update": {"_index": "lib2", "_type": "books", "_id": "4"}}
+{"doc": {"price": 58}}
+```
+
+bulk一次最大处理多少数据量:
+
+　　bulk会把将要处理的数据载入内存中，所以数据量是有限制的，最佳的数据量不是一个确定的数值，它取决于你的硬件，你的文档大小以及复杂性，你的索引以及搜索的负载。
+
+　　一般建议是1000-5000个文档，大小建议是5-15MB，默认不能超过100M，可以在 es 的配置文件（即$ES_HOME下的config下的elasticsearch.yml）中。
+
+## 版本控制
+
+ElasticSearch采用了乐观锁来保证数据的一致性，也就是说，当用户对document进行操作时，并不需要对该document作加锁和解锁的操作，只需要指定要操作的版本即可。当版本号一致时，ElasticSearch会允许该操作顺利执行，而当版本号存在冲突时，ElasticSearch会提示冲突并抛出异常（VersionConflictEngineException异常）。
+
+ElasticSearch的版本号的取值范围为1到2^63-1。
+
+内部版本控制：使用的是_version
+
+```
+PUT /lib/user/4?version=3
+{
+	"first_name": "xixi"
+}
+如果 version 和文档中的版本号不一致会抛出异常
+```
+
+外部版本控制：elasticsearch在处理外部版本号时会与对内部版本号的处理有些不同。它不再是检查_version是否与请求中指定的数值_相同_,而是检查当前的_version是否比指定的数值小。如果请求成功，那么外部的版本号就会被存储到文档中的_version中。
+
+为了保持_version与外部版本控制的数据一致
+使用version_type=external
+
+
+
+
 
 
 
