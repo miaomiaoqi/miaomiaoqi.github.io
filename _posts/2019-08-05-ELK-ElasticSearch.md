@@ -59,7 +59,7 @@ Head是elasticsearch的集群管理工具，可以直观的看到ES运行和数�
 **elasticsearch5.0之后，elasticsearch-head不做为插件放在其plugins目录下了。
 使用git拷贝elasticsearch-head到本地**
 
-```
+```bash
 cd /Users/miaoqi/Documents/elasticsearch
 
 git clone git://github.com/mobz/elasticsearch-head.git
@@ -67,7 +67,7 @@ git clone git://github.com/mobz/elasticsearch-head.git
 
 **切换到刚刚的下载目录下, 安装elasticsearch-head依赖包**
 
-```
+```bash
 cd /Users/miaoqi/Documents/elasticsearch/elasticsearch-head
 
 npm install
@@ -75,7 +75,7 @@ npm install
 
 **修改Gruntfile.js**
 
-```
+```bash
 cd /Users/miaoqi/Documents/elasticsearch/elasticsearch-head
 
 vim Gruntfile.js
@@ -85,7 +85,7 @@ vim Gruntfile.js
 
 **修改elasticsearch-head默认连接地址**
 
-```
+```bash
 cd /Users/miaoqi/Documents/elasticsearch/elasticsearch-head/_site
 
 vim app.js
@@ -95,7 +95,7 @@ vim app.js
 
 **配置elasticsearch允许跨域访问, 打开elasticsearch的配置文件elasticsearch.yml，在文件末尾追加下面两行代码即可：**
 
-```
+```bash
 cd /usr/local/etc/elasticsearch
 
 vim elasticsearch.yml
@@ -109,7 +109,7 @@ http.cors.allow-origin: "*"
 
 **启动 elasticsearch-head**
 
-```
+```bash
 cd /Users/miaoqi/Documents/elasticsearch/elasticsearch-head/node_modules/grunt/bin/
 
 ./grunt server
@@ -331,15 +331,15 @@ language 分词器：特定语言的分词器，不支持中文
 
 **添加索引, 指定配置信息**
 
-```yaml
+```json
 PUT /lib/
 {
-	"settings": {
-		"index": {
-			"number_of_shards": 3,
-			"number_of_replicas": 0
-		}
-	}
+  "settings": {
+    "index": {
+      "number_of_shards": 3,
+      "number_of_replicas": 0
+    }
+  }
 }
 ```
 
@@ -359,6 +359,12 @@ PUT lib2
 DELETE /lib
 ```
 
+**查看索引**
+
+```
+GET _cat/indices
+```
+
 **查看索引配置信息**
 
 ```
@@ -376,27 +382,31 @@ GET /_all/_settings
 
 **添加文档, 指定 id 为 1, 使用 PUT 方式**
 
-```yaml
+```json
 PUT /lib/user/1
 {
-	"first_name": "Jane",
-	"last_name": "Smith",
-	"age": 32,
-	"about": "I like to collect rock albums",
-	"interests": ["music"]
+  "first_name": "Jane",
+  "last_name": "Smith",
+  "age": 32,
+  "about": "I like to collect rock albums",
+  "interests": [
+    "music"
+  ]
 }
 ```
 
 **添加文档, 随机分配 id, 使用 POST 方式**
 
-```yaml
+```json
 POST /lib/user/
 {
-	"first_name": "Douglas",
-	"last_name": "Fir",
-	"age": 23,
-	"about": "I like to build cabinets",
-	"interests": ["forestry"]
+  "first_name": "Douglas",
+  "last_name": "Fir",
+  "age": 23,
+  "about": "I like to build cabinets",
+  "interests": [
+    "forestry"
+  ]
 }
 ```
 
@@ -418,25 +428,27 @@ GET /lib/user/1?_source=age,interests
 
 **更新文档, 使用覆盖的方式, 相当于删除从建, id 需要相同**
 
-```yaml
+```json
 PUT /lib/user/1
 {
-	"first_name": "Jane",
-	"last_name": "Smith",
-	"age": 36,
-	"about": "I like to collect rock albums",
-	"interests": ["music"]
+  "first_name": "Jane",
+  "last_name": "Smith",
+  "age": 36,
+  "about": "I like to collect rock albums",
+  "interests": [
+    "music"
+  ]
 }
 ```
 
 **更新文档, 使用修改的方式, id 需要相同**
 
-```yaml
+```json
 POST /lib/user/1/_update
 {
-	"doc":{
-		"age": 33
-	}
+  "doc": {
+    "age": 33
+  }
 }
 ```
 
@@ -454,89 +466,92 @@ DELETE /lib/user/1
 
 **使用 curl 的方式**
 
-```sh
+```bash
 curl 'http://localhost:9200/_mget' -d '{
-	"docs"：[
-		{
-			"_index": "lib",
-			"_type": "user",
-			"_id": 1
-		},
-		{
-			"_index": "lib",
-			"_type": "user",
-			"_id": 2
-		}
-	]
+  "docs"：[
+    {
+      "_index": "lib",
+      "_type": "user",
+      "_id": 1
+    },
+    {
+      "_index": "lib",
+      "_type": "user",
+      "_id": 2
+    }
+  ]
 }'
 ```
 
 **使用 kibana 的方式**
 
-```
+```json
 GET /_mget
 {
-	"docs": [
-		{
-			"_index": "lib",
-			"_type": "user",
-			"_id": 1
-		},
-		{
-			"_index": "lib",
-			"_type": "user",
-			"_id": 2
-		},
-		{
-			"_index": "lib",
-			"_type": "user",
-			"_id": 3
-		}
-	]
+  "docs": [
+    {
+      "_index": "lib",
+      "_type": "user",
+      "_id": 1
+    },
+    {
+      "_index": "lib",
+      "_type": "user",
+      "_id": 2
+    },
+    {
+      "_index": "lib",
+      "_type": "user",
+      "_id": 3
+    }
+  ]
 }
 
 可以指定具体的字段：
 
 GET /_mget
 {
-	"docs": [
-		{
-			"_index": "lib",
-			"_type": "user",
-			"_id": 1,
-			"_source": "interests"
-		},
-		{
-			"_index": "lib",
-			"_type": "user",
-			"_id": 2,
-			"_source": ["age","interests"]
-		},
-		{
-			"_index": "lib",
-			"_type": "user",
-			"_id": 3
-		}
-	]
+  "docs": [
+    {
+      "_index": "lib",
+      "_type": "user",
+      "_id": 1,
+      "_source": "interests"
+    },
+    {
+      "_index": "lib",
+      "_type": "user",
+      "_id": 2,
+      "_source": [
+        "age",
+        "interests"
+      ]
+    },
+    {
+      "_index": "lib",
+      "_type": "user",
+      "_id": 3
+    }
+  ]
 }
 
 获取同索引同类型下的不同文档, 上边的简化写法
 
 GET /lib/user/_mget
 {
-	"docs": [
-		{
-			"_id": 1
-		},
-		{
-			"_id": 2
-		}
-	]
+  "docs": [
+    {
+      "_id": 1
+    },
+    {
+      "_id": 2
+    }
+  ]
 }
 
 GET /lib/user/_mget
 {
-	"ids": ["1","2"]
+  "ids": ["1","2"]
 }
 ```
 
@@ -544,7 +559,7 @@ GET /lib/user/_mget
 
 **bulk的格式**
 
-```
+```json
 {action:{metadata}}\n
 {requstbody}\n
 
@@ -565,7 +580,7 @@ create 和 index 的区别
 
 **批量添加**
 
-```
+```json
 POST /lib2/books/_bulk
 
 {"index": {"_id": 1}}
@@ -583,7 +598,7 @@ POST /lib2/books/_bulk
 
 **批量获取**
 
-```
+```json
 GET /lib2/books/_mget
 {
 	"ids": ["1","2","3","4"]
@@ -592,7 +607,7 @@ GET /lib2/books/_mget
 
 **删除, 没有请求体**
 
-```
+```json
 POST /lib2/books/_bulk
 
 {"delete": {"_index": "lib2", "_type": "books", "_id": 4}}
@@ -621,7 +636,7 @@ ElasticSearch的版本号的取值范围为1到2^63-1。
 
 内部版本控制：使用的是_version
 
-```
+```json
 PUT /lib/user/4?version=3
 {
 	"first_name": "xixi"
@@ -634,148 +649,268 @@ PUT /lib/user/4?version=3
 为了保持_version与外部版本控制的数据一致
 使用version_type=external
 
-
-
-
-
-
-
-# CRUD
-
- 创建一个文档
+## 什么是 Mapping
 
 ```json
-POST /accounts/person/1
+PUT /myindex/article/1 
 {
-	"name": "John",
-	"lastName": "Doe",
-	"job_desciption": "System administrator and Linux specialit"
+  "post_date": "2018-05-10",
+  "title": "Java",
+  "content": "java is the best language",
+  "author_id": 119
 }
 ```
 
-在 index 为 accounts 下 type 为 person 的类型中创建一个 id 为 1 的 Document, 执行后会返回一个结果
-
 ```json
+PUT /myindex/article/2
 {
-  "_index" : "accounts",
-  "_type" : "person",
-  "_id" : "1",
-  "_version" : 1,
-  "result" : "created",
-  "_shards" : {
-    "total" : 2,
-    "successful" : 1,
-    "failed" : 0
-  },
-  "_seq_no" : 0,
-  "_primary_term" : 1
+  "post_date": "2018-05-12",
+  "title": "html",
+  "content": "I like html",
+  "author_id": 120
 }
 ```
 
-
-
-获取一个文档
-
-```
-GET /accounts/person/1
-```
-
-```
+```json
+PUT /myindex/article/3
 {
-  "_index" : "accounts",
-  "_type" : "person",
-  "_id" : "1",
-  "_version" : 1,
-  "_seq_no" : 0,
-  "_primary_term" : 1,
-  "found" : true,
-  "_source" : {
-    "name" : "John",
-    "lastName" : "Doe",
-    "job_desciption" : "System administrator and Linux specialit"
+  "post_date": "2018-05-16",
+  "title": "es",
+  "content": "Es is distributed document store",
+  "author_id": 110
+}
+```
+
+```
+GET /myindex/article/_search?q=2018-05
+
+GET /myindex/article/_search?q=2018-05-10
+
+GET /myindex/article/_search?q=html
+
+GET /myindex/article/_search?q=java
+```
+
+**查看es自动创建的 mapping**
+
+```
+GET /myindex/article/_mapping
+```
+
+**es自动创建了index，type，以及type对应的mapping, 因为是 es 自动创建的所以叫做动态映射(dynamic mapping)**
+
+**什么是映射：mapping定义了type中的每个字段的数据类型以及这些字段如何分词等相关属性**
+
+```json
+{
+  "myindex": {
+    "mappings": {
+      "article": {
+        "properties": {
+          "author_id": {
+            "type": "long"
+          },
+          "content": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "post_date": {
+            "type": "date"
+          },
+          "title": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }
 ```
 
+创建索引的时候**,可以预先定义字段的类型以及相关属性**，这样就能够把日期字段处理成日期，把数字字段处理成数字，把字符串字段处理字符串值等
 
+**支持的数据类型：**
 
-更新一个文档
+1. 核心数据类型（Core datatypes）
 
-```
-POST /accounts/person/1/_update
-{
-  "doc": {
-    "lastName": "miaomiaoqi"
-  }
-}
-```
+    ```
+    字符型：string，string类型包括
+    text 和 keyword
+    
+    text 类型被用来索引长文本，在建立索引前默认会将这些文本进行分词，转化为词的组合，建立索引。允许es来检索这些词语。text类型不能用来排序和聚合。
+    
+    Keyword 类型不进行分词，可以被用来检索过滤、排序和聚合。keyword 类型字段只能用本身来进行检索
+    
+    数字型：long, integer, short, byte, double, float 默认会建倒排索引, 但是没有分词, 所以只能精确匹配
+    日期型：date 默认会建倒排索引, 但是没有分词, 所以只能精确匹配
+    布尔型：boolean
+    二进制型：binary
+    ```
 
+2. 复杂数据类型（Complex datatypes）
 
+    ```yaml
+    数组类型（Array datatype）：数组类型不需要专门指定数组元素的type，例如：
+        字符型数组: ["one", "two"]
+        整型数组：[1, 2]
+        数组型数组：[1, [2, 3]] 等价于[1, 2, 3]
+        对象数组：[{"name": "Mary", "age": 12}, {"name": "John", "age": 10}]
+    对象类型（Object datatype）：_object_ 用于单个JSON对象；
+    嵌套类型（Nested datatype）：_nested_ 用于JSON数组
+    ```
 
-删除一个文档
+3. 地理位置类型（Geo datatypes）
 
-```
-DELETE accounts/person/1
-DELETE accounts
-```
+    ```yaml
+    地理坐标类型（Geo-point datatype）：_geo_point_ 用于经纬度坐标；
+    地理形状类型（Geo-Shape datatype): _geo_shape_ 用于类似于多边形的复杂形状；
+    ```
 
+4. 特定类型（Specialised datatypes）
 
+    ```yaml
+    IPv4 类型（IPv4 datatype）：_ ip _ 用于IPv4 地址；
+    Completion 类型（Completion datatype）：_ completion _提供自动补全建议；
+    Token count 类型（Token count datatype）：_ token_count _ 用于统计做了标记的字段的index数目，该值会一直增加，不会因为过滤条件而减少。
+    mapper-murmur3
+    类型：通过插件，可以通过 _ murmur3 _ 来计算 index 的 hash 值；
+    附加类型（Attachment datatype）：采用 mapper-attachments
+    插件，可支持_ attachments _ 索引，例如 Microsoft Office 格式，Open Document 格式，ePub, HTML 等。
+    ```
 
-# ElasticsearchQuery
+    
 
-创建测试数据
+**支持的属性：**
 
-```
-POST /accounts/person/2
-{
-  "name": "miaomiao",
-  "lastName": "qi",
-  "job_description": "teacher"
-}
-```
+`"store": false` // 是否单独设置此字段的是否存储而从_source字段中分离，默认是false，只能搜索，不能获取值
 
-## QueryString
+`"index": true` // 分词，不分词是: false, 设置成false，字段将不会被索引
 
-```
-GET /accounts/person/_search?q=miaomiao
-```
+`"analyzer":"ik"` // 指定分词器,默认分词器为standard analyzer
 
+`"boost":1.23` // 字段级别的分数加权，默认值是1.0
 
+`"doc_values":false` // 对not_analyzed字段，默认都是开启，分词字段不能使用，对排序和聚合能提升较大性能，节约内存
 
-## QueryDSL
+`"fielddata":{"format":"disabled"}` // 针对分词字段，参与排序或聚合时能提高性能，不分词字段统一建议使用doc_value
 
-```
-GET /accounts/person/_search
-{
-	"query": {
-		"match": {
-			"job_description": "teacher"
-		}
-	}
-}
-```
+`"fields":{"raw":{"type":"string","index":"not_analyzed"}}` // 可以对一个字段提供多种索引模式，同一个字段的值，一个分词，一个不分词
 
+`"ignore_above":100` // 超过100个字符的文本，将会被忽略，不被索引
 
+`"include_in_all":ture` // 设置是否此字段包含在_all字段中，默认是true，除非index设置成no选项
 
-# 索引
+`"index_options":"docs"` // 4个可选参数docs（索引文档号） ,freqs（文档号+词频），positions（文档号+词频+位置，通常用来距离查询），offsets（文档号+词频+位置+偏移量，通常被使用在高亮字段）分词字段默认是position，其他的默认是docs
 
-es 有专门的 Index API, 用于创建, 更新, 删除索引配置等
+`"norms":{"enable":true,"loading":"lazy"}` // 分词字段默认配置，不分词字段：默认{"enable":false}，存储长度因子和索引时boost，建议对需要参与评分字段使用 ，会额外增加内存消耗量
 
-## 创建
+`"null_value":"NULL"` // 设置一些缺失字段的初始化值，只有string可以使用，分词字段的null值也会被分词
 
-`PUT /test_index`
+`"position_increament_gap":0` // 影响距离查询或近似查询，可以设置在多值字段的数据上火分词字段上，查询时可指定slop间隔，默认值是100
 
-## 查看
+`"search_analyzer":"ik"` // 设置搜索时的分词器，默认跟ananlyzer是一致的，比如index时用standard+ngram，搜索时用standard用来完成自动提示功能
 
-`GET _cat/indices`
+`"similarity":"BM25"` // 默认是TF/IDF算法，指定一个字段评分策略，仅仅对字符串型和分词类型有效
 
-## 删除
+`"term_vector":"no"` // 默认不存储向量信息，支持参数yes（term存储），with_positions（term+位置）,with_offsets（term+偏移量），with_positions_offsets(term+位置+偏移量) 对快速高亮fast vector highlighter能提升性能，但开启又会加大索引体积，不适合大数据量用
 
-`DELETE /test_index`
+映射的分类：
 
+1. 动态映射：
 
+    当ES在文档中碰到一个以前没见过的字段时，它会利用动态映射来决定该字段的类型，并自动地对该字段添加映射。
 
-# 文档
+    可以通过dynamic设置来控制这一行为，它能够接受以下的选项：
 
-es 有专门的 DocumentAPI
+    ```
+    true：默认值。动态添加字段
+    false：忽略新字段
+    strict：如果碰到陌生字段，抛出异常
+    ```
+
+    dynamic设置可以适用在根对象上或者object类型的任意字段上。
+
+    POST /lib2
+
+    #给索引lib2创建映射类型
+
+    {
+
+    "settings":{
+
+    "number_of_shards" : 3,
+
+    "number_of_replicas" : 0
+
+    },
+
+     "mappings":{
+
+      "books":{
+
+    "properties":{
+
+    "title":{"type":"text"},
+    "name":{"type":"text","index":false},
+    "publish_date":{"type":"date","index":false},
+
+    "price":{"type":"double"},
+
+    "number":{"type":"integer"}
+
+    }
+
+      }
+     }
+
+    }
+
+    POST /lib2
+
+    #给索引lib2创建映射类型
+    {
+
+    "settings":{
+
+    "number_of_shards" : 3,
+
+    "number_of_replicas" : 0
+
+    },
+
+     "mappings":{
+
+      "books":{
+
+    "properties":{
+
+    "title":{"type":"text"},
+    "name":{"type":"text","index":false},
+    "publish_date":{"type":"date","index":false},
+
+    "price":{"type":"double"},
+
+    "number":{
+        "type":"object",
+        "dynamic":true
+    }
+
+    }
+
+      }
+     }
+
+    }
+
 
