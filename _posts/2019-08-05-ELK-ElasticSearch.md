@@ -750,7 +750,7 @@ GET /myindex/article/_mapping
     
     text 类型被用来索引长文本，在建立索引前默认会将这些文本进行分词，转化为词的组合，建立索引。允许es来检索这些词语。text类型不能用来排序和聚合。
     
-    Keyword 类型不进行分词，可以被用来检索过滤、排序和聚合。keyword 类型字段只能用本身来进行检索
+    Keyword 类型不进行分词, 会进行索引, 可以被用来检索过滤、排序和聚合。keyword 类型字段只能用本身来进行检索
     
     数字型：long, integer, short, byte, double, float 默认会建倒排索引, 但是没有分词, 所以只能精确匹配
     日期型：date 默认会建倒排索引, 但是没有分词, 所以只能精确匹配
@@ -769,6 +769,49 @@ GET /myindex/article/_mapping
     对象类型（Object datatype）：_object_ 用于单个JSON对象；
     嵌套类型（Nested datatype）：_nested_ 用于JSON数组
     ```
+
+    对象类型:
+
+    ```json
+    PUT /lib5/person/1
+    {
+      "name": "Tom",
+      "age": 25,
+      "birthday": "1985-12-12",
+      "address": {
+        "country": "china",
+        "province": "beijing",
+        "city": "beijing"
+      }
+    }
+    
+    # 对象类型底层结构
+    {
+      "name": ["Tom"],
+      "age": [25],
+      "birthday": ["1985-12-12"],
+      "address.country": ["china"],
+      "address.province": ["beijing"],
+      "address.city": ["beijing"]
+    }
+    
+    PUT /lib6/person/1
+    {
+      "persons": [
+        {"name", "zhangsan", "age": 20},
+        {"name", "lisi", "age": 25},
+        {"name", "wangwu", "age": 30}
+      ]
+    }
+    
+    # 集合类型底层结构
+    {
+        "persons.name": ["zhangsan", "lisi", "wangwu"],
+    	"persons.age": [20, 25, 30]
+    }
+    ```
+
+    
 
 3. 地理位置类型（Geo datatypes）
 
@@ -839,78 +882,856 @@ GET /myindex/article/_mapping
     strict：如果碰到陌生字段，抛出异常
     ```
 
-    dynamic设置可以适用在根对象上或者object类型的任意字段上。
+    dynamic 设置可以适用在根对象上或者object类型的任意字段上。
 
+2. 手动映射:
+
+    给索引lib2创建映射类型, es 默认会给每一个 field 加上倒排索引
+
+    ```
     POST /lib2
-
-    #给索引lib2创建映射类型
-
     {
-
-    "settings":{
-
-    "number_of_shards" : 3,
-
-    "number_of_replicas" : 0
-
-    },
-
-     "mappings":{
-
-      "books":{
-
-    "properties":{
-
-    "title":{"type":"text"},
-    "name":{"type":"text","index":false},
-    "publish_date":{"type":"date","index":false},
-
-    "price":{"type":"double"},
-
-    "number":{"type":"integer"}
-
+      "settings": {
+        "number_of_shards": 3,
+        "number_of_replicas": 0
+      },
+      "mappings": {
+        "books": {
+          "properties": {
+            "title": {
+              "type": "text", # 默认使用 standard 分词器
+              "analyzer": "ik"
+            },
+            "name": {
+              "type": "text",
+              "index": false
+            },
+            "publish_date": {
+              "type": "date",
+              "index": false
+            },
+            "price": {
+              "type": "double"
+            },
+            "number": {
+              "type": "integer",
+              "dynamic":true
+            }
+          }
+        }
+      }
     }
+    ```
 
+
+
+## 基本查询(Query查询)
+
+### 数据准备
+
+```
+DELETE /lib3
+
+PUT /lib3
+{
+    "settings":{
+    "number_of_shards" : 3,
+    "number_of_replicas" : 0
+    },
+     "mappings":{
+      "user":{
+        "properties":{
+            "name": {"type":"text"},
+            "address": {"type":"text"},
+            "age": {"type":"integer"},
+            "interests": {"type":"text"},
+            "birthday": {"type":"date"}
+        }
       }
      }
+}
 
+PUT /lib3/user/1
+{
+	"name": "zhaoliu",
+	"address": "hei long jiang sheng tie ling shi",
+	"age": 50,
+	"birthday": "1970-12-12",
+	"interests": "xi huan hejiu,duanlian,lvyou"
+}
+
+PUT /lib3/user/2
+{
+	"name": "zhaoming",
+	"address": "bei jing hai dian qu qing he zhen",
+	"age": 20,
+	"birthday": "1998-10-12",
+	"interests": "xi huan hejiu,duanlian,changge"
+}
+
+PUT /lib3/user/3
+{
+	"name": "lisi",
+	"address": "bei jing hai dian qu qing he zhen",
+	"age": 23,
+	"birthday": "1998-10-12",
+	"interests": "xi huan hejiu,duanlian,changge"
+}
+
+PUT /lib3/user/4
+{
+	"name": "wangwu",
+	"address": "bei jing hai dian qu qing he zhen",
+	"age": 26,
+	"birthday": "1995-10-12",
+	"interests": "xi huan biancheng,tingyinyue,lvyou"
+}
+
+PUT /lib3/user/5
+{
+	"name": "zhangsan",
+	"address": "bei jing chao yang qu",
+	"age": 29,
+	"birthday": "1988-10-12",
+	"interests": "xi huan biancheng,tingyinyue,tiaowu"
+}
+
+
+GET /lib3/user/_search?q=name:lisi
+
+GET /lib3/user/_search?q=name:zhaoliu&sort=age:desc
+```
+
+### term查询和terms查询
+
+term query会去倒排索引中寻找确切的term，它并不知道分词器的存在。这种查询适合keyword 、numeric、date。
+
+term:查询某个字段里含有某个关键词的文档
+
+GET /lib3/user/_search/
+{
+  "query": {
+      "term": {"interests": "changge"}
+  }
+}
+
+terms:查询某个字段里含有多个关键词的文档
+
+
+
+GET /lib3/user/_search
+{
+    "query":{
+        "terms":{
+            "interests": ["hejiu","changge"]
+        }
     }
+}
 
-    POST /lib2
+### 控制查询返回的数量
 
-    #给索引lib2创建映射类型
-    {
+from：从哪一个文档开始
+size：需要的个数
 
-    "settings":{
-
-    "number_of_shards" : 3,
-
-    "number_of_replicas" : 0
-
-    },
-
-     "mappings":{
-
-      "books":{
-
-    "properties":{
-
-    "title":{"type":"text"},
-    "name":{"type":"text","index":false},
-    "publish_date":{"type":"date","index":false},
-
-    "price":{"type":"double"},
-
-    "number":{
-        "type":"object",
-        "dynamic":true
+GET /lib3/user/_search
+{
+    "from":0,
+    "size":2,
+    "query":{
+        "terms":{
+            "interests": ["hejiu","changge"]
+        }
     }
+}
 
+### 返回版本号
+
+GET /lib3/user/_search
+{
+    "version":true,
+    "query":{
+        "terms":{
+            "interests": ["hejiu","changge"]
+        }
     }
+}
 
+### match查询
+
+match query知道分词器的存在，会对filed进行分词操作，然后再查询
+
+GET /lib3/user/_search
+{
+    "query":{
+        "match":{
+            "name": "zhaoliu"
+        }
+    }
+}
+
+GET /lib3/user/_search
+{
+    "query":{
+        "match":{
+            "age": 20
+        }
+    }
+}
+
+match_all:查询所有文档
+
+GET /lib3/user/_search
+{
+  "query": {
+    "match_all": {}
+  }
+}
+
+multi_match:可以指定多个字段
+
+GET /lib3/user/_search
+{
+    "query":{
+        "multi_match": {
+            "query": "lvyou",
+            "fields": ["interests","name"]
+         }
+    }
+}
+
+match_phrase:短语匹配查询
+
+ElasticSearch引擎首先分析（analyze）查询字符串，从分析后的文本中构建短语查询，这意味着必须匹配短语中的所有分词，并且保证各个分词的相对位置不变：
+
+GET lib3/user/_search
+{
+  "query":{  
+      "match_phrase":{  
+         "interests": "duanlian，shuoxiangsheng"
       }
-     }
+   }
+}
 
+### 指定返回的字段
+
+GET /lib3/user/_search
+{
+    "_source": ["address","name"],
+    "query": {
+        "match": {
+            "interests": "changge"
+        }
     }
+}
+
+### 控制加载的字段
+
+GET /lib3/user/_search
+{
+    "query": {
+        "match_all": {}
+    },
+    
+
+```
+"_source": {
+      "includes": ["name","address"],
+      "excludes": ["age","birthday"]
+  }
+```
+
+}
+
+使用通配符*
+
+GET /lib3/user/_search
+{
+    "_source": {
+          "includes": "addr*",
+          "excludes": ["name","bir*"]
+        
+
+```
+},
+"query": {
+    "match_all": {}
+}
+```
+
+}
+
+### 排序
+
+使用sort实现排序：
+desc:降序，asc升序
+
+GET /lib3/user/_search
+{
+    "query": {
+        "match_all": {}
+    },
+    "sort": [
+        {
+           "age": {
+               "order":"asc"
+           }
+        }
+    ]
+        
+}
+
+GET /lib3/user/_search
+{
+    "query": {
+        "match_all": {}
+    },
+    "sort": [
+        {
+           "age": {
+               "order":"desc"
+           }
+        }
+    ]
+        
+}
+
+### 前缀匹配查询
+
+GET /lib3/user/_search
+{
+  "query": {
+    "match_phrase_prefix": {
+        "name": {
+            "query": "zhao"
+        }
+    }
+  }
+}
+
+### 范围查询
+
+range:实现范围查询
+
+参数：from,to,include_lower,include_upper,boost
+
+include_lower:是否包含范围的左边界，默认是true
+
+include_upper:是否包含范围的右边界，默认是true
+
+GET /lib3/user/_search
+{
+    "query": {
+        "range": {
+            "birthday": {
+                "from": "1990-10-10",
+                "to": "2018-05-01"
+            }
+        }
+    }
+}
+
+GET /lib3/user/_search
+{
+    "query": {
+        "range": {
+            "age": {
+                "from": 20,
+                "to": 25,
+                "include_lower": true,
+                "include_upper": false
+            }
+        }
+    }
+}
+
+### wildcard查询
+
+允许使用通配符* 和 ?来进行查询
+
+*代表0个或多个字符
+
+？代表任意一个字符
+
+GET /lib3/user/_search
+{
+    "query": {
+        "wildcard": {
+             "name": "zhao*"
+        }
+    }
+}
+
+GET /lib3/user/_search
+{
+    "query": {
+        "wildcard": {
+             "name": "li?i"
+        }
+    }
+}
+
+### fuzzy实现模糊查询
+
+value：查询的关键字
+
+boost：查询的权值，默认值是1.0
+
+min_similarity:设置匹配的最小相似度，默认值为0.5，对于字符串，取值为0-1(包括0和1);对于数值，取值可能大于1;对于日期型取值为1d,1m等，1d就代表1天
+
+prefix_length:指明区分词项的共同前缀长度，默认是0
+
+max_expansions:查询中的词项可以扩展的数目，默认可以无限大
+
+GET /lib3/user/_search
+{
+    "query": {
+        "fuzzy": {
+             "interests": "chagge"
+        }
+    }
+}
+
+GET /lib3/user/_search
+{
+    "query": {
+        "fuzzy": {
+             "interests": {
+                 "value": "chagge"
+             }
+        }
+    }
+}
+
+### 高亮搜索结果
+
+GET /lib3/user/_search
+{
+    "query":{
+        "match":{
+            "interests": "changge"
+        }
+    },
+    "highlight": {
+        "fields": {
+             "interests": {}
+        }
+    }
+}
+
+## Filter查询
+
+filter是不计算相关性的，同时可以cache。因此，filter速度要快于query。
+
+POST /lib4/items/_bulk
+{"index": {"_id": 1}}
+
+{"price": 40,"itemID": "ID100123"}
+
+{"index": {"_id": 2}}
+
+{"price": 50,"itemID": "ID100124"}
+
+{"index": {"_id": 3}}
+
+{"price": 25,"itemID": "ID100124"}
+
+{"index": {"_id": 4}}
+
+{"price": 30,"itemID": "ID100125"}
+
+{"index": {"_id": 5}}
+
+{"price": null,"itemID": "ID100127"}
+
+####2.8.1 简单的过滤查询
+
+GET /lib4/items/_search
+{ 
+       "post_filter": {
+             "term": {
+                 "price": 40
+             }
+       }
+}
+
+GET /lib4/items/_search
+{
+      "post_filter": {
+          "terms": {
+                 "price": [25,40]
+              }
+        }
+}
+
+GET /lib4/items/_search
+{
+    "post_filter": {
+        "term": {
+            "itemID": "ID100123"
+          }
+      }
+}
+
+查看分词器分析的结果：
+
+GET /lib4/_mapping
+
+不希望商品id字段被分词，则重新创建映射
+
+DELETE lib4
+
+PUT /lib4
+{
+    "mappings": {
+        "items": {
+            "properties": {
+                "itemID": {
+                    "type": "text",
+                    "index": false
+                }
+            }
+        }
+    }
+}
+
+### bool过滤查询
+
+可以实现组合过滤查询
+
+格式：
+
+{
+    "bool": {
+        "must": [],
+        "should": [],
+        "must_not": []
+    }
+}
+
+must:必须满足的条件---and
+
+should：可以满足也可以不满足的条件--or
+
+must_not:不需要满足的条件--not
+
+GET /lib4/items/_search
+{
+    "post_filter": {
+          "bool": {
+               "should": [
+                    {"term": {"price":25}},
+                    {"term": {"itemID": "id100123"}}
+                   
+
+```
+              ],
+            "must_not": {
+                "term":{"price": 30}
+               }
+                   
+            }
+         }
+```
+
+}
+
+嵌套使用bool：
+
+GET /lib4/items/_search
+{
+    "post_filter": {
+          "bool": {
+                "should": [
+                    {"term": {"itemID": "id100123"}},
+                    {
+                      "bool": {
+                          "must": [
+                              {"term": {"itemID": "id100124"}},
+                              {"term": {"price": 40}}
+                            ]
+                          }
+                    }
+                  ]
+                }
+            }
+}
+        
+
+### 范围过滤
+
+gt: >
+
+lt: <
+
+gte: >=
+
+lte: <=
+
+GET /lib4/items/_search
+{
+     "post_filter": {
+          "range": {
+              "price": {
+                   "gt": 25,
+                   "lt": 50
+                }
+            }
+      }
+}
+
+### 过滤非空
+
+GET /lib4/items/_search
+{
+  "query": {
+    "bool": {
+      "filter": {
+          "exists":{
+             "field":"price"
+         }
+      }
+    }
+  }
+}
+
+GET /lib4/items/_search
+{
+    "query" : {
+        "constant_score" : {
+            "filter": {
+                "exists" : { "field" : "price" }
+            }
+        }
+    }
+}
+
+### 过滤器缓存
+
+ElasticSearch提供了一种特殊的缓存，即过滤器缓存（filter cache），用来存储过滤器的结果，被缓存的过滤器并不需要消耗过多的内存（因为它们只存储了哪些文档能与过滤器相匹配的相关信息），而且可供后续所有与之相关的查询重复使用，从而极大地提高了查询性能。
+
+注意：ElasticSearch并不是默认缓存所有过滤器，
+以下过滤器默认不缓存：
+
+```
+numeric_range
+script
+geo_bbox
+geo_distance
+geo_distance_range
+geo_polygon
+geo_shape
+and
+or
+not
+```
+
+exists,missing,range,term,terms默认是开启缓存的
+
+开启方式：在filter查询语句后边加上
+"_catch":true
+
+## 聚合查询
+
+(1)sum
+
+GET /lib4/items/_search
+{
+  "size":0,
+  "aggs": {
+     "price_of_sum": {
+         "sum": {
+           "field": "price"
+         }
+     }
+  }
+}
+
+(2)min
+
+GET /lib4/items/_search
+{
+  "size": 0, 
+  "aggs": {
+     "price_of_min": {
+         "min": {
+           "field": "price"
+         }
+     }
+  }
+}
+
+(3)max
+
+GET /lib4/items/_search
+{
+  "size": 0, 
+  "aggs": {
+     "price_of_max": {
+         "max": {
+           "field": "price"
+         }
+     }
+  }
+}
+
+(4)avg
+
+GET /lib4/items/_search
+{
+  "size":0,
+  "aggs": {
+     "price_of_avg": {
+         "avg": {
+           "field": "price"
+         }
+     }
+  }
+}
+
+(5)cardinality:求基数
+
+GET /lib4/items/_search
+{
+  "size":0,
+  "aggs": {
+     "price_of_cardi": {
+         "cardinality": {
+           "field": "price"
+         }
+     }
+  }
+}
+
+(6)terms:分组
+
+GET /lib4/items/_search
+{
+  "size":0,
+  "aggs": {
+     "price_group_by": {
+         "terms": {
+           "field": "price"
+         }
+     }
+  }
+}
+
+对那些有唱歌兴趣的用户按年龄分组
+GET /lib3/user/_search
+{
+  "query": {
+      "match": {
+        "interests": "changge"
+      }
+   },
+   "size": 0, 
+   "aggs":{
+       "age_group_by":{
+           "terms": {
+             "field": "age",
+             "order": {
+               "avg_of_age": "desc"
+             }
+           },
+           "aggs": {
+             "avg_of_age": {
+               "avg": {
+                 "field": "age"
+               }
+             }
+           }
+       }
+   }
+}
 
 
+
+## 复合查询
+
+将多个基本查询组合成单一查询的查询
+
+### 使用bool查询
+
+接收以下参数：
+
+must：
+    文档 必须匹配这些条件才能被包含进来。 
+    
+must_not：
+    文档 必须不匹配这些条件才能被包含进来。 
+    
+should：
+    如果满足这些语句中的任意语句，将增加 _score，否则，无任何影响。它们主要用于修正每个文档的相关性得分。 
+    
+filter：
+    必须 匹配，但它以不评分、过滤模式来进行。这些语句对评分没有贡献，只是根据过滤标准来排除或包含文档。
+    
+相关性得分是如何组合的。每一个子查询都独自地计算文档的相关性得分。一旦他们的得分被计算出来， bool 查询就将这些得分进行合并并且返回一个代表整个布尔操作的得分。
+
+下面的查询用于查找 title 字段匹配 how to make millions 并且不被标识为 spam 的文档。那些被标识为 starred 或在2014之后的文档，将比另外那些文档拥有更高的排名。如果 _两者_ 都满足，那么它排名将更高：
+
+{
+    "bool": {
+        "must": { "match": { "title": "how to make millions" }},
+        "must_not": { "match": { "tag":   "spam" }},
+        "should": [
+            { "match": { "tag": "starred" }},
+            { "range": { "date": { "gte": "2014-01-01" }}}
+        ]
+    }
+}
+
+如果没有 must 语句，那么至少需要能够匹配其中的一条 should 语句。但，如果存在至少一条 must 语句，则对 should 语句的匹配没有要求。 
+如果我们不想因为文档的时间而影响得分，可以用 filter 语句来重写前面的例子：
+
+{
+    "bool": {
+        "must": { "match": { "title": "how to make millions" }},
+        "must_not": { "match": { "tag":   "spam" }},
+        "should": [
+            { "match": { "tag": "starred" }}
+        ],
+        "filter": {
+          "range": { "date": { "gte": "2014-01-01" }} 
+        }
+    }
+}
+
+通过将 range 查询移到 filter 语句中，我们将它转成不评分的查询，将不再影响文档的相关性排名。由于它现在是一个不评分的查询，可以使用各种对 filter 查询有效的优化手段来提升性能。
+
+bool 查询本身也可以被用做不评分的查询。简单地将它放置到 filter 语句中并在内部构建布尔逻辑：
+
+{
+    "bool": {
+        "must": { "match": { "title": "how to make millions" }},
+        "must_not": { "match": { "tag":   "spam" }},
+        "should": [
+            { "match": { "tag": "starred" }}
+        ],
+        "filter": {
+          "bool": { 
+              "must": [
+                  { "range": { "date": { "gte": "2014-01-01" }}},
+                  { "range": { "price": { "lte": 29.99 }}}
+              ],
+              "must_not": [
+                  { "term": { "category": "ebooks" }}
+              ]
+          }
+        }
+    }
+}
+
+### constant_score查询
+
+它将一个不变的常量评分应用于所有匹配的文档。它被经常用于你只需要执行一个 filter 而没有其它查询（例如，评分查询）的情况下。
+
+{
+    "constant_score":   {
+        "filter": {
+            "term": { "category": "ebooks" } 
+        }
+    }
+}
+
+term 查询被放置在 constant_score 中，转成不评分的filter。这种方式可以用来取代只有 filter 语句的 bool 查询。 
