@@ -1898,10 +1898,7 @@ GET /lib4/items/_search
 {
   "post_filter": {
     "terms": {
-      "price": [
-        25,
-        40
-      ]
+      "price": [25, 40]
     }
   }
 }
