@@ -925,11 +925,11 @@ GET /myindex/article/_mapping
 
 
 
-## 基本查询(Query查询)
+## 基本查询(Query查询)(英文)
 
 ### 数据准备
 
-```
+```json
 DELETE /lib3
 
 PUT /lib3
@@ -995,218 +995,295 @@ PUT /lib3/user/5
 	"birthday": "1988-10-12",
 	"interests": "xi huan biancheng,tingyinyue,tiaowu"
 }
+```
 
+### 简单查询
 
+```
 GET /lib3/user/_search?q=name:lisi
 
-GET /lib3/user/_search?q=name:zhaoliu&sort=age:desc
+GET /lib3/user/_search?q=interests:changge&sort=age:desc
+
+
+
+{
+  "took" : 2, # 耗时 2 毫秒
+  "timed_out" : false, # 没有超时
+  "_shards" : {
+    "total" : 3, # 向 3 个分片都发送了请求
+    "successful" : 3, # 3 个分片都成功了
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : 1, # 命中几条记录
+    "max_score" : 0.6931472, # 相关度匹配, 最大是 1, 由 es 计算
+    "hits" : [
+      {
+        "_index" : "lib3",
+        "_type" : "user",
+        "_id" : "3",
+        "_score" : 0.6931472, # 相关度匹配, 最大是 1, 由 es 计算
+        "_source" : {
+          "name" : "lisi",
+          "address" : "bei jing hai dian qu qing he zhen",
+          "age" : 23,
+          "birthday" : "1998-10-12",
+          "interests" : "xi huan hejiu,duanlian,changge"
+        }
+      }
+    ]
+  }
+}
 ```
 
 ### term查询和terms查询
 
-term query会去倒排索引中寻找确切的term，它并不知道分词器的存在。这种查询适合keyword 、numeric、date。
+term query会去倒排索引中寻找确切的term，**它并不知道分词器的存在即搜索词不进行分词**。这种查询适合keyword 、numeric、date。
 
 term:查询某个字段里含有某个关键词的文档
 
+```json
 GET /lib3/user/_search/
 {
   "query": {
-      "term": {"interests": "changge"}
+    "term": {
+      "name": "zhaoliu"
+    }
   }
 }
+```
 
 terms:查询某个字段里含有多个关键词的文档
 
-
-
+```json
 GET /lib3/user/_search
 {
-    "query":{
-        "terms":{
-            "interests": ["hejiu","changge"]
-        }
+  "query": {
+    "terms": {
+      "interests": [
+        "hejiu",
+        "changge"
+      ]
     }
+  }
 }
+```
 
 ### 控制查询返回的数量
 
 from：从哪一个文档开始
 size：需要的个数
 
+```json
 GET /lib3/user/_search
 {
-    "from":0,
-    "size":2,
-    "query":{
-        "terms":{
-            "interests": ["hejiu","changge"]
-        }
+  "from": 0,
+  "size": 2,
+  "query": {
+    "terms": {
+      "interests": [
+        "hejiu",
+        "changge"
+      ]
     }
+  }
 }
+```
 
 ### 返回版本号
 
+```json
 GET /lib3/user/_search
 {
-    "version":true,
-    "query":{
-        "terms":{
-            "interests": ["hejiu","changge"]
-        }
+  "version": true,
+  "query": {
+    "terms": {
+      "interests": [
+        "hejiu",
+        "changge"
+      ]
     }
+  }
 }
+```
 
 ### match查询
 
-match query知道分词器的存在，会对filed进行分词操作，然后再查询
+**match query知道分词器的存在，会对搜索词进行分词操作，然后再查询**
 
+```json
 GET /lib3/user/_search
 {
-    "query":{
-        "match":{
-            "name": "zhaoliu"
-        }
+  "query": {
+    "match": {
+      "name": "zhaoliu"
     }
+  }
 }
-
-GET /lib3/user/_search
-{
-    "query":{
-        "match":{
-            "age": 20
-        }
-    }
-}
-
-match_all:查询所有文档
 
 GET /lib3/user/_search
 {
   "query": {
-    "match_all": {}
+    "match": { # 这里进行分词会查到 2 条, 如果使用 term 就不会进行分词, 就查不到
+      "name": "zhaoliu zhaoming"
+    }
   }
 }
+```
 
-multi_match:可以指定多个字段
+**match_all:查询所有文档**
 
+```json
 GET /lib3/user/_search
 {
-    "query":{
-        "multi_match": {
-            "query": "lvyou",
-            "fields": ["interests","name"]
-         }
+  "query": {
+    "match_all": {
     }
+  }
 }
+```
 
-match_phrase:短语匹配查询
+**multi_match:可以指定多个字段进行查询, term 和 match 只能指定一个字段**
+
+```json
+GET /lib3/user/_search
+{
+  "query": {
+    "multi_match": {
+      "query": "changge",
+      "fields": [
+        "interests",
+        "name"
+      ]
+    }
+  }
+}
+```
+
+**match_phrase:短语匹配查询**
 
 ElasticSearch引擎首先分析（analyze）查询字符串，从分析后的文本中构建短语查询，这意味着必须匹配短语中的所有分词，并且保证各个分词的相对位置不变：
 
+```json
 GET lib3/user/_search
 {
-  "query":{  
-      "match_phrase":{  
-         "interests": "duanlian，shuoxiangsheng"
-      }
-   }
+  "query": {
+    "match_phrase": {
+      "interests": "duanlian，shuoxiangsheng"
+    }
+  }
 }
+```
 
 ### 指定返回的字段
 
+```json
 GET /lib3/user/_search
 {
-    "_source": ["address","name"],
-    "query": {
-        "match": {
-            "interests": "changge"
-        }
+  "_source": [
+    "address",
+    "name"
+  ],
+  "query": {
+    "match": {
+      "interests": "changge"
     }
+  }
 }
+```
 
 ### 控制加载的字段
 
+```json
 GET /lib3/user/_search
 {
-    "query": {
-        "match_all": {}
-    },
-    
-
-```
-"_source": {
-      "includes": ["name","address"],
-      "excludes": ["age","birthday"]
+  "query": {
+    "match_all": {
+    }
+  },
+  "_source": {
+    "includes": [
+      "name",
+      "address"
+    ],
+    "excludes": [
+      "age",
+      "birthday"
+    ]
   }
+}
 ```
 
-}
+**使用通配符\***
 
-使用通配符*
-
+```json
 GET /lib3/user/_search
 {
-    "_source": {
-          "includes": "addr*",
-          "excludes": ["name","bir*"]
-        
-
-```
-},
-"query": {
-    "match_all": {}
+  "_source": {
+    "includes": "addr*",
+    "excludes": [
+      "name",
+      "bir*"
+    ]
+  },
+  "query": {
+    "match_all": {
+    }
+  }
 }
 ```
-
-}
 
 ### 排序
 
-使用sort实现排序：
-desc:降序，asc升序
+使用sort实现排序: desc:降序，asc升序
 
+```json
 GET /lib3/user/_search
 {
-    "query": {
-        "match_all": {}
-    },
-    "sort": [
-        {
-           "age": {
-               "order":"asc"
-           }
-        }
-    ]
-        
+  "query": {
+    "match_all": {
+    }
+  },
+  "sort": [
+    {
+      "age": {
+        "order": "asc"
+      }
+    }
+  ]
 }
 
 GET /lib3/user/_search
 {
-    "query": {
-        "match_all": {}
-    },
-    "sort": [
-        {
-           "age": {
-               "order":"desc"
-           }
-        }
-    ]
-        
+  "query": {
+    "match_all": {
+    }
+  },
+  "sort": [
+    {
+      "age": {
+        "order": "desc"
+      }
+    }
+  ]
 }
+```
 
 ### 前缀匹配查询
 
+```json
 GET /lib3/user/_search
 {
   "query": {
     "match_phrase_prefix": {
-        "name": {
-            "query": "zhao"
-        }
+      "name": {
+        "query": "zhao"
+      }
     }
   }
 }
+```
 
 ### 范围查询
 
@@ -1218,57 +1295,63 @@ include_lower:是否包含范围的左边界，默认是true
 
 include_upper:是否包含范围的右边界，默认是true
 
+```json
 GET /lib3/user/_search
 {
-    "query": {
-        "range": {
-            "birthday": {
-                "from": "1990-10-10",
-                "to": "2018-05-01"
-            }
-        }
+  "query": {
+    "range": {
+      "birthday": {
+        "from": "1990-10-10",
+        "to": "2018-05-01"
+      }
     }
+  }
 }
 
 GET /lib3/user/_search
 {
-    "query": {
-        "range": {
-            "age": {
-                "from": 20,
-                "to": 25,
-                "include_lower": true,
-                "include_upper": false
-            }
-        }
+  "query": {
+    "range": {
+      "age": {
+        "from": 20,
+        "to": 25,
+        "include_lower": true,
+        "include_upper": false
+      }
     }
+  }
 }
+```
 
 ### wildcard查询
 
 允许使用通配符* 和 ?来进行查询
 
-*代表0个或多个字符
+\* 代表0个或多个字符
 
-？代表任意一个字符
+? 代表任意一个字符
 
+```json
 GET /lib3/user/_search
 {
-    "query": {
-        "wildcard": {
-             "name": "zhao*"
-        }
+  "query": {
+    "wildcard": {
+      "name": "zhao*"
     }
+  }
 }
 
 GET /lib3/user/_search
 {
-    "query": {
-        "wildcard": {
-             "name": "li?i"
-        }
+  "query": {
+    "wildcard": {
+      "name": "li?i"
     }
+  }
 }
+```
+
+
 
 ### fuzzy实现模糊查询
 
@@ -1282,46 +1365,501 @@ prefix_length:指明区分词项的共同前缀长度，默认是0
 
 max_expansions:查询中的词项可以扩展的数目，默认可以无限大
 
+```json
 GET /lib3/user/_search
 {
-    "query": {
-        "fuzzy": {
-             "interests": "chagge"
-        }
+  "query": {
+    "fuzzy": {
+      "name": "zholiu"
     }
+  }
 }
 
 GET /lib3/user/_search
 {
-    "query": {
-        "fuzzy": {
-             "interests": {
-                 "value": "chagge"
-             }
-        }
+  "query": {
+    "fuzzy": {
+      "interests": {
+        "value": "chagge"
+      }
     }
+  }
 }
+```
+
+
 
 ### 高亮搜索结果
 
+```json
 GET /lib3/user/_search
 {
-    "query":{
-        "match":{
-            "interests": "changge"
-        }
-    },
-    "highlight": {
-        "fields": {
-             "interests": {}
-        }
+  "query": {
+    "match": {
+      "interests": "changge"
     }
+  },
+  "highlight": {
+    "fields": {
+      "interests": {
+      }
+    }
+  }
 }
+```
+
+
+
+## 基本查询(Query查询)(中文)
+
+ik 带有两个分词器
+
+ik_max_word: 会将文本做最细粒度的拆分; 尽可能多的拆分出词语
+
+ik_smart: 会做最粗粒度的拆分; 已被分出的词语将不会在被其他词语占有
+
+### 数据准备
+
+```json
+DELETE /lib3
+
+PUT /lib3
+{
+    "settings":{
+    "number_of_shards" : 3,
+    "number_of_replicas" : 0
+    },
+     "mappings":{
+      "user":{
+        "properties":{
+            "name": {"type":"text", "analyzer": "ik_max_word"},
+            "address": {"type":"text", "analyzer": "ik_max_word"},
+            "age": {"type":"integer"},
+            "interests": {"type":"text", "analyzer": "ik_max_word"},
+            "birthday": {"type":"date"}
+        }
+      }
+     }
+}
+PUT /lib3/user/1
+{
+	"name": "赵六",
+	"address": "黑龙江省铁岭",
+	"age": 50,
+	"birthday": "1970-12-12",
+	"interests": "喜欢喝酒,锻炼,说相声"
+}
+
+PUT /lib3/user/2
+{
+	"name": "赵明",
+	"address": "北京海淀区清河",
+	"age": 20,
+	"birthday": "1998-10-12",
+	"interests": "喜欢喝酒,锻炼,唱歌"
+}
+
+PUT /lib3/user/3
+{
+	"name": "lisi",
+	"address": "北京海淀区清河",
+	"age": 23,
+	"birthday": "1998-10-12",
+	"interests": "喜欢喝酒,锻炼,唱歌"
+}
+
+PUT /lib3/user/4
+{
+	"name": "王五",
+	"address": "北京海淀区清河",
+	"age": 26,
+	"birthday": "1995-10-12",
+	"interests": "喜欢编程,听音乐,旅游"
+}
+
+PUT /lib3/user/5
+{
+	"name": "张三",
+	"address": "北京海淀区清河",
+	"age": 29,
+	"birthday": "1988-10-12",
+	"interests": "喜欢摄影,听音乐,跳舞"
+}
+```
+
+### term查询和terms查询
+
+term query会去倒排索引中寻找确切的term，**它并不知道分词器的存在即搜索词不进行分词**。这种查询适合keyword 、numeric、date。
+
+term:查询某个字段里含有某个关键词的文档
+
+```json
+GET /lib3/user/_search/
+{
+  "query": {
+    "term": {
+      "name": "赵"
+    }
+  }
+}
+```
+
+terms:查询某个字段里含有多个关键词的文档
+
+```json
+GET /lib3/user/_search
+{
+  "query": {
+    "terms": {
+      "interests": ["喝酒","唱歌"]
+    }
+  }
+}
+```
+
+### 控制查询返回的数量
+
+from：从哪一个文档开始
+size：需要的个数
+
+```json
+GET /lib3/user/_search
+{
+  "from": 0,
+  "size": 2,
+  "query": {
+    "terms": {
+      "interests": ["喝酒","唱歌"]
+    }
+  }
+}
+```
+
+### 返回版本号
+
+```json
+GET /lib3/user/_search
+{
+  "version": true,
+  "query": {
+    "terms": {
+      "interests": ["喝酒","唱歌"]
+    }
+  }
+}
+```
+
+### match查询
+
+**match query知道分词器的存在，会对搜索词进行分词操作，然后再查询**
+
+```json
+GET /lib3/user/_search
+{
+  "query": {
+    "match": {
+      "name": "赵六"
+    }
+  }
+}
+
+GET /lib3/user/_search
+{
+  "query": {
+    "match": { # 这里进行分词会查到 2 条, 如果使用 term 就不会进行分词, 就查不到
+      "name": "赵六赵明"
+    }
+  }
+}
+```
+
+**match_all:查询所有文档**
+
+```json
+GET /lib3/user/_search
+{
+  "query": {
+    "match_all": {
+    }
+  }
+}
+```
+
+**multi_match:可以指定多个字段进行查询, term 和 match 只能指定一个字段**
+
+```json
+GET /lib3/user/_search
+{
+  "query": {
+    "multi_match": {
+      "query": "唱歌",
+      "fields": [
+        "interests",
+        "name"
+      ]
+    }
+  }
+}
+```
+
+**match_phrase:短语匹配查询**
+
+ElasticSearch引擎首先分析（analyze）查询字符串，从分析后的文本中构建短语查询，这意味着必须匹配短语中的所有分词，并且保证各个分词的相对位置不变：
+
+```json
+GET lib3/user/_search
+{
+  "query": {
+    "match_phrase": {
+      "interests": "锻炼,说相声"
+    }
+  }
+}
+```
+
+### 指定返回的字段
+
+```json
+GET /lib3/user/_search
+{
+  "_source": [
+    "address",
+    "name"
+  ],
+  "query": {
+    "match": {
+      "interests": "唱歌"
+    }
+  }
+}
+```
+
+### 控制加载的字段
+
+```json
+GET /lib3/user/_search
+{
+  "query": {
+    "match_all": {
+    }
+  },
+  "_source": {
+    "includes": [
+      "name",
+      "address"
+    ],
+    "excludes": [
+      "age",
+      "birthday"
+    ]
+  }
+}
+```
+
+**使用通配符\***
+
+```json
+GET /lib3/user/_search
+{
+  "_source": {
+    "includes": "addr*",
+    "excludes": [
+      "name",
+      "bir*"
+    ]
+  },
+  "query": {
+    "match_all": {
+    }
+  }
+}
+```
+
+### 排序
+
+使用sort实现排序: desc:降序，asc升序
+
+```json
+GET /lib3/user/_search
+{
+  "query": {
+    "match_all": {
+    }
+  },
+  "sort": [
+    {
+      "age": {
+        "order": "asc"
+      }
+    }
+  ]
+}
+
+GET /lib3/user/_search
+{
+  "query": {
+    "match_all": {
+    }
+  },
+  "sort": [
+    {
+      "age": {
+        "order": "desc"
+      }
+    }
+  ]
+}
+```
+
+### 前缀匹配查询
+
+```json
+GET /lib3/user/_search
+{
+  "query": {
+    "match_phrase_prefix": {
+      "name": {
+        "query": "赵"
+      }
+    }
+  }
+}
+```
+
+### 范围查询
+
+range:实现范围查询
+
+参数：from,to,include_lower,include_upper,boost
+
+include_lower:是否包含范围的左边界，默认是true
+
+include_upper:是否包含范围的右边界，默认是true
+
+```json
+GET /lib3/user/_search
+{
+  "query": {
+    "range": {
+      "birthday": {
+        "from": "1990-10-10",
+        "to": "2018-05-01"
+      }
+    }
+  }
+}
+
+GET /lib3/user/_search
+{
+  "query": {
+    "range": {
+      "age": {
+        "from": 20,
+        "to": 25,
+        "include_lower": true,
+        "include_upper": false
+      }
+    }
+  }
+}
+```
+
+### wildcard查询
+
+允许使用通配符* 和 ?来进行查询
+
+\* 代表0个或多个字符
+
+? 代表任意一个字符
+
+```json
+GET /lib3/user/_search
+{
+  "query": {
+    "wildcard": {
+      "name": "赵*"
+    }
+  }
+}
+
+GET /lib3/user/_search
+{
+  "query": {
+    "wildcard": {
+      "name": "李?"
+    }
+  }
+}
+```
+
+
+
+### fuzzy实现模糊查询
+
+value：查询的关键字
+
+boost：查询的权值，默认值是1.0
+
+min_similarity:设置匹配的最小相似度，默认值为0.5，对于字符串，取值为0-1(包括0和1);对于数值，取值可能大于1;对于日期型取值为1d,1m等，1d就代表1天
+
+prefix_length:指明区分词项的共同前缀长度，默认是0
+
+max_expansions:查询中的词项可以扩展的数目，默认可以无限大
+
+```json
+GET /lib3/user/_search
+{
+  "query": {
+    "fuzzy": {
+      "name": "赵"
+    }
+  }
+}
+
+GET /lib3/user/_search
+{
+  "query": {
+    "fuzzy": {
+      "interests": {
+        "value": "喝酒"
+      }
+    }
+  }
+}
+```
+
+
+
+### 高亮搜索结果
+
+```json
+GET /lib3/user/_search
+{
+  "query": {
+    "match": {
+      "interests": "唱歌"
+    }
+  },
+  "highlight": {
+    "fields": {
+      "interests": {
+      }
+    }
+  }
+}
+```
+
+
+
+
+
+
 
 ## Filter查询
 
 filter是不计算相关性的，同时可以cache。因此，filter速度要快于query。
 
+```json
 POST /lib4/items/_bulk
 {"index": {"_id": 1}}
 
@@ -1342,57 +1880,71 @@ POST /lib4/items/_bulk
 {"index": {"_id": 5}}
 
 {"price": null,"itemID": "ID100127"}
+```
 
-####2.8.1 简单的过滤查询
+### 简单的过滤查询
 
+```json
 GET /lib4/items/_search
-{ 
-       "post_filter": {
-             "term": {
-                 "price": 40
-             }
-       }
+{
+  "post_filter": {
+    "term": {
+      "price": 40
+    }
+  }
 }
 
 GET /lib4/items/_search
 {
-      "post_filter": {
-          "terms": {
-                 "price": [25,40]
-              }
-        }
+  "post_filter": {
+    "terms": {
+      "price": [
+        25,
+        40
+      ]
+    }
+  }
 }
 
 GET /lib4/items/_search
 {
-    "post_filter": {
-        "term": {
-            "itemID": "ID100123"
-          }
-      }
+  "post_filter": {
+    "term": {
+      "itemID": "ID100123"
+    }
+  }
 }
+```
 
 查看分词器分析的结果：
 
+```
 GET /lib4/_mapping
+```
 
 不希望商品id字段被分词，则重新创建映射
 
+```
 DELETE lib4
+```
 
+```json
 PUT /lib4
 {
-    "mappings": {
-        "items": {
-            "properties": {
-                "itemID": {
-                    "type": "text",
-                    "index": false
-                }
-            }
+  "mappings": {
+    "items": {
+      "properties": {
+        "itemID": {
+          "type": "text",
+          "index": false
         }
+      }
     }
+  }
 }
+```
+
+
 
 ### bool过滤查询
 
@@ -1400,13 +1952,18 @@ PUT /lib4
 
 格式：
 
+```json
 {
-    "bool": {
-        "must": [],
-        "should": [],
-        "must_not": []
-    }
+  "bool": {
+    "must": [
+    ],
+    "should": [
+    ],
+    "must_not": [
+    ]
+  }
 }
+```
 
 must:必须满足的条件---and
 
@@ -1414,51 +1971,71 @@ should：可以满足也可以不满足的条件--or
 
 must_not:不需要满足的条件--not
 
+```json
 GET /lib4/items/_search
 {
-    "post_filter": {
-          "bool": {
-               "should": [
-                    {"term": {"price":25}},
-                    {"term": {"itemID": "id100123"}}
-                   
-
-```
-              ],
-            "must_not": {
-                "term":{"price": 30}
-               }
-                   
-            }
-         }
-```
-
+  "post_filter": {
+    "bool": {
+      "should": [
+        {
+          "term": {
+            "price": 25
+          }
+        },
+        {
+          "term": {
+            "itemID": "id100123"
+          }
+        }
+      ],
+      "must_not": {
+        "term": {
+          "price": 30
+        }
+      }
+    }
+  }
 }
+```
 
 嵌套使用bool：
 
+```json
 GET /lib4/items/_search
 {
-    "post_filter": {
+  "post_filter": {
+    "bool": {
+      "should": [
+        {
+          "term": {
+            "itemID": "id100123"
+          }
+        },
+        {
           "bool": {
-                "should": [
-                    {"term": {"itemID": "id100123"}},
-                    {
-                      "bool": {
-                          "must": [
-                              {"term": {"itemID": "id100124"}},
-                              {"term": {"price": 40}}
-                            ]
-                          }
-                    }
-                  ]
+            "must": [
+              {
+                "term": {
+                  "itemID": "id100124"
                 }
-            }
+              },
+              {
+                "term": {
+                  "price": 40
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
 }
-        
+```
 
 ### 范围过滤
 
+```json
 gt: >
 
 lt: <
@@ -1469,26 +2046,28 @@ lte: <=
 
 GET /lib4/items/_search
 {
-     "post_filter": {
-          "range": {
-              "price": {
-                   "gt": 25,
-                   "lt": 50
-                }
-            }
+  "post_filter": {
+    "range": {
+      "price": {
+        "gt": 25,
+        "lt": 50
       }
+    }
+  }
 }
+```
 
 ### 过滤非空
 
+```json
 GET /lib4/items/_search
 {
   "query": {
     "bool": {
       "filter": {
-          "exists":{
-             "field":"price"
-         }
+        "exists": {
+          "field": "price"
+        }
       }
     }
   }
@@ -1496,14 +2075,17 @@ GET /lib4/items/_search
 
 GET /lib4/items/_search
 {
-    "query" : {
-        "constant_score" : {
-            "filter": {
-                "exists" : { "field" : "price" }
-            }
+  "query": {
+    "constant_score": {
+      "filter": {
+        "exists": {
+          "field": "price"
         }
+      }
     }
+  }
 }
+```
 
 ### 过滤器缓存
 
@@ -1532,117 +2114,132 @@ exists,missing,range,term,terms默认是开启缓存的
 
 ## 聚合查询
 
-(1)sum
+### sum
 
+```json
 GET /lib4/items/_search
 {
-  "size":0,
+  "size": 0,
   "aggs": {
-     "price_of_sum": {
-         "sum": {
-           "field": "price"
-         }
-     }
+    "price_of_sum": {
+      "sum": {
+        "field": "price"
+      }
+    }
   }
 }
+```
 
-(2)min
+### min
 
+```json
 GET /lib4/items/_search
 {
-  "size": 0, 
+  "size": 0,
   "aggs": {
-     "price_of_min": {
-         "min": {
-           "field": "price"
-         }
-     }
+    "price_of_min": {
+      "min": {
+        "field": "price"
+      }
+    }
   }
 }
+```
 
-(3)max
+### max
 
+```json
 GET /lib4/items/_search
 {
-  "size": 0, 
+  "size": 0,
   "aggs": {
-     "price_of_max": {
-         "max": {
-           "field": "price"
-         }
-     }
+    "price_of_max": {
+      "max": {
+        "field": "price"
+      }
+    }
   }
 }
+```
 
-(4)avg
+### avg
 
+```json
 GET /lib4/items/_search
 {
-  "size":0,
+  "size": 0,
   "aggs": {
-     "price_of_avg": {
-         "avg": {
-           "field": "price"
-         }
-     }
+    "price_of_avg": {
+      "avg": {
+        "field": "price"
+      }
+    }
   }
 }
+```
 
-(5)cardinality:求基数
+### cardinality:求基数
 
+```json
 GET /lib4/items/_search
 {
-  "size":0,
+  "size": 0,
   "aggs": {
-     "price_of_cardi": {
-         "cardinality": {
-           "field": "price"
-         }
-     }
+    "price_of_cardi": {
+      "cardinality": {
+        "field": "price"
+      }
+    }
   }
 }
+```
 
-(6)terms:分组
+### terms:分组
 
+```json
 GET /lib4/items/_search
 {
-  "size":0,
+  "size": 0,
   "aggs": {
-     "price_group_by": {
-         "terms": {
-           "field": "price"
-         }
-     }
+    "price_group_by": {
+      "terms": {
+        "field": "price"
+      }
+    }
   }
 }
+```
 
-对那些有唱歌兴趣的用户按年龄分组
+**对那些有唱歌兴趣的用户按年龄分组**
+
+```json
 GET /lib3/user/_search
 {
   "query": {
-      "match": {
-        "interests": "changge"
+    "match": {
+      "interests": "changge"
+    }
+  },
+  "size": 0,
+  "aggs": {
+    "age_group_by": {
+      "terms": {
+        "field": "age",
+        "order": {
+          "avg_of_age": "desc"
+        }
+      },
+      "aggs": {
+        "avg_of_age": {
+          "avg": {
+            "field": "age"
+          }
+        }
       }
-   },
-   "size": 0, 
-   "aggs":{
-       "age_group_by":{
-           "terms": {
-             "field": "age",
-             "order": {
-               "avg_of_age": "desc"
-             }
-           },
-           "aggs": {
-             "avg_of_age": {
-               "avg": {
-                 "field": "age"
-               }
-             }
-           }
-       }
-   }
+    }
+  }
 }
+```
 
 
 
@@ -1656,82 +2253,156 @@ GET /lib3/user/_search
 
 must：
     文档 必须匹配这些条件才能被包含进来。 
-    
+
 must_not：
     文档 必须不匹配这些条件才能被包含进来。 
-    
+
 should：
     如果满足这些语句中的任意语句，将增加 _score，否则，无任何影响。它们主要用于修正每个文档的相关性得分。 
-    
+
 filter：
     必须 匹配，但它以不评分、过滤模式来进行。这些语句对评分没有贡献，只是根据过滤标准来排除或包含文档。
-    
+
 相关性得分是如何组合的。每一个子查询都独自地计算文档的相关性得分。一旦他们的得分被计算出来， bool 查询就将这些得分进行合并并且返回一个代表整个布尔操作的得分。
 
 下面的查询用于查找 title 字段匹配 how to make millions 并且不被标识为 spam 的文档。那些被标识为 starred 或在2014之后的文档，将比另外那些文档拥有更高的排名。如果 _两者_ 都满足，那么它排名将更高：
 
+```json
 {
-    "bool": {
-        "must": { "match": { "title": "how to make millions" }},
-        "must_not": { "match": { "tag":   "spam" }},
-        "should": [
-            { "match": { "tag": "starred" }},
-            { "range": { "date": { "gte": "2014-01-01" }}}
-        ]
-    }
+  "bool": {
+    "must": {
+      "match": {
+        "title": "how to make millions"
+      }
+    },
+    "must_not": {
+      "match": {
+        "tag": "spam"
+      }
+    },
+    "should": [
+      {
+        "match": {
+          "tag": "starred"
+        }
+      },
+      {
+        "range": {
+          "date": {
+            "gte": "2014-01-01"
+          }
+        }
+      }
+    ]
+  }
 }
+```
 
 如果没有 must 语句，那么至少需要能够匹配其中的一条 should 语句。但，如果存在至少一条 must 语句，则对 should 语句的匹配没有要求。 
 如果我们不想因为文档的时间而影响得分，可以用 filter 语句来重写前面的例子：
 
+```json
 {
-    "bool": {
-        "must": { "match": { "title": "how to make millions" }},
-        "must_not": { "match": { "tag":   "spam" }},
-        "should": [
-            { "match": { "tag": "starred" }}
-        ],
-        "filter": {
-          "range": { "date": { "gte": "2014-01-01" }} 
+  "bool": {
+    "must": {
+      "match": {
+        "title": "how to make millions"
+      }
+    },
+    "must_not": {
+      "match": {
+        "tag": "spam"
+      }
+    },
+    "should": [
+      {
+        "match": {
+          "tag": "starred"
         }
+      }
+    ],
+    "filter": {
+      "range": {
+        "date": {
+          "gte": "2014-01-01"
+        }
+      }
     }
+  }
 }
+```
 
 通过将 range 查询移到 filter 语句中，我们将它转成不评分的查询，将不再影响文档的相关性排名。由于它现在是一个不评分的查询，可以使用各种对 filter 查询有效的优化手段来提升性能。
 
 bool 查询本身也可以被用做不评分的查询。简单地将它放置到 filter 语句中并在内部构建布尔逻辑：
 
+```json
 {
-    "bool": {
-        "must": { "match": { "title": "how to make millions" }},
-        "must_not": { "match": { "tag":   "spam" }},
-        "should": [
-            { "match": { "tag": "starred" }}
-        ],
-        "filter": {
-          "bool": { 
-              "must": [
-                  { "range": { "date": { "gte": "2014-01-01" }}},
-                  { "range": { "price": { "lte": 29.99 }}}
-              ],
-              "must_not": [
-                  { "term": { "category": "ebooks" }}
-              ]
-          }
+  "bool": {
+    "must": {
+      "match": {
+        "title": "how to make millions"
+      }
+    },
+    "must_not": {
+      "match": {
+        "tag": "spam"
+      }
+    },
+    "should": [
+      {
+        "match": {
+          "tag": "starred"
         }
+      }
+    ],
+    "filter": {
+      "bool": {
+        "must": [
+          {
+            "range": {
+              "date": {
+                "gte": "2014-01-01"
+              }
+            }
+          },
+          {
+            "range": {
+              "price": {
+                "lte": 29.99
+              }
+            }
+          }
+        ],
+        "must_not": [
+          {
+            "term": {
+              "category": "ebooks"
+            }
+          }
+        ]
+      }
     }
+  }
 }
+```
+
+
 
 ### constant_score查询
 
 它将一个不变的常量评分应用于所有匹配的文档。它被经常用于你只需要执行一个 filter 而没有其它查询（例如，评分查询）的情况下。
 
+```json
 {
-    "constant_score":   {
-        "filter": {
-            "term": { "category": "ebooks" } 
-        }
+  "constant_score": {
+    "filter": {
+      "term": {
+        "category": "ebooks"
+      }
     }
+  }
 }
+```
 
 term 查询被放置在 constant_score 中，转成不评分的filter。这种方式可以用来取代只有 filter 语句的 bool 查询。 
