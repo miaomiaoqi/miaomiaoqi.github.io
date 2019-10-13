@@ -1862,23 +1862,14 @@ filter是不计算相关性的，同时可以cache。因此，filter速度要快
 ```json
 POST /lib4/items/_bulk
 {"index": {"_id": 1}}
-
 {"price": 40,"itemID": "ID100123"}
-
 {"index": {"_id": 2}}
-
 {"price": 50,"itemID": "ID100124"}
-
 {"index": {"_id": 3}}
-
 {"price": 25,"itemID": "ID100124"}
-
 {"index": {"_id": 4}}
-
 {"price": 30,"itemID": "ID100125"}
-
 {"index": {"_id": 5}}
-
 {"price": null,"itemID": "ID100127"}
 ```
 
@@ -1907,7 +1898,7 @@ GET /lib4/items/_search
 {
   "post_filter": {
     "term": {
-      "itemID": "ID100123"
+      "itemID": "ID100123" # 默认分词会转成小写, 所以查不到
     }
   }
 }
@@ -1919,7 +1910,7 @@ GET /lib4/items/_search
 GET /lib4/_mapping
 ```
 
-不希望商品id字段被分词，则重新创建映射
+不希望商品 itemID 字段被分词，则重新创建映射
 
 ```
 DELETE lib4
