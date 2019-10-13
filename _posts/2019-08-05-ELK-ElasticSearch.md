@@ -62,7 +62,7 @@ Head是elasticsearch的集群管理工具，可以直观的看到ES运行和数�
 ```bash
 cd /Users/miaoqi/Documents/elasticsearch
 
-git clone git://github.com/mobz/elasticsearch-head.git
+git clone git://github.com/mobz/elasticsearch-head.git 
 ```
 
 **切换到刚刚的下载目录下, 安装elasticsearch-head依赖包**
