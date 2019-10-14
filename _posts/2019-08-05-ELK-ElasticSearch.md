@@ -1943,11 +1943,11 @@ PUT /lib4
 ```json
 {
   "bool": {
-    "must": [
+    "must": [ # 数据库中的 ad
     ],
-    "should": [
+    "should": [ # or
     ],
-    "must_not": [
+    "must_not": [ # ot
     ]
   }
 }
