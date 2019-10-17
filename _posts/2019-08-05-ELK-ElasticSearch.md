@@ -179,37 +179,304 @@ GET/PUT/POST/DELETE: 分别类似与mysql中的select/update/delete......
 
 
 
-## ElasticSearch架构
+### 版本控制
 
-![http://www.miaomiaoqi.cn/images/elastic/search/es_1.png](http://www.miaomiaoqi.cn/images/elastic/search/es_1.png)
+ElasticSearch采用了乐观锁来保证数据的一致性，也就是说，当用户对document进行操作时，并不需要对该document作加锁和解锁的操作，只需要指定要操作的版本即可。当版本号一致时，ElasticSearch会允许该操作顺利执行，而当版本号存在冲突时，ElasticSearch会提示冲突并抛出异常（VersionConflictEngineException异常）。
 
-### **Gateway层**
+ElasticSearch的版本号的取值范围为1到2^63-1。
 
-es用来存储索引文件的一个文件系统且它支持很多类型，例如：本地磁盘、共享存储（做snapshot的时候需要用到）、hadoop的hdfs分布式存储、亚马逊的S3。它的主要职责是用来对数据进行长持久化以及整个集群重启之后可以通过gateway重新恢复数据。
+内部版本控制：使用的是_version
 
-### **Distributed Lucene Directory**
+```json
+PUT /lib/user/4?version=3
+{
+	"first_name": "xixi"
+}
+如果 version 和文档中的版本号不一致会抛出异常
+```
 
-Gateway上层就是一个lucene的分布式框架，lucene是做检索的，但是它是一个单机的搜索引擎，像这种es分布式搜索引擎系统，虽然底层用lucene，但是需要在每个节点上都运行lucene进行相应的索引、查询以及更新，所以需要做成一个分布式的运行框架来满足业务的需要。
+外部版本控制：elasticsearch在处理外部版本号时会与对内部版本号的处理有些不同。它不再是检查_version是否与请求中指定的数值_相同_,而是检查当前的_version是否比指定的数值小。如果请求成功，那么外部的版本号就会被存储到文档中的_version中。
 
-### **四大模块组件**
+为了保持_version与外部版本控制的数据一致
+使用version_type=external
 
-districted lucene directory之上就是一些es的模块，Index Module是索引模块，就是对数据建立索引也就是通常所说的建立一些倒排索引等；Search Module是搜索模块，就是对数据进行查询搜索；Mapping模块是数据映射与解析模块，就是你的数据的每个字段可以根据你建立的表结构通过mapping进行映射解析，如果你没有建立表结构，es就会根据你的数据类型推测你的数据结构之后自己生成一个mapping，然后都是根据这个mapping进行解析你的数据；River模块在es2.0之后应该是被取消了，它的意思表示是第三方插件，例如可以通过一些自定义的脚本将传统的数据库（mysql）等数据源通过格式化转换后直接同步到es集群里，这个river大部分是自己写的，写出来的东西质量参差不齐，将这些东西集成到es中会引发很多内部bug，严重影响了es的正常应用，所以在es2.0之后考虑将其去掉。
+### 什么是 Mapping
 
-### **Discovery, Script**
+```json
+PUT /myindex/article/1 
+{
+  "post_date": "2018-05-10",
+  "title": "Java",
+  "content": "java is the best language",
+  "author_id": 119
+}
+```
 
-es4大模块组件之上有 Discovery模块：es是一个集群包含很多节点，很多节点需要互相发现对方，然后组成一个集群包括选主的，这些es都是用的discovery模块，默认使用的是 Zen，也可是使用EC2；es查询还可以支撑多种script即脚本语言，包括mvel、js、python等等。
+```json
+PUT /myindex/article/2
+{
+  "post_date": "2018-05-12",
+  "title": "html",
+  "content": "I like html",
+  "author_id": 120
+}
+```
 
-### **Transport协议层**
+```json
+PUT /myindex/article/3
+{
+  "post_date": "2018-05-16",
+  "title": "es",
+  "content": "Es is distributed document store",
+  "author_id": 110
+}
+```
 
-再上一层就是es的通讯接口Transport，支持的也比较多：Thrift、Memcached以及Http，默认的是http，JMX就是java的一个远程监控管理框架，因为es是通过java实现的。
+```
+GET /myindex/article/_search?q=2018-05
 
-### **RESTful接口层**
+GET /myindex/article/_search?q=2018-05-10
 
-最上层就是es暴露给我们的访问接口，官方推荐的方案就是这种Restful接口，直接发送http请求，方便后续使用nginx做代理、分发包括可能后续会做权限的管理，通过http很容易做这方面的管理。如果使用java客户端它是直接调用api，在做负载均衡以及权限管理还是不太好做。
+GET /myindex/article/_search?q=html
+
+GET /myindex/article/_search?q=java
+```
+
+**查看es自动创建的 mapping**
+
+```
+GET /myindex/article/_mapping
+```
+
+**es自动创建了index，type，以及type对应的mapping, 因为是 es 自动创建的所以叫做动态映射(dynamic mapping)**
+
+**什么是映射：mapping定义了type中的每个字段的数据类型以及这些字段如何分词等相关属性**
+
+```json
+{
+  "myindex": {
+    "mappings": {
+      "article": {
+        "properties": {
+          "author_id": {
+            "type": "long"
+          },
+          "content": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "post_date": {
+            "type": "date"
+          },
+          "title": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+创建索引的时候**,可以预先定义字段的类型以及相关属性**，这样就能够把日期字段处理成日期，把数字字段处理成数字，把字符串字段处理字符串值等
+
+**支持的数据类型：**
+
+1. 核心数据类型（Core datatypes）
+
+    ```
+    字符型：string，string类型包括
+    text 和 keyword
+    
+    text 类型被用来索引长文本，在建立索引前默认会将这些文本进行分词，转化为词的组合，建立索引。允许es来检索这些词语。text类型不能用来排序和聚合。
+    
+    Keyword 类型不进行分词, 会进行索引, 可以被用来检索过滤、排序和聚合。keyword 类型字段只能用本身来进行检索
+    
+    数字型：long, integer, short, byte, double, float 默认会建倒排索引, 但是没有分词, 所以只能精确匹配
+    日期型：date 默认会建倒排索引, 但是没有分词, 所以只能精确匹配
+    布尔型：boolean
+    二进制型：binary
+    ```
+
+2. 复杂数据类型（Complex datatypes）
+
+    ```yaml
+    数组类型（Array datatype）：数组类型不需要专门指定数组元素的type，例如：
+        字符型数组: ["one", "two"]
+        整型数组：[1, 2]
+        数组型数组：[1, [2, 3]] 等价于[1, 2, 3]
+        对象数组：[{"name": "Mary", "age": 12}, {"name": "John", "age": 10}]
+    对象类型（Object datatype）：_object_ 用于单个JSON对象；
+    嵌套类型（Nested datatype）：_nested_ 用于JSON数组
+    ```
+
+    对象类型:
+
+    ```json
+    PUT /lib5/person/1
+    {
+      "name": "Tom",
+      "age": 25,
+      "birthday": "1985-12-12",
+      "address": {
+        "country": "china",
+        "province": "beijing",
+        "city": "beijing"
+      }
+    }
+    
+    # 对象类型底层结构
+    {
+      "name": ["Tom"],
+      "age": [25],
+      "birthday": ["1985-12-12"],
+      "address.country": ["china"],
+      "address.province": ["beijing"],
+      "address.city": ["beijing"]
+    }
+    
+    PUT /lib6/person/1
+    {
+      "persons": [
+        {"name", "zhangsan", "age": 20},
+        {"name", "lisi", "age": 25},
+        {"name", "wangwu", "age": 30}
+      ]
+    }
+    
+    # 集合类型底层结构
+    {
+        "persons.name": ["zhangsan", "lisi", "wangwu"],
+    	"persons.age": [20, 25, 30]
+    }
+    ```
+
+    
+
+3. 地理位置类型（Geo datatypes）
+
+    ```yaml
+    地理坐标类型（Geo-point datatype）：_geo_point_ 用于经纬度坐标；
+    地理形状类型（Geo-Shape datatype): _geo_shape_ 用于类似于多边形的复杂形状；
+    ```
+
+4. 特定类型（Specialised datatypes）
+
+    ```yaml
+    IPv4 类型（IPv4 datatype）：_ ip _ 用于IPv4 地址；
+    Completion 类型（Completion datatype）：_ completion _提供自动补全建议；
+    Token count 类型（Token count datatype）：_ token_count _ 用于统计做了标记的字段的index数目，该值会一直增加，不会因为过滤条件而减少。
+    mapper-murmur3
+    类型：通过插件，可以通过 _ murmur3 _ 来计算 index 的 hash 值；
+    附加类型（Attachment datatype）：采用 mapper-attachments
+    插件，可支持_ attachments _ 索引，例如 Microsoft Office 格式，Open Document 格式，ePub, HTML 等。
+    ```
+
+    
+
+**支持的属性：**
+
+`"store": false` // 是否单独设置此字段的是否存储而从_source字段中分离，默认是false，只能搜索，不能获取值
+
+`"index": true` // 分词，不分词是: false, 设置成false，字段将不会被索引
+
+`"analyzer":"ik"` // 指定分词器,默认分词器为standard analyzer
+
+`"boost":1.23` // 字段级别的分数加权，默认值是1.0
+
+`"doc_values":false` // 对not_analyzed字段，默认都是开启，分词字段不能使用，对排序和聚合能提升较大性能，节约内存
+
+`"fielddata":{"format":"disabled"}` // 针对分词字段，参与排序或聚合时能提高性能，不分词字段统一建议使用doc_value
+
+`"fields":{"raw":{"type":"string","index":"not_analyzed"}}` // 可以对一个字段提供多种索引模式，同一个字段的值，一个分词，一个不分词
+
+`"ignore_above":100` // 超过100个字符的文本，将会被忽略，不被索引
+
+`"include_in_all":ture` // 设置是否此字段包含在_all字段中，默认是true，除非index设置成no选项
+
+`"index_options":"docs"` // 4个可选参数docs（索引文档号） ,freqs（文档号+词频），positions（文档号+词频+位置，通常用来距离查询），offsets（文档号+词频+位置+偏移量，通常被使用在高亮字段）分词字段默认是position，其他的默认是docs
+
+`"norms":{"enable":true,"loading":"lazy"}` // 分词字段默认配置，不分词字段：默认{"enable":false}，存储长度因子和索引时boost，建议对需要参与评分字段使用 ，会额外增加内存消耗量
+
+`"null_value":"NULL"` // 设置一些缺失字段的初始化值，只有string可以使用，分词字段的null值也会被分词
+
+`"position_increament_gap":0` // 影响距离查询或近似查询，可以设置在多值字段的数据上火分词字段上，查询时可指定slop间隔，默认值是100
+
+`"search_analyzer":"ik"` // 设置搜索时的分词器，默认跟ananlyzer是一致的，比如index时用standard+ngram，搜索时用standard用来完成自动提示功能
+
+`"similarity":"BM25"` // 默认是TF/IDF算法，指定一个字段评分策略，仅仅对字符串型和分词类型有效
+
+`"term_vector":"no"` // 默认不存储向量信息，支持参数yes（term存储），with_positions（term+位置）,with_offsets（term+偏移量），with_positions_offsets(term+位置+偏移量) 对快速高亮fast vector highlighter能提升性能，但开启又会加大索引体积，不适合大数据量用
+
+映射的分类：
+
+1. 动态映射：
+
+    当ES在文档中碰到一个以前没见过的字段时，它会利用动态映射来决定该字段的类型，并自动地对该字段添加映射。
+
+    可以通过dynamic设置来控制这一行为，它能够接受以下的选项：
+
+    ```
+    true：默认值。动态添加字段
+    false：忽略新字段
+    strict：如果碰到陌生字段，抛出异常
+    ```
+
+    dynamic 设置可以适用在根对象上或者object类型的任意字段上。
+
+2. 手动映射:
+
+    给索引lib2创建映射类型, es 默认会给每一个 field 加上倒排索引
+
+    ```
+    POST /lib2
+    {
+      "settings": {
+        "number_of_shards": 3,
+        "number_of_replicas": 0
+      },
+      "mappings": {
+        "books": {
+          "properties": {
+            "title": {
+              "type": "text", # 默认使用 standard 分词器
+              "analyzer": "ik"
+            },
+            "name": {
+              "type": "text",
+              "index": false
+            },
+            "publish_date": {
+              "type": "date",
+              "index": false
+            },
+            "price": {
+              "type": "double"
+            },
+            "number": {
+              "type": "integer",
+              "dynamic":true
+            }
+          }
+        }
+      }
+    }
+    ```
 
 
 
-## ElasticSearch倒排索引
+### ElasticSearch倒排索引
 
 Elasticsearch 使用一种称为 倒排索引 的结构，它适用于快速的全文搜索。一个倒排索引由文档中所有不重复词的列表构成，对于其中每个词，有一个包含它的文档列表。
 
@@ -230,7 +497,7 @@ Elasticsearch 使用一种称为 倒排索引 的结构，它适用于快速的�
 
 有了这个索引系统，搜索引擎可以很方便地响应用户的查询，比如用户输入查询词“Facebook”，搜索系统查找倒排索引，从中可以读出包含这个单词的文档，这些文档就是提供给用户的搜索结果，而利用单词频率信息、文档频率信息即可以对这些候选搜索结果进行排序，计算文档和查询的相似性，按照相似性得分由高到低排序输出，此即为搜索系统的部分内部流程。
 
-### 倒排索引原理
+#### 倒排索引原理
 
 1.The quick brown fox jumped over the lazy dog
 
@@ -300,7 +567,7 @@ jumped 和 leap, 尽管没有相同的词根，但他们的意思很相近。他
 
 
 
-### 分词器介绍及内置分词器
+#### 分词器介绍及内置分词器
 
 分词器：从一串文本中切分出一个一个的词条，并对每个词条进行**标准化**
 
@@ -322,8 +589,6 @@ Whitespace 分词器：仅仅是去除空格，对字符没有lowcase化,不支�
 并且不对生成的词汇单元进行其他的标准化处理。
 
 language 分词器：特定语言的分词器，不支持中文
-
-
 
 ## 使用 Kibana 进行操作
 
@@ -628,306 +893,11 @@ bulk一次最大处理多少数据量:
 
 　　一般建议是1000-5000个文档，大小建议是5-15MB，默认不能超过100M，可以在 es 的配置文件（即$ES_HOME下的config下的elasticsearch.yml）中。
 
-## 版本控制
+## ElasticSearch查询
 
-ElasticSearch采用了乐观锁来保证数据的一致性，也就是说，当用户对document进行操作时，并不需要对该document作加锁和解锁的操作，只需要指定要操作的版本即可。当版本号一致时，ElasticSearch会允许该操作顺利执行，而当版本号存在冲突时，ElasticSearch会提示冲突并抛出异常（VersionConflictEngineException异常）。
+### 基本查询(Query查询)(英文)
 
-ElasticSearch的版本号的取值范围为1到2^63-1。
-
-内部版本控制：使用的是_version
-
-```json
-PUT /lib/user/4?version=3
-{
-	"first_name": "xixi"
-}
-如果 version 和文档中的版本号不一致会抛出异常
-```
-
-外部版本控制：elasticsearch在处理外部版本号时会与对内部版本号的处理有些不同。它不再是检查_version是否与请求中指定的数值_相同_,而是检查当前的_version是否比指定的数值小。如果请求成功，那么外部的版本号就会被存储到文档中的_version中。
-
-为了保持_version与外部版本控制的数据一致
-使用version_type=external
-
-## 什么是 Mapping
-
-```json
-PUT /myindex/article/1 
-{
-  "post_date": "2018-05-10",
-  "title": "Java",
-  "content": "java is the best language",
-  "author_id": 119
-}
-```
-
-```json
-PUT /myindex/article/2
-{
-  "post_date": "2018-05-12",
-  "title": "html",
-  "content": "I like html",
-  "author_id": 120
-}
-```
-
-```json
-PUT /myindex/article/3
-{
-  "post_date": "2018-05-16",
-  "title": "es",
-  "content": "Es is distributed document store",
-  "author_id": 110
-}
-```
-
-```
-GET /myindex/article/_search?q=2018-05
-
-GET /myindex/article/_search?q=2018-05-10
-
-GET /myindex/article/_search?q=html
-
-GET /myindex/article/_search?q=java
-```
-
-**查看es自动创建的 mapping**
-
-```
-GET /myindex/article/_mapping
-```
-
-**es自动创建了index，type，以及type对应的mapping, 因为是 es 自动创建的所以叫做动态映射(dynamic mapping)**
-
-**什么是映射：mapping定义了type中的每个字段的数据类型以及这些字段如何分词等相关属性**
-
-```json
-{
-  "myindex": {
-    "mappings": {
-      "article": {
-        "properties": {
-          "author_id": {
-            "type": "long"
-          },
-          "content": {
-            "type": "text",
-            "fields": {
-              "keyword": {
-                "type": "keyword",
-                "ignore_above": 256
-              }
-            }
-          },
-          "post_date": {
-            "type": "date"
-          },
-          "title": {
-            "type": "text",
-            "fields": {
-              "keyword": {
-                "type": "keyword",
-                "ignore_above": 256
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}
-```
-
-创建索引的时候**,可以预先定义字段的类型以及相关属性**，这样就能够把日期字段处理成日期，把数字字段处理成数字，把字符串字段处理字符串值等
-
-**支持的数据类型：**
-
-1. 核心数据类型（Core datatypes）
-
-    ```
-    字符型：string，string类型包括
-    text 和 keyword
-    
-    text 类型被用来索引长文本，在建立索引前默认会将这些文本进行分词，转化为词的组合，建立索引。允许es来检索这些词语。text类型不能用来排序和聚合。
-    
-    Keyword 类型不进行分词, 会进行索引, 可以被用来检索过滤、排序和聚合。keyword 类型字段只能用本身来进行检索
-    
-    数字型：long, integer, short, byte, double, float 默认会建倒排索引, 但是没有分词, 所以只能精确匹配
-    日期型：date 默认会建倒排索引, 但是没有分词, 所以只能精确匹配
-    布尔型：boolean
-    二进制型：binary
-    ```
-
-2. 复杂数据类型（Complex datatypes）
-
-    ```yaml
-    数组类型（Array datatype）：数组类型不需要专门指定数组元素的type，例如：
-        字符型数组: ["one", "two"]
-        整型数组：[1, 2]
-        数组型数组：[1, [2, 3]] 等价于[1, 2, 3]
-        对象数组：[{"name": "Mary", "age": 12}, {"name": "John", "age": 10}]
-    对象类型（Object datatype）：_object_ 用于单个JSON对象；
-    嵌套类型（Nested datatype）：_nested_ 用于JSON数组
-    ```
-
-    对象类型:
-
-    ```json
-    PUT /lib5/person/1
-    {
-      "name": "Tom",
-      "age": 25,
-      "birthday": "1985-12-12",
-      "address": {
-        "country": "china",
-        "province": "beijing",
-        "city": "beijing"
-      }
-    }
-    
-    # 对象类型底层结构
-    {
-      "name": ["Tom"],
-      "age": [25],
-      "birthday": ["1985-12-12"],
-      "address.country": ["china"],
-      "address.province": ["beijing"],
-      "address.city": ["beijing"]
-    }
-    
-    PUT /lib6/person/1
-    {
-      "persons": [
-        {"name", "zhangsan", "age": 20},
-        {"name", "lisi", "age": 25},
-        {"name", "wangwu", "age": 30}
-      ]
-    }
-    
-    # 集合类型底层结构
-    {
-        "persons.name": ["zhangsan", "lisi", "wangwu"],
-    	"persons.age": [20, 25, 30]
-    }
-    ```
-
-    
-
-3. 地理位置类型（Geo datatypes）
-
-    ```yaml
-    地理坐标类型（Geo-point datatype）：_geo_point_ 用于经纬度坐标；
-    地理形状类型（Geo-Shape datatype): _geo_shape_ 用于类似于多边形的复杂形状；
-    ```
-
-4. 特定类型（Specialised datatypes）
-
-    ```yaml
-    IPv4 类型（IPv4 datatype）：_ ip _ 用于IPv4 地址；
-    Completion 类型（Completion datatype）：_ completion _提供自动补全建议；
-    Token count 类型（Token count datatype）：_ token_count _ 用于统计做了标记的字段的index数目，该值会一直增加，不会因为过滤条件而减少。
-    mapper-murmur3
-    类型：通过插件，可以通过 _ murmur3 _ 来计算 index 的 hash 值；
-    附加类型（Attachment datatype）：采用 mapper-attachments
-    插件，可支持_ attachments _ 索引，例如 Microsoft Office 格式，Open Document 格式，ePub, HTML 等。
-    ```
-
-    
-
-**支持的属性：**
-
-`"store": false` // 是否单独设置此字段的是否存储而从_source字段中分离，默认是false，只能搜索，不能获取值
-
-`"index": true` // 分词，不分词是: false, 设置成false，字段将不会被索引
-
-`"analyzer":"ik"` // 指定分词器,默认分词器为standard analyzer
-
-`"boost":1.23` // 字段级别的分数加权，默认值是1.0
-
-`"doc_values":false` // 对not_analyzed字段，默认都是开启，分词字段不能使用，对排序和聚合能提升较大性能，节约内存
-
-`"fielddata":{"format":"disabled"}` // 针对分词字段，参与排序或聚合时能提高性能，不分词字段统一建议使用doc_value
-
-`"fields":{"raw":{"type":"string","index":"not_analyzed"}}` // 可以对一个字段提供多种索引模式，同一个字段的值，一个分词，一个不分词
-
-`"ignore_above":100` // 超过100个字符的文本，将会被忽略，不被索引
-
-`"include_in_all":ture` // 设置是否此字段包含在_all字段中，默认是true，除非index设置成no选项
-
-`"index_options":"docs"` // 4个可选参数docs（索引文档号） ,freqs（文档号+词频），positions（文档号+词频+位置，通常用来距离查询），offsets（文档号+词频+位置+偏移量，通常被使用在高亮字段）分词字段默认是position，其他的默认是docs
-
-`"norms":{"enable":true,"loading":"lazy"}` // 分词字段默认配置，不分词字段：默认{"enable":false}，存储长度因子和索引时boost，建议对需要参与评分字段使用 ，会额外增加内存消耗量
-
-`"null_value":"NULL"` // 设置一些缺失字段的初始化值，只有string可以使用，分词字段的null值也会被分词
-
-`"position_increament_gap":0` // 影响距离查询或近似查询，可以设置在多值字段的数据上火分词字段上，查询时可指定slop间隔，默认值是100
-
-`"search_analyzer":"ik"` // 设置搜索时的分词器，默认跟ananlyzer是一致的，比如index时用standard+ngram，搜索时用standard用来完成自动提示功能
-
-`"similarity":"BM25"` // 默认是TF/IDF算法，指定一个字段评分策略，仅仅对字符串型和分词类型有效
-
-`"term_vector":"no"` // 默认不存储向量信息，支持参数yes（term存储），with_positions（term+位置）,with_offsets（term+偏移量），with_positions_offsets(term+位置+偏移量) 对快速高亮fast vector highlighter能提升性能，但开启又会加大索引体积，不适合大数据量用
-
-映射的分类：
-
-1. 动态映射：
-
-    当ES在文档中碰到一个以前没见过的字段时，它会利用动态映射来决定该字段的类型，并自动地对该字段添加映射。
-
-    可以通过dynamic设置来控制这一行为，它能够接受以下的选项：
-
-    ```
-    true：默认值。动态添加字段
-    false：忽略新字段
-    strict：如果碰到陌生字段，抛出异常
-    ```
-
-    dynamic 设置可以适用在根对象上或者object类型的任意字段上。
-
-2. 手动映射:
-
-    给索引lib2创建映射类型, es 默认会给每一个 field 加上倒排索引
-
-    ```
-    POST /lib2
-    {
-      "settings": {
-        "number_of_shards": 3,
-        "number_of_replicas": 0
-      },
-      "mappings": {
-        "books": {
-          "properties": {
-            "title": {
-              "type": "text", # 默认使用 standard 分词器
-              "analyzer": "ik"
-            },
-            "name": {
-              "type": "text",
-              "index": false
-            },
-            "publish_date": {
-              "type": "date",
-              "index": false
-            },
-            "price": {
-              "type": "double"
-            },
-            "number": {
-              "type": "integer",
-              "dynamic":true
-            }
-          }
-        }
-      }
-    }
-    ```
-
-
-
-## 基本查询(Query查询)(英文)
-
-### 数据准备
+#### 数据准备
 
 ```json
 DELETE /lib3
@@ -997,7 +967,7 @@ PUT /lib3/user/5
 }
 ```
 
-### 简单查询
+#### 简单查询
 
 ```
 GET /lib3/user/_search?q=name:lisi
@@ -1037,7 +1007,7 @@ GET /lib3/user/_search?q=interests:changge&sort=age:desc
 }
 ```
 
-### term查询和terms查询
+#### term查询和terms查询
 
 term query会去倒排索引中寻找确切的term，**它并不知道分词器的存在即搜索词不进行分词**。这种查询适合keyword 、numeric、date。
 
@@ -1070,7 +1040,7 @@ GET /lib3/user/_search
 }
 ```
 
-### 控制查询返回的数量
+#### 控制查询返回的数量
 
 from：从哪一个文档开始
 size：需要的个数
@@ -1091,7 +1061,7 @@ GET /lib3/user/_search
 }
 ```
 
-### 返回版本号
+#### 返回版本号
 
 ```json
 GET /lib3/user/_search
@@ -1108,7 +1078,7 @@ GET /lib3/user/_search
 }
 ```
 
-### match查询
+#### match查询
 
 **match query知道分词器的存在，会对搜索词进行分词操作，然后再查询**
 
@@ -1176,7 +1146,7 @@ GET lib3/user/_search
 }
 ```
 
-### 指定返回的字段
+#### 指定返回的字段
 
 ```json
 GET /lib3/user/_search
@@ -1193,7 +1163,7 @@ GET /lib3/user/_search
 }
 ```
 
-### 控制加载的字段
+#### 控制加载的字段
 
 ```json
 GET /lib3/user/_search
@@ -1234,7 +1204,7 @@ GET /lib3/user/_search
 }
 ```
 
-### 排序
+#### 排序
 
 使用sort实现排序: desc:降序，asc升序
 
@@ -1270,7 +1240,7 @@ GET /lib3/user/_search
 }
 ```
 
-### 前缀匹配查询
+#### 前缀匹配查询
 
 ```json
 GET /lib3/user/_search
@@ -1285,7 +1255,7 @@ GET /lib3/user/_search
 }
 ```
 
-### 范围查询
+#### 范围查询
 
 range:实现范围查询
 
@@ -1323,7 +1293,7 @@ GET /lib3/user/_search
 }
 ```
 
-### wildcard查询
+#### wildcard查询
 
 允许使用通配符* 和 ?来进行查询
 
@@ -1353,7 +1323,7 @@ GET /lib3/user/_search
 
 
 
-### fuzzy实现模糊查询
+#### fuzzy实现模糊查询
 
 value：查询的关键字
 
@@ -1389,7 +1359,7 @@ GET /lib3/user/_search
 
 
 
-### 高亮搜索结果
+#### 高亮搜索结果
 
 ```json
 GET /lib3/user/_search
@@ -1410,7 +1380,7 @@ GET /lib3/user/_search
 
 
 
-## 基本查询(Query查询)(中文)
+### 基本查询(Query查询)(中文)
 
 ik 带有两个分词器
 
@@ -1418,7 +1388,7 @@ ik_max_word: 会将文本做最细粒度的拆分; 尽可能多的拆分出词�
 
 ik_smart: 会做最粗粒度的拆分; 已被分出的词语将不会在被其他词语占有
 
-### 数据准备
+#### 数据准备
 
 ```json
 DELETE /lib3
@@ -1487,7 +1457,7 @@ PUT /lib3/user/5
 }
 ```
 
-### term查询和terms查询
+#### term查询和terms查询
 
 term query会去倒排索引中寻找确切的term，**它并不知道分词器的存在即搜索词不进行分词**。这种查询适合keyword 、numeric、date。
 
@@ -1517,7 +1487,7 @@ GET /lib3/user/_search
 }
 ```
 
-### 控制查询返回的数量
+#### 控制查询返回的数量
 
 from：从哪一个文档开始
 size：需要的个数
@@ -1535,7 +1505,7 @@ GET /lib3/user/_search
 }
 ```
 
-### 返回版本号
+#### 返回版本号
 
 ```json
 GET /lib3/user/_search
@@ -1549,7 +1519,7 @@ GET /lib3/user/_search
 }
 ```
 
-### match查询
+#### match查询
 
 **match query知道分词器的存在，会对搜索词进行分词操作，然后再查询**
 
@@ -1617,7 +1587,7 @@ GET lib3/user/_search
 }
 ```
 
-### 指定返回的字段
+#### 指定返回的字段
 
 ```json
 GET /lib3/user/_search
@@ -1634,7 +1604,7 @@ GET /lib3/user/_search
 }
 ```
 
-### 控制加载的字段
+#### 控制加载的字段
 
 ```json
 GET /lib3/user/_search
@@ -1675,7 +1645,7 @@ GET /lib3/user/_search
 }
 ```
 
-### 排序
+#### 排序
 
 使用sort实现排序: desc:降序，asc升序
 
@@ -1711,7 +1681,7 @@ GET /lib3/user/_search
 }
 ```
 
-### 前缀匹配查询
+#### 前缀匹配查询
 
 ```json
 GET /lib3/user/_search
@@ -1726,7 +1696,7 @@ GET /lib3/user/_search
 }
 ```
 
-### 范围查询
+#### 范围查询
 
 range:实现范围查询
 
@@ -1764,7 +1734,7 @@ GET /lib3/user/_search
 }
 ```
 
-### wildcard查询
+#### wildcard查询
 
 允许使用通配符* 和 ?来进行查询
 
@@ -1794,7 +1764,7 @@ GET /lib3/user/_search
 
 
 
-### fuzzy实现模糊查询
+#### fuzzy实现模糊查询
 
 value：查询的关键字
 
@@ -1830,7 +1800,7 @@ GET /lib3/user/_search
 
 
 
-### 高亮搜索结果
+#### 高亮搜索结果
 
 ```json
 GET /lib3/user/_search
@@ -1855,7 +1825,7 @@ GET /lib3/user/_search
 
 
 
-## Filter查询
+### Filter查询
 
 filter是不计算相关性的，同时可以cache。因此，filter速度要快于query。
 
@@ -1873,7 +1843,7 @@ POST /lib4/items/_bulk
 {"price": null,"itemID": "ID100127"}
 ```
 
-### 简单的过滤查询
+#### 简单的过滤查询
 
 ```json
 GET /lib4/items/_search
@@ -1934,7 +1904,7 @@ PUT /lib4
 
 
 
-### bool过滤查询
+#### bool过滤查询
 
 可以实现组合过滤查询
 
@@ -1943,11 +1913,11 @@ PUT /lib4
 ```json
 {
   "bool": {
-    "must": [ # 数据库中的 ad
+    "must": [ # 数据库中的 and
     ],
     "should": [ # or
     ],
-    "must_not": [ # ot
+    "must_not": [ # not
     ]
   }
 }
@@ -1955,14 +1925,14 @@ PUT /lib4
 
 must:必须满足的条件---and
 
-should：可以满足也可以不满足的条件--or
+should: 可以满足也可以不满足的条件--or
 
-must_not:不需要满足的条件--not
+must_not: 不需要满足的条件--not
 
 ```json
 GET /lib4/items/_search
 {
-  "post_filter": {
+  "query": {
     "bool": {
       "should": [
         {
@@ -1991,7 +1961,7 @@ GET /lib4/items/_search
 ```json
 GET /lib4/items/_search
 {
-  "post_filter": {
+  "query": {
     "bool": {
       "should": [
         {
@@ -2021,7 +1991,7 @@ GET /lib4/items/_search
 }
 ```
 
-### 范围过滤
+#### 范围过滤
 
 ```json
 gt: >
@@ -2045,7 +2015,7 @@ GET /lib4/items/_search
 }
 ```
 
-### 过滤非空
+#### 过滤非空
 
 ```json
 GET /lib4/items/_search
@@ -2075,7 +2045,7 @@ GET /lib4/items/_search
 }
 ```
 
-### 过滤器缓存
+#### 过滤器缓存
 
 ElasticSearch提供了一种特殊的缓存，即过滤器缓存（filter cache），用来存储过滤器的结果，被缓存的过滤器并不需要消耗过多的内存（因为它们只存储了哪些文档能与过滤器相匹配的相关信息），而且可供后续所有与之相关的查询重复使用，从而极大地提高了查询性能。
 
@@ -2100,9 +2070,9 @@ exists,missing,range,term,terms默认是开启缓存的
 开启方式：在filter查询语句后边加上
 "_catch":true
 
-## 聚合查询
+### 聚合查询
 
-### sum
+#### sum
 
 ```json
 GET /lib4/items/_search
@@ -2118,7 +2088,7 @@ GET /lib4/items/_search
 }
 ```
 
-### min
+#### min
 
 ```json
 GET /lib4/items/_search
@@ -2134,7 +2104,7 @@ GET /lib4/items/_search
 }
 ```
 
-### max
+#### max
 
 ```json
 GET /lib4/items/_search
@@ -2150,7 +2120,7 @@ GET /lib4/items/_search
 }
 ```
 
-### avg
+#### avg
 
 ```json
 GET /lib4/items/_search
@@ -2166,7 +2136,7 @@ GET /lib4/items/_search
 }
 ```
 
-### cardinality:求基数
+#### cardinality:求基数(互不相同的值的个数, 比如"男","女"就是 2)
 
 ```json
 GET /lib4/items/_search
@@ -2182,7 +2152,7 @@ GET /lib4/items/_search
 }
 ```
 
-### terms:分组
+#### terms: 分组 
 
 ```json
 GET /lib4/items/_search
@@ -2231,11 +2201,11 @@ GET /lib3/user/_search
 
 
 
-## 复合查询
+### 复合查询
 
 将多个基本查询组合成单一查询的查询
 
-### 使用bool查询
+#### 使用bool查询
 
 接收以下参数：
 
@@ -2377,7 +2347,7 @@ bool 查询本身也可以被用做不评分的查询。简单地将它放置到
 
 
 
-### constant_score查询
+#### constant_score查询
 
 它将一个不变的常量评分应用于所有匹配的文档。它被经常用于你只需要执行一个 filter 而没有其它查询（例如，评分查询）的情况下。
 
@@ -2394,3 +2364,33 @@ bool 查询本身也可以被用做不评分的查询。简单地将它放置到
 ```
 
 term 查询被放置在 constant_score 中，转成不评分的filter。这种方式可以用来取代只有 filter 语句的 bool 查询。 
+
+
+
+## ElasticSearch分布式架构
+
+![http://www.miaomiaoqi.cn/images/elastic/search/es_1.png](http://www.miaomiaoqi.cn/images/elastic/search/es_1.png)
+
+### **Gateway层**
+
+es用来存储索引文件的一个文件系统且它支持很多类型，例如：本地磁盘、共享存储（做snapshot的时候需要用到）、hadoop的hdfs分布式存储、亚马逊的S3。它的主要职责是用来对数据进行长持久化以及整个集群重启之后可以通过gateway重新恢复数据。
+
+### **Distributed Lucene Directory**
+
+Gateway上层就是一个lucene的分布式框架，lucene是做检索的，但是它是一个单机的搜索引擎，像这种es分布式搜索引擎系统，虽然底层用lucene，但是需要在每个节点上都运行lucene进行相应的索引、查询以及更新，所以需要做成一个分布式的运行框架来满足业务的需要。
+
+### **四大模块组件**
+
+districted lucene directory之上就是一些es的模块，Index Module是索引模块，就是对数据建立索引也就是通常所说的建立一些倒排索引等；Search Module是搜索模块，就是对数据进行查询搜索；Mapping模块是数据映射与解析模块，就是你的数据的每个字段可以根据你建立的表结构通过mapping进行映射解析，如果你没有建立表结构，es就会根据你的数据类型推测你的数据结构之后自己生成一个mapping，然后都是根据这个mapping进行解析你的数据；River模块在es2.0之后应该是被取消了，它的意思表示是第三方插件，例如可以通过一些自定义的脚本将传统的数据库（mysql）等数据源通过格式化转换后直接同步到es集群里，这个river大部分是自己写的，写出来的东西质量参差不齐，将这些东西集成到es中会引发很多内部bug，严重影响了es的正常应用，所以在es2.0之后考虑将其去掉。
+
+### **Discovery, Script**
+
+es4大模块组件之上有 Discovery模块：es是一个集群包含很多节点，很多节点需要互相发现对方，然后组成一个集群包括选主的，这些es都是用的discovery模块，默认使用的是 Zen，也可是使用EC2；es查询还可以支撑多种script即脚本语言，包括mvel、js、python等等。
+
+### **Transport协议层**
+
+再上一层就是es的通讯接口Transport，支持的也比较多：Thrift、Memcached以及Http，默认的是http，JMX就是java的一个远程监控管理框架，因为es是通过java实现的。
+
+### **RESTful接口层**
+
+最上层就是es暴露给我们的访问接口，官方推荐的方案就是这种Restful接口，直接发送http请求，方便后续使用nginx做代理、分发包括可能后续会做权限的管理，通过http很容易做这方面的管理。如果使用java客户端它是直接调用api，在做负载均衡以及权限管理还是不太好做。
