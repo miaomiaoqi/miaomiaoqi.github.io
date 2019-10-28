@@ -324,6 +324,7 @@ GET /myindex/article/_mapping
     对象类型:
 
     ```json
+    # 对象类型底层结构
     PUT /lib5/person/1
     {
       "name": "Tom",
@@ -336,7 +337,6 @@ GET /myindex/article/_mapping
       }
     }
     
-    # 对象类型底层结构
     {
       "name": ["Tom"],
       "age": [25],
@@ -346,6 +346,7 @@ GET /myindex/article/_mapping
       "address.city": ["beijing"]
     }
     
+    # 集合类型底层结构
     PUT /lib6/person/1
     {
       "persons": [
@@ -355,9 +356,8 @@ GET /myindex/article/_mapping
       ]
     }
     
-    # 集合类型底层结构
     {
-        "persons.name": ["zhangsan", "lisi", "wangwu"],
+      "persons.name": ["zhangsan", "lisi", "wangwu"],
     	"persons.age": [20, 25, 30]
     }
     ```
@@ -399,7 +399,7 @@ GET /myindex/article/_mapping
 
 `"fielddata":{"format":"disabled"}` // 针对分词字段，参与排序或聚合时能提高性能，不分词字段统一建议使用doc_value
 
-`"fields":{"raw":{"type":"string","index":"not_analyzed"}}` // 可以对一个字段提供多种索引模式，同一个字段的值，一个分词，一个不分词
+`"fields":{"raw":{"type":"text","index":"not_analyzed"}}` // 可以对一个字段提供多种索引模式，同一个字段的值，一个分词，一个不分词
 
 `"ignore_above":100` // 超过100个字符的文本，将会被忽略，不被索引
 
@@ -2937,27 +2937,78 @@ deep paging性能问题
 
 鉴于deep paging的性能问题，所以应尽量减少使用。
 
-
 ### query string查询及copy_to解析
 
+**query string**
+
 ```
-GET /lib3/user/_search?q=interests:changge
+DELETE /myindex
 
-GET /lib3/user/_search?q=+interests:changge
+PUT /myindex/article/1
+{
+  "post_date": "2019-05-10",
+  "title": "Java",
+  "content": "Java is best language",
+  "author_id": 119
+}
 
-GET /lib3/user/_search?q=-interests:changge
+PUT /myindex/article/2
+{
+  "post_date": "2019-05-12",
+  "title": "html",
+  "content": "I like html",
+  "author_id": 120
+}
+
+PUT /myindex/article/3
+{
+  "post_date": "2019-05-16",
+  "title": "es",
+  "content": "es is distributed document store",
+  "author_id": 120
+}
+
+GET /myindex/_mapping
+
+GET /myindex/article/_search
+
+GET /myindex/article/_search?q=post_date:2019-05-16 # 日期类型不分词, 精确匹配
+
+GET /myindex/article/_search?q=content:html # 查询 content 字段中含有 html 的
+
+GET /myindex/article/_search?q=html,document # 因为没有指定具体字段, 所以在全部字段中查询含有 html 或document 的文档, 性能低下
 ```
 
-**copy_to字段是把其它字段中的值，以空格为分隔符组成一个大字符串，然后被分析和索引，但是不存储，也就是说它能被查询，但不能被取回显示。**
-
-
+**copy_to 字段是把其它字段中的值，以空格为分隔符组成一个大字符串，然后被分析和索引，但是不存储，也就是说它能被查询，但不能被取回显示, 可以提高性能。**
 
 **注意: copy_to 指向的字段字段类型要为：text**
 
-当没有指定 field 时，就会从 copy_to 字段中查询
+当没有指定 field 时，就会从 copy_to 字段中查询, 如果要使用 copy_to 字段, 需要自己创建 mapping
 
 ```
-GET /lib3/user/_search?q=changge
+DELETE /myindex
+
+PUT /myindex
+
+PUT /myindex/article/_mapping
+{
+	"properties": {
+		"post_date": {
+			"type": "date"
+		},
+		"title": {
+			"type": "text",
+			"copy_to": "fullcontents"
+		},
+		"content": {
+			"type": "text",
+			"copy_to": "fullcontents"
+		},
+		"author_id": {
+			"type": "integer"
+		}
+	}
+}
 ```
 
 
@@ -2967,9 +3018,9 @@ GET /lib3/user/_search?q=changge
 
 对一个字符串类型的字段进行排序通常不准确，因为已经被分词成多个词条了
 
-解决方式：对字段索引两次，一次索引分词（用于搜索），一次索引不分词(用于排序)
+**解决方式：对字段索引两次，一次索引分词（用于搜索），一次索引不分词(用于排序)**
 
-```
+```json
 GET /lib3/_search
 
 GET /lib3/user/_search
@@ -3026,10 +3077,10 @@ PUT /lib3
           "type": "date"
         },
         "interests": {
-          "type": "text",
+          "type": "text", # 字符串, 分词, 建立倒排索引, 用于搜索
           "fields": {
             "raw": {
-              "type": "keyword"
+              "type": "keyword" # 字符串, 部分词, 用于排序
             }
           },
           "fielddata": true
@@ -3045,56 +3096,65 @@ PUT /lib3
 
 ### 如何计算相关度分数
 
-使用的是TF/IDF算法(Term Frequency&Inverse Document Frequency)
+**使用的是 TF/IDF 算法(Term Frequency&Inverse Document Frequency)**
 
-1.Term Frequency:我们查询的文本中的词条在document本中出现了多少次，出现次数越多，相关度越高
+1. Term Frequency:我们查询的文本中的词条在document本中出现了多少次，出现次数越多，相关度越高
 
-搜索内容： hello world
+    搜索内容： hello world
 
-Hello，I love china.
+    Hello，I love china.
 
-Hello world,how are you!
+    Hello world,how are you!
 
-2.Inverse Document Frequency：我们查询的文本中的词条在索引的所有文档中出现了多少次，出现的次数越多，相关度越低
+2. Inverse Document Frequency：我们查询的文本中的词条在索引的所有文档中出现了多少次，**出现的次数越多，相关度越低**
 
-搜索内容：hello world
+    搜索内容：hello world
 
-hello，what are you doing?
+    hello，what are you doing?
 
-I like the world.
+    I like the world.
 
-hello 在索引的所有文档中出现了500次，world出现了100次
+    hello 在索引的所有文档中出现了500次，world出现了100次
 
-3.Field-length(字段长度归约) norm:field越长，相关度越低
+3. Field-length(字段长度归约) norm:field越长，相关度越低
 
-搜索内容：hello world
+    搜索内容：hello world
 
-{"title":"hello,what's your name?","content":{"owieurowieuolsdjflk"}}
+    ```json
+    {"title":"hello,what's your name?","content":{"owieurowieuolsdjflk"}}
+    
+    {"title":"hi,good morning","content":{"lkjkljkj.......world"}}
+    ```
 
-{"title":"hi,good morning","content":{"lkjkljkj.......world"}}
 
-
-查看分数是如何计算的：
-
-GET /lib3/user/_search?explain=true
-{
-    "query":{
-        "match":{
-            "interests": "duanlian,changge"
+    查看分数是如何计算的：
+    
+    ```json
+    GET /lib3/user/_search?explain=true
+    {
+      "query": {
+        "match": {
+          "interests": "duanlian,changge"
         }
+      }
     }
-}
-
-查看一个文档能否匹配上某个查询：
-
-GET /lib3/user/2/_explain
-{
-    "query":{
-        "match":{
-            "interests": "duanlian,changge"
+    ```
+    
+    查看一个文档能否匹配上某个查询：
+    
+    ```json
+    GET /lib3/user/2/_explain
+    {
+      "query": {
+        "match": {
+          "interests": "duanlian,changge"
         }
+      }
     }
-}
+    ```
+
+
+​    
 
 
 ### Doc Values 解析
