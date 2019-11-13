@@ -13,6 +13,8 @@ author: miaoqi
 
 ElasticSearch是一个基于Lucene的搜索服务器。它提供了一个分布式多用户能力的全文搜索引擎，基于RESTfulweb接口。ElasticSearch是用Java开发的，并作为Apache许可条款下的开放源码发布，是当前流行的企业级搜索引擎。设计用于云计算中，能够达到实时搜索，稳定，可靠，快速，安装使用方便。构建在全文检索开源软件Lucene之上的Elasticsearch，不仅能对海量规模的数据完成分布式索引与检索，还能提供数据聚合分析。据国际权威的数据库产品评测机构DBEngines的统计，在2016年1月，Elasticsearch已超过Solr等，成为排名第一的搜索引擎类应用
 
+https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html
+
 ## 安装
 
 ### 安装 ES
@@ -125,7 +127,7 @@ http://localhost:9100
 
 ### 安装中文分词器插件
 
-`elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v6.8.3/elasticsearch-analysis-ik-6.8.3.zip`
+`elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v6.8.4/elasticsearch-analysis-ik-6.8.4.zip`
 
 
 
@@ -161,19 +163,21 @@ elasticsearch -Ehttp.port=7200 -Epath.data=node3
 
 ## ElasticSearch的基本概念
 
-Index: 类似于mysql数据库中的database
+### 术语介绍
 
-Type: 类似于mysql数据库中的table表，es中可以在Index中建立type（table），通过mapping进行映射。
+**Index:** 类似于mysql数据库中的database
 
-Document: 由于es存储的数据是文档型的，一条数据对应一篇文档即相当于mysql数据库中的一行数据row，一个文档中可以有多个字段也就是mysql数据库一行可以有多列。
+**Type:** 类似于mysql数据库中的table表，es中可以在Index中建立type（table），通过mapping进行映射, 6.0 以后一个 Index 下只允许创建一个 Type。
 
-Field: es中一个文档中对应的多个列与mysql数据库中每一列对应
+**Document:** 由于es存储的数据是文档型的，一条数据对应一篇文档即相当于mysql数据库中的一行数据row，一个文档中可以有多个字段也就是mysql数据库一行可以有多列。
 
-Mapping: 可以理解为mysql或者solr中对应的schema，只不过有些时候es中的mapping增加了动态识别功能，感觉很强大的样子，其实实际生产环境上不建议使用，最好还是开始制定好了对应的schema为主。
+**Field:** es中一个文档中对应的多个列与mysql数据库中每一列对应
 
-Indexed: 就是名义上的建立索引。mysql中一般会对经常使用的列增加相应的索引用于提高查询速度，而在es中默认都是会加上索引的，除非你特殊制定不建立索引只是进行存储用于展示，这个需要看你具体的需求和业务进行设定了。
+**Mapping:** 可以理解为mysql或者solr中对应的schema，只不过有些时候es中的mapping增加了动态识别功能，感觉很强大的样子，其实实际生产环境上不建议使用，最好还是开始制定好了对应的schema为主。
 
-Query DSL: 类似于mysql的sql语句，只不过在es中是使用的json格式的查询语句，专业术语就叫：QueryDSL
+**Indexed:** 就是名义上的建立索引。mysql中一般会对经常使用的列增加相应的索引用于提高查询速度，而在es中默认都是会加上索引的，除非你特殊制定不建立索引只是进行存储用于展示，这个需要看你具体的需求和业务进行设定了。
+
+**Query DSL:** 类似于mysql的sql语句，只不过在es中是使用的json格式的查询语句，专业术语就叫：QueryDSL
 
 GET/PUT/POST/DELETE: 分别类似与mysql中的select/update/delete......
 
@@ -200,7 +204,308 @@ PUT /lib/user/4?version=3
 为了保持_version与外部版本控制的数据一致
 使用version_type=external
 
-### 什么是 Mapping
+## ElasticSearch倒排索引
+
+Elasticsearch 使用一种称为 倒排索引 的结构，它适用于快速的全文搜索。一个倒排索引由文档中所有不重复词的列表构成，对于其中每个词，有一个包含它的文档列表。
+
+假设文档集合包含五个文档，每个文档内容如图所示，在图中最左端一栏是每个文档对应的文档编号。我们的任务就是对这个文档集合建立倒排索引。
+![http://www.miaomiaoqi.cn/images/elastic/search/es_2.png](http://www.miaomiaoqi.cn/images/elastic/search/es_2.png)
+
+(2):中文和英文等语言不同，单词之间没有明确分隔符号，所以首先要用分词系统将文档自动切分成单词序列。这样每个文档就转换为由单词序列构成的数据流，为了系统后续处理方便，需要对每个不同的单词赋予唯一的单词编号，同时记录下哪些文档包含这个单词，在如此处理结束后，我们可以得到最简单的倒排索引
+![http://www.miaomiaoqi.cn/images/elastic/search/es_3.png](http://www.miaomiaoqi.cn/images/elastic/search/es_3.png)
+“单词ID”一栏记录了每个单词的单词编号，第二栏是对应的单词，第三栏即每个单词对应的倒排列表
+
+(3):索引系统还可以记录除此之外的更多信息,下图还记载了单词频率信息（TF）即这个单词在某个文档中的出现次数，之所以要记录这个信息，是因为词频信息在搜索结果排序时，计算查询和文档相似度是很重要的一个计算因子，所以将其记录在倒排列表中，以方便后续排序时进行分值计算。
+
+![http://www.miaomiaoqi.cn/images/elastic/search/es_4.png](http://www.miaomiaoqi.cn/images/elastic/search/es_4.png)
+
+(4):倒排列表中还可以记录单词在某个文档出现的位置信息
+
+(1,<11>,1),(2,<7>,1),(3,<3,9>,2)
+
+有了这个索引系统，搜索引擎可以很方便地响应用户的查询，比如用户输入查询词“Facebook”，搜索系统查找倒排索引，从中可以读出包含这个单词的文档，这些文档就是提供给用户的搜索结果，而利用单词频率信息、文档频率信息即可以对这些候选搜索结果进行排序，计算文档和查询的相似性，按照相似性得分由高到低排序输出，此即为搜索系统的部分内部流程。
+
+### 倒排索引原理
+
+1.The quick brown fox jumped over the lazy dog
+
+2.Quick brown foxes leap over lazy dogs in summer
+
+倒排索引：
+
+|  Term  | Doc_1 | Doc_2 |
+| :----: | :---: | :---: |
+| Quick  |       |   X   |
+|  The   |   X   |       |
+| brown  |   X   |   X   |
+|  dog   |   X   |       |
+|  dogs  |       |   X   |
+|  fox   |   X   |       |
+| foxes  |       |   X   |
+|   in   |       |   X   |
+| jumped |   X   |       |
+|  lazy  |   X   |   X   |
+|  leap  |       |   X   |
+|  over  |   X   |   X   |
+| quick  |   X   |       |
+| summer |       |   X   |
+|  The   |   X   |       |
+
+**搜索含有 quick 或者 brown 的文档：**
+
+| Term  | Doc_1 | Doc_2 |
+| ----- | ----- | ----- |
+| brown | X     | X     |
+| quick | X     |       |
+
+---------------------
+
+Total   |   2   |  1  |
+
+计算相关度分数时，文档1的匹配度高，分数会比文档2高
+
+
+
+**问题：**
+
+Quick 和 quick 以独立的词条出现，然而用户可能认为它们是相同的词。
+
+fox 和 foxes 非常相似, 就像 dog 和 dogs ；他们有相同的词根。
+
+jumped 和 leap, 尽管没有相同的词根，但他们的意思很相近。他们是同义词。
+
+搜索含有 Quick fox的文档是搜索不到的, 因为是区分大小写的
+
+**ES使用标准化规则(normalization)解决上述问题：**
+建立倒排索引的时候，会对拆分出的各个单词进行相应的处理，以提升后面搜索的时候能够搜索到相关联的文档的概率
+
+|  Term  | Doc_1 | Doc_2 |
+| :----: | :---: | :---: |
+| brown  |   X   |   X   |
+|  dog   |   X   |   X   |
+|  fox   |   X   |   X   |
+|   in   |       |   X   |
+|  jump  |   X   |   X   |
+|  lazy  |   X   |   X   |
+|  over  |   X   |   X   |
+| quick  |   X   |   X   |
+| summer |       |   X   |
+|  the   |   X   |   X   |
+
+
+
+
+
+## 分词和分词器
+
+分词：从一串文本中切分出一个一个的词条，并对每个词条进行**标准化**
+
+分词器包括三部分：
+
+**character filter：针对原始文本的预处理，过滤掉HTML标签，特殊符号转换等**
+
+**tokenizer：将原始文本按照一定规则切分为单词**
+
+**token filter：标准化, 针对 tokenizer 处理的单词进行再加工, 比如转小写, 删除或新增等处理**
+
+### 内置分词器
+
+**standard 分词器**：(默认的)他会将词汇单元转换成小写形式，并去除停用词和标点符号，支持中文采用的方法为单字切分
+
+![http://www.miaomiaoqi.cn/images/elastic/search/es_8.png](http://www.miaomiaoqi.cn/images/elastic/search/es_8.png)
+
+**simple 分词器**：首先会通过非字母字符来分割文本信息，然后将词汇单元统一为小写形式。该分析器会去掉数字类型的字符。
+
+![http://www.miaomiaoqi.cn/images/elastic/search/es_9.png](http://www.miaomiaoqi.cn/images/elastic/search/es_9.png)
+
+**Whitespace** 分词器：仅仅是去除空格，对字符没有lowcase化,不支持中文；
+并且不对生成的词汇单元进行其他的标准化处理。
+
+![http://www.miaomiaoqi.cn/images/elastic/search/es_10.png](http://www.miaomiaoqi.cn/images/elastic/search/es_10.png)
+
+**Stop 分词器**: 
+
+![http://www.miaomiaoqi.cn/images/elastic/search/es_11.png](http://www.miaomiaoqi.cn/images/elastic/search/es_11.png)
+
+**Keyword 分词器**:
+
+![http://www.miaomiaoqi.cn/images/elastic/search/es_12.png](http://www.miaomiaoqi.cn/images/elastic/search/es_12.png)
+
+**Pattern 分词器**:
+
+![http://www.miaomiaoqi.cn/images/elastic/search/es_13.png](http://www.miaomiaoqi.cn/images/elastic/search/es_13.png)
+
+**language 分词器**：特定语言的分词器，不支持中文
+
+
+
+### AnalyzerAPI
+
+es 提供了一个测试分词的 api 接口, 方便验证分词效果, endpoint 是 _analyze
+
+**可以直接指定 analyzer 进行测试**
+
+```
+POST _analyze
+{
+	"analyzer": "standard",
+	"text": "hello world"
+}
+
+{
+  "tokens" : [
+    {
+      "token" : "hello",
+      "start_offset" : 0,
+      "end_offset" : 5,
+      "type" : "<ALPHANUM>",
+      "position" : 0
+    },
+    {
+      "token" : "world",
+      "start_offset" : 6,
+      "end_offset" : 11,
+      "type" : "<ALPHANUM>",
+      "position" : 1
+    }
+  ]
+}
+```
+
+**可以直接指定索引中的字段进行测试**
+
+```
+POST test_index/_analyze
+{
+	"field": "username", # 测试字段
+	"text": "hello world" # 测试文本
+}
+```
+
+**可以自定义分词器进行测试**
+
+```
+POST _analyze
+{
+	"tokenizer": "standard",
+	"filter": ["lowercase"],
+	"text": "Hello World!"
+}
+```
+
+### 中文分词
+
+中文分词器是指将一个汉字序列切分成一个一个单独的词语. 在英文中, 单词之间是以空格作为自然分界符, 汉语中没有一个形式上的分界符
+
+上下文不同, 分词结果迥异, 比如交叉歧义问题
+
+* 乒乓球拍/卖/完了
+* 乒乓球/拍卖/完了
+
+**常用中文分词系统**
+
+**IK**
+
+实现中英文单词的切分, 支持 ik_smart, ik_maxword 模式
+
+可自定义词库, 支持热更新分词词典
+
+**jieba**
+
+python 中最流行的分词系统, 支持分词和词性标注
+
+支持繁体分词, 自定义词典, 并行分词等
+
+### 自定义分词
+
+当自带的分词无法满足需求时, 可以自定义分词
+
+通过自定义 Character Filters, Tokenizer 和 Token Filter实现
+
+**Character Filter**
+
+在 Tokenizer 之前对原始文本进行处理, 比如增加, 删除或替换字符等
+
+自带的如下
+
+* HTML Strip 去除 html 标签和转换 html 实体
+
+* Mapping 进行字符替换工作
+* Pattern Replace 进行正则匹配替换
+
+会影响后续 tokenizer 解析的 position 和 offset 信息
+
+**Tokenizer**
+
+将原始文本按照一定规则切分为单词(term or token)
+
+自带的如下
+
+* standard 按照单词进行分割
+* letter 按照非字符类进行分割
+* whitespace 按照空格进行分割
+* UAX URL Email 按照 standard 分割, 但不会分割邮箱和 url
+* NGram 和 Edge NGram 连词分割
+* Path Hierarchy 按照文件路径进行分割
+
+**Token Filters**
+
+对于 tokenizer 输出的单词(term)进行增加, 删除, 修改等操作
+
+自带的如下
+
+* lowercase 将所有 term 转为小写
+* stop 删除 stop words
+* NGram 和 Edge NGram 连词分割
+* Synonym 添加近义词的 term
+
+```
+POST _analyze
+{
+	"test": "a Hello,World!",
+	"tokenizer": "standard",
+	"filter": {
+		"stop",
+		"lowercase":{
+			"type": "ngram",
+			"min_gram": 4,
+			"max_gram": 4
+		}
+	}
+}
+```
+
+**自定义分词 Api**
+
+```
+PUT /test_index
+{
+	"settings": {
+		"analysis": {
+			"char_filter": {},
+			"tokenizer": {},
+			"filter": {},
+			"analyzer": {}
+		}
+	}
+}
+```
+
+**分词使用说明**
+
+创建或更新文档时(Index Time), 会对相应的文档进行分词处理
+
+查询时(Search Time), 会对查询语句进行分词
+
+
+
+## 什么是 Mapping
+
+mapping 类似数据库中的表定义
+
+* 定义 index 下的字段名(field name)
+* 定义字段类型, 比如数值型, 字符串型, 布尔型等
+* 定义倒排索引相关的配置, 比如是否索引, 记录 position 等
 
 ```json
 PUT /myindex/article/1 
@@ -242,17 +547,11 @@ GET /myindex/article/_search?q=html
 GET /myindex/article/_search?q=java
 ```
 
-**查看es自动创建的 mapping**
+**查看 mapping**
 
 ```
-GET /myindex/article/_mapping
-```
+GET /myindex/_mapping
 
-**es自动创建了index，type，以及type对应的mapping, 因为是 es 自动创建的所以叫做动态映射(dynamic mapping)**
-
-**什么是映射：mapping定义了type中的每个字段的数据类型以及这些字段如何分词等相关属性**
-
-```json
 {
   "myindex": {
     "mappings": {
@@ -289,24 +588,323 @@ GET /myindex/article/_mapping
 }
 ```
 
+**es会自动创建index，type，以及type对应的mapping, 因为是 es 自动创建的所以叫做动态映射(dynamic mapping)**
+
+**mapping定义了type中的每个字段的数据类型以及这些字段如何分词等相关属性**
+
 创建索引的时候**,可以预先定义字段的类型以及相关属性**，这样就能够把日期字段处理成日期，把数字字段处理成数字，把字符串字段处理字符串值等
 
-**支持的数据类型：**
+
+
+### 自定义 Mapping
+
+给索引 lib2 创建映射类型, es 默认会给每一个 field 加上倒排索引
+
+```
+PUT /lib2
+{
+  "settings": {
+    "number_of_shards": 3,
+    "number_of_replicas": 0
+  },
+  "mappings": {
+    "books": {
+      "properties": {
+        "title": {
+          "type": "text", # 默认使用 standard 分词器
+          "analyzer": "ik"
+        },
+        "name": {
+          "type": "text",
+          "index": false
+        },
+        "publish_date": {
+          "type": "date",
+          "index": false
+        },
+        "price": {
+          "type": "double"
+        },
+        "number": {
+          "type": "integer",
+          "dynamic":true
+        }
+      }
+    }
+  }
+}
+```
+
+**Mapping 中的字段类型一旦设定后, 禁止直接修改, 因为 Lucene 实现的倒排索引生效后不允许修改**
+
+**如果要修改可以重新建立新的索引, 然后做 reindex 操作**
+
+**允许新增索引**
+
+**当ES在文档中碰到一个以前没见过的字段时，它会利用动态映射来决定该字段的类型，并自动地对该字段添加映射。**
+
+**可以通过dynamic设置来控制这一行为，它能够接受以下的选项：**
+
+```
+true：默认值。允许自动新增字段, 所以我们添加文档时候 es 可以自动建立 mapping
+false：不允许自动新增字段, 但是文档可以正常写入, 但无法对字段进行查询等操作
+strict：如果碰到陌生字段，抛出异常, 不能写入
+```
+
+**dynamic 设置可以适用在根对象上或者object类型的任意字段上。**
+
+```json
+PUT /my_index
+{
+	"mapping": {
+		"my_type": {
+			"dynamic": false,
+			"properties": {
+				"user": {
+					"properties": {
+						"name": {
+							"type": "text"
+						},
+						"social_networks": {
+							"dynamic": true,
+							"properties": {}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+```
+
+```json
+PUT /myindex
+{
+  "mappings": {
+    "doc": {
+      "dynamic": false,
+      "properties": {
+        "title": {
+          "type": "text"
+        },
+        "name": {
+          "type": "keyword"
+        },
+        "age": {
+          "type": "integer"
+        }
+      }
+    }
+  }
+}
+
+GET /myindex/_mapping
+
+PUT /myindex/doc/1
+{
+	"title": "hello world",
+	"desc": "nothing here"
+}
+
+GET /myindex/doc/_search
+{
+	"query": {
+		"match": {
+			"title": "hello" # 可以查到, 因为定义了 mapping
+		}
+	}
+}
+
+GET /myindex/doc/_search
+{
+	"query": {
+		"match": {
+			"desc": "here" # 查不到, 因为定义了 dynamic 是 false
+		}
+	}
+}
+```
+
+
+
+### 支持的属性
+
+#### **copy_to解析**
+
+```
+DELETE /myindex
+
+PUT /myindex/article/1
+{
+  "post_date": "2019-05-10",
+  "title": "Java",
+  "content": "Java is best language",
+  "author_id": 119
+}
+
+PUT /myindex/article/2
+{
+  "post_date": "2019-05-12",
+  "title": "html",
+  "content": "I like html",
+  "author_id": 120
+}
+
+PUT /myindex/article/3
+{
+  "post_date": "2019-05-16",
+  "title": "es",
+  "content": "es is distributed document store",
+  "author_id": 120
+}
+
+GET /myindex/_mapping
+
+GET /myindex/article/_search
+
+GET /myindex/article/_search?q=post_date:2019-05-16 # 日期类型不分词, 精确匹配
+
+GET /myindex/article/_search?q=content:html # 查询 content 字段中含有 html 的
+
+GET /myindex/article/_search?q=html,document # 因为没有指定具体字段, 所以在全部字段中查询含有 html 或document 的文档, 性能低下
+```
+
+**copy_to 字段是把其它字段中的值，以空格为分隔符组成一个大字符串，然后被分析和索引，但是不存储，也就是说它能被查询，但不能被取回显示, 可以提高性能。**
+
+**注意: copy_to 指向的字段字段类型要为：text**
+
+当没有指定 field 时，就会从 copy_to 字段中查询, 如果要使用 copy_to 字段, 需要自己创建 mapping
+
+```
+DELETE /myindex
+
+PUT /myindex
+
+PUT /myindex/article/_mapping
+{
+	"properties": {
+		"post_date": {
+			"type": "date"
+		},
+		"title": {
+			"type": "text",
+			"copy_to": "fullcontents"
+		},
+		"content": {
+			"type": "text",
+			"copy_to": "fullcontents"
+		},
+		"author_id": {
+			"type": "integer"
+		},
+		"fullcontents": {
+			"type": "text"
+		}
+	}
+}
+
+GET /myindex/article/_search
+{
+	"query": {
+		"match": {
+			"fullcontents": {
+				"query": "xxxx"
+			}
+		}
+	}
+}
+```
+
+#### index 属性
+
+控制当前字段是否索引, 默认为 true, 即记录索引, false 不记录, 即不可搜索
+
+```
+PUT /my_inde
+{
+	"mappings": {
+		"doc": {
+			"properties": {
+				"cookie": {
+					"type": text,
+					"index": false
+				}
+			}
+		}
+	}
+}
+```
+
+#### index_options 属性
+
+index_options 用于控制倒排索引记录的内容, 有如下 4 中配置
+
+**docs(索引文档号):** 只记录 doc id
+
+**freqs(文档号+词频):** 记录 doc id 和 term frequencies
+
+**positions(文档号+词频+位置，通常用来距离查询):** 记录 doc id, term frequencies 和 term position
+
+**offsets(文档号+词频+位置+偏移量，通常被使用在高亮字段):** 记录 doc id, term frequencies, term position 和 character offsets
+
+分词字段(text)默认是positions，其他的默认是docs, 记录内容越多, 占用空间越多
+
+
+
+#### null_value 属性
+
+当字段遇到 null 值时的处理策略, 默认为 null, 即空值, 此时 es 会忽略该值. 可以通过设定该值设定字段的默认值, 只有string可以使用，分词字段的null值也会被分词
+
+
+
+#### 其他属性
+
+`"store": false` // 是否单独设置此字段的是否存储而从_source字段中分离，默认是false，只能搜索，不能获取值
+
+`"analyzer":"ik"` // 指定分词器,默认分词器为standard analyzer
+
+`"boost":1.23` // 字段级别的分数加权，默认值是1.0
+
+`"doc_values":false` // 对not_analyzed字段，默认都是开启，分词字段不能使用，对排序和聚合能提升较大性能，节约内存
+
+`"fielddata":{"format":"disabled"}` // 针对分词字段，参与排序或聚合时能提高性能，不分词字段统一建议使用doc_value
+
+`"fields":{"xxxxx":{"type":"text","index":"not_analyzed"}}` // 可以对一个字段提供多种索引模式，同一个字段的值，一个分词，一个不分词
+
+`"ignore_above":100` // 超过100个字符的文本，将会被忽略，不被索引
+
+`"include_in_all":ture` // 设置是否此字段包含在_all字段中，默认是true，除非index设置成no选项
+
+`"norms":{"enable":true,"loading":"lazy"}` // 分词字段默认配置，不分词字段：默认{"enable":false}，存储长度因子和索引时boost，建议对需要参与评分字段使用 ，会额外增加内存消耗量
+
+`"position_increament_gap":0` // 影响距离查询或近似查询，可以设置在多值字段的数据上火分词字段上，查询时可指定slop间隔，默认值是100
+
+`"search_analyzer":"ik"` // 设置搜索时的分词器，默认跟ananlyzer是一致的，比如index时用standard+ngram，搜索时用standard用来完成自动提示功能
+
+`"similarity":"BM25"` // 默认是TF/IDF算法，指定一个字段评分策略，仅仅对字符串型和分词类型有效
+
+`"term_vector":"no"` // 默认不存储向量信息，支持参数yes（term存储），with_positions（term+位置）,with_offsets（term+偏移量），with_positions_offsets(term+位置+偏移量) 对快速高亮fast vector highlighter能提升性能，但开启又会加大索引体积，不适合大数据量用
+
+https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-params.html
+
+
+
+### **支持的数据类型**
 
 1. 核心数据类型（Core datatypes）
 
     ```
-    字符型：string，string类型包括
-    text 和 keyword
+    字符型：string, 包括 text 和 keyword
     
-    text 类型被用来索引长文本，在建立索引前默认会将这些文本进行分词，转化为词的组合，建立索引。允许es来检索这些词语。text类型不能用来排序和聚合。
+    text: 类型被用来索引长文本，在建立索引前默认会将这些文本进行分词，转化为词的组合，建立索引。允许es来检索这些词语。text类型不能用来排序和聚合。
     
-    Keyword 类型不进行分词, 会进行索引, 可以被用来检索过滤、排序和聚合。keyword 类型字段只能用本身来进行检索
+    Keyword: 类型不进行分词, 会进行索引, 可以被用来检索过滤、排序和聚合。keyword 类型字段只能用本身来进行检索
     
-    数字型：long, integer, short, byte, double, float 默认会建倒排索引, 但是没有分词, 所以只能精确匹配
+    数字型：long, integer, short, byte, double, float, half_float, scaled_float 默认会建倒排索引, 但是没有分词, 所以只能精确匹配
     日期型：date 默认会建倒排索引, 但是没有分词, 所以只能精确匹配
     布尔型：boolean
     二进制型：binary
+    范围类型: integer_range, float_range, long_range, double_range, date_range
     ```
 
 2. 复杂数据类型（Complex datatypes）
@@ -383,212 +981,309 @@ GET /myindex/article/_mapping
     插件，可支持_ attachments _ 索引，例如 Microsoft Office 格式，Open Document 格式，ePub, HTML 等。
     ```
 
-    
 
-**支持的属性：**
 
-`"store": false` // 是否单独设置此字段的是否存储而从_source字段中分离，默认是false，只能搜索，不能获取值
 
-`"index": true` // 分词，不分词是: false, 设置成false，字段将不会被索引
+### Dynamic Mapping
 
-`"analyzer":"ik"` // 指定分词器,默认分词器为standard analyzer
+es 可以自动识别文档字段类型, 从而降低用户的使用成本
 
-`"boost":1.23` // 字段级别的分数加权，默认值是1.0
+```json
+DELETE /test_index
 
-`"doc_values":false` // 对not_analyzed字段，默认都是开启，分词字段不能使用，对排序和聚合能提升较大性能，节约内存
+PUT /test_index/doc/1
+{
+	"username": "alfred",
+	"age": 1
+}
 
-`"fielddata":{"format":"disabled"}` // 针对分词字段，参与排序或聚合时能提高性能，不分词字段统一建议使用doc_value
+GET /test_index/_mapping
 
-`"fields":{"raw":{"type":"text","index":"not_analyzed"}}` // 可以对一个字段提供多种索引模式，同一个字段的值，一个分词，一个不分词
-
-`"ignore_above":100` // 超过100个字符的文本，将会被忽略，不被索引
-
-`"include_in_all":ture` // 设置是否此字段包含在_all字段中，默认是true，除非index设置成no选项
-
-`"index_options":"docs"` // 4个可选参数docs（索引文档号） ,freqs（文档号+词频），positions（文档号+词频+位置，通常用来距离查询），offsets（文档号+词频+位置+偏移量，通常被使用在高亮字段）分词字段默认是position，其他的默认是docs
-
-`"norms":{"enable":true,"loading":"lazy"}` // 分词字段默认配置，不分词字段：默认{"enable":false}，存储长度因子和索引时boost，建议对需要参与评分字段使用 ，会额外增加内存消耗量
-
-`"null_value":"NULL"` // 设置一些缺失字段的初始化值，只有string可以使用，分词字段的null值也会被分词
-
-`"position_increament_gap":0` // 影响距离查询或近似查询，可以设置在多值字段的数据上火分词字段上，查询时可指定slop间隔，默认值是100
-
-`"search_analyzer":"ik"` // 设置搜索时的分词器，默认跟ananlyzer是一致的，比如index时用standard+ngram，搜索时用standard用来完成自动提示功能
-
-`"similarity":"BM25"` // 默认是TF/IDF算法，指定一个字段评分策略，仅仅对字符串型和分词类型有效
-
-`"term_vector":"no"` // 默认不存储向量信息，支持参数yes（term存储），with_positions（term+位置）,with_offsets（term+偏移量），with_positions_offsets(term+位置+偏移量) 对快速高亮fast vector highlighter能提升性能，但开启又会加大索引体积，不适合大数据量用
-
-映射的分类：
-
-1. 动态映射：
-
-    当ES在文档中碰到一个以前没见过的字段时，它会利用动态映射来决定该字段的类型，并自动地对该字段添加映射。
-
-    可以通过dynamic设置来控制这一行为，它能够接受以下的选项：
-
-    ```
-    true：默认值。动态添加字段
-    false：忽略新字段
-    strict：如果碰到陌生字段，抛出异常
-    ```
-
-    dynamic 设置可以适用在根对象上或者object类型的任意字段上。
-
-2. 手动映射:
-
-    给索引lib2创建映射类型, es 默认会给每一个 field 加上倒排索引
-
-    ```
-    POST /lib2
-    {
-      "settings": {
-        "number_of_shards": 3,
-        "number_of_replicas": 0
-      },
-      "mappings": {
-        "books": {
-          "properties": {
-            "title": {
-              "type": "text", # 默认使用 standard 分词器
-              "analyzer": "ik"
-            },
-            "name": {
-              "type": "text",
-              "index": false
-            },
-            "publish_date": {
-              "type": "date",
-              "index": false
-            },
-            "price": {
-              "type": "double"
-            },
-            "number": {
-              "type": "integer",
-              "dynamic":true
+{
+  "test_index" : {
+    "mappings" : {
+      "doc" : {
+        "properties" : {
+          "age" : {
+            "type" : "long" # es 自动识别 age 为 long 类型
+          },
+          "username" : {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "type" : "keyword",
+                "ignore_above" : 256
+              }
             }
           }
         }
       }
     }
-    ```
+  }
+}
+```
+
+es 是依靠 json 文档的字段类型实现自动识别字段类型, 支持的类型如下:
+
+| JSON 类型 |                           es 类型                            |
+| :-------: | :----------------------------------------------------------: |
+|   null    |                             忽略                             |
+|  boolean  |                           boolean                            |
+| 浮点类型  |                            float                             |
+|   整数    |                             long                             |
+|  object   |                            object                            |
+|   array   |                 由第一个非 null 值的类型决定                 |
+|  string   | 匹配为日期则设为 date 类型(默认开启)<br />匹配为数字类型的话设为 float 或 long 类型(默认关闭)<br />如果不是以上两种就设为 text 类型, 并附带 keyword 的子字段 |
+
+```
+DELETE /test_index
+
+PUT /test_index/doc/1
+{
+	"username": "alfred",
+	"age": 14,
+	"birth": "1998-10-10",
+	"married": false,
+	"year": "18",
+	"tags": ["boy", "fashion"],
+	"money": 100.1
+}
+
+GET /test_index/_mapping
+{
+  "test_index" : {
+    "mappings" : {
+      "doc" : {
+        "properties" : {
+          "age" : {
+            "type" : "long"
+          },
+          "birth" : {
+            "type" : "date"
+          },
+          "married" : {
+            "type" : "boolean"
+          },
+          "money" : {
+            "type" : "float"
+          },
+          "tags" : {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "type" : "keyword",
+                "ignore_above" : 256
+              }
+            }
+          },
+          "username" : {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "type" : "keyword",
+                "ignore_above" : 256
+              }
+            }
+          },
+          "year" : {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "type" : "keyword",
+                "ignore_above" : 256
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+#### 日期格式的自动识别
+
+**日期的识别可以自行配置日期格式, 以满足各种需求**
+
+默认是 `["strict_date_optional_time","yyyy/MM/dd HH:mm:ss||yyyy/MM/dd Z"]`
+
+strict_date_optional_time 是 ISO datetime 的格式, 完整格式类似下面:
+
+YYYY-MM-DDThh:mm:ssTZD(eg 1997-07-16T19:20:30+01:00)
+
+dynamic_date_formats 可以自定义日期类型
+
+date_detection 可以关闭日期自动识别的机制
+
+```json
+DELETE /my_index
+
+PUT /my_index
+{
+	"mappings": {
+		"my_type":{
+			"dynamic_date_formats": ["MM/dd/yyyy"]
+		}
+	}
+}
+
+PUT /my_index/doc/1
+{
+	"create_date": "09/25/2015" # 默认不会识别为日期, 因为格式错误
+}
+
+GET /my_index/_mapping
+```
+
+#### 数字格式的自动识别
+
+**字符串是数字时, 默认不会自动识别为整形, 因为字符串中出现数字是完全合理的**
+
+**numeric_detection 可以开启字符串中数字的自动识别**
+
+```
+DELETE /my_index
+
+PUT /my_index
+{
+	"mappings": {
+		"my_type": {
+			"numeric_detection": true
+		}
+	}
+}
+
+PUT /my_index/my_type/1
+{
+	"my_float": "1.0",
+	"my_integer": "1"
+}
+
+GET /my_index/_mapping
+```
+
+#### Dynamic Templates
+
+允许根据 es 自动识别的数据类型, 字段名等来动态设定字段类型, 可以实现如下效果
+
+* 所有字符串类型都设定为 keyword 类型, 即默认不分词
+* 所有以 message 开头的字段都设定为 text 类型, 即分词
+* 所有以 long_ 开头的字段都设定为 long 类型
+* 所有自动匹配为 double 类型的都设定为 float 类型, 以节省空间
+
+```json
+DELETE /my_index
+
+PUT /my_index
+{
+	"mappings": {
+		"doc": {
+			"dynamic_templates": [ # 动态模板数组, 可以指定多个匹配规则, 先匹配到的先生效
+				{
+					"strings": { # template 的名称, 随意指定
+						"match_mapping_type": "string", # 匹配规则
+            "mapping": { # 设置 mapping 信息
+            	"type": "keyword"
+             }
+					}
+				}
+      ]
+		}
+	}
+}
+```
+
+**匹配规则一般有如下几个参数:**
+
+match_mapping_type: 匹配 es 自动识别的类型, 如 boolean, long, string 等
+
+match, unmatch: 匹配字段名
+
+path_match, path_unmatch: 匹配路径
 
 
 
-### ElasticSearch倒排索引
+**字符串默认使用 keyword 类型**
 
-Elasticsearch 使用一种称为 倒排索引 的结构，它适用于快速的全文搜索。一个倒排索引由文档中所有不重复词的列表构成，对于其中每个词，有一个包含它的文档列表。
+es 默认会为字符串设置为 text 类型, 并增加一个 keyword 的子字段
 
-假设文档集合包含五个文档，每个文档内容如图所示，在图中最左端一栏是每个文档对应的文档编号。我们的任务就是对这个文档集合建立倒排索引。
-![http://www.miaomiaoqi.cn/images/elastic/search/es_2.png](http://www.miaomiaoqi.cn/images/elastic/search/es_2.png)
+```json
+DELETE /my_index
 
-(2):中文和英文等语言不同，单词之间没有明确分隔符号，所以首先要用分词系统将文档自动切分成单词序列。这样每个文档就转换为由单词序列构成的数据流，为了系统后续处理方便，需要对每个不同的单词赋予唯一的单词编号，同时记录下哪些文档包含这个单词，在如此处理结束后，我们可以得到最简单的倒排索引
-![http://www.miaomiaoqi.cn/images/elastic/search/es_3.png](http://www.miaomiaoqi.cn/images/elastic/search/es_3.png)
-“单词ID”一栏记录了每个单词的单词编号，第二栏是对应的单词，第三栏即每个单词对应的倒排列表
+PUT /my_index
+{
+	"mappings": {
+		"doc": {
+			"dynamic_templates": [
+				{
+					"strings_as_keyword": {
+						"match_mapping_type": "string",
+						"mapping": {
+							"type": "keyword"
+						}
+					}
+				}
+			]
+		}
+	}
+}
 
-(3):索引系统还可以记录除此之外的更多信息,下图还记载了单词频率信息（TF）即这个单词在某个文档中的出现次数，之所以要记录这个信息，是因为词频信息在搜索结果排序时，计算查询和文档相似度是很重要的一个计算因子，所以将其记录在倒排列表中，以方便后续排序时进行分值计算。
+PUT /my_index/doc/1
+{
+	"name": "alfred"
+}
 
-![http://www.miaomiaoqi.cn/images/elastic/search/es_4.png](http://www.miaomiaoqi.cn/images/elastic/search/es_4.png)
-
-(4):倒排列表中还可以记录单词在某个文档出现的位置信息
-
-(1,<11>,1),(2,<7>,1),(3,<3,9>,2)
-
-有了这个索引系统，搜索引擎可以很方便地响应用户的查询，比如用户输入查询词“Facebook”，搜索系统查找倒排索引，从中可以读出包含这个单词的文档，这些文档就是提供给用户的搜索结果，而利用单词频率信息、文档频率信息即可以对这些候选搜索结果进行排序，计算文档和查询的相似性，按照相似性得分由高到低排序输出，此即为搜索系统的部分内部流程。
-
-#### 倒排索引原理
-
-1.The quick brown fox jumped over the lazy dog
-
-2.Quick brown foxes leap over lazy dogs in summer
-
-倒排索引：
-
-|  Term  | Doc_1 | Doc_2 |
-| :----: | :---: | :---: |
-| Quick  |       |   X   |
-|  The   |   X   |       |
-| brown  |   X   |   X   |
-|  dog   |   X   |       |
-|  dogs  |       |   X   |
-|  fox   |   X   |       |
-| foxes  |       |   X   |
-|   in   |       |   X   |
-| jumped |   X   |       |
-|  lazy  |   X   |   X   |
-|  leap  |       |   X   |
-|  over  |   X   |   X   |
-| quick  |   X   |       |
-| summer |       |   X   |
-|  The   |   X   |       |
-
-**搜索含有 quick 或者 brown 的文档：**
-
-| Term  | Doc_1 | Doc_2 |
-| ----- | ----- | ----- |
-| brown | X     | X     |
-| quick | X     |       |
-
----------------------
-
-Total   |   2   |  1  |
-
-计算相关度分数时，文档1的匹配度高，分数会比文档2高
+GET /my_index/_mapping
+```
 
 
 
-**问题：**
+**以 message 开头的字段都设置为 text 类型, 其余的 string 类型的字段设置为 keyword 类型**
 
-Quick 和 quick 以独立的词条出现，然而用户可能认为它们是相同的词。
+```json
+DELETE /my_index
 
-fox 和 foxes 非常相似, 就像 dog 和 dogs ；他们有相同的词根。
+PUT /my_index
+{
+	"mappings": {
+		"doc": {
+    	"dynamic_templates": [
+        {
+          "message_as_text": {
+            "match_mapping_type": "string",
+            "match": "message*",
+            "mapping": {
+              "type": "text"
+            }
+          }
+        },
+        {
+					"strings_as_keyword": {
+						"match_mapping_type": "string",
+						"mapping": {
+							"type": "keyword"
+						}
+					}
+				}
+      ]
+    }
+	}
+}
 
-jumped 和 leap, 尽管没有相同的词根，但他们的意思很相近。他们是同义词。
+PUT /my_index/doc/1
+{
+  "title": "学好 java",
+  "message_xxx": "哈哈哈哈哈哈"
+}
 
-搜索含有 Quick fox的文档是搜索不到的, 因为是区分大小写的
-
-**ES使用标准化规则(normalization)解决上述问题：**
-建立倒排索引的时候，会对拆分出的各个单词进行相应的处理，以提升后面搜索的时候能够搜索到相关联的文档的概率
-
-|  Term  | Doc_1 | Doc_2 |
-| :----: | :---: | :---: |
-| brown  |   X   |   X   |
-|  dog   |   X   |   X   |
-|  fox   |   X   |   X   |
-|   in   |       |   X   |
-|  jump  |   X   |   X   |
-|  lazy  |   X   |   X   |
-|  over  |   X   |   X   |
-| quick  |   X   |   X   |
-| summer |       |   X   |
-|  the   |   X   |   X   |
+GET /my_index/_mapping
+```
 
 
 
+https://www.elastic.co/guide/en/elasticsearch/reference/current/dynamic-templates.html
 
-#### 分词器介绍及内置分词器
 
-分词器：从一串文本中切分出一个一个的词条，并对每个词条进行**标准化**
-
-包括三部分：
-
-**character filter：分词之前的预处理，过滤掉HTML标签，特殊符号转换等**
-
-**tokenizer：分词**
-
-**token filter：标准化**
-
-内置分词器：
-
-standard 分词器：(默认的)他会将词汇单元转换成小写形式，并去除停用词和标点符号，支持中文采用的方法为单字切分
-
-simple 分词器：首先会通过非字母字符来分割文本信息，然后将词汇单元统一为小写形式。该分析器会去掉数字类型的字符。
-
-Whitespace 分词器：仅仅是去除空格，对字符没有lowcase化,不支持中文；
-并且不对生成的词汇单元进行其他的标准化处理。
-
-language 分词器：特定语言的分词器，不支持中文
 
 ## 使用 Kibana 进行操作
 
@@ -624,7 +1319,7 @@ PUT lib2
 DELETE /lib
 ```
 
-**查看索引**
+**查看现有索引**
 
 ```
 GET _cat/indices
@@ -645,7 +1340,7 @@ GET /_all/_settings
 
 ### 文档操作
 
-**添加文档, 指定 id 为 1, 使用 PUT 方式**
+**添加文档, 指定 id 为 1, 使用 PUT 方式, 如果索引不存在, es 会自动创建对应的 index 和 type**
 
 ```json
 PUT /lib/user/1
@@ -2939,80 +3634,6 @@ deep paging性能问题
 3. 消耗cpu coordinate node要把传回来的数据进行排序，这个排序过程很消耗cpu.
 
 鉴于deep paging的性能问题，所以应尽量减少使用。
-
-### query string查询及copy_to解析
-
-**query string**
-
-```
-DELETE /myindex
-
-PUT /myindex/article/1
-{
-  "post_date": "2019-05-10",
-  "title": "Java",
-  "content": "Java is best language",
-  "author_id": 119
-}
-
-PUT /myindex/article/2
-{
-  "post_date": "2019-05-12",
-  "title": "html",
-  "content": "I like html",
-  "author_id": 120
-}
-
-PUT /myindex/article/3
-{
-  "post_date": "2019-05-16",
-  "title": "es",
-  "content": "es is distributed document store",
-  "author_id": 120
-}
-
-GET /myindex/_mapping
-
-GET /myindex/article/_search
-
-GET /myindex/article/_search?q=post_date:2019-05-16 # 日期类型不分词, 精确匹配
-
-GET /myindex/article/_search?q=content:html # 查询 content 字段中含有 html 的
-
-GET /myindex/article/_search?q=html,document # 因为没有指定具体字段, 所以在全部字段中查询含有 html 或document 的文档, 性能低下
-```
-
-**copy_to 字段是把其它字段中的值，以空格为分隔符组成一个大字符串，然后被分析和索引，但是不存储，也就是说它能被查询，但不能被取回显示, 可以提高性能。**
-
-**注意: copy_to 指向的字段字段类型要为：text**
-
-当没有指定 field 时，就会从 copy_to 字段中查询, 如果要使用 copy_to 字段, 需要自己创建 mapping
-
-```
-DELETE /myindex
-
-PUT /myindex
-
-PUT /myindex/article/_mapping
-{
-	"properties": {
-		"post_date": {
-			"type": "date"
-		},
-		"title": {
-			"type": "text",
-			"copy_to": "fullcontents"
-		},
-		"content": {
-			"type": "text",
-			"copy_to": "fullcontents"
-		},
-		"author_id": {
-			"type": "integer"
-		}
-	}
-}
-```
 
 
 
