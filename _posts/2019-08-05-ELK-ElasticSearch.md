@@ -1283,6 +1283,127 @@ GET /my_index/_mapping
 
 https://www.elastic.co/guide/en/elasticsearch/reference/current/dynamic-templates.html
 
+### 自定义 Mapping 的建议
+
+自定义 Mapping 的操作步骤如下
+
+1. 写入一条文档到 es 的临时索引中, 获取 es 自动生成的 mapping
+2. 修改步骤 1 得到的 mapping, 自定义相关配置
+3. 使用步骤 2 的 mapping 创建实际所需索引
+
+```json
+# 临时索引
+DELETE /test_index
+PUT /test_index/doc/1
+{
+  "referrer": "-",
+  "response_code": "200",
+  "remote_ip": "171.221.139.157",
+  "method": "POST",
+  "user_name": "-",
+  "http_version": "1.1",
+  "body_sent": {
+    "bytes": "0"
+  },
+  "url": "/analyzeVideo"
+}
+
+GET /test_index/_mapping
+
+# 修改临时索引的 mapping 设置, 创建实际要插入的索引
+DELETE /my_product_index
+PUT /my_product_index
+{
+  "mappings": {
+    "doc": {
+      "dynamic_templates": [
+        {
+          "strings": {
+            "match_mapping_type": "string",
+            "mapping": {
+              "type": "keyword"
+            }
+          }
+        }
+      ],
+      "properties": {
+        "body_sent": {
+          "properties": {
+            "bytes": {
+              "type": "long"
+            }
+          }
+        },
+        "url": {
+          "type": "text"
+        }
+      }
+    }
+  }
+}
+
+PUT /my_product_index/doc/1
+{
+  "referrer": "-",
+  "response_code": "200",
+  "remote_ip": "171.221.139.157",
+  "method": "POST",
+  "user_name": "-",
+  "http_version": "1.1",
+  "body_sent": {
+    "bytes": "0"
+  },
+  "url": "/analyzeVideo"
+}
+
+GET /my_product_index/_mapping
+```
+
+### 索引模板
+
+索引模板, 英文名称 Index Template, 主要用于在新建索引时自动应用预先设定的配置
+
+简化索引创建的操作步骤
+
+* 可以设定索引的配置和 mapping
+* 可以有多个模板, 根据 order 设置, order 大的覆盖小的配置
+
+索引模板 API, endpoint 为 _template
+
+```json
+PUT /_template/test_template # template 的名称
+{
+	"index_patterns": ["te*", "bar*"], # 匹配的索引名称
+	"order": 0, # order 的顺序配置, order 越大优先级越高
+	"settings": { # 索引的配置
+		"number_of_shards": 1
+	},
+	"mappings": {
+		"doc": {
+			"_source": {
+				"enabled": false # 不记录原始数据
+			},
+			"properties": {
+				"name": {
+					"type": "keyword"
+				}
+			}
+		}
+	}
+}
+
+DELETE /test_index
+PUT /test_index
+GET /test_index/_mapping
+
+# 查看所有索引模板
+GET _template
+# 查看指定名称的索引模板
+GET _template/test_template
+# 删除索引模板
+DELETE _template/test_template
+```
+
 
 
 ## 使用 Kibana 进行操作
@@ -1589,6 +1710,263 @@ bulk一次最大处理多少数据量:
 　　一般建议是1000-5000个文档，大小建议是5-15MB，默认不能超过100M，可以在 es 的配置文件（即$ES_HOME下的config下的elasticsearch.yml）中。
 
 ## ElasticSearch查询
+
+实现对 es 中存储的数据进行查询分析, endpoint 为 _search
+
+```
+GET /_search
+GET /my_index/_search
+GET /my_index1,my_index2/_search
+GET /my_*/_search
+```
+
+查询主要有两种形式
+
+* URI Search
+
+  操作简便, 方便通过命令行做测试
+
+  仅包含部分查询语法
+
+  ```
+  GET /my_index/_search?q=user:alfred
+  ```
+
+* Request Body Search
+
+  es 提供的完备查询语法 Query DSL(Domain Specific Language)
+
+  ```
+  GET /my_index/_search
+  {
+  	"query": {
+  		"term": {
+  			"name": ["user", "alfred"]
+  		}
+  	}
+  }
+  ```
+
+
+
+### URI Search
+
+通过 url query 参数来实现搜索, 常用参数如下
+
+* q 指定查询语句, 语法为 Query String Syntax
+* df q 中不指定字段时默认查询的字段, 如果不指定, es 会查询所有字段
+* sort 排序
+* timeout 指定超时时间, 默认不超时
+* from, size 分页, 从 0 开始
+
+查询 user 字段包含 alfred 的文档, 结果按照 age 升序排序, 返回第 5~14 个文档, 如果超过 1s 没有结束, 则以超时结束
+
+```
+GET /my_index/_search?q=alfred&df=user&sort=age:asc&from=4&size=10&timeout=1s
+```
+
+#### Query String Syntax
+
+* term 与 phrase
+
+  q=alfred way 等效于 alfred OR way
+
+  q="alfred way" 词语查询, 要求先后顺序
+
+* 泛查询
+
+  q=alfred 等效于在所有字段中
+
+* 指定字段
+
+  q=name:alfred
+
+* Group 分组设定, 使用括号指定匹配的规则
+
+  (quick OR brown) AND fox
+
+  q=status:(active OR pending) title:(full text search), 如果不加括号就是查询 status 是 active 或者在所有字段中查找是 pending 的文档
+
+* 布尔操作符
+
+  AND(&&), OR(||), NOT(!)
+
+  q=name:(tom NOT lee)
+
+  注意大写, 不能小写
+
+  \+ - 分别对应 must 和 must_not
+
+  q=name:(tom +lee -alfred)
+
+  q=name:((lee && !alfred) || (tom && lee && !alfred))
+
+  \+ 在 url 中会被解析为空格, 要使用 encode 后的结果才可以, 为 %2B
+
+  布尔查询可以理解为先分词进行查询, 再将布尔条件组合起来筛选符合条件的文档
+
+* 范围查询
+
+  区间写法, 必须见用[], 开区间用{}
+
+  q=age[1 TO 10], 1 <= age <= 10
+
+  q=age[1 TO 10}, 1 <= age < 10
+
+  q=age[1 TO ], age >= 1
+
+  q=age[* TO 10], age <= 10
+
+  算数符号写法
+
+  q=age: >=1
+
+  q=age:(>=1 && <=10) 或者 age:(+ >=1 + <=10)
+
+* 通配符
+
+  ? 代表 1 个字符, * 代表 0 个或多个字符
+
+  q=name:t?m
+
+  q=name:tom*
+
+  q=name:t*m
+
+  通配符匹配执行效率低, 且占用内存多, 不建议使用
+
+  如无特殊需求, 不要将 ?/* 放在最前面
+
+* 正则表达式
+
+  q=name:/[mb]oat/
+
+* 模糊匹配 fuzzy query
+
+  name:roam~1
+
+  匹配与 roam 差一个character 的词, 比如 foam, roams 等
+
+* 近似度查询 proximity search
+
+  "fox quick"~5
+
+  以 term 为单位进行差异比较, 比如 "quick fox" "quick brown fox" 都会被匹配
+
+```json
+DELETE test_search_index
+
+PUT test_search_index
+{
+  "settings": {
+    "index":{
+        "number_of_shards": "1"
+    }
+  }
+}
+
+POST test_search_index/doc/_bulk
+{"index":{"_id":"1"}}
+{"username":"alfred way","job":"java engineer","age":18,"birth":"1990-01-02","isMarried":false}
+{"index":{"_id":"2"}}
+{"username":"alfred","job":"java senior engineer and java specialist","age":28,"birth":"1980-05-07","isMarried":true}
+{"index":{"_id":"3"}}
+{"username":"lee","job":"java and ruby engineer","age":22,"birth":"1985-08-07","isMarried":false}
+{"index":{"_id":"4"}}
+{"username":"alfred junior way","job":"ruby engineer","age":23,"birth":"1989-08-07","isMarried":false}
+
+# 泛查询(不指定查询字段), 在所有字段中查找包含 alfred 的文档
+GET /test_search_index/_search?q=alfred
+# 查看真正执行的查询语句
+GET /test_search_index/_search?q=alfred
+{
+	"profile": true
+}
+# 指定字段查询
+GET /test_search_index/_search?q=username:alfred
+
+# term 查询, 相当于 username:alfred OR 在所有字段中查找包含 way 的文档, 从左到右分组
+GET /test_search_index/_search?q=username:alfred way
+
+# term 查询真正执行的语句
+GET /test_search_index/_search?q=username:alfred way
+{
+  "profile": "true"
+}
+
+# phrase 查询, 相当于在 username 字段中查找 alfred way 这个词语
+GET /test_search_index/_search?q=username:"alfred way"
+
+GET /test_search_index/_search?q=username:"alfred way"
+{
+  "profile": "true"
+}
+
+# group 查询
+GET /test_search_index/_search?q=username:(alfred way)
+
+# 对日期范围查询
+GET /test_search_index/_search?q=birth:(>1980 AND <1999)
+```
+
+
+
+### QueryDSL
+
+将查询语句通过 http request body 发送到 es, 主要包含如下参数
+
+* query 符合 Query DSL 语法的查询语句
+* from, size
+* timeout
+* sort
+* ...
+
+```json
+GET /my_index/_search
+{
+	"query": {
+		"term": {"user", "alfred"}
+	}
+}
+```
+
+#### 字段类查询
+
+如 term, match, range 等, 只针对某一个字段进行查询, 字段类查询主要包括全文匹配和单词匹配
+
+##### 全文匹配
+
+针对 text 类型的字段进行全文检索, 会对查询语句先进行分词处理, 如 match, match_phrase 等 query 类型
+
+**Match Query**
+
+```
+GET /test_search_index/_search
+{
+	"profile": true,
+	"query": {
+		"match": {
+			"username": "alfred way"
+		}
+	}
+}
+```
+
+
+
+##### 单词匹配
+
+不会对查询语句做分词处理, 直接去匹配字段的倒排索引, 如 term, terms, range 等 query 类型
+
+![http://www.miaomiaoqi.cn/images/elastic/search/es_14.png](http://www.miaomiaoqi.cn/images/elastic/search/es_14.png)
+
+#### 复合查询
+
+如 bool 查询等, 包含一个或多个字段类查询或者复合查询语句
+
+
+
+
 
 ### 基本查询(Query查询)(英文)
 
