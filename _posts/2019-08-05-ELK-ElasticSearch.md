@@ -1958,6 +1958,19 @@ GET /test_search_index/_search
 
 不会对查询语句做分词处理, 直接去匹配字段的倒排索引, 如 term, terms, range 等 query 类型
 
+```json
+GET /test_search_index/_search
+{
+  "profile": true,
+	"query": {
+		"match": {
+			"username": "alfred way", # 会先进行分词, 只包含任一个分词后的 term 即可
+      "
+		}
+	}
+}
+```
+
 ![http://www.miaomiaoqi.cn/images/elastic/search/es_14.png](http://www.miaomiaoqi.cn/images/elastic/search/es_14.png)
 
 #### 复合查询
@@ -2042,7 +2055,7 @@ PUT /lib3/user/5
 
 #### 简单查询
 
-```
+```json
 GET /lib3/user/_search?q=name:lisi
 
 GET /lib3/user/_search?q=interests:changge&sort=age:desc
@@ -2213,7 +2226,8 @@ GET lib3/user/_search
 {
   "query": {
     "match_phrase": {
-      "interests": "duanlian，shuoxiangsheng"
+      "interests": "duanlian，shuoxiangsheng",
+      "slop": 1 # 词语间可以有 1 个其他词语
     }
   }
 }
@@ -4098,9 +4112,9 @@ PUT /lib3
 
 ### 如何计算相关度分数
 
-**使用的是 TF/IDF 算法(Term Frequency&Inverse Document Frequency)**
+**TF/IDF 算法(Term Frequency&Inverse Document Frequency)**
 
-1. Term Frequency:我们查询的文本中的词条在document本中出现了多少次，出现次数越多，相关度越高
+1. **Term Frequency(TF): **词频, 即单词在该文档中出现的次数. **词频越高, 相关度越高**
 
     搜索内容： hello world
 
@@ -4108,7 +4122,9 @@ PUT /lib3
 
     Hello world,how are you!
 
-2. Inverse Document Frequency：我们查询的文本中的词条在索引的所有文档中出现了多少次，**出现的次数越多，相关度越低**
+2. **Document Frequency(DF):** 文档频率, 即单词出现的文档数
+
+3. **Inverse Document Frequency(IDF)：**逆向文档频率, 与文档频率相反, 简单理解为 1/DF. **即单词出现的文档数越少, 相关度越高**
 
     搜索内容：hello world
 
@@ -4118,7 +4134,7 @@ PUT /lib3
 
     hello 在索引的所有文档中出现了500次，world出现了100次
 
-3. Field-length(字段长度归约) norm:field越长，相关度越低
+4. **Field-length norm:** 字段长度归约, **文档越短, 相关度越高**
 
     搜索内容：hello world
 
@@ -4127,6 +4143,12 @@ PUT /lib3
     
     {"title":"hi,good morning","content":{"lkjkljkj.......world"}}
     ```
+
+
+
+**BM25模型, 5.x 之后的默认模型**
+
+
 
 查看分数是如何计算的：
 
