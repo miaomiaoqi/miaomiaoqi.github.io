@@ -2226,8 +2226,19 @@ GET lib3/user/_search
 {
   "query": {
     "match_phrase": {
-      "interests": "duanlian，shuoxiangsheng",
-      "slop": 1 # 词语间可以有 1 个其他词语
+      "interests": "duanlian，shuoxiangsheng"
+    }
+  }
+}
+
+GET /lib3/user/_search
+{
+  "query": {
+    "match_phrase": {
+      "interests": {
+        "query": "hejiu, lvyou",
+        "slop": "1" # 允许短语间有 1 个其他词语
+      }
     }
   }
 }
@@ -2344,13 +2355,9 @@ GET /lib3/user/_search
 
 #### 范围查询
 
-range:实现范围查询
+range:实现范围查询, 主要针对数值和日期类型
 
-参数：from,to,include_lower,include_upper,boost
-
-include_lower:是否包含范围的左边界，默认是true
-
-include_upper:是否包含范围的右边界，默认是true
+参数：gt, gte, lt, lte
 
 ```json
 GET /lib3/user/_search
@@ -2358,8 +2365,7 @@ GET /lib3/user/_search
   "query": {
     "range": {
       "birthday": {
-        "from": "1990-10-10",
-        "to": "2018-05-01"
+        "gte": "1990-10-10"
       }
     }
   }
@@ -2370,10 +2376,8 @@ GET /lib3/user/_search
   "query": {
     "range": {
       "age": {
-        "from": 20,
-        "to": 25,
-        "include_lower": true,
-        "include_upper": false
+        "gte": 20,
+        "lte": 25
       }
     }
   }
