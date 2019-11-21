@@ -3543,11 +3543,17 @@ es 默认每 1 秒执行一次 refresh, 因此文档的实时性被提高到 1 �
 
 ![http://www.miaomiaoqi.cn/images/elastic/search/es_20.png](http://www.miaomiaoqi.cn/images/elastic/search/es_20.png)
 
+refresh 发生的时机主要有如下几种情况
+
+* 间隔时间达到, 通过 `index.settings.refresh_interval` 来设定, 默认是 1s
+* index.buffer 占满时, 其大小通过 `indices.memory.index_buffer_size` 设置, 默认为 jvm heap 的 10%, **所有的 shard 共享**
+* flush 发生时也会 refresh
+
 **translog**
 
 如果在内存中的 segment 还没有写入磁盘前发生了宕机, 那么其中的文档就无法恢复了, 如何解决这个问题?
 
-es 引入了 translog 机制, 写入文档到 buffer 时, 同时将该操作写入 translog, **translog 文件会即时写入磁盘(fsync)**, 6.x 默认每个请求都会落盘, 可以修改为每 5 秒写一次, 这样的风险便是丢失 5 秒内的数据, 相关配置为 `index.translog.*`, es 启动时会检查 translog 文件, 并从中恢复数据
+es 引入了 translog 机制, 写入文档到 buffer 时, 同时将该操作写入 translog, **translog 会即时写入磁盘(fsync) 生成 translog file**, 6.x 默认每个请求都会落盘, 可以修改为每 5 秒写一次, 这样的风险便是丢失 5 秒内的数据, 相关配置为 `index.translog.*`, es 启动时会检查 translog 文件, 并从中恢复数据
 
 ```
 "index.translog.durability": "request" # 每个请求都落盘
@@ -3561,7 +3567,53 @@ PUT /my_index/_settings
 
 ![http://www.miaomiaoqi.cn/images/elastic/search/es_21.png](http://www.miaomiaoqi.cn/images/elastic/search/es_21.png)
 
-### Shard 详解
+**flush**
+
+将 translog 写入磁盘
+
+将 index buffer 清空, 其中的文档生成一个新的 segment, 相当于一个 refresh 操作
+
+执行 fsync 操作, 将内存中的 segment 写入磁盘
+
+更新 commit point 写入磁盘
+
+删除旧的 translog 文件
+
+![http://www.miaomiaoqi.cn/images/elastic/search/es_22.png](http://www.miaomiaoqi.cn/images/elastic/search/es_22.png)
+
+flush 发生时机
+
+* 间隔时间达到时, 默认是 30 分钟, 5.x 之前可以通过 `index.translog.flush_threshold_period` 修改, 之后无法修改
+* translog 占满时, 其大小可以通过 `index.translog.flush_threshold_size` 控制, 默认是 512m, 每个 index 有自己的 translog
+
+![http://www.miaomiaoqi.cn/images/elastic/search/es_23.png](http://www.miaomiaoqi.cn/images/elastic/search/es_23.png)
+
+**图中的每个 shard 对应一个 lucene index**
+
+**删除与更新文档**
+
+segment 一旦生成就不能更改, 那么如果你要删除文档该如何操作?
+
+* lucene 专门维护了一个.del 的文件, 记录所有已经删除的文档, 注意 .del 上记录的是文档在 Lucene 内部的 id
+* 在查询结果返回前会过滤掉 .del 中的所有文档
+
+更新文档如何进行呢?
+
+* 首先删除文档, 然后再创建新文档
+
+**segment merging**
+
+随着 segment 的增多, 由于一次查询的 segment 数增多, 查询速度会变慢
+
+es 会定时在后台进行 segment merge 操作, 减少 segment 的数量
+
+通过 force_merge api 可以手动强制做 segment merge 操作
+
+
+
+## 深入 Search 运行机制
+
+
 
 ## ElasticSearch 分布式架构
 
