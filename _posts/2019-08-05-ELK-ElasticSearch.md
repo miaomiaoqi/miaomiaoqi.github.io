@@ -3499,7 +3499,7 @@ Document1 是如何存储到分片 P1 的? 选择 P1 的依据是什么?
 
 3 个节点组成的集群, 突然 node1 的网络和其他两个节点中断, node2 和 node3 会重新选举 master, 比如 node2 成为了新的 master, 此时会更新 cluster state, node1 自己组成集群后, 也会更新 cluster state, 同一个集群由两个master, 而且维护不同的cluster state, 网络恢复后无法选择正确的 master
 
-![http://www.miaomiaoqi.cn/iamges/elastic/search/es_16.png](http://www.miaomiaoqi.cn/iamges/elastic/search/es_16.png)
+![http://www.miaomiaoqi.cn/images/elastic/search/es_16.png](http://www.miaomiaoqi.cn/images/elastic/search/es_16.png)
 
 解决方案为仅在可选举的 master-eligible 节点数大于等于 quorum 时才可以进行 master 选举
 
@@ -3612,6 +3612,15 @@ es 会定时在后台进行 segment merge 操作, 减少 segment 的数量
 
 
 ## 深入 Search 运行机制
+
+Search 执行的时候实际分两个步骤运作的
+
+* Query 阶段
+* Fetch 阶段
+
+Query-Then-Fetch
+
+### Query 阶段
 
 
 
