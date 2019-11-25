@@ -3499,7 +3499,7 @@ Document1 是如何存储到分片 P1 的? 选择 P1 的依据是什么?
 
 3 个节点组成的集群, 突然 node1 的网络和其他两个节点中断, node2 和 node3 会重新选举 master, 比如 node2 成为了新的 master, 此时会更新 cluster state, node1 自己组成集群后, 也会更新 cluster state, 同一个集群由两个master, 而且维护不同的cluster state, 网络恢复后无法选择正确的 master
 
-![http://www.miaomiaoqi.cn/images/elastic/search/es_16.png](http://www.miaomiaoqi.cn/images/elastic/search/es_16.png)
+![http://www.miaomiaoqi.cn/images/elastic/search/es_16.png](http://www.miaomiaoqi.cn//elastic/search/es_16.png)
 
 解决方案为仅在可选举的 master-eligible 节点数大于等于 quorum 时才可以进行 master 选举
 
@@ -3621,6 +3621,227 @@ Search 执行的时候实际分两个步骤运作的
 Query-Then-Fetch
 
 ### Query 阶段
+
+1. node3 接收到用户的 search 请求**(这里的请求不是根据 id 的请求, 无法准确路由到某个 shard)**, 会先进行 Query 阶段(此时是 Coordinating Node 角色)
+2. node3 在 6 个主副分片中随机选择 3 个分片, 发送 search request
+3. 被选中的 3 个分片会分别执行查询并排序, 返回 from + size 个文档 id 和排序值(这里只返回 id, 不返回文档本身内容)
+4. node3 整合 3 个分片返回的 from + size 个文档 id, **根据排序值排序后选取 from 到 from + size 的文档 id**
+
+![http://www.miaomiaoqi.cn/images/elastic/search/es_24.png](http://www.miaomiaoqi.cn/images/elastic/search/es_24.png)
+
+### Fetch 阶段
+
+1. node3 根据 Query 阶段获取的文档 id 列表去对应的 shard 上获取文档详情数据
+2. node3 向相关 shard 发送 multi_get 请求
+3. 3 个分片返回文档的详细数据
+4. node3 拼接返回的结果并返回给客户
+
+![http://www.miaomiaoqi.cn/images/elastic/search/es_25.png](http://www.miaomiaoqi.cn/images/elastic/search/es_25.png)
+
+### 相关性算分问题
+
+**相关性算分在 shard 和 shard 之间是相互独立的**, 也就意味着同一个 Term 的 IDF 在等值在不同 shard 上是不同的. 文档的相关性算分和它所处的 shard 有关
+
+**在文档数量不多时, 会导致相关性算分严重不准的情况发生**, 比如 shard0 有 10 个文档, shard1 只有 1 个文档, 有可能那 1 个文档的相关性算分远远高于其他 10 个文档
+
+```json
+DELETE test_search_relevance
+PUT test_search_relevance
+{
+  "settings": {
+    "index":{
+      # "number_of_shards": 1
+      "number_of_shards":5 # 通过改变分片数, 使文档集中到一个 shrad 上
+    }
+  }
+}
+
+POST test_search_relevance/doc
+{
+  "name":"hello"
+}
+
+POST test_search_relevance/doc
+{
+  "name":"hello,world"
+}
+
+POST test_search_relevance/doc
+{
+  "name":"hello,world!a beautiful world"
+}
+
+# 理论上 hello 的评分应该是最高的
+GET test_search_relevance/_search
+
+GET test_search_relevance
+
+# 查看相关性算分
+GET test_search_relevance/_search
+{
+  "explain": true, 
+  "query": {
+    "match":{
+      "name":"hello"
+    }
+  }
+}
+```
+
+解决该问题的思路有两个
+
+* 一是设置分片数为 1 个, 从根本上排除问题, 在文档数量不多的时候可以考虑该方案, 比如百万到千万级别的文档数量
+
+* 二是使用 DFS Query-then-Fetch 查询方式
+
+  DFS Query-then-Fetch 是在拿到所有文档后再重新完整的计算一次相关性算分, 耗费更多的 cpu 和内存, 执行性能也比较低下, 一般不建议使用, 指定 search_type=dfs_query_then_fetch
+
+  ```json
+  GET test_search_relevance/_search?search_type=dfs_query_then_fetch
+  {
+    "query": {
+      "match":{
+        "name":"hello"
+      }
+    }
+  }
+  ```
+
+
+
+### 排序
+
+es 默认会采用相关性算分排序, 用户可以通过设定 sorting 参数来自行设定排序规则
+
+```json
+GET test_search_index/_search
+{
+	"sort": { # 关键词
+		"birth": "desc"
+	}
+}
+
+GET test_search_index/_search
+{
+  "sort": [
+    {
+      "birth": "desc" # 关键词排序
+    },
+    {
+      "_score": "desc" # 相关性得分排序
+    },
+    {
+      "_doc": "desc" # 按照文档内部 id, 和索引的顺序相关(分片内唯一)
+    }
+  ]
+}
+```
+
+```json
+DELETE test_search_index
+
+PUT test_search_index
+{
+  "settings": {
+    "index":{
+        "number_of_shards": "1"
+    }
+  }
+}
+
+POST test_search_index/doc/_bulk
+{"index":{"_id":"1"}}
+{"username":"alfred way","job":"java engineer","age":18,"birth":"1990-01-02","isMarried":false}
+{"index":{"_id":"2"}}
+{"username":"alfred","job":"java senior engineer and java specialist","age":28,"birth":"1980-05-07","isMarried":true}
+{"index":{"_id":"3"}}
+{"username":"lee","job":"java and ruby engineer","age":22,"birth":"1985-08-07","isMarried":false}
+{"index":{"_id":"4"}}
+{"username":"alfred junior way","job":"ruby engineer","age":23,"birth":"1989-08-07","isMarried":false}
+
+
+
+# score is null here
+GET test_search_index/_search
+{
+  "query":{
+    "match": {
+      "username": "alfred"
+    }
+  },
+  "sort":{
+    "birth":"desc"
+  }
+}
+
+GET test_search_index/_search
+{
+  "query":{
+    "match": {
+      "username": "alfred"
+    }
+  },
+  "sort": [
+    {
+      "birth": "desc"
+    },
+    {
+      "_score": "desc"
+    },
+    {
+      "_doc": "desc"
+    }
+  ]
+}
+
+PUT test_search_index/doc/0
+{
+  "username":"aaa"
+}
+
+DELETE test_search_index/doc/2
+
+GET test_search_index
+
+GET test_search_index/_search
+{
+  "sort": [
+    {
+      "username": "asc"
+    }
+  ]
+}
+
+GET test_search_index/_search
+{
+  "sort": [
+    {
+      "username": "desc"
+    },
+    {
+      "_id": "desc"
+    }
+  ]
+}
+
+DELETE test_search_index/doc/5
+
+PUT test_search_index/doc/5
+{
+  "username":"alfred junior zoo"
+}
+
+DELETE test_search_index/doc/5
+
+GET test_search_index/_search
+{
+  "sort":{
+    "username.keyword":"desc"
+  }
+}
+```
+
+
 
 
 
