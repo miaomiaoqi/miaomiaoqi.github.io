@@ -3841,7 +3841,367 @@ GET test_search_index/_search
 }
 ```
 
+**es 按照字符串排序比较特殊, 因为 es 有 text 和 keyword 两种类型, 针对 text 类型排序会报错误, 针对 keyword 类型是可以排序的, 因为默认开启了 docvalues**
 
+```json
+GET test_search_index/_search
+{
+  "sort": {
+    "username": "desc"
+  }
+}
+
+{
+  "error": {
+    "root_cause": [
+      {
+        "type": "illegal_argument_exception",
+        "reason": "Fielddata is disabled on text fields by default. Set fielddata=true on [username] in order to load fielddata in memory by uninverting the inverted index. Note that this can however use significant memory. Alternatively use a keyword field instead."
+      }
+    ],
+    "type": "search_phase_execution_exception",
+    "reason": "all shards failed",
+    "phase": "query",
+    "grouped": true,
+    "failed_shards": [
+      {
+        "shard": 0,
+        "index": "test_search_index",
+        "node": "0yILyYBVQ1Cqw-7-3tLHkg",
+        "reason": {
+          "type": "illegal_argument_exception",
+          "reason": "Fielddata is disabled on text fields by default. Set fielddata=true on [username] in order to load fielddata in memory by uninverting the inverted index. Note that this can however use significant memory. Alternatively use a keyword field instead."
+        }
+      }
+    ],
+```
+
+排序的过程实质是对原始内容排序的过程, 这个过程中**倒排索引无法发挥作用**, 需要用到正排索引, 也就是通过文档 id 和字段可以快速得到字段原始内容
+
+es 对此提供了两种实现方式
+
+* fielddata 默认禁用, 可以通过如下 API 开启, **此时字符串是按照分词后的 term 排序的**, 往往结果很难符合预期, 一般是在对分词做聚合分析的时候开启, **fielddata 只针对 text 类型生效**
+
+  ```json
+  PUT test_search_index/_mapping/doc
+  {
+  	"properties": {
+  		"username": {
+  			"type": "text", # 类型不可以修改
+  			"fielddata": true # fielddate 可以随时开启和关闭
+  		}
+  	}
+  }
+  
+  GET test_search_index/_search
+  {
+    "sort": {
+      "username": "desc"
+    }
+  }
+  ```
+
+  
+
+* doc values 默认启用, 除了 text 类型, 可以在创建索引时就选择关闭, **如果后边要开启 doc values, 需要做 reindex 操作**
+
+  ```json
+  DELETE test_doc_values
+  
+  PUT test_doc_values
+  
+  GET test_doc_values
+  
+  PUT test_doc_values/_mapping/doc
+  {
+    "properties": {
+      "username": {
+        "type": "keyword",
+        "doc_values": false # 关闭 docvalues, 就不能排序了, 后续也不能修改该字段
+      },
+      "hobby": {
+        "type": "keyword"
+      }
+    }
+  }
+  
+  PUT test_doc_values/doc/1
+  {
+    "username":"alfred",
+    "hobby":"basketball"
+  }
+  
+  GET test_doc_values/_search
+  {
+    "sort":"username"
+  }
+  
+  GET test_doc_values/_search
+  {
+    "sort":"hobby"
+  }
+  ```
+
+  ```
+  # can be used to get original field value for not stored field
+  PUT test_search_index/_mapping/doc
+  {
+    "properties": {
+      "username":{
+        "type":"text",
+        "fielddata": false
+      }
+    }
+  }
+  
+  GET test_search_index/_search
+  {
+    "docvalue_fields": [ # 通过 docvalue_fields 可以查看具体的排序内容
+      "username",
+      "username.keyword",
+      "age"
+    ]
+  }
+  
+  PUT test_search_index/_mapping/doc
+  {
+    "properties": {
+      "username":{
+        "type":"text",
+        "fielddata": true
+      }
+    }
+  }
+  ```
+
+  
+
+|   对比   |                      FieldData                       |               DocValues                |
+| :------: | :--------------------------------------------------: | :------------------------------------: |
+| 创建时机 |                      搜索时创建                      |   索引时创建, 与倒排索引创建时机一致   |
+| 创建位置 |                       JVM Heap                       |                  磁盘                  |
+|   优点   |                不会占用额外的磁盘资源                |      不会占用 Heap 内存, 减少 GC       |
+|   缺点   | 文档过多时, 即时创建会花过多时间, 占用过多 Heap 内存 | 减慢索引的创建速度, 占用额外的磁盘资源 |
+
+
+
+### 分页与遍历
+
+es 提供了 3 种方式来解决分页与遍历的问题
+
+* from/size
+* scroll
+* search_after
+
+#### From/Size
+
+最常用的分页方案
+
+**from:** 指明开始位置, 从 0 开始
+
+**size:** 指明获取总数
+
+```json
+GET test_search_index/_search
+{
+	"from": 1,
+	"size": 2
+}
+```
+
+```json
+# pagination
+GET test_search_index/_search
+{
+  "from":0,
+  "size":2
+}
+
+# total_page=(total+page_size-1)/page_size
+GET test_search_index/_search
+{
+  "from":9998, # 因为分片的原因, 每个 shard 都要获取 9998 个文档再汇总排序, 浪费性能
+  "size":2
+}
+```
+
+**深度分页(deep paging)是一个经典的问题**: 查询的很深，比如一个索引有三个 primary shard，分别存储了 6000 条数据，我们要得到第 100 页的数据(每页 10条)，类似这种情况就叫deep paging
+
+如何得到第100页的10条数据？
+
+在每个shard中搜索990到999这10条数据，然后用这30条数据排序，排序之后取10条数据就是要搜索的数据，这种做法是错的，因为3个shard中的数据的_score分数不一样，可能这某一个shard中第一条数据的_score分数比另一个shard中第1000条都要高，所以在每个shard中搜索990到999这10条数据然后排序的做法是不正确的。
+
+正确的做法是每个shard把0到999条数据全部搜索出来（按排序顺序），然后全部返回给coordinate node，由coordinate node按_score分数排序后，取出第100页的10条数据，然后返回给客户端。
+
+
+deep paging性能问题
+
+1. 耗费网络带宽，因为搜索过深的话，各 shard 要把数据传送给 coordinate node，这个过程是有大量数据传递的，消耗网络，
+
+2. 消耗内存，各 shard 要把数据传送给 coordinate node，这个传递回来的数据，是被 coordinate node 保存在内存中的，这样会大量消耗内存。
+
+3. 消耗 cpu, coordinate node 要把传回来的数据进行排序，这个排序过程很消耗 cpu
+
+鉴于 deep paging 的性能问题，所以应尽量减少使用, es 通过 `index.max_result_window` 限定最多到 10000 条数据
+
+
+
+#### Scroll
+
+遍历文档集的 api, 以快照的方式来避免深度分页的问题
+
+* 不能用来做实时搜索, 因为数据不是实时的
+* 尽量不要使用复杂的 sort 条件, 使用 _doc 最高效
+* 使用稍显复杂
+
+如果一次性要查出来比如10万条数据，那么性能会很差，此时一般会采取用 scroll 滚动查询，一批一批的查，直到所有数据都查询完为止。
+
+1. scoll 搜索会在第一次搜索的时候，保存一个当时的视图快照, 并返回一个快照的 id，之后只会基于该旧的视图快照提供数据搜索，如果这个期间数据变更，是不会让用户看到的
+2. 采用基于 \_doc(不使用_ score)进行排序的方式，性能较高
+3. 每次发送 scroll 请求，我们还需要指定一个scoll参数，指定一个时间窗口，每次搜索请求只要在这个时间窗口内能完成就可以了
+4. 当 hits 为 [] 的时候, 就代表最后一条了
+
+```json
+# scroll
+GET test_search_index/_search?scroll=5m
+{
+  "size":1
+}
+
+
+GET _search/scroll
+GET test_search_index/_search
+
+# new doc can not be searched
+PUT test_search_index/doc/10
+{
+  "username":"doc10"
+}
+
+
+DELETE test_search_index/doc/10
+
+POST _search/scroll
+{
+  "scroll" : "5m", 
+  "scroll_id": "DXF1ZXJ5QW5kRmV0Y2gBAAAAAAABbTEWMHlJTHlZQlZRMUNxdy03LTN0TEhrZw=="
+}
+
+# 删除指定 id 的快照
+DELETE /_search/scroll
+{
+  "scroll_id": [
+    "DXFSFASM...",
+    "MGGPASmoasM..."
+  ]
+}
+
+# 删除内存中的所有快照
+DELETE _search/scroll/_all
+```
+
+
+
+#### Search After
+
+避免深度分页的性能问题, 提供实时的下一页文档获取功能
+
+* 缺点是不能使用 from 参数, 即不能指定页数
+* 只能下一页, 不能上一页
+* 使用简单
+
+```json
+# search_after
+GET test_search_index/_search
+{
+  "size":1,
+  "sort":{ # 要保障 sort 值唯一
+    "age":"desc",
+    "_id":"desc"
+  }
+}
+
+
+GET test_search_index/_search
+{
+  "size":1,
+  "search_after":[23,"4"], # 作为下一次查询的参数
+  "sort":{
+    "age":"desc",
+    "_id":"desc"
+  }
+}
+```
+
+通过唯一排序值定位将每次要处理的文档数都控制在 size 内
+
+
+
+|     类型     |                    场景                    |
+| :----------: | :----------------------------------------: |
+|  From/Size   | 需要实时获取顶部的部分文档, 且需要自由翻页 |
+|    Scroll    |     需要全部文档, 如导出所有数据的功能     |
+| Search_After |        需要全部文档, 不需要自由分页        |
+
+
+
+## 聚合分析(Aggregation)
+
+搜索引擎用来回答如下问题:
+
+* 请告诉我地址为上海的所有订单
+* 请告诉我最近 1 天内创建但没有付款的所有订单
+
+聚合分析可以回答如下问题
+
+* 请告诉我最近 1 周每天的订单成交量是多少
+* 请告诉我最近 1 个月每天的平均订单金额是多少
+* 亲告诉我最近半年卖的最火的前 5 个商品是哪些
+
+聚合分析英文为 Aggregation, 是 es 除搜索功能外提供的针对 es 数据做统计分析的功能, 功能丰富, 提供 Bucket, Metric, Pipeline 等多种分析方式, 可以满足大部分的分析需求
+
+实时性高, 所有的计算结果都是即时返回, 而 hadoop 等大数据系统一般都是 T+1 级别的
+
+聚合分析作为 search 的一部分, api 如下所示
+
+```json
+GET test_search_index/_search
+{
+	"size": 0,
+	"aggs": { # 关键词与 query 同级
+		"<aggregation_name>": { # 自定义聚合名称
+			"<aggregation_type>": {
+				"<aggregation_body>"
+			}
+		[,"aggs": {[<sub_aggregation>]+}]? # 子查询
+		}
+		[,"<aggregation_name_2>": {...}]* # 可以包含多个聚合分析
+	}
+}
+```
+
+请告诉我公司目前在职人员工作岗位的分布情况?
+
+```
+GET test_search_index/_search
+{
+	"size": 0,
+	"aggs": {
+		"pepole_per_job": {
+			"terms": {
+				"field": "job.keyword"
+			}
+		}
+	}
+}
+```
+
+为了便于理解, es 将聚合分析主要分为如下 4 类
+
+* Bucket, 分桶类型, 类似 SQL 中的 GROUP BY 语法
+* Metric, 指标分析类型, 如计算最大值, 最小值, 平均值等
+* Pipeline, 管道分析类型, 基于上一级的聚合分析结果进行再分析
+* Matrix, 矩阵分析类型
 
 
 
@@ -4378,25 +4738,6 @@ GET /lib3/user/_search
 GET /_search?from=0&size=3
 ```
 
-deep paging: 查询的很深，比如一个索引有三个primary shard，分别存储了6000条数据，我们要得到第100页的数据(每页10条)，类似这种情况就叫deep paging
-
-如何得到第100页的10条数据？
-
-在每个shard中搜索990到999这10条数据，然后用这30条数据排序，排序之后取10条数据就是要搜索的数据，这种做法是错的，因为3个shard中的数据的_score分数不一样，可能这某一个shard中第一条数据的_score分数比另一个shard中第1000条都要高，所以在每个shard中搜索990到999这10条数据然后排序的做法是不正确的。
-
-正确的做法是每个shard把0到999条数据全部搜索出来（按排序顺序），然后全部返回给coordinate node，由coordinate node按_score分数排序后，取出第100页的10条数据，然后返回给客户端。
-
-
-deep paging性能问题
-
-1. 耗费网络带宽，因为搜索过深的话，各shard要把数据传送给coordinate node，这个过程是有大量数据传递的，消耗网络，
-
-2. 消耗内存，各shard要把数据传送给coordinate node，这个传递回来的数据，是被coordinate node保存在内存中的，这样会大量消耗内存。
-
-3. 消耗cpu coordinate node要把传回来的数据进行排序，这个排序过程很消耗cpu.
-
-鉴于deep paging的性能问题，所以应尽量减少使用。
-
 
 
 
@@ -4599,35 +4940,6 @@ PUT /lib3
 
 
 
-### 基于scroll技术滚动搜索大量数据
-
-如果一次性要查出来比如10万条数据，那么性能会很差，此时一般会采取用 scroll 滚动查询，一批一批的查，直到所有数据都查询完为止。
-
-1. scoll 搜索会在第一次搜索的时候，保存一个当时的视图快照, 并返回一个快照的 id，之后只会基于该旧的视图快照提供数据搜索，如果这个期间数据变更，是不会让用户看到的
-
-2. 采用基于_doc(不使用_score)进行排序的方式，性能较高
-
-3. 每次发送 scroll 请求，我们还需要指定一个scoll参数，指定一个时间窗口，每次搜索请求只要在这个时间窗口内能完成就可以了
-
-```
-GET /lib3/user/_search?scroll=1m
-{
-  "query": {
-    "match_all": {}
-  },
-  "sort":["_doc"],
-  "size":3
-}
-
-// 根据第一次的 scroll_id 进行查询
-GET /_search/scroll
-{
-   "scroll": "1m",
-   "scroll_id": "DnF1ZXJ5VGhlbkZldGNoAwAAAAAAAAAdFkEwRENOVTdnUUJPWVZUd1p2WE5hV2cAAAAAAAAAHhZBMERDTlU3Z1FCT1lWVHdadlhOYVdnAAAAAAAAAB8WQTBEQ05VN2dRQk9ZVlR3WnZYTmFXZw=="
-}
-```
-
-
 
 ### dynamic mapping策略
 
@@ -4754,9 +5066,9 @@ GET my_index/my_type/_search
 
 ### 重建索引
 
-一个field的设置是不能修改的，如果要修改一个field，那么应该重新按照新的mapping，建立一个index，然后将数据批量查询出来，重新用bulk api写入到index中。
+一个field的设置是不能修改的，如果要修改一个 field，那么应该重新按照新的 mapping，建立一个 index，然后将数据批量查询出来，重新用bulk api写入到 index 中。
 
-批量查询的时候，建议采用scroll api，并且采用多线程并发的方式来reindex数据，每次scroll就查询指定日期的一段数据，交给一个线程即可。
+批量查询的时候，建议采用 scroll api，并且采用多线程并发的方式来 reindex 数据，每次 scroll 就查询指定日期的一段数据，交给一个线程即可。
 
 ```
 PUT /index1/type1/4
@@ -4769,7 +5081,7 @@ GET /index1/type1/_search
 GET /index1/type1/_mapping
 ```
 
-#报错
+**报错**
 
 ```
 PUT /index1/type1/4
@@ -4778,8 +5090,7 @@ PUT /index1/type1/4
 }
 ```
 
-
-#修改content的类型为string类型,报错，不允许修改
+**修改content的类型为string类型,报错，不允许修改**
 
 ```
 PUT /index1/type1/_mapping
@@ -4799,7 +5110,7 @@ PUT /index1/type1/_mapping
 PUT /index1/_alias/index2
 ```
 
-#创建新的索引，把content的类型改为字符串
+**创建新的索引，把content的类型改为字符串**
 
 ```
 PUT /newindex
@@ -4816,7 +5127,7 @@ PUT /newindex
 }
 ```
 
-#使用scroll批量查询
+使用scroll批量查询
 
 ```
 GET /index1/type1/_search?scroll=1m
@@ -4829,7 +5140,7 @@ GET /index1/type1/_search?scroll=1m
 }
 ```
 
-#使用bulk批量写入新的索引
+使用bulk批量写入新的索引
 
 ```
 POST /_bulk
@@ -4837,7 +5148,7 @@ POST /_bulk
 {"content":"1982-12-12"}
 ```
 
-#将别名index2和新的索引关联，应用程序不用重启
+将别名index2和新的索引关联，应用程序不用重启
 
 ```
 POST /_aliases
@@ -4858,7 +5169,7 @@ GET index2/type1/_search
 
 倒排索引包括：
 
-   文档的列表，文档的数量，词条在每个文档中出现的次数，出现的位置，每个文档的长度，所有文档的平均长度
+文档的列表，文档的数量，词条在每个文档中出现的次数，出现的位置，每个文档的长度，所有文档的平均长度
 
 索引不变的原因：
 
