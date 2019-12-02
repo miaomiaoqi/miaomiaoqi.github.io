@@ -9,7 +9,7 @@ author: miaoqi
 
 * content
 {:toc}
-# HelloWorld
+## HelloWorld
 
 创建一个maven工程;(jar) 
 
@@ -72,9 +72,9 @@ public class HelloController{
 将这个应用打成jar包，直接使用java -jar的命令进行执行;
 
 
-# 探究HelloWorld
+## 探究HelloWorld
 
-## POM文件
+### POM文件
 
 * 父项目
 
@@ -112,7 +112,7 @@ public class HelloController{
     
     Spring Boot将所有的功能场景都抽取出来，做成一个个的starters(启动器)，只需要在项目里面引入这些starter 相关场景的所有依赖都会导入进来。要用什么功能就导入什么场景的启动器
 
-## 主程序
+### 主程序
 
 @SpringBootApplication
 
@@ -168,7 +168,7 @@ public @interface EnableAutoConfiguration{
     **Spring Boot在启动的时候从类路径下的META-INF/spring.factories中获取EnableAutoConfiguration指定的值，将以前我们需要自己配置的东西, 都由SpringBoot来配置, J2EE的整体整合解决方案和自动配置都在spring-boot-autoconfigure-1.5.9.RELEASE.jar;**
 
 
-# 配置文件
+## 配置文件
 
 修改SpringBoot自动配置的默认值
 
@@ -178,7 +178,7 @@ SpringBoot默认使用两种类型的文件作为配置文件:
 
 * application.yaml
 
-## YAML
+### YAML
 
 YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JSON 格式方便。
 
@@ -268,7 +268,7 @@ str: 这是一行字符串
             ```
 
             如果字符串之中包含空格或特殊字符，需要放在引号之中
-    
+            
             ```yaml
 str: '内容： 字符串'
             ```
@@ -321,7 +321,7 @@ str: '内容： 字符串'
             {s1: 'Foo\n', s2: 'Foo\n\n\n', s3: 'Foo'}
             ```
 
-## 编写配置文件
+### 编写配置文件
 
 * 配置文件占位符
 
@@ -340,7 +340,7 @@ person.dog.age=15
     
     ${person.lastName:xxx}, 取上文中配置的person.lastName的属性值, 如果person.lastName不存在取xxx作为值
 
-## 配置文件加载位置
+### 配置文件加载位置
 
 1. 项目路径下/config/
 
@@ -352,7 +352,7 @@ person.dog.age=15
 
 优先级从高到低, 高优先级的内容会覆盖低优先级的内容
 
-## 绑定配置文件中的值
+### 绑定配置文件中的值
 
 * yaml写法
 
@@ -466,7 +466,7 @@ person.dog.age=15
     后边不会覆盖前边的内容
 
 
-# Profile
+## Profile
 
 Spring提供的对不同环境提供不同配置功能的支持, 可以通过激活配置快速切换环境, 默认使用application.properties文件中的配置
 
@@ -521,7 +521,7 @@ Spring提供的对不同环境提供不同配置功能的支持, 可以通过激
         -D是默认语法
 
 
-# 自动配置原理
+## 自动配置原理
 
 * SpringBoot启动的时候加载主配置类，开启了自动配置功能 @EnableAutoConfiguration
 
@@ -716,9 +716,9 @@ Spring提供的对不同环境提供不同配置功能的支持, 可以通过激
     |@ConditionalOnJndiJNDI|存在指定项|
 
 
-# 日志
+## 日志
 
-小张;开发一个大型系统:
+小张开发一个大型系统:
 
 1. System.out.println("");将关键数据打印在控制台;去掉?写在一个文件? 
 
@@ -735,7 +735,7 @@ Spring提供的对不同环境提供不同配置功能的支持, 可以通过激
 
 JUL、JCL、Jboss-logging、logback、log4j、log4j2、slf4j....
 
-## 使用SLF4J
+### 使用SLF4J
 
 1. 如何在系统中使用SLF4J
 
@@ -773,7 +773,7 @@ JUL、JCL、Jboss-logging、logback、log4j、log4j2、slf4j....
     
     3. **我们导入slf4j其他的实现**
 
-## SpringBoot的日志关系
+### SpringBoot的日志关系
 
 ```xml
 <dependency>
@@ -803,7 +803,7 @@ SpringBoot使用它来做日志功能;
 
 **SpringBoot能自动适配所有的日志，而且底层使用slf4j+logback的方式记录日志，引入其他框架的时候，只需要把这个框架依赖的日志框架排除掉即可**
 
-## 日志使用
+### 日志使用
 
 * 默认配置
 
@@ -910,7 +910,7 @@ SpringBoot使用它来做日志功能;
     </dependency>
     ```
 
-# SpringMVC自动配置
+## SpringMVC自动配置
 
 1. Spring MVC auto-configuration
 
@@ -1035,7 +1035,7 @@ SpringBoot使用它来做日志功能;
     
     6. 最终导致自动配置失效
 
-# 注册Servlet三大组件【Servlet、Filter、Listener】
+## 注册Servlet三大组件【Servlet、Filter、Listener】
 
 * 由于SpringBoot默认是以jar包的方式启动嵌入式的Servlet容器来启动SpringBoot的web应用，没有web.xml文件
 
@@ -1070,7 +1070,7 @@ SpringBoot使用它来做日志功能;
     }
     ```
 
-# SpringTask
+## SpringTask
 
 * 在企业级应用中，经常会制定一些“计划任务”，即在某个时间点做某件事情，核心是以时间为关注点，即在一个特定的时间点，系统执行指定的一个操作。常见的任务调度框架有Quartz和SpringTask等
 
@@ -1189,7 +1189,7 @@ SpringBoot使用它来做日志功能;
         ```
 
 
-# 数据访问
+## 数据访问
 
 1. 整合JDBC
 
@@ -1595,9 +1595,9 @@ SpringBoot使用它来做日志功能;
     
     手动配置了SqlSessionFactory, 从不同的DataSource中获取连接, 注入到不同的mapper中, 即可实现多数据源
 
-# AOP应用
+## AOP应用
 
-## 全局异常处理器, 对Controller层加入异常通知, 新建全局异常处理器类
+### 全局异常处理器, 对Controller层加入异常通知, 新建全局异常处理器类
 
 @ControllerAdvice 是 Spring 提供的注解, 改注解监听了所有 Controller 类抛出的异常
 
@@ -1626,7 +1626,7 @@ public class GlobalExceptionHandler {
     }
 }
 ```
-## 全局参数拦截
+### 全局参数拦截
 
 自定义切面类, 拦截所有的 Controller 方法
 
@@ -1746,7 +1746,7 @@ public class HttpRequestLogAOP {
     }   
 }
 ```
-## 自定义注解解析器
+### 自定义注解解析器
 
 **自定义注解解析器的原理实际是还是利用了AOP功能**
 
@@ -1824,7 +1824,7 @@ public class ControllerLogAspect {
 ```
 
 
-## 自定义缓存注解
+### 自定义缓存注解
 
 新建缓存注解
 
@@ -1957,7 +1957,7 @@ public class XRedisCacheAspects {
 
 
 
-## 自定义参数解析器
+### 自定义参数解析器
 
 开发过程中, 在Controller层接收参数SpringMVC提供了@RequestParam进行参数解析, 但在一些特殊情况下这个注解的功能不够用, 比如后台返回页面时对id进行了AES加密操作, 前台传参时, id参数都是经过AES加密后的数据, 这时就需要自定义参数解析器进行解密后传入
 
@@ -2130,5 +2130,292 @@ private HandlerMethodArgumentResolver getArgumentResolver(MethodParameter parame
 
 
 
+## SpringBoot 整合 Swagger2
 
+Swagger是一款RESTful接口的文档在线自动生成、功能测试功能框架。一个规范和完整的框架，用于生成、描述、调用和可视化RESTful风格的Web服务，加上swagger-ui，可以有很好的呈现。
+
+当我们在后台的接口修改了后，swagger可以实现自动的更新，而不需要人为的维护这个接口进行测试。
+
+### 引入 jar 包
+
+我使用的是 2.8.0 版本, 在 2.9.2 版本有些问题, 所以降低了版本
+
+```xml
+<dependency>
+	<groupId>io.springfox</groupId>
+	<artifactId>springfox-swagger-ui</artifactId>
+	<version>2.8.0</version>
+</dependency>
+<dependency>
+	<groupId>io.springfox</groupId>
+	<artifactId>springfox-swagger2</artifactId>
+	<version>2.8.0</version>
+</dependency>
+```
+
+### 拦截器放开 Swagger 相关资源
+
+如果使用到了拦截器, 需要对 Swagger 相关的资源进行放行, 以下都是需要放行的资源, 各版本略有不同, 可以自己尝试
+
+`/swagger-ui.html`
+
+`/v2/**`
+
+`/swagger-resources/**`
+
+`*swagger*`
+
+`*api-docs*`
+
+`*csrf*`
+
+### 编写 Swagger 配置类
+
+要使用 Swagger 要进行一些配置, 需要编写一个 Swagger 的配置类
+
+```java
+// 是否开启swagger，正式环境一般是需要关闭的（避免不必要的漏洞暴露！），可根据springboot的多环境配置进行设置
+// @ConditionalOnProperty("${swagger.enable}")
+@Configuration
+@EnableSwagger2
+public class SwaggerConfig {
+
+		// swagger2的配置文件，这里可以配置swagger2的一些基本的内容，比如扫描的包等等
+    @Bean
+    public Docket createRestApi() {
+        return new Docket(DocumentationType.SWAGGER_2)
+                // 设置 swagger-ui.html 页面上的一些元素信息
+                .apiInfo(this.apiInfo()).select()
+                // 定义要扫描的路径, 可以扫描包, 类注解, 方法注解
+                .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
+                // 定义要生成文档的 Api 的 url 路径规则
+                .paths(PathSelectors.any()).build();
+    }
+
+  	// swagger2 的一些基本信息
+    private ApiInfo apiInfo() {
+        return new ApiInfoBuilder()
+                // 标题
+                .title("xx 服务接口文档")
+                // 描述
+                .description("xx 服务接口文档").termsOfServiceUrl("http://localhost:8080")
+                // 文档版本
+                .version("1.0").build();
+    }
+
+}
+```
+
+### 编写 Controller 类
+
+Controller 就是我们平时编写的对外接口的类
+
+```java
+@RestController
+// 这个注解是用在Controller类上面的，可以对Controller做必要的说明
+@Api(value = "用户接口服务", tags = {"用户操作接口"})
+public class UserController {
+
+    // 创建线程安全的Map
+    static Map<Integer, User> users = Collections.synchronizedMap(new HashMap<Integer, User>());
+
+    /**
+     * 根据ID查询用户
+     *
+     * @param id
+     * @return
+     */
+    // 作用在具体的方法上，其实就是对一个具体的API的描述
+    @ApiOperation(value = "获取用户详细信息", notes = "根据url的id来获取用户详细信息")
+    // 作用在具体的方法上, 对 API 参数的描述
+    @ApiImplicitParam(name = "id", value = "用户ID", required = true, dataType = "Integer", paramType = "path")
+    @RequestMapping(value = "user/{id}", method = RequestMethod.GET)
+    public ResponseEntity<JsonResult> getUserById(@PathVariable(value = "id") Integer id) {
+        JsonResult r = new JsonResult();
+        try {
+            User user = users.get(id);
+            r.setResult(user);
+            r.setStatus("ok");
+        } catch (Exception e) {
+            r.setResult(e.getClass().getName() + ":" + e.getMessage());
+            r.setStatus("error");
+            e.printStackTrace();
+        }
+        return ResponseEntity.ok(r);
+    }
+
+    /**
+     * 查询用户列表
+     *
+     * @return
+     */
+    @ApiOperation(value = "分页获取用户列表", notes = "分页获取用户列表")
+    @ApiImplicitParams({
+      @ApiImplicitParam(name = "pageNum", value = "页码", required = false, dataType = "Integer", paramType = "query", defaultValue = "1"),
+      @ApiImplicitParam(name = "pageSize", value = "每页记录数", required = false, dataType = "Integer", paramType = "query", defaultValue = "20")
+    })
+    @RequestMapping(value = "users", method = RequestMethod.GET)
+    public ResponseEntity<JsonResult> getUserList(
+            @RequestParam(value = "pageNum", required = false, defaultValue = "1") Integer pageNum,
+            @RequestParam(value = "pageSize", required = false, defaultValue = "20") Integer pageSize) {
+        JsonResult r = new JsonResult();
+        try {
+            List<User> userList = new ArrayList<User>(users.values());
+            r.setResult(userList);
+            r.setStatus("ok");
+        } catch (Exception e) {
+            r.setResult(e.getClass().getName() + ":" + e.getMessage());
+            r.setStatus("error");
+            e.printStackTrace();
+        }
+        return ResponseEntity.ok(r);
+    }
+
+    /**
+     * 添加用户
+     *
+     * @param user
+     * @return
+     */
+    @ApiOperation(value = "创建用户", notes = "根据User对象创建用户")
+    @ApiImplicitParam(name = "user", value = "用户详细实体user", required = true, dataTypeClass = User.class, paramType = "body")
+    @RequestMapping(value = "user", method = RequestMethod.POST)
+    public ResponseEntity<JsonResult> add(@RequestBody User user) {
+        JsonResult r = new JsonResult();
+        try {
+            users.put(user.getId(), user);
+            r.setResult(user.getId());
+            r.setStatus("ok");
+        } catch (Exception e) {
+            r.setResult(e.getClass().getName() + ":" + e.getMessage());
+            r.setStatus("error");
+
+            e.printStackTrace();
+        }
+        return ResponseEntity.ok(r);
+    }
+
+    /**
+     * 根据id删除用户
+     *
+     * @param id
+     * @return
+     */
+    @ApiOperation(value = "删除用户", notes = "根据url的id来指定删除用户")
+    // 路径传参一定要指定 paramType="path"
+    @ApiImplicitParam(name = "id", value = "用户ID", required = true, dataType = "Long", paramType = "path")
+    @RequestMapping(value = "user/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity<JsonResult> delete(@PathVariable(value = "id") Integer id) {
+        JsonResult r = new JsonResult();
+        try {
+            users.remove(id);
+            r.setResult(id);
+            r.setStatus("ok");
+        } catch (Exception e) {
+            r.setResult(e.getClass().getName() + ":" + e.getMessage());
+            r.setStatus("error");
+
+            e.printStackTrace();
+        }
+        return ResponseEntity.ok(r);
+    }
+
+    /**
+     * 根据id修改用户信息
+     *
+     * @param user
+     * @return
+     */
+    @ApiOperation(value = "更新信息", notes = "根据url的id来指定更新用户信息")
+    @ApiImplicitParams({
+      // 路径传参一定要指定 paramType="path"
+      @ApiImplicitParam(name = "id", value = "用户ID", required = true, dataType = "Long", paramType = "path"), 
+      @ApiImplicitParam(name = "user", value = "用户实体user", required = true, dataTypeClass = User.class)
+    })
+    @RequestMapping(value = "user/{id}", method = RequestMethod.PUT)
+    public ResponseEntity<JsonResult> update(@PathVariable("id") Integer id, @RequestBody User user) {
+        JsonResult r = new JsonResult();
+        try {
+            User u = users.get(id);
+            u.setUsername(user.getUsername());
+            u.setAge(user.getAge());
+            users.put(id, u);
+            r.setResult(u);
+            r.setStatus("ok");
+        } catch (Exception e) {
+            r.setResult(e.getClass().getName() + ":" + e.getMessage());
+            r.setStatus("error");
+
+            e.printStackTrace();
+        }
+        return ResponseEntity.ok(r);
+    }
+
+    // 使用该注解忽略这个API
+    @ApiIgnore
+    @RequestMapping(value = "/hi", method = RequestMethod.GET)
+    public String jsonTest() {
+        return " hi you!";
+    }
+
+}
+```
+
+### 编写实体类与响应类
+
+实体类 User 对象
+
+```java
+public class User {
+
+		// 实体的属性
+    @ApiModelProperty(value = "订单ID", example = "123")
+    private int id = 1;
+    @ApiModelProperty(value = "用户名", example = "xxxx")
+    private String username;
+    @ApiModelProperty(value = "年龄", example = "13")
+    private int age = 1;
+    private Date ctm;
+
+    // Getter And Setter
+
+}
+```
+
+编写响应类
+
+```java
+// ApiModel 可以修饰响应对象
+@ApiModel("返回对象")
+public class JsonResult {
+
+    @ApiModelProperty("状态吗")
+    private String status = null;
+
+    @ApiModelProperty("返回结果")
+    private Object result = null;
+
+    // Getter Setter
+
+}
+```
+
+
+
+### 访问 Swgger 页面
+
+启动项目, 在地址栏中输入 `http://localhost:8080/swagger-ui.html` 即可访问 swagger 页面
+
+### 相关注解
+
+|      作用      |     Annotation     |            使用位置             |
+| :------------: | :----------------: | :-----------------------------: |
+|  描述对象属性  | @ApiModelProperty  |    用在出入参数对象的字段上     |
+|   协议集描述   |        @Api        |       用在 Controller 上        |
+|    协议描述    |   @ApiOperation    |    用在 Controller 的方法上     |
+|  Response 集   |   @ApiResponses    |    用在 Controller 的方法上     |
+|    Response    |    @ApiResponse    |   用在@ApiResponses 或方法上    |
+|  非对象参数集  | @ApiImplicitParams |    用在 Controller 的方法上     |
+| 非对象参数描述 | @ApiImplicitParam  | 用在@ApiImplicitParams 或方法上 |
+|    响应对象    |     @ApiModel      |        用在返回对象类上         |
 

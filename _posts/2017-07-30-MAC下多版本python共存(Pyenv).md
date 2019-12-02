@@ -9,11 +9,11 @@ author: miaoqi
 
 * content
 {:toc}
-                                    
+
 ## 安装配置pyenv
 
 * 经常遇到这样的情况：
-    
+  
     系统自带的Python是2.x，自己需要Python 3.x，测试尝鲜；
     系统是2.6.x，开发环境是2.7.x
     由于Mac机器系统保护的原因，默认的Python中无法对PIP一些包升级，需要组建新的Python环境。
@@ -33,7 +33,7 @@ author: miaoqi
 ## 查看版本
 
 * 查看当前激活的是那个版本的Python
-    
+  
         pyenv version
 
 * 查看已经安装了那些版本的Python
@@ -43,9 +43,9 @@ author: miaoqi
 * 安装指定版本的Python
 
         pyenv install 3.5.0
-    
+        
         安装完成后必须rehash
-    
+        
         pyenv rehash
     
     **安装过程中，也是出现报错BUILD FAILED (OS X 10.10.5 using python-build 20160130)，解决办法见[pyenv BUILD FAILED解决方法][1]**
@@ -53,7 +53,7 @@ author: miaoqi
 ## 切换和使用指定的版本Python版本有3种方法：
 
 * 特别建议：
-    
+  
 * 系统全局用系统默认的Python比较好，不建议直接对其操作    
 
         pyenv global system
