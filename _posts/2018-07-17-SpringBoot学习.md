@@ -51,6 +51,7 @@ public class HelloController{
     public String hello(){
         return "Hello World!";
     }
+  
 }
 ```
 运行主程序测试
@@ -128,7 +129,7 @@ public class HelloController{
 @ComponentScan(excludeFilters = {
       @Filter(type = FilterType.CUSTOM, classes = TypeExcludeFilter.class),
       @Filter(type = FilterType.CUSTOM, classes = AutoConfigurationExcludeFilter.class) })
-public @interface SpringBootApplication {
+public @interface SpringBootApplication {}
 ```
 
 * @SpringBootConfiguration
@@ -148,7 +149,7 @@ public @interface SpringBootApplication {
     ```java
     @AutoConfigurationPackage
     @Import(EnableAutoConfigurationImportSelector.class)
-public @interface EnableAutoConfiguration{
+public @interface EnableAutoConfiguration{}
     ```
 
     * @AutoConfigurationPackage
@@ -205,15 +206,11 @@ YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JS
         person:
           lastName: miaoqi
           age: 20
-        ```
-    ```
-    
-    也允许另一种写法，将所有键值对写成一个行内对象
-    
-    ​```yaml
+        # 也允许另一种写法，将所有键值对写成一个行内对象
         person: {lastName: Steve, age: 20}
-    ```
-    
+        ```
+        
+        
     * 数组: 一组按次序排列的值，又称为序列(sequence)/列表(list), 一组连词线开头的行, 构成一个数组
     
         一组连词线开头的行，构成一个数组
@@ -221,105 +218,67 @@ YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JS
         ```yaml
     pets:
           - Cat
-      - Dog
+      	- Dog
           - Goldfish
       ```
-    ```
-    
-    行内写法
-    
-        ```yaml
-    pets: [Cat, Dog, Goldfish]
-    ```
-
-        数据结构的子成员是一个数组，则可以在该项下面缩进一个空格
-        
-        ```yaml
-    -
-         - Cat
-     - Dog
-         - Goldfish
-    ```
-    
-    ```
+      
+      行内写法
+      
+      ```yaml
+      pets: [Cat, Dog, Goldfish]
+      ```
+      
+      
     
 * 纯量(scalars)：单个的、不可再分的值
   
-    * 布尔值:
+    * 布尔值: 布尔值用true和false表示
     
-            布尔值用true和false表示
+    * 数值: 分为整数和浮点数
     
-    * 数值:
+    * Null: null 用 ~ 表示
     
-            分为整数和浮点数
-    
-    * Null
-    
-        null用 ~ 表示
-    
-            parent: ~ 
+        ```yaml
+    parent: ~ 
+        ```
     
     * 字符串
     
-        字符串默认不使用引号表示
-    
-            ```yaml
-str: 这是一行字符串
-            ```
-
-            如果字符串之中包含空格或特殊字符，需要放在引号之中
-            
-            ```yaml
-str: '内容： 字符串'
-            ```
-            
-    
-    单引号和双引号都可以使用，双引号不会对特殊字符转义：
         
-    ```yaml
-        s1: '内容\n字符串'
-    s2: "内容\n字符串"
-    ```
     
-            单引号之中如果还有单引号，必须连续使用两个单引号转义
-            
         ```yaml
-    str: 'labor''s day'
-        ```
-    
-            字符串可以写成多行，从第二行开始，必须有一个单空格缩进。换行符会被转为空格
-            
-            ```yaml
-            str: 这是一段
+    # 字符串默认不使用引号表示
+        str: 这是一行字符串
+    # 如果字符串之中包含空格或特殊字符，需要放在引号之中
+        str: '内容： 字符串'
+    # 单引号和双引号都可以使用，双引号不会对特殊字符转义
+        s1: '内容\n字符串'
+s2: "内容\n字符串"
+        # 单引号之中如果还有单引号，必须连续使用两个单引号转义
+        str: 'labor''s day'
+        # 字符串可以写成多行，从第二行开始，必须有一个单空格缩进。换行符会被转为空格
+    str: 这是一段
               多行
               字符串
-    ```
-            
-    多行字符串可以使用“|”保留换行符，也可以使用>折叠换行
-            
-            ```yaml
-            this: |
-              Foo
-              Bar
-            that: >
-              Foo
-              Bar
-    ```
-    
-            +表示保留文字块末尾的换行，-表示删除字符串末尾的换行
-            
-            ```yaml
-            s1: |
+        # 多行字符串可以使用“|”保留换行符，也可以使用>折叠换行
+        this: |
+               Foo
+               Bar
+        that: >
+               Foo
+               Bar
+        # + 表示保留文字块末尾的换行，- 表示删除字符串末尾的换行
+        s1: |
               Foo
             
-            s2: |+
-              Foo
+        s2: |+
+        		 Foo
             
-            s3: |-
-              Foo
+        s3: |-
+        		 Foo
               
-            {s1: 'Foo\n', s2: 'Foo\n\n\n', s3: 'Foo'}
-            ```
+        {s1: 'Foo\n', s2: 'Foo\n\n\n', s3: 'Foo'}
+        ```
 
 ### 编写配置文件
 
@@ -350,7 +309,7 @@ person.dog.age=15
 
 1. 类路径下/
 
-优先级从高到低, 高优先级的内容会覆盖低优先级的内容
+**优先级从高到低, 高优先级的内容会覆盖低优先级的内容**
 
 ### 绑定配置文件中的值
 
@@ -641,15 +600,18 @@ Spring提供的对不同环境提供不同配置功能的支持, 可以通过激
     org.springframework.boot.autoconfigure.websocket.WebSocketAutoConfiguration,\
     org.springframework.boot.autoconfigure.websocket.WebSocketMessagingAutoConfiguration,\
     org.springframework.boot.autoconfigure.webservices.WebServicesAutoConfiguration
-    
-    
     ```
     
     **每一个这样的 xxxAutoConfiguration类都是容器中的一个组件，都加入到容器中;用他们来做自动配置**
-
+    
 * 以HttpEncodingAutoConfiguration(Http编码自动配置)为例解释自动配置原理;
 
     ```java
+    import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+    import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+    import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+    import org.springframework.web.filter.CharacterEncodingFilter;
+    
     @Configuration // 表示这是一个配置类，以前编写的配置文件一样，也可以给容器中添加组件
     @EnableConfigurationProperties(HttpEncodingProperties.class) // 启动指定类的ConfigurationProperties功能;将配置文件中对应的值和HttpEncodingProperties绑定起来;并把HttpEncodingProperties加入到ioc容器中
     @ConditionalOnWebApplication // Spring底层@Conditional注解(Spring注解版)，根据不同的条件，如果满足指定的条件，整个配置类里面的配置就会生效; 判断当前应用是否是web应用，如果是，当前配置类生效
@@ -658,31 +620,31 @@ Spring提供的对不同环境提供不同配置功能的支持, 可以通过激
     // 即使我们配置文件中不配置spring.http.encoding.enabled=true，也是默认生效的;
     public class HttpEncodingAutoConfiguration{
     
-    	// 他已经和SpringBoot的配置文件映射了
-    	private final HttpEncodingProperties properties;
+        // 他已经和SpringBoot的配置文件映射了
+        private final HttpEncodingProperties properties;
     
-    	// 只有一个有参构造器的情况下，参数的值就会从容器中拿
-    	public HttpEncodingAutoConfiguration(HttpEncodingProperties properties) {
-    		this.properties = properties;
-    	}
+        // 只有一个有参构造器的情况下，参数的值就会从容器中拿
+        public HttpEncodingAutoConfiguration(HttpEncodingProperties properties) {
+            this.properties = properties;
+        }
     
-    	@Bean // 给容器中添加一个组件，这个组件的某些值需要从properties中获取
-    	@ConditionalOnMissingBean(CharacterEncodingFilter.class) // 判断容器没有这个组件?
-    	public CharacterEncodingFilter characterEncodingFilter() {
-    		CharacterEncodingFilter filter = new OrderedCharacterEncodingFilter();
-    		filter.setEncoding(this.properties.getCharset().name());
-    		filter.setForceRequestEncoding(this.properties.shouldForce(Type.REQUEST));
-    		filter.setForceResponseEncoding(this.properties.shouldForce(Type.RESPONSE));
-    		return filter;
-    	}
+        @Bean // 给容器中添加一个组件，这个组件的某些值需要从properties中获取
+        @ConditionalOnMissingBean(CharacterEncodingFilter.class) // 判断容器没有这个组件?
+        public CharacterEncodingFilter characterEncodingFilter() {
+            CharacterEncodingFilter filter = new OrderedCharacterEncodingFilter();
+            filter.setEncoding(this.properties.getCharset().name());
+            filter.setForceRequestEncoding(this.properties.shouldForce(Type.REQUEST));
+            filter.setForceResponseEncoding(this.properties.shouldForce(Type.RESPONSE));
+            return filter;
+        }
     }
     ```
     **所有在配置文件中能配置的属性都是在xxxxProperties类中封装着;配置文件能配置什么就可以参照某个功能对应的这个属性类**
-    
+
     ```java
     @ConfigurationProperties(prefix = "spring.http.encoding") //从配置文件中获取指定的值和bean的属 性进行绑定
-    publicclassHttpEncodingProperties{
-    	public static final Charset DEFAULT_CHARSET = Charset.forName("UTF‐8");
+    public class HttpEncodingProperties{
+        public static final Charset DEFAULT_CHARSET = Charset.forName("UTF‐8");
     }
     ```
 
@@ -1000,7 +962,7 @@ SpringBoot使用它来做日志功能;
 
     1. @EnableWebMvc的核心引入了DelegatingWebMvcConfiguration.class
     
-        ```
+        ```java
         @Import(DelegatingWebMvcConfiguration.class)
         public @interface EnableWebMvc{
         }
@@ -1008,7 +970,7 @@ SpringBoot使用它来做日志功能;
 
     2. DelegatingWebMvcConfiguration继承WebMvcConfigurationSupport
 
-        ```
+        ```java
         @Configuration
         public class Delegating WebMvcConfiguration extends WebMvcConfigurationSupport{
         }
@@ -1018,7 +980,7 @@ SpringBoot使用它来做日志功能;
 
     3. WebMvcAutoConfiguration中如果没有WebMvcConfigurationSupport才会进行自动配置, 然而@EnableWebMvc引入了该类, 导致自动配置失效
     
-        ```
+        ```java
         @Configuration
         @ConditionalOnWebApplication
         @ConditionalOnClass({Servlet.class, DispatcherServlet.class, WebMvcConfigurerAdapter.class})
@@ -1205,17 +1167,15 @@ SpringBoot使用它来做日志功能;
     </dependency>
     ```
 
-    
-
     ```yaml
-    spring:
+spring:
       datasource:
         username: root
         password: 123456
         url: jdbc:mysql://192.168.15.22:3306/jdbc
         driver‐class‐name: com.mysql.jdbc.Driver
     ```
-
+    
     默认是用org.apache.tomcat.jdbc.pool.DataSource作为数据源; 
 
     数据源的相关配置都在DataSourceProperties里面;
@@ -1223,8 +1183,8 @@ SpringBoot使用它来做日志功能;
     自动配置原理: org.springframework.boot.autoconfigure.jdbc:
 
     1. 参考DataSourceConfiguration，根据配置创建数据源，默认使用Tomcat连接池;可以使用 spring.datasource.type指定自定义的数据源类型;
-    2. SpringBoot默认可以支持
-
+2. SpringBoot默认可以支持
+    
         org.apache.tomcat.jdbc.pool.DataSource、HikariDataSource、BasicDataSource
 
 1. 整合Druid数据源
