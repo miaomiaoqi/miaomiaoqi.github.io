@@ -2174,8 +2174,8 @@ Swagger是一款RESTful接口的文档在线自动生成、功能测试功能框
 要使用 Swagger 要进行一些配置, 需要编写一个 Swagger 的配置类
 
 ```java
-// 是否开启swagger，正式环境一般是需要关闭的（避免不必要的漏洞暴露！），可根据springboot的多环境配置进行设置
-// @ConditionalOnProperty("${swagger.enable}")
+// 是否开启 swagger，正式环境一般是需要关闭的（避免不必要的漏洞暴露！），可根据 springboot 的多环境配置进行设置
+// @ConditionalOnProperty(prefix = "swagger", value = "enabled", matchIfMissing = true)
 @Configuration
 @EnableSwagger2
 public class SwaggerConfig {
