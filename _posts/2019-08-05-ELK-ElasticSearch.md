@@ -4198,8 +4198,9 @@ GET test_search_index/_search
 
 为了便于理解, es 将聚合分析主要分为如下 4 类
 
-* Bucket, 分桶类型, 类似 SQL 中的 GROUP BY 语法
 * Metric, 指标分析类型, 如计算最大值, 最小值, 平均值等
+
+* Bucket, 分桶类型, 类似 SQL 中的 GROUP BY 语法
 * Pipeline, 管道分析类型, 基于上一级的聚合分析结果进行再分析
 * Matrix, 矩阵分析类型
 
