@@ -210,7 +210,6 @@ YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JS
         person: {lastName: Steve, age: 20}
         ```
         
-        
     * 数组: 一组按次序排列的值，又称为序列(sequence)/列表(list), 一组连词线开头的行, 构成一个数组
     
         一组连词线开头的行，构成一个数组
@@ -218,7 +217,9 @@ YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JS
         ```yaml
     pets:
           - Cat
+        ```
       	- Dog
+          
           - Goldfish
       ```
       
@@ -227,7 +228,7 @@ YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JS
       ```yaml
       pets: [Cat, Dog, Goldfish]
       ```
-      
+    
       
     
 * 纯量(scalars)：单个的、不可再分的值
@@ -247,13 +248,15 @@ YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JS
         
     
         ```yaml
+        
+        ```
     # 字符串默认不使用引号表示
         str: 这是一行字符串
     # 如果字符串之中包含空格或特殊字符，需要放在引号之中
         str: '内容： 字符串'
-    # 单引号和双引号都可以使用，双引号不会对特殊字符转义
+# 单引号和双引号都可以使用，双引号不会对特殊字符转义
         s1: '内容\n字符串'
-s2: "内容\n字符串"
+    s2: "内容\n字符串"
         # 单引号之中如果还有单引号，必须连续使用两个单引号转义
         str: 'labor''s day'
         # 字符串可以写成多行，从第二行开始，必须有一个单空格缩进。换行符会被转为空格
@@ -1184,7 +1187,7 @@ spring:
 
     1. 参考DataSourceConfiguration，根据配置创建数据源，默认使用Tomcat连接池;可以使用 spring.datasource.type指定自定义的数据源类型;
 2. SpringBoot默认可以支持
-    
+   
         org.apache.tomcat.jdbc.pool.DataSource、HikariDataSource、BasicDataSource
 
 1. 整合Druid数据源
@@ -2102,14 +2105,14 @@ Swagger是一款RESTful接口的文档在线自动生成、功能测试功能框
 
 ```xml
 <dependency>
-	<groupId>io.springfox</groupId>
-	<artifactId>springfox-swagger-ui</artifactId>
-	<version>2.8.0</version>
+  <groupId>io.springfox</groupId>
+  <artifactId>springfox-swagger-ui</artifactId>
+  <version>2.8.0</version>
 </dependency>
 <dependency>
-	<groupId>io.springfox</groupId>
-	<artifactId>springfox-swagger2</artifactId>
-	<version>2.8.0</version>
+  <groupId>io.springfox</groupId>
+  <artifactId>springfox-swagger2</artifactId>
+  <version>2.8.0</version>
 </dependency>
 ```
 
