@@ -668,10 +668,10 @@ Spring提供的对不同环境提供不同配置功能的支持, 可以通过激
     |@Conditional|扩展注解作用(判断是否满足当前指定条件)|
     |-----|-----|
     |@ConditionalOnJava|系统的java版本是否符合要求|
-    |@ConditionalOnBean|容器中存在指定Bean|
-    |@ConditionalOnMissingBean|容器中不存在指定Bean|
+    |@ConditionalOnBean|容器中存在指定Bean, 及其子类 Bean|
+    |@ConditionalOnMissingBean|容器中不存在指定Bean, 及其子类 Bean|
     |@ConditionalOnExpression|满足SpEL表达式指定|
-    |@ConditionalOnClass|系统中有指定的类|
+    |@ConditionalOnClass|系统中有指定的类文件|
     |@ConditionalOnMissingClass|系统中没有指定的类|
     |@ConditionalOnSingleCandidate|容器中只有一个指定的Bean，或者这个Bean是首选Bean|
     |@ConditionalOnProperty|系统中指定的属性是否有指定的值|
@@ -1156,407 +1156,461 @@ SpringBoot使用它来做日志功能;
 
 ## 数据访问
 
-1. 整合JDBC
+### 整合JDBC
 
-    ```xml
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring‐boot‐starter‐jdbc</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>mysql</groupId>
-        <artifactId>mysql‐connector‐java</artifactId>
-        <scope>runtime</scope>
-    </dependency>
-    ```
+引入 jdbc 相关 jar 包
 
-    ```yaml
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring‐boot‐starter‐jdbc</artifactId>
+</dependency>
+<dependency>
+    <groupId>mysql</groupId>
+    <artifactId>mysql‐connector‐java</artifactId>
+    <scope>runtime</scope>
+</dependency>
+```
+
+配置数据源
+
+```yaml
 spring:
-      datasource:
-        username: root
-        password: 123456
-        url: jdbc:mysql://192.168.15.22:3306/jdbc
-        driver‐class‐name: com.mysql.jdbc.Driver
-    ```
-    
-    默认是用org.apache.tomcat.jdbc.pool.DataSource作为数据源; 
+  datasource:
+    username: root
+    password: 123456
+    url: jdbc:mysql://192.168.15.22:3306/jdbc
+    driver‐class‐name: com.mysql.jdbc.Driver
+```
 
-    数据源的相关配置都在DataSourceProperties里面;
+默认是用 org.apache.tomcat.jdbc.pool.DataSource 作为数据库连接池; 
 
-    自动配置原理: org.springframework.boot.autoconfigure.jdbc:
+数据源的相关配置都在 **DataSourceProperties** 里面;
 
-    1. 参考DataSourceConfiguration，根据配置创建数据源，默认使用Tomcat连接池;可以使用 spring.datasource.type指定自定义的数据源类型;
-2. SpringBoot默认可以支持
-   
-        org.apache.tomcat.jdbc.pool.DataSource、HikariDataSource、BasicDataSource
+**自动配置原理: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;**
 
-1. 整合Druid数据源
+**在 DataSourceAutoConfiguration 中使用 Import 加载多种数据源组件**
+
+```java
+@Configuration
+@Conditional(PooledDataSourceCondition.class)
+@ConditionalOnMissingBean({ DataSource.class, XADataSource.class })
+// @Import 是真正加载数据库连接池组件的代码, 先加载的组件先生效
+@Import({ DataSourceConfiguration.Hikari.class, DataSourceConfiguration.Tomcat.class,
+		DataSourceConfiguration.Dbcp2.class, DataSourceConfiguration.Generic.class,
+		DataSourceJmxConfiguration.class })
+protected static class PooledDataSourceConfiguration {
+
+}
+```
+
+**在到 DataSourceConfiguration 中查看源码, 以 Hikari 为例**
+
+```java
+@Configuration
+// HikariDataSource 这个类要存在
+@ConditionalOnClass(HikariDataSource.class)
+// 容器中没有其他 DataSource 的实例
+@ConditionalOnMissingBean(DataSource.class)
+// 在配置文件中是否配置了 spring.datasource.type 并且值为 com.zaxxer.hikari.HikariDataSource, 如果没有配置这个属性也会匹配到
+@ConditionalOnProperty(name = "spring.datasource.type",
+        havingValue = "com.zaxxer.hikari.HikariDataSource", matchIfMissing = true)
+// 满足以上 3 个条件, 该类就会作为配置类生效, 加载类中的方法生成 HikariDataSource 组件
+// 根据 @Import 的顺序, 后加载的后配置, 就会发现容器中存在 DataSource 的组件, 就不会加载了
+static class Hikari {
+
+    @Bean
+    @ConfigurationProperties(prefix = "spring.datasource.hikari")
+    public HikariDataSource dataSource(DataSourceProperties properties) {
+        HikariDataSource dataSource = createDataSource(properties,
+                HikariDataSource.class);
+        if (StringUtils.hasText(properties.getName())) {
+            dataSource.setPoolName(properties.getName());
+        }
+        return dataSource;
+    }
+
+}
+```
+
+**参考DataSourceConfiguration，根据配置创建数据源，默认使用Tomcat连接池;可以使用 spring.datasource.type 指定自定义的数据源类型, 前提是 Spring 内置了这些数据源的自动配置才可以**
+
+SpringBoot默认可以支持如下数据源, 各个版本支持的数据源不一样, 默认加载的顺序也不一样自行查看
+
+```properties
+org.apache.tomcat.jdbc.pool.DataSource, HikariDataSource, BasicDataSource, Dbcp2
+```
+
+### 整合Druid数据源
+
+在 spring-boot-2.1.5 版本中的 `DataSourceConfiguration` 类中没有内置根据条件加载 Druid 数据源, 所以就不能通过 spring 的配置来改变数据源了, 这时候就需要我们手动创建数据源使用, 其他没有被 Spring 管理起来的数据源以此类推
+
+```java
+@Configuration
+public class DruidConfig {
+
+  	// 数据源的基础配置通过 @ConfigurationProperties 使配置文件内容与 bean 关联起来
+    @ConfigurationProperties(prefix = "spring.datasource")
+    @Bean
+    public DataSource druid() {
+        return new DruidDataSource();
+    }
+
+    // 配置Druid的监控
+    // 1. 配置一个管理后台的Servlet
+    @Bean
+    public ServletRegistrationBean statViewServlet() {
+        ServletRegistrationBean bean = new ServletRegistrationBean(new StatViewServlet(), "/druid/*");
+        Map<String, String> initParams = new HashMap<>();
+        initParams.put("loginUsername", "admin");
+        initParams.put("loginPassword", "123456");
+        bean.setInitParameters(initParams);
+        return bean;
+    }
+
+    // 2. 配置一个监控的filter
+    @Bean
+    public FilterRegistrationBean webStatFilter() {
+        FilterRegistrationBean bean = new FilterRegistrationBean();
+        bean.setFilter(new WebStatFilter());
+        Map<String, String> initParams = new HashMap<>();
+        bean.setInitParameters(initParams);
+        bean.setUrlPatterns(Arrays.asList("/*"));
+        return bean;
+    }
+}
+```
+
+### 整合MyBatis
+
+引入Mybatis整合SpringBoot所需的jar包
+
+```xml
+<dependency>
+    <groupId>org.mybatis.spring.boot</groupId>
+    <artifactId>mybatis‐spring‐boot‐starter</artifactId>
+    <version>1.3.1</version>
+</dependency>
+```
+
+#### 注解版整合
+
+```java
+@Mapper
+public interface DepartmentMapper {
+
+    @Select("select * from department where id = #{id}")
+    public Department getDeptById(Integer id);
+
+    @Delete("delete from department where id = #{id}")
+    public int deleteByDeptId(Integer id);
+
+    @Options(useGeneratedKeys = true, keyProperty = "id")
+    @Insert("insert into department(departmentName) values(#{departmentName})")
+    public int insertDept(Department department);
+
+    @Update("update dept set departmentName = #{departmentName} where id = #{id}")
+    public int updateDept(Department department);
+
+}
+```
+
+自定义MyBatis的配置规则;给容器中添加一个ConfigurationCustomizer;
+
+```java
+@org.springframework.context.annotation.Configuration
+public class MyBatisConfig{
+    @Bean
+    public ConfigurationCustomizer configurationCustomizer(){
+        return new ConfigurationCustomizer(){
+            @Override
+            public void customize(Configuration configuration) {
+                configuration.setMapUnderscoreToCamelCase(true);
+            } 
+        };
+    } 
+}
+```
+
+#### 配置文件版整合
+
+1. 扫描所有Mapper文件所在的包
 
     ```java
-    @Configuration
-    public class DruidConfig {
+    @MapperScan(basePackages = "com.miaoqi.springboot.mapper")
+    @SpringBootApplication
+    public class SpringBoot06DataMybatisApplication {
     
-        @ConfigurationProperties(prefix = "spring.datasource")
-        @Bean
-        public DataSource druid() {
-            return new DruidDataSource();
-        }
-    
-        // 配置Druid的监控
-        // 1. 配置一个管理后台的Servlet
-        @Bean
-        public ServletRegistrationBean statViewServlet() {
-            ServletRegistrationBean bean = new ServletRegistrationBean(new StatViewServlet(), "/druid/*");
-            Map<String, String> initParams = new HashMap<>();
-            initParams.put("loginUsername", "admin");
-            initParams.put("loginPassword", "123456");
-            bean.setInitParameters(initParams);
-            return bean;
-        }
-    
-        // 2. 配置一个监控的filter
-        @Bean
-        public FilterRegistrationBean webStatFilter() {
-            FilterRegistrationBean bean = new FilterRegistrationBean();
-            bean.setFilter(new WebStatFilter());
-            Map<String, String> initParams = new HashMap<>();
-            bean.setInitParameters(initParams);
-            bean.setUrlPatterns(Arrays.asList("/*"));
-            return bean;
-        }
+    	public static void main(String[] args) {
+    		SpringApplication.run(SpringBoot06DataMybatisApplication.class, args);
+    	}
     }
     ```
 
-1. 整合MyBatis
+1. 修改SpringBoot配置文件, 这里的配置是原来mybatis的全局配置文件如果不需要可省略
 
-    * 引入Mybatis整合SpringBoot所需的jar包
-
-      ```xml
-      <dependency>
-          <groupId>org.mybatis.spring.boot</groupId>
-          <artifactId>mybatis‐spring‐boot‐starter</artifactId>
-          <version>1.3.1</version>
-      </dependency>
-      ```
-
-    * 注解版整合
-
-        ```java
-        @Mapper
-        public interface DepartmentMapper {
-        
-            @Select("select * from department where id = #{id}")
-            public Department getDeptById(Integer id);
-        
-            @Delete("delete from department where id = #{id}")
-            public int deleteByDeptId(Integer id);
-        
-            @Options(useGeneratedKeys = true, keyProperty = "id")
-            @Insert("insert into department(departmentName) values(#{departmentName})")
-            public int insertDept(Department department);
-        
-            @Update("update dept set departmentName = #{departmentName} where id = #{id}")
-            public int updateDept(Department department);
-        
-        }
-        ```
-
-        自定义MyBatis的配置规则;给容器中添加一个ConfigurationCustomizer;
-
-        ```java
-        @org.springframework.context.annotation.Configuration
-        public class MyBatisConfig{
-            @Bean
-            public ConfigurationCustomizer configurationCustomizer(){
-                return new ConfigurationCustomizer(){
-                    @Override
-                    public void customize(Configuration configuration) {
-                        configuration.setMapUnderscoreToCamelCase(true);
-                    } 
-                };
-            } 
-        }
-        ```
-
-    * 配置文件版整合
-
-        1. 扫描所有Mapper文件所在的包
-
-            ```java
-            @MapperScan(basePackages = "com.miaoqi.springboot.mapper")
-            @SpringBootApplication
-            public class SpringBoot06DataMybatisApplication {
-            
-            	public static void main(String[] args) {
-            		SpringApplication.run(SpringBoot06DataMybatisApplication.class, args);
-            	}
-            }
-            ```
-
-        1. 修改SpringBoot配置文件, 这里的配置是原来mybatis的全局配置文件如果不需要可省略
-
-            ```yaml
-            mybatis:
-              # 可以指定mybatis自己的配置文件, 如果不需要可以不配
-              config-location: classpath:mybatis/mybatis-config.xml
-              # 如果xml和mapper在同一个目录下, 可以不配该条配置
-              mapper-locations: classpath:mybatis/mapper/*.xml
-            ```
-
-    * **我们一般在maven环境下整合mybatis此处就有一个问题会发生**
-
-      ```
-      org.apache.ibatis.binding.BindingException: Invalid bound statement (not found)
-      ```
-
-      **如果出现上面那个错误, 一般的原因是Mapper interface和xml文件的定义对应不上，需要检查包名，namespace，函数名称等能否对应上，需要比较细致的对比，我经常就是写错了一两个字母搞的很长时间找不到错误**
-
-      按以下步骤一一执行：
-
-      1. 检查xml文件所在的package名称是否和interface对应的package名称一一对应
-
-      2. 检查xml文件的namespace是否和xml文件的package名称一一对应
-
-      3. 检查函数名称能否对应上
-
-      4. 去掉xml文件中的中文注释
-
-      5. 随意在xml文件中加一个空格或者空行然后保存
-
-      **但是还会出现一个不属于上面任何一种情况的错误, 这个问题的发生的原因是, 如果我们将mapper对应的xml文件与mapper放在同一目录, 一般都是src/main/java/下, 这样使用maven打包的时候, maven是不会将xml打包进编译后的目录中的, (因为maven认为src/main/java下只是java的源代码路径, 所以不会打包资源文件, 而将xml, properties等资源文件放在src/main/resources目录下是可以被打包进去的), 这个时候就需要我们在pom.xml文件中加入一条配置, 告诉maven将src/main/java路径下的某个资源也打进jar包就可以了, 配置如下**
-
-      ```xml
-      <build>
-      	<resources>
-              <resource>
-                  <directory>src/main/java</directory>
-                  <filtering>true</filtering>
-                  <includes>
-                      <include>**/*Mapper.xml</include>
-                  </includes>
-              </resource>
-          </resources>
-      </build>
-      ```
-
-      **如果配置了上边的插件会覆盖maven默认的加载路径, 导致src/main/resources路径下的资源加载不到, 所以还要添加另外的配置如下**
-
-      ```xml
-      <build>
-      	<resources>
-              <resource>
-                  <directory>src/main/java</directory>
-                  <filtering>true</filtering>
-                  <includes>
-                      <include>**/*Mapper.xml</include>
-                  </includes>
-              </resource>
-              <resource>
-              	<directory>src/main/resources</directory>
-              	<filtering>true</filtering>
-              	<includes>
-              		<include>**/*.xml</include>
-              	</includes>
-              </resource>
-          </resources>
-      </build>
-      ```
-
-1. MyBatis整合多数据源
-
-    实际开发中有可能一个项目需要连接多个库, 默认情况下SpringBoot使用默认的SqlSessionFactory, 这时需要我们手动指定多SqlSessionFactory取代默认的配置
-
-    ```java
-    @Configuration
-    @MapperScan(value = "com.miaoqi.mysql.dc",sqlSessionFactoryRef = "dcSqlSessionFactory")
-    public class DcMySqlConfig {
-    
-        @Autowired
-        private ResourceLoader resourceLoader = new DefaultResourceLoader();
-    
-        @Value("${spring.datasource.dc_url}")
-        private String dbUrl;
-    
-        @Value("${spring.datasource.dc_username}")
-        private String username;
-    
-        @Value("${spring.datasource.dc_password}")
-        private String password;
-    
-        @Value("${spring.datasource.dc_driverClassName}")
-        private String driverClassName;
-    
-        @Value("${spring.datasource.dc_initialSize}")
-        private int initialSize;
-    
-        @Value("${spring.datasource.dc_minIdle}")
-        private int minIdle;
-    
-        @Value("${spring.datasource.dc_maxActive}")
-        private int maxActive;
-    
-        @Value("${spring.datasource.dc_maxWait}")
-        private int maxWait;
-    
-        @Value("${spring.datasource.dc_timeBetweenEvictionRunsMillis}")
-        private int timeBetweenEvictionRunsMillis;
-    
-        @Value("${spring.datasource.dc_minEvictableIdleTimeMillis}")
-        private int minEvictableIdleTimeMillis;
-    
-        @Value("${spring.datasource.dc_validationQuery}")
-        private String validationQuery;
-    
-        @Value("${spring.datasource.dc_testWhileIdle}")
-        private boolean testWhileIdle;
-    
-        @Value("${spring.datasource.dc_testOnBorrow}")
-        private boolean testOnBorrow;
-    
-        @Value("${spring.datasource.dc_testOnReturn}")
-        private boolean testOnReturn;
-    
-        @Value("${spring.datasource.dc_filters}")
-        private String filters;
-    
-        @Value("${spring.datasource.dc_logSlowSql}")
-        private String logSlowSql;
-    
-        @Bean(name = "dcDataSource")
-        public DataSource dataSource() throws Exception {
-            DruidDataSource datasource = new DruidDataSource();
-            datasource.setUrl(dbUrl);
-            datasource.setUsername(ConfigTools.decrypt(username));
-            datasource.setPassword(ConfigTools.decrypt(password));
-            datasource.setDriverClassName(driverClassName);
-            datasource.setInitialSize(initialSize);
-            datasource.setMinIdle(minIdle);
-            datasource.setMaxActive(maxActive);
-            datasource.setMaxWait(maxWait);
-            datasource.setTimeBetweenEvictionRunsMillis(timeBetweenEvictionRunsMillis);
-            datasource.setMinEvictableIdleTimeMillis(minEvictableIdleTimeMillis);
-            datasource.setValidationQuery(validationQuery);
-            datasource.setTestWhileIdle(testWhileIdle);
-            datasource.setTestOnBorrow(testOnBorrow);
-            datasource.setTestOnReturn(testOnReturn);
-            datasource.setFilters(filters);
-    
-            return datasource;
-        }
-    
-        @Bean(name = "dcDataSourceTransactionManager")
-        public DataSourceTransactionManager transactionManager() throws Exception {
-            return new DataSourceTransactionManager(dataSource());
-        }
-    
-        @Bean(name = "dcSqlSessionFactory")
-        public SqlSessionFactory sqlSessionFactory() throws Exception {
-            SqlSessionFactoryBean factory = new SqlSessionFactoryBean();
-            factory.setDataSource(dataSource());
-            factory.setVfs(SpringBootVFS.class);
-            factory.setConfigLocation(this.resourceLoader.getResource("classpath:dc-mybatis-config.xml"));
-            return factory.getObject();
-        }
-}
+    ```yaml
+    mybatis:
+      # 可以指定mybatis自己的配置文件, 如果不需要可以不配
+      config-location: classpath:mybatis/mybatis-config.xml
+      # 如果xml和mapper在同一个目录下, 可以不配该条配置
+      mapper-locations: classpath:mybatis/mapper/*.xml
     ```
-    
-    ```java
-    @Configuration
-    @MapperScan(value = "com.miaoqi.mysql.mapper",sqlSessionFactoryRef = "rdsSqlSessionFactory")
-    public class MySqlConfig {
-        
-        @Autowired
-        private ResourceLoader resourceLoader = new DefaultResourceLoader();
-    
-        @Value("${spring.datasource.url}")
-        private String dbUrl;
-    
-        @Value("${spring.datasource.username}")
-        private String username;
-    
-        @Value("${spring.datasource.password}")
-        private String password;
-        
-        @Value("${spring.datasource.driverClassName}")
-        private String driverClassName;
-    
-        @Value("${spring.datasource.initialSize}")
-        private int initialSize;
-    
-        @Value("${spring.datasource.minIdle}")
-        private int minIdle;
-        
-        @Value("${spring.datasource.maxActive}")
-        private int maxActive;
-    
-        @Value("${spring.datasource.maxWait}")
-        private int maxWait;
-    
-        @Value("${spring.datasource.timeBetweenEvictionRunsMillis}")
-        private int timeBetweenEvictionRunsMillis;
-    
-        @Value("${spring.datasource.minEvictableIdleTimeMillis}")
-        private int minEvictableIdleTimeMillis;
-    
-        @Value("${spring.datasource.validationQuery}")
-        private String validationQuery;
-    
-        @Value("${spring.datasource.testWhileIdle}")
-        private boolean testWhileIdle;
-    
-        @Value("${spring.datasource.testOnBorrow}")
-        private boolean testOnBorrow;
-    
-        @Value("${spring.datasource.testOnReturn}")
-        private boolean testOnReturn;
-    
-        @Value("${spring.datasource.filters}")
-        private String filters;
-    
-        @Value("${spring.datasource.logSlowSql}")
-        private String logSlowSql;
-        
-        @Primary
-        @Bean(name = "rdsDataSource")
-        public DataSource dataSource() throws Exception {
-            DruidDataSource datasource = new DruidDataSource();
-            datasource.setUrl(dbUrl);
-            datasource.setUsername(ConfigTools.decrypt(username));
-            datasource.setPassword(ConfigTools.decrypt(password));
-            datasource.setDriverClassName(driverClassName);
-            datasource.setInitialSize(initialSize);
-            datasource.setMinIdle(minIdle);
-            datasource.setMaxActive(maxActive);
-            datasource.setMaxWait(maxWait);
-    			        datasource.setTimeBetweenEvictionRunsMillis(timeBetweenEvictionRunsMillis);
-    		        datasource.setMinEvictableIdleTimeMillis(minEvictableIdleTimeMillis);
-            datasource.setValidationQuery(validationQuery);
-            datasource.setTestWhileIdle(testWhileIdle);
-            datasource.setTestOnBorrow(testOnBorrow);
-            datasource.setTestOnReturn(testOnReturn);
-            datasource.setFilters(filters);
-        	    return datasource;
-        }
-        
-        @Primary
-        @Bean(name = "rdsDataSourceTransactionManager")
-        public DataSourceTransactionManager transactionManager(DataSource dataSource) {
-        	    return new DataSourceTransactionManager(dataSource);
-        }
-        
-        @Primary
-        @Bean(name = "rdsSqlSessionFactory")
-        public SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception {
-        	SqlSessionFactoryBean factory = new SqlSessionFactoryBean();
-            factory.setDataSource(dataSource);
-            factory.setVfs(SpringBootVFS.class);
-            factory.setConfigLocation(this.resourceLoader.getResource("classpath:mybatis-config.xml"));
-            return factory.getObject();
-    	    }
+
+**我们一般在 maven 环境下整合 mybatis 此处就有一个问题会发生**
+
+```
+org.apache.ibatis.binding.BindingException: Invalid bound statement (not found)
+```
+
+**如果出现上面那个错误, 一般的原因是Mapper interface和xml文件的定义对应不上，需要检查包名，namespace，函数名称等能否对应上，需要比较细致的对比，我经常就是写错了一两个字母搞的很长时间找不到错误**
+
+按以下步骤一一执行：
+
+1. 检查 xml 文件所在的 package 名称是否和 interface 对应的 package 名称一一对应
+
+2. 检查 xml 文件的 namespace 是否和 xml 文件的 package 名称一一对应
+
+3. 检查函数名称能否对应上
+
+4. 去掉 xml 文件中的中文注释
+
+5. 随意在 xml 文件中加一个空格或者空行然后保存
+
+**但是还会出现一个不属于上面任何一种情况的错误, 这个问题的发生的原因是, 如果我们将 mapper 对应的 xml 文件与 mapper 放在同一目录, 一般都是 src/main/java/ 下, 这样使用 maven 打包的时候, maven 是不会将 xml 打包进编译后的目录中的, (因为 maven 认为src/main/java 下只是 java 的源代码路径, 所以不会打包资源文件, 而将 xml, properties 等资源文件放在 src/main/resources 目录下是可以被打包进去的), 这个时候就需要我们在 pom.xml 文件中加入一条配置, 告诉 maven 将src/main/java 路径下的某个资源也打进 jar 包就可以了, 配置如下**
+
+```xml
+<build>
+	<resources>
+        <resource>
+            <directory>src/main/java</directory>
+            <filtering>true</filtering>
+            <includes>
+                <include>**/*Mapper.xml</include>
+            </includes>
+        </resource>
+    </resources>
+</build>
+```
+
+**如果配置了上边的插件会覆盖 maven 默认的加载路径, 导致 src/main/resources 路径下的资源加载不到, 所以还要添加另外的配置如下**
+
+```xml
+<build>
+	<resources>
+        <resource>
+            <directory>src/main/java</directory>
+            <filtering>true</filtering>
+            <includes>
+                <include>**/*Mapper.xml</include>
+            </includes>
+        </resource>
+        <resource>
+        	<directory>src/main/resources</directory>
+        	<filtering>true</filtering>
+        	<includes>
+        		<include>**/*.xml</include>
+        	</includes>
+        </resource>
+    </resources>
+</build>
+```
+
+### MyBatis整合多数据源
+
+**实际开发中有可能一个项目需要连接多个库, 默认情况下 SpringBoot 使用默认的 SqlSessionFactory, 这时需要我们手动指定多 SqlSessionFactory 取代默认的配置, 需要分别创建 DataSource, SqlSessionFactory**
+
+```java
+@Configuration
+@MapperScan(value = "com.miaoqi.mysql.dc",sqlSessionFactoryRef = "dcSqlSessionFactory")
+public class DcMySqlConfig {
+
+    @Autowired
+    private ResourceLoader resourceLoader = new DefaultResourceLoader();
+
+    @Value("${spring.datasource.dc_url}")
+    private String dbUrl;
+
+    @Value("${spring.datasource.dc_username}")
+    private String username;
+
+    @Value("${spring.datasource.dc_password}")
+    private String password;
+
+    @Value("${spring.datasource.dc_driverClassName}")
+    private String driverClassName;
+
+    @Value("${spring.datasource.dc_initialSize}")
+    private int initialSize;
+
+    @Value("${spring.datasource.dc_minIdle}")
+    private int minIdle;
+
+    @Value("${spring.datasource.dc_maxActive}")
+    private int maxActive;
+
+    @Value("${spring.datasource.dc_maxWait}")
+    private int maxWait;
+
+    @Value("${spring.datasource.dc_timeBetweenEvictionRunsMillis}")
+    private int timeBetweenEvictionRunsMillis;
+
+    @Value("${spring.datasource.dc_minEvictableIdleTimeMillis}")
+    private int minEvictableIdleTimeMillis;
+
+    @Value("${spring.datasource.dc_validationQuery}")
+    private String validationQuery;
+
+    @Value("${spring.datasource.dc_testWhileIdle}")
+    private boolean testWhileIdle;
+
+    @Value("${spring.datasource.dc_testOnBorrow}")
+    private boolean testOnBorrow;
+
+    @Value("${spring.datasource.dc_testOnReturn}")
+    private boolean testOnReturn;
+
+    @Value("${spring.datasource.dc_filters}")
+    private String filters;
+
+    @Value("${spring.datasource.dc_logSlowSql}")
+    private String logSlowSql;
+
+    @Bean(name = "dcDataSource")
+    public DataSource dataSource() throws Exception {
+        DruidDataSource datasource = new DruidDataSource();
+        datasource.setUrl(dbUrl);
+        datasource.setUsername(ConfigTools.decrypt(username));
+        datasource.setPassword(ConfigTools.decrypt(password));
+        datasource.setDriverClassName(driverClassName);
+        datasource.setInitialSize(initialSize);
+        datasource.setMinIdle(minIdle);
+        datasource.setMaxActive(maxActive);
+        datasource.setMaxWait(maxWait);
+        datasource.setTimeBetweenEvictionRunsMillis(timeBetweenEvictionRunsMillis);
+        datasource.setMinEvictableIdleTimeMillis(minEvictableIdleTimeMillis);
+        datasource.setValidationQuery(validationQuery);
+        datasource.setTestWhileIdle(testWhileIdle);
+        datasource.setTestOnBorrow(testOnBorrow);
+        datasource.setTestOnReturn(testOnReturn);
+        datasource.setFilters(filters);
+
+        return datasource;
+    }
+
+    @Bean(name = "dcDataSourceTransactionManager")
+    public DataSourceTransactionManager transactionManager() throws Exception {
+        return new DataSourceTransactionManager(dataSource());
+    }
+
+    @Bean(name = "dcSqlSessionFactory")
+    public SqlSessionFactory sqlSessionFactory() throws Exception {
+        SqlSessionFactoryBean factory = new SqlSessionFactoryBean();
+        factory.setDataSource(dataSource());
+        factory.setVfs(SpringBootVFS.class);
+        factory.setConfigLocation(this.resourceLoader.getResource("classpath:dc-mybatis-config.xml"));
+        return factory.getObject();
+    }
 }
-    ```
+```
+
+```java
+@Configuration
+@MapperScan(value = "com.miaoqi.mysql.mapper",sqlSessionFactoryRef = "rdsSqlSessionFactory")
+public class MySqlConfig {
     
-    手动配置了SqlSessionFactory, 从不同的DataSource中获取连接, 注入到不同的mapper中, 即可实现多数据源
+    @Autowired
+    private ResourceLoader resourceLoader = new DefaultResourceLoader();
+
+    @Value("${spring.datasource.url}")
+    private String dbUrl;
+
+    @Value("${spring.datasource.username}")
+    private String username;
+
+    @Value("${spring.datasource.password}")
+    private String password;
+    
+    @Value("${spring.datasource.driverClassName}")
+    private String driverClassName;
+
+    @Value("${spring.datasource.initialSize}")
+    private int initialSize;
+
+    @Value("${spring.datasource.minIdle}")
+    private int minIdle;
+    
+    @Value("${spring.datasource.maxActive}")
+    private int maxActive;
+
+    @Value("${spring.datasource.maxWait}")
+    private int maxWait;
+
+    @Value("${spring.datasource.timeBetweenEvictionRunsMillis}")
+    private int timeBetweenEvictionRunsMillis;
+
+    @Value("${spring.datasource.minEvictableIdleTimeMillis}")
+    private int minEvictableIdleTimeMillis;
+
+    @Value("${spring.datasource.validationQuery}")
+    private String validationQuery;
+
+    @Value("${spring.datasource.testWhileIdle}")
+    private boolean testWhileIdle;
+
+    @Value("${spring.datasource.testOnBorrow}")
+    private boolean testOnBorrow;
+
+    @Value("${spring.datasource.testOnReturn}")
+    private boolean testOnReturn;
+
+    @Value("${spring.datasource.filters}")
+    private String filters;
+
+    @Value("${spring.datasource.logSlowSql}")
+    private String logSlowSql;
+    
+    @Primary
+    @Bean(name = "rdsDataSource")
+    public DataSource dataSource() throws Exception {
+        DruidDataSource datasource = new DruidDataSource();
+        datasource.setUrl(dbUrl);
+        datasource.setUsername(ConfigTools.decrypt(username));
+        datasource.setPassword(ConfigTools.decrypt(password));
+        datasource.setDriverClassName(driverClassName);
+        datasource.setInitialSize(initialSize);
+        datasource.setMinIdle(minIdle);
+        datasource.setMaxActive(maxActive);
+        datasource.setMaxWait(maxWait);
+			        datasource.setTimeBetweenEvictionRunsMillis(timeBetweenEvictionRunsMillis);
+		        datasource.setMinEvictableIdleTimeMillis(minEvictableIdleTimeMillis);
+        datasource.setValidationQuery(validationQuery);
+        datasource.setTestWhileIdle(testWhileIdle);
+        datasource.setTestOnBorrow(testOnBorrow);
+        datasource.setTestOnReturn(testOnReturn);
+        datasource.setFilters(filters);
+    	    return datasource;
+    }
+    
+    @Primary
+    @Bean(name = "rdsDataSourceTransactionManager")
+    public DataSourceTransactionManager transactionManager(DataSource dataSource) {
+    	    return new DataSourceTransactionManager(dataSource);
+    }
+    
+    @Primary
+    @Bean(name = "rdsSqlSessionFactory")
+    public SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception {
+    	SqlSessionFactoryBean factory = new SqlSessionFactoryBean();
+        factory.setDataSource(dataSource);
+        factory.setVfs(SpringBootVFS.class);
+        factory.setConfigLocation(this.resourceLoader.getResource("classpath:mybatis-config.xml"));
+        return factory.getObject();
+	    }
+}
+```
+
+**手动配置了SqlSessionFactory, 从不同的DataSource中获取连接, 注入到不同的mapper中, 即可实现多数据源**
 
 ## AOP应用
 
@@ -1591,7 +1645,7 @@ public class GlobalExceptionHandler {
 ```
 ### 全局参数拦截
 
-自定义切面类, 拦截所有的 Controller 方法
+自定义切面类, 拦截所有的 Controller 方法进行参数的输出
 
 ```java
 @Component
@@ -1709,6 +1763,83 @@ public class HttpRequestLogAOP {
     }   
 }
 ```
+
+
+### 全局响应拦截器
+
+实现 ResponseBodyAdvice 接口, 对 RestController 接口的返回值进行统一处理
+
+```java
+@RestControllerAdvice
+public class GlobalResponseHandler implements ResponseBodyAdvice<Object> {
+
+    /**
+     * 判断是否支持全局响应
+     *
+     * @author miaoqi
+     * @date 2019-07-31
+     * @param methodParameter
+     * @param converterType
+     * @return
+     */
+    @Override
+    public boolean supports(MethodParameter methodParameter, Class<? extends HttpMessageConverter<?>> converterType) {
+        // methodParameter.getDeclaringClass() 拿到类声明, 判断类上是否有注解
+        if (methodParameter.getDeclaringClass().isAnnotationPresent(IgnoreResponseAdvice.class)) {
+            return false;
+        }
+        // methodParameter.getMethod() 拿到方法声明, 判断方法上是否有注解
+        if (methodParameter.getMethod().isAnnotationPresent(IgnoreResponseAdvice.class)) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 全局响应拦截器
+     *
+     * @author miaoqi
+     * @date 2019-07-31
+     * @param body
+     * @param returnType
+     * @param selectedContentType
+     * @param selectedConverterType
+     * @param request
+     * @param serverHttpResponse
+     * @return
+     */
+    @Override
+    public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType,
+            Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request,
+            ServerHttpResponse serverHttpResponse) {
+        CommonResponse<Object> response = new CommonResponse<>(0, "");
+        if (null == body) {
+            return response;
+        } else if (body instanceof CommonResponse) {
+            response = (CommonResponse<Object>) body;
+        } else {
+            response.setData(body);
+        }
+        return response;
+    }
+}
+
+
+
+/**
+ * 自定义注解, 用来忽略全局响应处理
+ *
+ * @author miaoqi
+ * @date 2019-07-31
+ */
+@Target({ElementType.TYPE, ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface IgnoreResponseAdvice {
+}
+```
+
+
+
 ### 自定义注解解析器
 
 **自定义注解解析器的原理实际是还是利用了AOP功能**
@@ -1926,7 +2057,7 @@ public class XRedisCacheAspects {
 
 Spring提供了自定义参数解析器的功能
 
-1. 自定义两个注解, 该注解类似@RequestParam
+1. 自定义两个注解, 该注解类似 @RequestParam
 
     AESRequestParam
 
