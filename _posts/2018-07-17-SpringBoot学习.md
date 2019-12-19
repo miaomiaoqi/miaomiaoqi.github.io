@@ -1251,7 +1251,7 @@ org.apache.tomcat.jdbc.pool.DataSource, HikariDataSource, BasicDataSource, Dbcp2
 <dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>druid-spring-boot-starter</artifactId>
-    <version>1.1.6</version>
+    <version>1.1.21</version>
 </dependency>
 ```
 
@@ -1689,7 +1689,7 @@ public interface BaseMapper<T> extends Mapper<T>, IdListMapper<T, Long>, InsertL
 <dependency>
 	<groupId>com.github.pagehelper</groupId>
 	<artifactId>pagehelper-spring-boot-starter</artifactId>
-	<version>${pageHelper.starter.version}</version>
+	<version>1.2.3</version>
 </dependency>
 ```
 
