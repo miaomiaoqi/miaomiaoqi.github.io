@@ -1245,6 +1245,18 @@ org.apache.tomcat.jdbc.pool.DataSource, HikariDataSource, BasicDataSource, Dbcp2
 
 在 spring-boot-2.1.5 版本中的 `DataSourceConfiguration` 类中没有内置根据条件加载 Druid 数据源, 所以就不能通过 spring 的配置来改变数据源了, 这时候就需要我们手动创建数据源使用, 其他没有被 Spring 管理起来的数据源以此类推
 
+**引入 Druid 数据源相关 jar 包**
+
+```xml
+<dependency>
+    <groupId>com.alibaba</groupId>
+    <artifactId>druid-spring-boot-starter</artifactId>
+    <version>1.1.6</version>
+</dependency>
+```
+
+**配置 Druid**
+
 ```java
 @Configuration
 public class DruidConfig {
@@ -1253,7 +1265,9 @@ public class DruidConfig {
     @ConfigurationProperties(prefix = "spring.datasource")
     @Bean
     public DataSource druid() {
-        return new DruidDataSource();
+        DruidDataSource dataSource = new DruidDataSource();
+    		dataSource.setDruidInitialSize(5);
+      	return dataSource;
     }
 
     // 配置Druid的监控
@@ -1281,15 +1295,36 @@ public class DruidConfig {
 }
 ```
 
+**一些特定的配置就需要手动为 Druid 实例赋值了**
+
+```properties
+#初始化连接数
+spring.datasource.druid.initial-size=1
+#最小空闲连接
+spring.datasource.druid.min-idle=1
+#最大活动连接
+spring.datasource.druid.max-active=20
+#获取连接时测试是否可用
+spring.datasource.druid.test-on-borrow=true
+#监控页面启动
+spring.datasource.druid.stat-view-servlet.allow=true
+```
+
+**排除自动配置, 如果我们的项目不需要操作数据库, 可以排除数据源的自动装配**
+
+```java
+@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
+```
+
 ### 整合MyBatis
 
 引入Mybatis整合SpringBoot所需的jar包
 
 ```xml
 <dependency>
-    <groupId>org.mybatis.spring.boot</groupId>
-    <artifactId>mybatis‐spring‐boot‐starter</artifactId>
-    <version>1.3.1</version>
+  <groupId>org.mybatis.spring.boot</groupId>
+  <artifactId>mybatis-spring-boot-starter</artifactId>
+  <version>1.3.1</version>
 </dependency>
 ```
 
@@ -1347,13 +1382,13 @@ public class MyBatisConfig{
     }
     ```
 
-1. 修改SpringBoot配置文件, 这里的配置是原来mybatis的全局配置文件如果不需要可省略
+1. 修改 SpringBoot 配置文件, 这里的配置是原来 mybatis 的全局配置文件如果不需要可省略
 
     ```yaml
     mybatis:
-      # 可以指定mybatis自己的配置文件, 如果不需要可以不配
+      # 可以指定 mybatis 自己的配置文件, 如果不需要可以不配
       config-location: classpath:mybatis/mybatis-config.xml
-      # 如果xml和mapper在同一个目录下, 可以不配该条配置
+      # 如果 xml 和 mapper 在同一个目录下, 可以不配该条配置
       mapper-locations: classpath:mybatis/mapper/*.xml
     ```
 
@@ -1416,7 +1451,7 @@ org.apache.ibatis.binding.BindingException: Invalid bound statement (not found)
 </build>
 ```
 
-### MyBatis整合多数据源
+#### MyBatis整合多数据源
 
 **实际开发中有可能一个项目需要连接多个库, 默认情况下 SpringBoot 使用默认的 SqlSessionFactory, 这时需要我们手动指定多 SqlSessionFactory 取代默认的配置, 需要分别创建 DataSource, SqlSessionFactory**
 
@@ -1611,6 +1646,59 @@ public class MySqlConfig {
 ```
 
 **手动配置了SqlSessionFactory, 从不同的DataSource中获取连接, 注入到不同的mapper中, 即可实现多数据源**
+
+
+
+#### 通用 Mapper
+
+通用Mapper的作者也为自己的插件编写了启动器，我们直接引入即可
+
+```xml
+<!-- 通用mapper -->
+<dependency>
+    <groupId>tk.mybatis</groupId>
+    <artifactId>mapper-spring-boot-starter</artifactId>
+    <version>2.0.2</version>
+</dependency>
+```
+
+不需要任何配置, 直接使用即可
+
+```java
+@Mapper
+public interface UserMapper extends tk.mybatis.mapper.common.Mapper<User>{
+}
+```
+
+通常会自己定义一个 BaseMapper 方便使用
+
+```java
+@RegisterMapper
+public interface BaseMapper<T> extends Mapper<T>, IdListMapper<T, Long>, InsertListMapper<T> {
+}
+```
+
+
+
+#### 分页助手启动器
+
+引入分页助手相关 jar 包
+
+```xml
+<!-- 分页助手启动器 -->
+<dependency>
+	<groupId>com.github.pagehelper</groupId>
+	<artifactId>pagehelper-spring-boot-starter</artifactId>
+	<version>${pageHelper.starter.version}</version>
+</dependency>
+```
+
+代码中直接使用即可
+
+```java
+// 开始分页
+PageHelper.startPage(page, rows);
+```
 
 ## AOP应用
 
