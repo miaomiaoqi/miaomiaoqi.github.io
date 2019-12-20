@@ -1160,6 +1160,52 @@ SpringBoot使用它来做日志功能;
 
 ### 编写拦截器
 
+实现 HandlerInterceptor 接口, 在 java8 中有了默认方法, 实现这个接口只需要重写需要的方法即可
+
+```java
+public class LoginInterceptor implements HandlerInterceptor {
+
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        return true;
+    }
+
+    @Override
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+
+    }
+
+}
+```
+
+**继承 HandlerInterceptorAdapter, HandlerInterceptorAdapter也是实现了 HandlerInterceptor 接口, 本质是一样的**
+
+```java
+public class LoginInterceptor extends HandlerInterceptorAdapter {
+
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        return true;
+    }
+
+    @Override
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+
+    }
+
+}
+```
+
 ### 注册拦截器
 
 在 SpringBoot2.0 之前可以继承 WebMvcConfigurerAdapter 重写方法进行拦截器的注册
