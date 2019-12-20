@@ -951,36 +951,37 @@ SpringBoot使用它来做日志功能;
 
     ```java
     @EnableWebMvc
-    @Configuration publicclassMyMvcConfigextendsWebMvcConfigurerAdapter{
+    @Configuration
+    public class MyMvcConfig extends WebMvcConfigurerAdapter {
         @Override
         public void addViewControllers(ViewControllerRegistry registry) {
             // super.addViewControllers(registry);
             // 浏览器发送 /miaoqi 请求来到 success
             registry.addViewController("/miaoqi").setViewName("success");
-        }
-}
-    ```
-
-    原理: 为什么自己标注@EnableWebMvc注解会导致SpringMVC自动配置就失效
-
+    }
+    }
+```
+    
+原理: 为什么自己标注@EnableWebMvc注解会导致SpringMVC自动配置就失效
+    
     1. @EnableWebMvc的核心引入了DelegatingWebMvcConfiguration.class
     
         ```java
         @Import(DelegatingWebMvcConfiguration.class)
         public @interface EnableWebMvc{
         }
-        ```
-
-    2. DelegatingWebMvcConfiguration继承WebMvcConfigurationSupport
-
+    ```
+    
+2. DelegatingWebMvcConfiguration继承WebMvcConfigurationSupport
+    
         ```java
         @Configuration
         public class Delegating WebMvcConfiguration extends WebMvcConfigurationSupport{
         }
         ```
     
-        
-
+    
+    
     3. WebMvcAutoConfiguration中如果没有WebMvcConfigurationSupport才会进行自动配置, 然而@EnableWebMvc引入了该类, 导致自动配置失效
     
         ```java
@@ -1152,6 +1153,93 @@ SpringBoot使用它来做日志功能;
             }
         }
         ```
+
+
+
+## 自定义拦截器
+
+### 编写拦截器
+
+### 注册拦截器
+
+在 SpringBoot2.0 之前可以继承 WebMvcConfigurerAdapter 重写方法进行拦截器的注册
+
+```java
+@Configuration
+public class WebConfig extends WebMvcConfigurerAdapter {
+
+    @Autowired
+    private AuthorizationInterceptor authorizationInterceptor;
+
+    @Autowired
+    private CurrentUserMethodArgumentResolver currentUserMethodArgumentResolver;
+
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
+        currentUserMethodArgumentResolver.setUserModelClass(Member.class);
+        argumentResolvers.add(currentUserMethodArgumentResolver);
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(authorizationInterceptor);
+    }
+
+}
+```
+
+**但是根据官方标注WebMvcConfigurerAdapter过时了，因为java8接口具有默认实现，然后想通过继承WebMvcConfigurationSupport实现添加。**
+
+```java
+@Configuration
+public class WebConfig extends WebMvcConfigurationSupport {
+
+    @Autowired
+    private AuthorizationInterceptor authorizationInterceptor;
+
+    @Autowired
+    private CurrentUserMethodArgumentResolver currentUserMethodArgumentResolver;
+
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
+        currentUserMethodArgumentResolver.setUserModelClass(Member.class);
+        argumentResolvers.add(currentUserMethodArgumentResolver);
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(authorizationInterceptor);
+    }
+
+}
+```
+
+**出现的问题：静态资源的访问的问题，在静态资源的访问的过程中，如果继承了 WebMvconfigureSupport 的方法的时候，SpringBoot 中的自动的配置会失效。 @ConditionalOnMissingBean({WebMvcConfigurationSupport.class}) 表示的是在WebMvcConfigurationSupport 类被注册的时候，SpringMVC的自动的配置会失效，就需要你自己进行配置, 最终我们自己实现 WebMvcConfigurer 接口, 重写自己需要的方法即可**
+
+```java
+@Configuration
+public class WebConfig implements WebMvcConfigurer {
+
+    @Autowired
+    private AuthorizationInterceptor authorizationInterceptor;
+
+    @Autowired
+    private CurrentUserMethodArgumentResolver currentUserMethodArgumentResolver;
+
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
+        currentUserMethodArgumentResolver.setUserModelClass(Member.class);
+        argumentResolvers.add(currentUserMethodArgumentResolver);
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(authorizationInterceptor);
+    }
+
+}
+```
+
 
 
 ## 数据访问
