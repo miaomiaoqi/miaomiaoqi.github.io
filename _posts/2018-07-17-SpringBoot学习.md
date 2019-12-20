@@ -1243,7 +1243,7 @@ org.apache.tomcat.jdbc.pool.DataSource, HikariDataSource, BasicDataSource, Dbcp2
 
 ### 整合Druid数据源
 
-在 spring-boot-2.1.5 版本中的 `DataSourceConfiguration` 类中没有内置根据条件加载 Druid 数据源, 所以就不能通过 spring 的配置来改变数据源了, 这时候就需要我们手动创建数据源使用, 其他没有被 Spring 管理起来的数据源以此类推
+在 SpringBoot 的 `DataSourceConfiguration` 类中没有内置根据条件加载 Druid 数据源, 所以就不能通过 spring 的配置来改变数据源了, **早期时候 Druid 的 jar 包也没有提供自动装配, 这时候就需要我们手动创建数据源使用, 后期 Druid 提供了自动装配, 我们只需要写配置文件即可, 其他数据源类似**
 
 **引入 Druid 数据源相关 jar 包**
 
@@ -1255,16 +1255,18 @@ org.apache.tomcat.jdbc.pool.DataSource, HikariDataSource, BasicDataSource, Dbcp2
 </dependency>
 ```
 
-**配置 Druid**
+**早期版本手动配置 Druid 数据源**
 
 ```java
 @Configuration
 public class DruidConfig {
 
   	// 数据源的基础配置通过 @ConfigurationProperties 使配置文件内容与 bean 关联起来
+  	// 因为这里返回的是接口, 一些 druid 的特殊配置没有 set 方法, 需要手动配置再返回给容器
     @ConfigurationProperties(prefix = "spring.datasource")
     @Bean
     public DataSource druid() {
+      	// 其他特有数据手动配置
         DruidDataSource dataSource = new DruidDataSource();
     		dataSource.setDruidInitialSize(5);
       	return dataSource;
@@ -1295,19 +1297,72 @@ public class DruidConfig {
 }
 ```
 
-**一些特定的配置就需要手动为 Druid 实例赋值了**
+**后期版本只需要修改配置文件即可实现自动装配**
 
-```properties
-#初始化连接数
-spring.datasource.druid.initial-size=1
-#最小空闲连接
-spring.datasource.druid.min-idle=1
-#最大活动连接
-spring.datasource.druid.max-active=20
-#获取连接时测试是否可用
-spring.datasource.druid.test-on-borrow=true
-#监控页面启动
-spring.datasource.druid.stat-view-servlet.allow=true
+```yaml
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://192.168.0.128:3306/test?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8&useSSL=false
+    username: root
+    password: 123456
+    driverClassName: com.mysql.cj.jdbc.Driver
+    druid:
+      # 连接池的配置信息
+      # 初始化时建立物理连接的个数
+      initial-size: 5
+      # 连接池最小连接数
+      min-idle: 5
+      # 连接池最大连接数
+      max-active: 30
+      # 获取连接时最大等待时间，单位毫秒
+      max-wait: 60000
+      # 申请连接的时候检测，如果空闲时间大于timeBetweenEvictionRunsMillis，执行validationQuery检测连接是否有效。
+      test-while-idle: true
+      # 既作为检测的间隔时间又作为testWhileIdel执行的依据
+      time-between-connect-error-millis: 60000
+      # 销毁线程时检测当前连接的最后活动时间和当前时间差大于该值时，关闭当前连接
+      min-evictable-idle-time-millis: 30000
+      # 用来检测连接是否有效的sql 必须是一个查询语句
+      # mysql中为 select 'x'
+      # oracle中为 select 1 from dual
+      validation-query: select 'x'
+      # 申请连接时会执行validationQuery检测连接是否有效,开启会降低性能,默认为true
+      test-on-borrow: false
+      # 归还连接时会执行validationQuery检测连接是否有效,开启会降低性能,默认为true
+      test-on-return: false
+      # 是否缓存preparedStatement,mysql5.5+建议开启
+      pool-prepared-statements: true
+      # 当值大于0时poolPreparedStatements会自动修改为true
+      max-pool-prepared-statement-per-connection-size: 20
+      # 合并多个DruidDataSource的监控数据
+      use-global-data-source-stat: false
+      # 配置扩展插件
+      filters: stat,wall,slf4j
+      # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
+      connect-properties: druid.stat.mergeSql=false;druid.stat.slowSqlMillis=5000
+      # 定时输出统计信息到日志中，并每次输出日志会导致清零（reset）连接池相关的计数器。
+      time-between-log-stats-millis: 300000
+      # 配置DruidStatFilter
+      web-stat-filter:
+        enabled: true
+        url-pattern: '/*'
+        exclusions: '*.js,*.gif,*.jpg,*.bmp,*.png,*.css,*.ico,/druid/*'
+      # 配置DruidStatViewServlet
+      stat-view-servlet:
+        # 是否启用StatViewServlet（监控页面）默认值为false（考虑到安全问题默认并未启动，如需启用建议设置密码或白名单以保障安全）
+        enabled: true
+        url-pattern: '/druid/*'
+        # IP白名单(没有配置或者为空，则允许所有访问)
+        allow: 127.0.0.1,192.168.0.1
+        # IP黑名单 (存在共同时，deny优先于allow)
+        deny: 192.168.0.128
+        # 禁用HTML页面上的“Reset All”功能
+        reset-enable: false
+        # 登录名
+        login-username: admin
+        # 登录密码
+        login-password: admin
 ```
 
 **排除自动配置, 如果我们的项目不需要操作数据库, 可以排除数据源的自动装配**
@@ -1318,7 +1373,7 @@ spring.datasource.druid.stat-view-servlet.allow=true
 
 ### 整合MyBatis
 
-引入Mybatis整合SpringBoot所需的jar包
+**引入Mybatis整合SpringBoot所需的jar包**
 
 ```xml
 <dependency>
@@ -1329,6 +1384,8 @@ spring.datasource.druid.stat-view-servlet.allow=true
 ```
 
 #### 注解版整合
+
+@Mapper 注解需要 MyBatis-3.4.0 以上版本, 3.4.0以上的版本又会导致 MyBatis 早期的分页拦截器不可使用, 需要修改
 
 ```java
 @Mapper
@@ -1353,7 +1410,7 @@ public interface DepartmentMapper {
 自定义MyBatis的配置规则;给容器中添加一个ConfigurationCustomizer;
 
 ```java
-@org.springframework.context.annotation.Configuration
+@Configuration
 public class MyBatisConfig{
     @Bean
     public ConfigurationCustomizer configurationCustomizer(){
@@ -1367,7 +1424,7 @@ public class MyBatisConfig{
 }
 ```
 
-#### 配置文件版整合
+#### 配置版整合
 
 1. 扫描所有Mapper文件所在的包
 
@@ -1382,15 +1439,21 @@ public class MyBatisConfig{
     }
     ```
 
-1. 修改 SpringBoot 配置文件, 这里的配置是原来 mybatis 的全局配置文件如果不需要可省略
+2. 编写接口对应的 xml 文件来编写 sql 语句
 
-    ```yaml
-    mybatis:
-      # 可以指定 mybatis 自己的配置文件, 如果不需要可以不配
-      config-location: classpath:mybatis/mybatis-config.xml
-      # 如果 xml 和 mapper 在同一个目录下, 可以不配该条配置
-      mapper-locations: classpath:mybatis/mapper/*.xml
-    ```
+#### 整合配置文件
+
+**修改 SpringBoot 配置文件, 这里的配置是原来 mybatis 的全局配置文件如果不需要可省略**
+
+```yaml
+mybatis:
+  # 可以指定 mybatis 自己的配置文件, 如果不需要可以不配
+  config-location: classpath:mybatis/mybatis-config.xml
+  # 如果 xml 和 mapper 在同一个目录下, 可以不配该条配置
+  mapper-locations: classpath:mybatis/mapper/*.xml
+```
+
+
 
 **我们一般在 maven 环境下整合 mybatis 此处就有一个问题会发生**
 
@@ -1453,7 +1516,7 @@ org.apache.ibatis.binding.BindingException: Invalid bound statement (not found)
 
 #### MyBatis整合多数据源
 
-**实际开发中有可能一个项目需要连接多个库, 默认情况下 SpringBoot 使用默认的 SqlSessionFactory, 这时需要我们手动指定多 SqlSessionFactory 取代默认的配置, 需要分别创建 DataSource, SqlSessionFactory**
+**实际开发中有可能一个项目需要连接多个库, 默认情况下 SpringBoot 使用默认的 SqlSessionFactory, 这时需要我们手动指定多 SqlSessionFactory 取代默认的配置, 需要分别创建 DataSource, SqlSessionFactory 并且手动关联, 就不能使用自动配置了**
 
 ```java
 @Configuration
@@ -1617,20 +1680,20 @@ public class MySqlConfig {
         datasource.setMinIdle(minIdle);
         datasource.setMaxActive(maxActive);
         datasource.setMaxWait(maxWait);
-			        datasource.setTimeBetweenEvictionRunsMillis(timeBetweenEvictionRunsMillis);
-		        datasource.setMinEvictableIdleTimeMillis(minEvictableIdleTimeMillis);
+			  datasource.setTimeBetweenEvictionRunsMillis(timeBetweenEvictionRunsMillis);
+		    datasource.setMinEvictableIdleTimeMillis(minEvictableIdleTimeMillis);
         datasource.setValidationQuery(validationQuery);
         datasource.setTestWhileIdle(testWhileIdle);
         datasource.setTestOnBorrow(testOnBorrow);
         datasource.setTestOnReturn(testOnReturn);
         datasource.setFilters(filters);
-    	    return datasource;
+    	  return datasource;
     }
     
     @Primary
     @Bean(name = "rdsDataSourceTransactionManager")
     public DataSourceTransactionManager transactionManager(DataSource dataSource) {
-    	    return new DataSourceTransactionManager(dataSource);
+    		return new DataSourceTransactionManager(dataSource);
     }
     
     @Primary
@@ -1651,7 +1714,9 @@ public class MySqlConfig {
 
 #### 通用 Mapper
 
-通用Mapper的作者也为自己的插件编写了启动器，我们直接引入即可
+通用 Mapper 的作者也为自己的插件编写了启动器，我们直接引入即可
+
+**需要注意的是, 如果使用了通用 Mapper 那么我们的 @MapperScan 就需要使用 tk.mybatis 包下的注解, 而不是 MyBatis 的**
 
 ```xml
 <!-- 通用mapper -->
@@ -1698,6 +1763,9 @@ public interface BaseMapper<T> extends Mapper<T>, IdListMapper<T, Long>, InsertL
 ```java
 // 开始分页
 PageHelper.startPage(page, rows);
+
+PageInfo<Spu> pageInfo = new PageInfo<>(spus);
+return pageInfo;
 ```
 
 ## AOP应用
