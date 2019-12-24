@@ -452,7 +452,7 @@ bean的生命周期: bean创建---初始化---销毁的过程
       
       @Value("${person.name}")
       public void setName(String name){
-      		Person.name = name;
+        Person.name = name;
       }
       ```
 
