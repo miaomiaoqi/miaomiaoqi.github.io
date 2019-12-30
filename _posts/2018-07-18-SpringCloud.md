@@ -66,7 +66,7 @@ author: miaoqi
 
 启动类加入 `@EnableEurekaServer` 注解
 
-```
+```java
 @SpringBootApplication
 @EnableEurekaServer
 public class SpringcloudSellEurekaApplication {
@@ -78,7 +78,7 @@ public class SpringcloudSellEurekaApplication {
 
 SpringCloudEurekaServer既是服务端又是客户端, 启动时会默认查找 defaultZone 注册, 也会注册自己, 采用心跳的方式每隔一段时间注册一次, 可以改变配置不让自己注册
 
-```
+```yaml
 server:
   port: 9900
 eureka:
@@ -94,7 +94,7 @@ spring:
 
 自我保护模式: Eureka 采用心跳机制, Server 端会一直检查 Client 端是否在线, 当 Client 上线率过低时会报出警告, 但是 Server 会认为是否是网络问题导致的, 此时并不会立刻剔除客户端注册信息, 开发时建议关闭, 可以实时更新服务注册信息**(生产不要关)**
 
-```
+```yaml
 eureka:
   server:
     enable-self-preservation: false # 是否开启自我保护机制
@@ -102,7 +102,7 @@ eureka:
 
 查看注册信息
 
-```
+```yaml
 http://127.0.0.1:9901/eureka/apps
 ```
 
@@ -112,7 +112,7 @@ http://127.0.0.1:9901/eureka/apps
 
 启动类加入 `@EnableDiscoveryClient` 注解
 
-```
+```java
 @SpringBootApplication
 @EnableDiscoveryClient
 public class SpringcloudSellClientApplication {
@@ -126,7 +126,7 @@ public class SpringcloudSellClientApplication {
 
 拷贝 EurekaServer 项目, 修改端口号, 修改服务注册地址为其他 EurekaServer 的地址
 
-```
+```yaml
 server:
   port: 9901
 eureka:
@@ -137,7 +137,7 @@ eureka:
 
 EurekaClient 的地址填写集群的每一个地址
 
-```
+```yaml
 server:
   port: 9910
 eureka:
@@ -171,7 +171,7 @@ Kubernetes
 
 基于 Netflix Ribbon 实现的一套 http 客户端负载均衡工具, Ribbon + RestTemplate, 结合 eureka 使用, 会从 eureka 中查找可用的机器进行访问
 
-```
+```java
 @RestController
 @Slf4j
 public class ClientController {
@@ -204,7 +204,7 @@ public class ClientController {
 }
 ```
 
-```
+```java
 @Component
 public class RestTemplateConfig {
 
@@ -231,7 +231,7 @@ Netflix Ribbon 是客户端负载均衡器, 是 LoadBalance 实现负载均衡�
 
 加入 Feign 依赖
 
-```
+```xml
 <dependency>
 	<groupId>org.springframework.cloud</groupId>
 	<artifactId>spring-cloud-starter-feign</artifactId>
@@ -240,7 +240,7 @@ Netflix Ribbon 是客户端负载均衡器, 是 LoadBalance 实现负载均衡�
 
 启动类加入 @EnableFeignClients 注解
 
-```
+```java
 @SpringBootApplication
 @EnableDiscoveryClient
 @EnableFeignClients
@@ -255,7 +255,7 @@ public class SpringcloudSellOrderApplication {
 
 编写客户端接口, 使用 @FeignClient 标明服务端名称, 接口方法是服务接口地址
 
-```
+```java
 @FeignClient(name = "SPRINGCLOUD-SELL-PRODUCT")
 public interface ProductClient {
 
@@ -295,16 +295,16 @@ public interface ProductClient {
 
 * 加入 ConfigServer 依赖, config 本身也是一个微服务, 需要注册到 eureka 中
 
-    ```
+    ```xml
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-config-server</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-        </dependency>
+    	<dependency>
+    		<groupId>org.springframework.cloud</groupId>
+    		<artifactId>spring-cloud-config-server</artifactId>
+    	</dependency>
+    	<dependency>
+    		<groupId>org.springframework.cloud</groupId>
+    		<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+    	</dependency>
     </dependencies>
     ```
 
@@ -312,7 +312,7 @@ public interface ProductClient {
 
 * 开启服务端配置中心
 
-    ```
+    ```java
     @SpringBootApplication
     @EnableDiscoveryClient
     @EnableConfigServer
@@ -329,7 +329,7 @@ public interface ProductClient {
 
 * 编写配置文件
 
-    ```
+    ```yaml
     server:
       port: 9936
     spring:
@@ -360,10 +360,10 @@ public interface ProductClient {
 
 * 加入依赖
 
-    ```
+    ```xml
     <dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-config-client</artifactId>
+    	<groupId>org.springframework.cloud</groupId>
+    	<artifactId>spring-cloud-config-client</artifactId>
     </dependency>
     ```
 
@@ -371,7 +371,7 @@ public interface ProductClient {
 
 * **修改配置文件 bootstrap.yml, bootstrap.yml 加载优先级最高, 所以需要先加载 config server 的配置文件才能继续执行, 具体配置加载顺序参考 springboot**
 
-    ```
+    ```yaml
     spring:
       application:
         name: springcloud-sell-order
@@ -399,16 +399,16 @@ SpringCloudBus 依赖 mq 发消息实现服务自动更新配置
 
 * Config Server 服务加入 SpringCloudBus 依赖
 
-    ```
+    ```xml
     <dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-starter-bus-amqp</artifactId>
+    	<groupId>org.springframework.cloud</groupId>
+    	<artifactId>spring-cloud-starter-bus-amqp</artifactId>
     </dependency>
     ```
 
 * Config Server 服务加入 rabbitmq 配置
 
-    ```
+    ```yaml
     spring:
       rabbitmq:
         addresses: 127.0.0.1:6672
@@ -431,7 +431,7 @@ SpringCloudBus 依赖 mq 发消息实现服务自动更新配置
 
 * Config Client 即 Order 服务加入 SpringCloudBus 依赖
 
-    ```
+    ```xml
     <dependency>
     	<groupId>org.springframework.cloud</groupId>
     	<artifactId>spring-cloud-starter-bus-amqp</artifactId>
@@ -440,7 +440,7 @@ SpringCloudBus 依赖 mq 发消息实现服务自动更新配置
 
 * Config Client 即 Order 服务在 git 配置文件中加入 rabbitmq 配置
 
-    ```
+    ```yaml
     spring:
       rabbitmq:
         addresses: 127.0.0.1:6672
@@ -452,7 +452,7 @@ SpringCloudBus 依赖 mq 发消息实现服务自动更新配置
 
 * Config Client 的 Controller 类中加入 @RefreshScope 注解
 
-    ```
+    ```java
     @RestController
     @RequestMapping("/env")
     @RefreshScope # 哪里需要自动刷新哪里就加该注解
@@ -490,10 +490,10 @@ amqp 定义了一系列消息接口, 典型的实现是 rabbitmq, springcloud �
 
 * 加入 amqp 依赖
 
-    ```
+    ```xml
     <dependencies>
-    	<dependency>
-            <groupId>org.springframework.boot</groupId>
+    		<dependency>
+        		<groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-amqp</artifactId>
         </dependency>
     </dependencies>
@@ -501,7 +501,7 @@ amqp 定义了一系列消息接口, 典型的实现是 rabbitmq, springcloud �
 
 * 修改 git 中的配置文件
 
-    ```
+    ```yaml
     spring:
       rabbitmq:
         addresses: 127.0.0.1:6672
@@ -526,7 +526,7 @@ amqp 定义了一系列消息接口, 典型的实现是 rabbitmq, springcloud �
 
 * 加入 Zuul 依赖
 
-    ```
+    ```xml
     <dependency>
     	<groupId>org.springframework.cloud</groupId>
     	<artifactId>spring-cloud-starter-netflix-zuul</artifactId>
@@ -535,7 +535,7 @@ amqp 定义了一系列消息接口, 典型的实现是 rabbitmq, springcloud �
 
 * 启动类加入 @EnableZuulProxy 注解
 
-    ```
+    ```java
     @SpringBootApplication
     @EnableZuulProxy
     public class SpringcloudSellGatewayApplication {
@@ -549,7 +549,7 @@ amqp 定义了一系列消息接口, 典型的实现是 rabbitmq, springcloud �
 
 * 修改 git 中的配置文件
 
-    ```
+    ```yaml
     eureka:
       client:
         service-url:
@@ -566,7 +566,7 @@ amqp 定义了一系列消息接口, 典型的实现是 rabbitmq, springcloud �
 
 * 修改项目中 bootstrap.yml 文件
 
-    ```
+    ```yaml
     spring:
       application:
         name: springcloud-sell-gateway
@@ -587,7 +587,7 @@ amqp 定义了一系列消息接口, 典型的实现是 rabbitmq, springcloud �
 
 修改 git 中配置文件
 
-```
+```yaml
 zuul:
   routes:
     myPorudct: # 定义一个路由规则, 规则名字可以任意起
@@ -598,7 +598,7 @@ zuul:
     # SPRINGCLOUD-SELL-PRODUCT: /myProduct/** 如果只有 serviceId 和 path 可以简写成这样, 默认去掉前缀
   ignored-patterns: # 忽略的路由规则, 即禁止访问, 是个 Set 集合
     - /**/product/listForOrder
-#   忽略全部服务敏感头
+	# 忽略全部服务敏感头
   sensitive-headers:
 management:
   endpoints:
@@ -631,7 +631,7 @@ private Set<String> sensitiveHeaders = new LinkedHashSet(Arrays.asList("Cookie",
 
     第一种方式, 自己管理 ZuulProperties, 配置 @RefreshScope 注解
 
-    ```
+    ```java
     @Component
     public class ZuulConfig {
     
@@ -656,7 +656,7 @@ private Set<String> sensitiveHeaders = new LinkedHashSet(Arrays.asList("Cookie",
 
 利用前置过滤器, 需要前端携带参数 token 才能通过, 生产中校验 cookie 中的 jwt
 
-```
+```java
 @Component
 public class TokenFilter extends ZuulFilter {
 
@@ -704,7 +704,7 @@ public class TokenFilter extends ZuulFilter {
 
 利用前置过滤器, **在请求被转发之前调用, 我们放在鉴权过滤器前**
 
-```
+```java
 package com.miaoqi.springcloudsell.gateway.filter;
 
 import com.google.common.util.concurrent.RateLimiter;
@@ -763,7 +763,7 @@ public class RateLimitFilter extends ZuulFilter {
 
 ## 全局加响应头, 利用后置过滤器
 
-```
+```java
 @Component
 public class AddResponseHeaderFilter extends ZuulFilter {
     @Override
@@ -796,7 +796,7 @@ public class AddResponseHeaderFilter extends ZuulFilter {
 * 在被调用的类或方法上增加 @CrossOrigin 注解
 * 在 Zuul 里增加 CorsFilter 过滤器
 
-```
+```java
 @Configuration
 public class CorsConfig {
 
@@ -838,7 +838,7 @@ public class CorsConfig {
 
 * 加入注解
 
-    ```
+    ```java
     @EnableFeignClients
     // @SpringBootApplication
     // @EnableDiscoveryClient 开启 eureka
@@ -855,15 +855,15 @@ public class CorsConfig {
 
 * 请求方法加入 @HysttixCommand 注解
 
-    ```
+    ```java
     @RestController
     // @DefaultProperties(defaultFallback = "defaultFallback")
     public class HystrixController {
     
-    	// @HystrixCommand 配合 @DefaultProperties 会触发默认降级方法
-        @HystrixCommand(fallbackMethod = "fallback",
-        	commandProperties = @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value =
-                        "3000")) // 会指定特殊的降级方法, 优先级高于默认降级, 默认超时 1s, 这个配置会改为 3s
+    		// @HystrixCommand 配合 @DefaultProperties 会触发默认降级方法
+        @HystrixCommand(fallbackMethod = "fallback", commandProperties = 
+    				@HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", 
+    						value = "3000")) // 会指定特殊的降级方法, 优先级高于默认降级, 默认超时 1s, 这个配置会改为 3s
         @GetMapping("/getProductInfoList")
         public String getProductInfoList() {
             RestTemplate restTemplate = new RestTemplate();
@@ -888,7 +888,7 @@ public class CorsConfig {
 
 * 也可以采用配置文件的方式进行配置, 但是方法上一定要配置 @HystrixCommand 注解
 
-    ```
+    ```yaml
     hystrix:
       command:
         default:
@@ -909,7 +909,7 @@ feign 整合 hystrix 进行降级, feign 已经自动依赖了 hystrix 包
 
 * 配置 feign 的配置文件
 
-    ```
+    ```yaml
     feign:
       hystrix:
         enabled: true
@@ -917,7 +917,7 @@ feign 整合 hystrix 进行降级, feign 已经自动依赖了 hystrix 包
 
 * 修改 feign 接口
 
-    ```
+    ```java
     @FeignClient(name = "SPRINGCLOUD-SELL-PRODUCT", fallback = ProductClient.ProductClientFallback.class)
     public interface ProductClient {
     
@@ -948,7 +948,7 @@ feign 整合 hystrix 进行降级, feign 已经自动依赖了 hystrix 包
 
 * 加入依赖
 
-    ```
+    ```xml
     <dependency>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-starter-hystrix-dashboard</artifactId>
@@ -962,7 +962,7 @@ feign 整合 hystrix 进行降级, feign 已经自动依赖了 hystrix 包
 
 * 启动类加入注解
 
-    ```
+    ```java
     @EnableFeignClients
     // @SpringBootApplication
     // @EnableDiscoveryClient 开启 eureka
@@ -980,7 +980,7 @@ feign 整合 hystrix 进行降级, feign 已经自动依赖了 hystrix 包
 
 * 配置文件配置去除访问前缀
 
-    ```
+    ```yaml
     management:
       endpoints:
         web:
@@ -1007,7 +1007,7 @@ feign 整合 hystrix 进行降级, feign 已经自动依赖了 hystrix 包
 
 **Half Open:** 此时会释放一定的请求, 当请求成功达到一定比例, 会恢复为 Closed 状态
 
-```
+```java
 // 熔断
 @HystrixCommand(commandProperties = {
         @HystrixProperty(name = "circuitBreaker.enabled", value = "true"), // 设置熔断
@@ -1042,7 +1042,7 @@ http://localhost:9926/getProductInfoList?number=2 会正常访问
 
 Zuul 使用 ribbon 负载均衡组件, 所以 zuul 的超时配置时配置 ribbon 的超时时间, 同时也可以指定 hystrix 超时配置, 两者可以同时存在, 哪个时间小就先触发哪个
 
-```
+```yaml
 zuul:
   routes:
     springcloud-sell-product: # 定义一个路由规则, 规则名字可以任意起
@@ -1106,7 +1106,7 @@ hystrix:
 
 超时 fallback 设置, 实现 FallbackProvider 接口
 
-```
+```java
 @Component
 public class GatewayFallback implements FallbackProvider {
 
@@ -1121,8 +1121,7 @@ public class GatewayFallback implements FallbackProvider {
     @Override
     public ClientHttpResponse fallbackResponse(String route, Throwable cause) {
         return new ClientHttpResponse() {
-
-			// 响应体
+						// 响应体
             @Override
             public InputStream getBody() throws IOException {
                 Map<String, String> result = new HashMap<>();
@@ -1171,10 +1170,5 @@ public class GatewayFallback implements FallbackProvider {
 
 # 链路监控 Spring Cloud Sleuth
 
-* 加入依赖
 
-    ```
-    
-    ```
 
-    
