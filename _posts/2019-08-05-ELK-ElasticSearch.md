@@ -62,8 +62,6 @@ mac 上使用 brew 安装的 es 的配置文件目录位于 `/usr/local/etc/elas
 
 `elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v6.8.4/elasticsearch-analysis-ik-6.8.4.zip`
 
-
-
 ### 安装 Kibana
 
 Kibana是一个针对Elasticsearch的开源分析及可视化平台，使用Kibana可以查询、查看并与存储在ES索引的数据进行交互操作，使用Kibana能执行高级的数据分析，并能以图表、表格和地图的形式查看数据
@@ -100,7 +98,7 @@ elasticsearch -Ecluster.name=miaoqi_cluster -Epath.data=miaoqi_cluster_node1 -En
 elasticsearch -Ecluster.name=miaoqi_cluster -Epath.data=miaoqi_cluster_node2 -Enode.name=miaoqi_node2 -Ehttp.port=8200 -d
 ```
 
-**不同的节点, 指定同一个 cluster.name 不同的 node.name 即可成为集群, 所有的配置都可以在 elasticsearch.yml 中更改, jvm.options 可以修改 jvm 参数, 方便大家练习时候使用**
+**不同的节点, 指定同一个 cluster.name 不同的 node.name 即可成为集群, 这些配置都可以在 elasticsearch.yml 中更改, jvm.options 可以修改 jvm 参数调低内存, 方便大家练习时候使用**
 
 使用 `http://localhost:9200/_cat/nodes?v` 查看集群是否启动成功
 
@@ -148,6 +146,8 @@ PUT /lib/user/4?version=3
 
 为了保持_version与外部版本控制的数据一致
 使用version_type=external
+
+
 
 ## ElasticSearch倒排索引
 
@@ -1658,7 +1658,7 @@ bulk一次最大处理多少数据量:
 
 实现对 es 中存储的数据进行查询分析, endpoint 为 _search
 
-```
+```json
 GET /_search
 GET /my_index/_search
 GET /my_index1,my_index2/_search
@@ -1673,7 +1673,7 @@ GET /my_*/_search
 
   仅包含部分查询语法
 
-  ```
+  ```json
   GET /my_index/_search?q=user:alfred
   ```
 
@@ -1681,7 +1681,7 @@ GET /my_*/_search
 
   es 提供的完备查询语法 Query DSL(Domain Specific Language)
 
-  ```
+  ```json
   GET /my_index/_search
   {
   	"query": {
@@ -1972,9 +1972,9 @@ GET /lib3/user/_search?q=interests:changge&sort=age:desc
 
 #### term查询和terms查询
 
-term query会去倒排索引中寻找确切的term，**它并不知道分词器的存在即搜索词不进行分词**。这种查询适合keyword 、numeric、date。
+term query 会去倒排索引中寻找确切的 term，**它并不知道分词器的存在即搜索词不进行分词**。这种查询适合 keyword 、numeric、date。
 
-term:查询某个字段里含有某个关键词的文档
+term: 查询某个字段里含有某个关键词的文档
 
 ```json
 GET /lib3/user/_search/
@@ -4158,7 +4158,7 @@ GET test_search_index/_search
 * 请告诉我最近 1 个月每天的平均订单金额是多少
 * 亲告诉我最近半年卖的最火的前 5 个商品是哪些
 
-聚合分析英文为 Aggregation, 是 es 除搜索功能外提供的针对 es 数据做统计分析的功能, 功能丰富, 提供 Bucket, Metric, Pipeline 等多种分析方式, 可以满足大部分的分析需求
+聚合分析英文为 Aggregation, **是 es 除搜索功能外提供的针对 es 数据做统计分析的功能**, 功能丰富, 提供 Bucket, Metric, Pipeline 等多种分析方式, 可以满足大部分的分析需求
 
 实时性高, 所有的计算结果都是即时返回, 而 hadoop 等大数据系统一般都是 T+1 级别的
 
@@ -4199,10 +4199,405 @@ GET test_search_index/_search
 为了便于理解, es 将聚合分析主要分为如下 4 类
 
 * Metric, 指标分析类型, 如计算最大值, 最小值, 平均值等
-
 * Bucket, 分桶类型, 类似 SQL 中的 GROUP BY 语法
 * Pipeline, 管道分析类型, 基于上一级的聚合分析结果进行再分析
 * Matrix, 矩阵分析类型
+
+### Metric 聚合分析
+
+#### **min**
+
+返回数值类字段的最小值
+
+```json
+GET /test_search_index/_search
+{
+  "size": 0, # 不需要返回文档就写 0
+  "aggs": {
+    "min_age": { # 聚合分析的名称, 可任意指定
+      "min": { # 关键词
+        "field": "age" # 对哪个字段进行聚合分析
+      }
+    },
+		"max_age": { # 一条语句可以写多个聚合分析
+      "max": {
+        "field": "age"
+      }
+    }
+  }
+}
+```
+
+#### max
+
+```json
+GET /test_search_index/_search
+{
+  "size": 0, # 不需要返回文档就写 0
+  "aggs": {
+    "max_age": { # 聚合分析的名称, 可任意指定
+      "max": { # 关键词
+        "field": "age" # 对哪个字段进行聚合分析
+      }
+    }
+  }
+}
+```
+
+
+
+#### avg
+
+```json
+GET /test_search_index/_search
+{
+  "size": 0, # 不需要返回文档就写 0
+  "aggs": {
+    "avg_age": { # 聚合分析的名称, 可任意指定
+      "avg": { # 关键词
+        "field": "age" # 对哪个字段进行聚合分析
+      }
+    }
+  }
+}
+```
+
+
+
+#### sum
+
+```json
+GET /test_search_index/_search
+{
+  "size": 0, # 不需要返回文档就写 0
+  "aggs": {
+    "sum_age": { # 聚合分析的名称, 可任意指定
+      "sum": { # 关键词
+        "field": "age" # 对哪个字段进行聚合分析
+      }
+    }
+  }
+}
+```
+
+
+
+#### cardinality
+
+意为集合的势, 或者基数, 是指不同数值的个数, 类似 SQL 中的 distinct count
+
+```json
+GET /test_search_index/_search
+{
+  "size": 0, # 不需要返回文档就写 0
+  "aggs": {
+    "count_of_job": { # 聚合分析的名称, 可任意指定
+      "cardinality": { # 关键词
+        "field": "job.keyword" # 对哪个字段进行聚合分析
+      }
+    }
+  }
+}
+```
+
+
+
+#### stats
+
+返回一系列数值类型的统计值, 包含 min, max, avg, sum 和 count
+
+```json
+GET /test_search_index/_search
+{
+	"size": 0,
+	"aggs": {
+		"stats_age": {
+			"stats": {
+				"field": "age"
+			}
+		}
+	}
+}
+```
+
+#### extended_stats
+
+对 status 的扩展, 包含了更多的统计数据, 如方差, 标准差
+
+```json
+GET /test_search_index/_search
+{
+	"size": 0,
+	"aggs": {
+		"stats_age": {
+			"extended_stats": {
+				"field": "age"
+			}
+		}
+	}
+}
+```
+
+#### percentiles
+
+百分位数统计
+
+```json
+GET /test_search_index/_search
+{
+	"size": 0,
+	"aggs": {
+		"per_salary": {
+			"percentiles": {
+				"field": "salary"
+			}
+		}
+	}
+}
+```
+
+#### percentile_ranks
+
+百分位数统计排名
+
+```json
+# 30 和 50 在当前年龄里边处于一个怎样的百分位
+GET /test_search_index/_search
+{
+	"size": 0,
+	"aggs": {
+		"per_age": {
+			"percentile_ranks": {
+				"field": "age",
+				"values": [
+				  30,
+				  50
+				]
+			}
+		}
+	}
+}
+```
+
+#### top_hits
+
+一般用于分桶后获取该桶内最匹配的顶部文档列表, 即详情数据
+
+```json
+GET test_search_index/_search
+{
+  "size": 0,
+  "aggs": {
+    "jobs": {
+      "terms": {
+        "field": "job.keyword",
+        "size": 10
+      },
+      "aggs": {
+        "top_employee": {
+          "top_hits": {
+            "size": 10,
+            "sort": [
+              {
+                "age": {
+                  "order": "desc"
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+### Bucket 聚合分析
+
+Bucket 意为桶, 即按照一定规则将文档分配到不同的桶中, 达到分类分析的目的
+
+按照 Bucket 的分桶策略, 常见的 Bucket 聚合分析如下
+
+* Terms
+* Range
+* Date Range
+* Histogram
+* Date Histogram
+
+#### terms
+
+该分桶策略最简单, 直接按照 term 来分桶, 如果是 text 类型, 则按照分词后的结果分桶, 要打开 fielddata: true
+
+```json
+GET /test_search_index/_search
+{
+	"size": 0,
+	"aggs": {
+		"jobs_terms": {
+			"terms": {
+				"field": "job.keyword", # 指定 term 字段
+				"size": 5 # 指定返回数目
+			}
+		}
+	}
+}
+```
+
+#### range
+
+通过指定数值的范围来设定分桶规则
+
+```json
+GET test_search_index/_search
+{
+  "size": 0,
+  "aggs": {
+    "age_range": {
+      "range": {
+        "field": "age",
+        "ranges": [
+          {
+            "key":"<10", # key 就是个名字
+            "to": 20
+          },
+          {
+            "from": 20,
+            "to": 30
+          },
+          {
+            "key":">30",
+            "from": 30
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+#### date_range
+
+通过指定日期的范围来设定分桶规则
+
+```json
+{
+  "size": 0,
+  "aggs": {
+    "date_range": {
+      "range": {
+        "field": "birth",
+        "format":"yyyy",
+        "ranges": [
+          {
+            "to": "now-30y/y"
+          },
+          {
+            "from": "1990",
+            "to": "2000"
+          },
+          {
+            "from": "now-20y/y"
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+#### histogram
+
+直方图, 以固定间隔的策略来分割数据
+
+```json
+GET test_search_index/_search
+{
+  "size":0,
+  "aggs":{
+    "age_hist":{
+      "histogram": {
+        "field": "age",
+        "interval": 10, # 固定的间隔
+        "extended_bounds": {
+          "min": 0, # 最小范围
+          "max": 100 # 最大范围
+        }
+      }
+    }
+  }
+}
+```
+
+#### date_histogram
+
+针对日期的直方图或柱状图, 是时序数据分析中常用的聚合分析类型
+
+```json
+GET test_search_index/_search
+{
+  "size":0,
+  "aggs":{
+    "by_year":{
+      "date_histogram": {
+        "field": "birth",
+        "interval": "year",
+        "format":"yyyy"
+      }
+    }
+  }
+}
+```
+
+### Bucket + Metric 聚合分析
+
+Bucket 聚合分析允许通过添加子分析来进一步进行分析, 该子分析可以使 Bucket 也可以是 Metric, 这使得 es 的聚合分析功能异常强大
+
+#### 分桶后在分桶
+
+```json
+GET test_search_index/_search
+{
+  "size": 0,
+  "aggs": {
+    "jobs": {
+      "terms": {
+        "field": "job.keyword",
+        "size": 10
+      },
+      "aggs": {
+        "age_range": {
+          "range": {
+            "field": "age",
+            "ranges": [
+              {
+                "to": 20
+              },
+              {
+                "from": 20,
+                "to": 30
+              },
+              {
+                "from": 30
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+### Pipeline 聚合分析
+
+针对聚合分析的结果再次进行聚合分析, 而且支持链式调用
+
+Pipeline 的分析结果会输出到原结果中, 根据输出的位置不同, 分为如下两类
+
+* Parent 结果内嵌到现有的聚合分析结果中
+    * Derivative
+    * Moving Average
+    * Cumulative Sum
 
 
 
