@@ -4932,7 +4932,7 @@ GET test_search_index/_search
 
 * 设置 `Shard` 数为 1, 消除数据分散的问题, 但无法承载大数据量
 
-* 合理设置 `shard_size` 大小, 即每次从 Shard 上多获取数据, 以提升准确度, 默认为 (size x 1.5) + 10
+* 合理设置 `shard_size` 大小, 即每次从 Shard 上多获取数据, 以提升准确度但会降低性能, 默认为 (size x 1.5) + 10
 
 * 设定 `show_term_doc_count_error` 可以查看每个 bucket 误算的最大值
 
@@ -4962,6 +4962,16 @@ GET test_search_index/_search
 
     ![http://www.miaomiaoqi.cn/images/elastic/search/es_29.png](http://www.miaomiaoqi.cn/images/elastic/search/es_29.png)
 
+### 近似统计算法
+
+在 ES 的聚合分析中, Cardinality 和 Percentile 分析使用的是近似统计算法
+
+* 结果是近似准确的, 但不一定精准
+* 可以通过参数的调整使其结果精准, 但同时也意味着更多的计算时间和更大的性能消耗
+
+![http://www.miaomiaoqi.cn/images/elastic/search/es_30.png](http://www.miaomiaoqi.cn/images/elastic/search/es_30.png)
+
+## 数据建模
 
 ## ElasticSearch 分布式架构
 
