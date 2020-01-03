@@ -4167,32 +4167,32 @@ GET test_search_index/_search
 ```json
 GET test_search_index/_search
 {
-	"size": 0,
-	"aggs": { # 关键词与 query 同级
-		"<aggregation_name>": { # 自定义聚合名称
-			"<aggregation_type>": {
-				"<aggregation_body>"
-			}
-		[,"aggs": {[<sub_aggregation>]+}]? # 子查询
-		}
-		[,"<aggregation_name_2>": {...}]* # 可以包含多个聚合分析
-	}
+    "size": 0,
+    "aggs": { # 关键词与 query 同级
+        "<aggregation_name>": { # 自定义聚合名称
+            "<aggregation_type>": {
+                "<aggregation_body>"
+            }
+        [,"aggs": {[<sub_aggregation>]+}]? # 子查询
+        }
+        [,"<aggregation_name_2>": {...}]* # 可以包含多个聚合分析
+    }
 }
 ```
 
 请告诉我公司目前在职人员工作岗位的分布情况?
 
-```
+```json
 GET test_search_index/_search
 {
-	"size": 0,
-	"aggs": {
-		"pepole_per_job": {
-			"terms": {
-				"field": "job.keyword"
-			}
-		}
-	}
+    "size": 0,
+    "aggs": {
+        "pepole_per_job": {
+            "terms": {
+                "field": "job.keyword"
+            }
+        }
+    }
 }
 ```
 
@@ -4202,6 +4202,25 @@ GET test_search_index/_search
 * Bucket, 分桶类型, 类似 SQL 中的 GROUP BY 语法
 * Pipeline, 管道分析类型, 基于上一级的聚合分析结果进行再分析
 * Matrix, 矩阵分析类型
+
+### 数据准备
+
+```json
+DELETE test_search_index
+POST test_search_index/doc/_bulk
+{"index":{"_id":"1"}}
+{"username":"alfred way","job":"java engineer","age":18,"birth":"1990-01-02","isMarried":false,"salary":10000}
+{"index":{"_id":"2"}}
+{"username":"tom","job":"java senior engineer","age":28,"birth":"1980-05-07","isMarried":true,"salary":30000}
+{"index":{"_id":"3"}}
+{"username":"lee","job":"ruby engineer","age":22,"birth":"1985-08-07","isMarried":false,"salary":15000}
+{"index":{"_id":"4"}}
+{"username":"Nick","job":"web engineer","age":23,"birth":"1989-08-07","isMarried":false,"salary":8000}
+{"index":{"_id":"5"}}
+{"username":"Niko","job":"web engineer","age":18,"birth":"1994-08-07","isMarried":false,"salary":5000}
+{"index":{"_id":"6"}}
+{"username":"Michell","job":"ruby engineer","age":26,"birth":"1987-08-07","isMarried":false,"salary":12000}
+```
 
 ### Metric 聚合分析
 
@@ -4219,7 +4238,7 @@ GET /test_search_index/_search
         "field": "age" # 对哪个字段进行聚合分析
       }
     },
-		"max_age": { # 一条语句可以写多个聚合分析
+        "max_age": { # 一条语句可以写多个聚合分析
       "max": {
         "field": "age"
       }
@@ -4309,14 +4328,14 @@ GET /test_search_index/_search
 ```json
 GET /test_search_index/_search
 {
-	"size": 0,
-	"aggs": {
-		"stats_age": {
-			"stats": {
-				"field": "age"
-			}
-		}
-	}
+    "size": 0,
+    "aggs": {
+        "stats_age": {
+            "stats": {
+                "field": "age"
+            }
+        }
+    }
 }
 ```
 
@@ -4327,14 +4346,14 @@ GET /test_search_index/_search
 ```json
 GET /test_search_index/_search
 {
-	"size": 0,
-	"aggs": {
-		"stats_age": {
-			"extended_stats": {
-				"field": "age"
-			}
-		}
-	}
+    "size": 0,
+    "aggs": {
+        "stats_age": {
+            "extended_stats": {
+                "field": "age"
+            }
+        }
+    }
 }
 ```
 
@@ -4345,14 +4364,14 @@ GET /test_search_index/_search
 ```json
 GET /test_search_index/_search
 {
-	"size": 0,
-	"aggs": {
-		"per_salary": {
-			"percentiles": {
-				"field": "salary"
-			}
-		}
-	}
+    "size": 0,
+    "aggs": {
+        "per_salary": {
+            "percentiles": {
+                "field": "salary"
+            }
+        }
+    }
 }
 ```
 
@@ -4364,18 +4383,18 @@ GET /test_search_index/_search
 # 30 和 50 在当前年龄里边处于一个怎样的百分位
 GET /test_search_index/_search
 {
-	"size": 0,
-	"aggs": {
-		"per_age": {
-			"percentile_ranks": {
-				"field": "age",
-				"values": [
-				  30,
-				  50
-				]
-			}
-		}
-	}
+    "size": 0,
+    "aggs": {
+        "per_age": {
+            "percentile_ranks": {
+                "field": "age",
+                "values": [
+                  30,
+                  50
+                ]
+            }
+        }
+    }
 }
 ```
 
@@ -4431,15 +4450,15 @@ Bucket 意为桶, 即按照一定规则将文档分配到不同的桶中, 达到
 ```json
 GET /test_search_index/_search
 {
-	"size": 0,
-	"aggs": {
-		"jobs_terms": {
-			"terms": {
-				"field": "job.keyword", # 指定 term 字段
-				"size": 5 # 指定返回数目
-			}
-		}
-	}
+    "size": 0,
+    "aggs": {
+        "jobs_terms": {
+            "terms": {
+                "field": "job.keyword", # 指定 term 字段
+                "size": 5 # 指定返回数目
+            }
+        }
+    }
 }
 ```
 
@@ -4594,11 +4613,354 @@ GET test_search_index/_search
 
 Pipeline 的分析结果会输出到原结果中, 根据输出的位置不同, 分为如下两类
 
-* Parent 结果内嵌到现有的聚合分析结果中
-    * Derivative
-    * Moving Average
-    * Cumulative Sum
+* Parent 结果, 内嵌到现有的聚合分析结果中
+    * Derivative 导数, 看发展趋势
+    * Moving Average 移动平均值
+    * Cumulative Sum 值的累计加和
+* Sibling 结果, 与现有聚合分析结果同级
+    * Max/Min/Avg/Sum Bucket
+    * Stats/Extended Stats Bucket
+    * Percentiles Bucket
 
+#### Sibling Min Bucket
+
+找出所有 Bucket(上一步的结果) 中值最小的 Bucket 名称和值
+
+```json
+GET test_search_index/_search
+{
+  "size":0,
+  "aggs":{
+    "jobs":{
+      "terms": {
+        "field": "job.keyword",
+        "size": 10
+      },
+      "aggs":{
+        "avg_age":{
+          "avg": {
+            "field": "age"
+          }
+        }
+      }
+    },
+    "min_age_by_job":{
+      "min_bucket": {
+        # 取相同工作下平均年龄值中最小的 bucket
+        "buckets_path": "jobs>avg_age"
+      }
+    }
+  }
+}
+```
+
+#### Parent Derivative 求导
+
+```json
+GET test_search_index/_search
+{
+  "size": 0,
+  "aggs": {
+    "birth": {
+      "date_histogram": {
+        "field": "birth",
+        "interval": "year",
+        "min_doc_count": 0
+      },
+      "aggs": {
+        "avg_age": {
+          "avg": {
+            "field": "age"
+          }
+        },
+        "derivative_avg_age": {
+          "derivative": {
+            "buckets_path": "avg_age" # 这里要注意没有">"因为是与 avg_age 同级
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+### 作用范围
+
+es 聚合分析默认作用范围是 `query` 结果集, 可以通过如下方式改变其作用范围
+
+* filter
+
+* post_filter
+
+* global
+
+#### filter
+
+为某个聚合分析设定过滤条件, 从而在不更改整体 `query` 语句的情况下修改了作用范围
+
+```json
+GET test_search_index/_search
+{
+  "size": 0,
+  "aggs": {
+    "jobs_salary_small": {
+      "filter": {
+        "range": {
+          "salary": {
+            "to": 10000
+          }
+        }
+      },
+      "aggs": {
+        "jobs": {
+          "terms": {
+            "field": "job.keyword"
+          }
+        }
+      }
+    },
+    "jobs": {
+      "terms": {
+        "field": "job.keyword"
+      }
+    }
+  }
+}
+```
+
+#### post_filter
+
+作用于**文档过滤**, 但在聚合分析后生效
+
+```json
+GET test_search_index/_search
+{
+  "aggs": {
+    "jobs": {
+      "terms": {
+        "field": "job.keyword"
+      }
+    }
+  },
+  "post_filter": {
+    "match":{
+      "job.keyword":"java engineer"
+    }
+  }
+}
+```
+
+#### global
+
+无视 `query` 过滤条件, 基于全部文档进行分析
+
+java 工程师的平均工资与所有工程师的平均工资
+
+```json
+GET test_search_index/_search
+{
+  "query": {
+    "match": {
+      "job.keyword": "java engineer"
+    }
+  },
+  "aggs": {
+    "java_avg_salary": {
+      "avg": {
+        "field": "salary"
+      }
+    },
+    "all": {
+      "global": {},
+      "aggs": {
+        "avg_salary": {
+          "avg": {
+            "field": "salary"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+### 排序
+
+#### 按照关键字
+
+可以使用自带的关键数据进行排序
+
+* _count 文档数
+* _key 按照 key 值排序
+
+```json
+GET test_search_index/_search
+{
+  "size": 0,
+  "aggs": {
+    "jobs": {
+      "terms": {
+        "field": "job.keyword",
+        "order": [
+          {
+            "_count": "asc" # 文档数排序
+          },
+          {
+            "_key": "desc" # 按照 key 排序
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+#### 按照子聚合分析数值
+
+利用子聚合分析数值进行排序
+
+```json
+GET test_search_index/_search
+{
+  "size": 0,
+  "aggs": {
+    "jobs": {
+      "terms": {
+        "field": "job.keyword",
+        "size": 10,
+        "order": [
+          {
+            "avg_salary": "desc"
+          }
+        ]
+      },
+      "aggs": {
+        "avg_salary": {
+          "avg": {
+            "field": "salary"
+          }
+        }
+      }
+    }
+  }
+}
+
+GET test_search_index/_search
+{
+  "size": 0,
+  "aggs": {
+    "jobs": {
+      "terms": {
+        "field": "job.keyword",
+        "size": 10,
+        "order": [
+          {
+            "stats_salary.sum": "desc"
+          }
+        ]
+      },
+      "aggs": {
+        "stats_salary": {
+          "stats": {
+            "field": "salary"
+          }
+        }
+      }
+    }
+  }
+}
+
+
+GET test_search_index/_search
+{
+  "size": 0,
+  "aggs": {
+    "salary_hist": {
+      "histogram": {
+        "field": "salary",
+        "interval": 5000,
+        "order": {
+          "age>avg_age": "desc"
+        }
+      },
+      "aggs": {
+        "age": {
+          "filter": {
+            "range": {
+              "age": {
+                "gte": 10
+              }
+            }
+          },
+          "aggs": {
+            "avg_age": {
+              "avg": {
+                "field": "age"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+### 原理与精准度问题
+
+#### Min 聚合的执行流程
+
+协调节点从各个分片上获取最小的数据, 再求出最小的数据返回给客户端
+
+![http://www.miaomiaoqi.cn/images/elastic/search/es_26.png](http://www.miaomiaoqi.cn/images/elastic/search/es_26.png)
+
+#### Terms 聚合的执行流程
+
+协调节点从各个分片上获取到 Top5 的数据, 再求出真正的 top5 返回给客户端
+
+![http://www.miaomiaoqi.cn/images/elastic/search/es_27.png](http://www.miaomiaoqi.cn/images/elastic/search/es_27.png)
+
+**Terms 永远不准确**
+
+![http://www.miaomiaoqi.cn/images/elastic/search/es_28.png](http://www.miaomiaoqi.cn/images/elastic/search/es_28.png)
+
+**Terms 不准确的原因**
+
+数据分散在多 shard 上, Coordinating Node 无法得悉数据全貌
+
+**Terms 不准确的解决办法**
+
+* 设置 `Shard` 数为 1, 消除数据分散的问题, 但无法承载大数据量
+
+* 合理设置 `shard_size` 大小, 即每次从 Shard 上多获取数据, 以提升准确度, 默认为 (size x 1.5) + 10
+
+* 设定 `show_term_doc_count_error` 可以查看每个 bucket 误算的最大值
+
+    ```json
+    GET test_search_index/_search
+    {
+      "size": 0,
+      "aggs": {
+        "jobs": {
+          "terms": {
+            "field": "job.keyword",
+            "size": 2,
+            "shard_size": 10,
+            "show_term_doc_count_error": true
+          }
+        }
+      }
+    }
+    ```
+
+* 如何合理设置 `Shard_Size` 的大小
+
+    terms 聚合返回结果中有如下两个统计值
+
+    * doc_count_error_upper_bonud 被遗漏的 term 可能的最大值, 0 表明计算准确
+    * sum_other_doc_count 返回结果 bucket 的 term 外其他 term 的文档总数
+
+    ![http://www.miaomiaoqi.cn/images/elastic/search/es_29.png](http://www.miaomiaoqi.cn/images/elastic/search/es_29.png)
 
 
 ## ElasticSearch 分布式架构
