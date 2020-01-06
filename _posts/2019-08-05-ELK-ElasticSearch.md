@@ -293,10 +293,9 @@ es 提供了一个测试分词的 api 接口, 方便验证分词效果, endpoint
 ```json
 POST _analyze
 {
-	"analyzer": "standard",
-	"text": "hello world"
+  "analyzer": "standard",
+  "text": "hello world"
 }
-
 {
   "tokens" : [
     {
