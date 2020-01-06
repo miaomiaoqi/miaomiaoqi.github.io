@@ -217,17 +217,15 @@ YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JS
         ```yaml
     pets:
           - Cat
-        ```
-      	- Dog
-          
+          - Dog
           - Goldfish
-      ```
-      
-      行内写法
-      
-      ```yaml
-      pets: [Cat, Dog, Goldfish]
-      ```
+        ```
+        
+        行内写法
+        
+        ```yaml
+        pets: [Cat, Dog, Goldfish]
+        ```
     
       
     
@@ -243,45 +241,49 @@ YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JS
     parent: ~ 
         ```
     
-    * 字符串
+    * 字符串默认不使用引号表示
     
-        
-    
-        ```yaml
-        
+      ```yaml
+    str: 这是一行字符串
         ```
-    # 字符串默认不使用引号表示
-        str: 这是一行字符串
-    # 如果字符串之中包含空格或特殊字符，需要放在引号之中
+        
+        如果字符串之中包含空格或特殊字符，需要放在引号之中
+        
+        ```yaml
         str: '内容： 字符串'
-# 单引号和双引号都可以使用，双引号不会对特殊字符转义
+        ```
+        
+        单引号和双引号都可以使用，双引号不会对特殊字符转义
+        
+        ~~~yaml
         s1: '内容\n字符串'
-    s2: "内容\n字符串"
+        s2: "内容\n字符串"
         # 单引号之中如果还有单引号，必须连续使用两个单引号转义
         str: 'labor''s day'
         # 字符串可以写成多行，从第二行开始，必须有一个单空格缩进。换行符会被转为空格
-    str: 这是一段
-              多行
-              字符串
+        str: 这是一段
+        多行
+        字符串
         # 多行字符串可以使用“|”保留换行符，也可以使用>折叠换行
         this: |
-               Foo
-               Bar
+        Foo
+        Bar
         that: >
-               Foo
-               Bar
+        Foo
+        Bar
         # + 表示保留文字块末尾的换行，- 表示删除字符串末尾的换行
         s1: |
-              Foo
-            
+        Foo
+        
         s2: |+
-        		 Foo
-            
+        Foo
+        
         s3: |-
-        		 Foo
-              
+        Foo
+        
         {s1: 'Foo\n', s2: 'Foo\n\n\n', s3: 'Foo'}
         ```
+        ~~~
 
 ### 编写配置文件
 
@@ -960,6 +962,7 @@ SpringBoot使用它来做日志功能;
             registry.addViewController("/miaoqi").setViewName("success");
     }
     }
+    ```
 ```
     
 原理: 为什么自己标注@EnableWebMvc注解会导致SpringMVC自动配置就失效
@@ -970,10 +973,10 @@ SpringBoot使用它来做日志功能;
         @Import(DelegatingWebMvcConfiguration.class)
         public @interface EnableWebMvc{
         }
-    ```
-    
+```
+
 2. DelegatingWebMvcConfiguration继承WebMvcConfigurationSupport
-    
+   
         ```java
         @Configuration
         public class Delegating WebMvcConfiguration extends WebMvcConfigurationSupport{
@@ -2057,7 +2060,7 @@ public class HttpRequestLogAOP {
 
 ### 全局响应拦截器
 
-实现 ResponseBodyAdvice 接口, 对 RestController 接口的返回值进行统一处理
+实现 ResponseBodyAdvice 接口, 对 RestController 接口的返回值进行统一处理, **全局异常处理器的优先级高于全局响应拦截器**
 
 ```java
 @RestControllerAdvice
