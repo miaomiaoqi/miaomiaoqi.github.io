@@ -533,9 +533,9 @@ GET /myindex/_mapping
 }
 ```
 
-**es会自动创建index，type，以及type对应的mapping, 因为是 es 自动创建的所以叫做动态映射(dynamic mapping)**
+**es会自动创建 index，type，以及 type 对应的 mapping, 因为是 es 自动创建的所以叫做动态映射(dynamic mapping)**
 
-**mapping定义了type中的每个字段的数据类型以及这些字段如何分词等相关属性**
+**mapping 定义了 type 中的每个字段的数据类型以及这些字段如何分词等相关属性**
 
 创建索引的时候**,可以预先定义字段的类型以及相关属性**，这样就能够把日期字段处理成日期，把数字字段处理成数字，把字符串字段处理字符串值等
 
@@ -545,7 +545,7 @@ GET /myindex/_mapping
 
 给索引 lib2 创建映射类型, es 默认会给每一个 field 加上倒排索引
 
-```
+```json
 PUT /lib2
 {
   "settings": {
@@ -586,11 +586,11 @@ PUT /lib2
 
 **允许新增索引**
 
-**当ES在文档中碰到一个以前没见过的字段时，它会利用动态映射来决定该字段的类型，并自动地对该字段添加映射。**
+**当 ES 在文档中碰到一个以前没见过的字段时，它会利用动态映射来决定该字段的类型，并自动地对该字段添加映射。**
 
-**可以通过dynamic设置来控制这一行为，它能够接受以下的选项：**
+**可以通过 dynamic 设置来控制这一行为，它能够接受以下的选项：**
 
-```
+```json
 true：默认值。允许自动新增字段, 所以我们添加文档时候 es 可以自动建立 mapping
 false：不允许自动新增字段, 但是文档可以正常写入, 但无法对字段进行查询等操作
 strict：如果碰到陌生字段，抛出异常, 不能写入
@@ -676,7 +676,7 @@ GET /myindex/doc/_search
 
 #### **copy_to解析**
 
-```
+```json
 DELETE /myindex
 
 PUT /myindex/article/1
@@ -707,11 +707,14 @@ GET /myindex/_mapping
 
 GET /myindex/article/_search
 
-GET /myindex/article/_search?q=post_date:2019-05-16 # 日期类型不分词, 精确匹配
+# 日期类型不分词, 精确匹配
+GET /myindex/article/_search?q=post_date:2019-05-16
 
-GET /myindex/article/_search?q=content:html # 查询 content 字段中含有 html 的
+# 查询 content 字段中含有 html 的
+GET /myindex/article/_search?q=content:html
 
-GET /myindex/article/_search?q=html,document # 因为没有指定具体字段, 所以在全部字段中查询含有 html 或document 的文档, 性能低下
+# 因为没有指定具体字段, 所以在全部字段中查询含有 html 或document 的文档, 性能低下
+GET /myindex/article/_search?q=html,document
 ```
 
 **copy_to 字段是把其它字段中的值，以空格为分隔符组成一个大字符串，然后被分析和索引，但是不存储，也就是说它能被查询，但不能被取回显示, 可以提高性能。**
@@ -720,7 +723,7 @@ GET /myindex/article/_search?q=html,document # 因为没有指定具体字段, �
 
 当没有指定 field 时，就会从 copy_to 字段中查询, 如果要使用 copy_to 字段, 需要自己创建 mapping
 
-```
+```json
 DELETE /myindex
 
 PUT /myindex
@@ -764,7 +767,7 @@ GET /myindex/article/_search
 
 控制当前字段是否索引, 默认为 true, 即记录索引, false 不记录, 即不可搜索
 
-```
+```json
 PUT /my_inde
 {
 	"mappings": {
@@ -804,7 +807,7 @@ index_options 用于控制倒排索引记录的内容, 有如下 4 中配置
 
 #### 其他属性
 
-`"store": false` // 是否单独设置此字段的是否存储而从 _source 字段中分离，默认是false，只能搜索，不能获取值
+`"store": false` // 是否单独设置此字段的是否存储而从 _source 字段中分离，默认是 false，只能搜索，不能获取值
 
 `"analyzer":"ik"` // 指定分词器,默认分词器为 standard analyzer
 
@@ -816,19 +819,19 @@ index_options 用于控制倒排索引记录的内容, 有如下 4 中配置
 
 `"fields":{"xxxxx":{"type":"text","index":"not_analyzed"}}` // 可以对一个字段提供多种索引模式，同一个字段的值，一个分词，一个不分词
 
-`"ignore_above":100` // 超过100个字符的文本，将会被忽略，不被索引
+`"ignore_above":100` // 超过 100 个字符的文本，将会被忽略，不被索引
 
-`"include_in_all":ture` // 设置是否此字段包含在_all字段中，默认是true，除非index设置成no选项
+`"include_in_all":ture` // 设置是否此字段包含在 _all 字段中，默认是 true，除非 index 设置成 no选项
 
-`"norms":{"enable":true,"loading":"lazy"}` // 分词字段默认配置，不分词字段：默认{"enable":false}，存储长度因子和索引时boost，建议对需要参与评分字段使用 ，会额外增加内存消耗量
+`"norms":{"enable":true,"loading":"lazy"}` // 分词字段默认配置，不分词字段：默认{"enable":false}，存储长度因子和索引时 boost，建议对需要参与评分字段使用 ，会额外增加内存消耗量
 
-`"position_increament_gap":0` // 影响距离查询或近似查询，可以设置在多值字段的数据上火分词字段上，查询时可指定slop间隔，默认值是100
+`"position_increament_gap":0` // 影响距离查询或近似查询，可以设置在多值字段的数据上火分词字段上，查询时可指定 slop间隔，默认值是100
 
-`"search_analyzer":"ik"` // 设置搜索时的分词器，默认跟ananlyzer是一致的，比如index时用standard+ngram，搜索时用standard用来完成自动提示功能
+`"search_analyzer":"ik"` // 设置搜索时的分词器，默认跟 ananlyzer 是一致的，比如 index 时用 standard+ngram，搜索时用 standard 用来完成自动提示功能
 
-`"similarity":"BM25"` // 默认是TF/IDF算法，指定一个字段评分策略，仅仅对字符串型和分词类型有效
+`"similarity":"BM25"` // 默认是 TF/IDF 算法，指定一个字段评分策略，仅仅对字符串型和分词类型有效
 
-`"term_vector":"no"` // 默认不存储向量信息，支持参数yes（term存储），with_positions（term+位置）,with_offsets（term+偏移量），with_positions_offsets(term+位置+偏移量) 对快速高亮fast vector highlighter能提升性能，但开启又会加大索引体积，不适合大数据量用
+`"term_vector":"no"` // 默认不存储向量信息，支持参数 yes（term存储），with_positions（term+位置）,with_offsets（term+偏移量), with_positions_offsets(term+位置+偏移量) 对快速高亮fast vector highlighter能提升性能，但开启又会加大索引体积，不适合大数据量用
 
 https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-params.html
 
@@ -838,7 +841,7 @@ https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-params.h
 
 1. 核心数据类型（Core datatypes）
 
-    ```
+    ```yaml
     字符型：string, 包括 text 和 keyword
     
     text: 类型被用来索引长文本，在建立索引前默认会将这些文本进行分词，转化为词的组合，建立索引。允许es来检索这些词语。text类型不能用来排序和聚合。
@@ -980,7 +983,7 @@ es 是依靠 json 文档的字段类型实现自动识别字段类型, 支持的
 |   array   |                 由第一个非 null 值的类型决定                 |
 |  string   | 匹配为日期则设为 date 类型(默认开启)<br />匹配为数字类型的话设为 float 或 long 类型(默认关闭)<br />如果不是以上两种就设为 text 类型, 并附带 keyword 的子字段 |
 
-```
+```json
 DELETE /test_index
 
 PUT /test_index/doc/1
@@ -1086,7 +1089,7 @@ GET /my_index/_mapping
 
 **numeric_detection 可以开启字符串中数字的自动识别**
 
-```
+```json
 DELETE /my_index
 
 PUT /my_index
@@ -1150,7 +1153,7 @@ path_match, path_unmatch: 匹配路径
 
 **字符串默认使用 keyword 类型**
 
-es 默认会为字符串设置为 text 类型, 并增加一个 keyword 的子字段
+es 默认会为字符串设置为 text 类型, 并增加一个 keyword 的子字段, 我们现在要修改默认 string 全变为 keyword 类型
 
 ```json
 DELETE /my_index
@@ -5012,7 +5015,7 @@ ES 是基于 Lucene 以倒排索引为基础实现的存储体系, 不遵循关�
 |               norms                |     true\|false        | 是否存储归一化相关参数, 如果字段仅用于过滤和聚合分析, 可关闭 |
 |            doc_values              |        true\|false     |            是否启用 doc_values 用于排序和聚合分析            |
 |            field_data              |      false\|true       |      是否为 text 类型启用 fielddata, 实现排序和聚合分析      |
-|               store                |       false\|true      |                       是否存储该字段值                       |
+|               store                |       false\|true      |                       是否额外存储该字段值                       |
 |              coerce                |    true\|false         | 是否开启自动数据类型转换功能, 比如字符串转为数字, 浮点转为整型等 |
 |                  multifields                  |             |        多字段, 灵活使用多字段特性来解决多样的业务需求        |
 |          dynamic           |       true\|false\|strict      |                    控制 mapping 自动更新                     |
@@ -5085,6 +5088,7 @@ ES 是基于 Lucene 以倒排索引为基础实现的存储体系, 不遵循关�
 
 * 摘要 abstract
 * 网络地址 url
+* 大字段内容 content
 
 ##### blog_index 的 mapping 设置1
 
@@ -5116,22 +5120,36 @@ PUT blog_index
         },
         "url":{ # 仅做展示, 不需要搜索
           "enabled":false
+        },
+    		"content": {
+          "type": "text"
         }
       }
     }
   }
 }
+
+PUT blog_index/doc/1
+{
+  "title":"blog title",
+  "content":"blog content"
+}
+
+GET blog_index/_search # 会在 _source 中返回 content 内容
+
+GET blog_index/_search?_source=title # 只会返回 title 字段, 但是在底层内部交换时还是会带 content 字段, 只是返回客户端时做了简单过滤
 ```
 
-blog
+##### blog_index 的 mapping 设置2, 解决大字段问题
 
 ```json
+DELETE blog_index
 PUT blog_index
 {
   "mappings": {
     "doc": {
       "_source": {
-        "enabled": false
+        "enabled": false # 禁用 _source 属性
       },
       "properties": {
         "title": {
@@ -5165,8 +5183,190 @@ PUT blog_index
           "type": "keyword",
           "doc_values":false,
           "norms":false,
-          "ignore_above": 100, 
+          "ignore_above": 100, # 如果 term 超过 100 个字符, 只取前面 100 个字符
           "store": true
+        }
+      }
+    }
+  }
+}
+
+# 添加数据
+PUT blog_index/doc/1
+{
+  "title":"blog title",
+  "content":"blog content"
+}
+
+# 不会返回任何字段, 因为 _source 禁用了
+GET blog_index/_search 
+
+GET blog_index/_search
+{	# 通过指定 stored_fields 返回数据, 因为开启了 store=true
+  "stored_fields": ["title","publish_date","author","abstract","url"], 
+  "query": {
+    "match": {
+      "content": "blog"
+    }
+  },
+  "highlight": {
+    "fields":{
+      "content": {}
+    }
+  }
+}
+```
+
+### 关联关系处理
+
+ES 不擅长处理关系型数据库中的关联关系, 比如文章表 blog 与评论表 comment 之间通过 blog_id 关联, 在 ES 中可以通过如下两种手段变相解决
+
+* Nested Object
+* Parent/Child
+
+评论 Comment
+
+* 文档 id blog_id
+* 评论人 username
+* 评论日期 date
+* 评论内容 content
+
+![http://www.miaomiaoqi.cn/images/elastic/search/es_33.png](http://www.miaomiaoqi.cn/images/elastic/search/es_33.png)
+
+#### Nested Object
+
+```json
+DELETE blog_index
+# comments 需要保存到 blog 下
+PUT blog_index/doc/2
+{
+  "title": "Blog Number One",
+  "author": "alfred",
+  "comments": [
+    {
+      "username": "lee",
+      "date": "2017-01-02",
+      "content": "awesome article!"
+    },
+    {
+      "username": "fax",
+      "date": "2017-04-02",
+      "content": "thanks!"
+    }
+  ]
+}
+
+GET blog_index
+
+# 下边的查询会把 fax 的评论也查出来, 我们预期的是评论人是 lee, 评论内容是 thanks
+GET blog_index/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "match": {
+            "comments.username": "lee"
+          }
+        },
+        {
+          "match": {
+            "comments.content": "thanks"
+          }
+        }
+      ]
+    }
+  }
+}
+
+
+# 使用 nested mapping 解决上述问题
+DELETE blog_index_nested
+PUT blog_index_nested
+{
+  "mappings": {
+    "doc":{
+      "properties": {
+        "title":{
+          "type": "text",
+          "fields": {
+            "keyword":{
+              "type":"keyword",
+              "ignore_above": 100
+            }
+          }
+        },
+        "publish_date":{
+          "type":"date"
+        },
+        "author":{
+          "type":"keyword",
+          "ignore_above": 100
+        },
+        "abstract":{
+          "type": "text"
+        },
+        "url":{
+          "enabled":false
+        },
+        "comments":{
+          "type":"nested", # 这里要注意, 需要关联的数据 type 设置成 nested
+          "properties": {
+            "username":{
+              "type":"keyword",
+              "ignore_above":100
+            },
+            "date":{
+              "type":"date"
+            },
+            "content":{
+              "type":"text"
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+PUT blog_index_nested/doc/2
+{
+  "title": "Blog Number One",
+  "author": "alfred",
+  "comments": [
+    {
+      "username": "lee",
+      "date": "2017-01-02",
+      "content": "awesome article!"
+    },
+    {
+      "username": "fax",
+      "date": "2017-04-02",
+      "content": "thanks!"
+    }
+  ]
+}
+
+
+GET blog_index_nested/_search
+{
+  "query": {
+    "nested": {
+      "path": "comments", # 查询需要指定 path
+      "query": {
+        "bool": {
+          "must": [
+            {
+              "match": {
+                "comments.username": "lee"
+              }
+            },
+            {
+              "match": {
+                "comments.content": "awesome"
+              }
+            }
+          ]
         }
       }
     }
@@ -5174,7 +5374,264 @@ PUT blog_index
 }
 ```
 
+#### Parent/Child
 
+ES 还提供了类似关系型数据库中 `join` 的实现方式, 使用 `join` 数据类型实现, 需要 es6.0 以上的版本
+
+![http://www.miaomiaoqi.cn/images/elastic/search/es_34.png](http://www.miaomiaoqi.cn/images/elastic/search/es_34.png)
+
+![http://www.miaomiaoqi.cn/images/elastic/search/es_35.png](http://www.miaomiaoqi.cn/images/elastic/search/es_35.png)
+
+常见 `query` 语法包括如下几种
+
+* parent_id 返回某父文档的子文档
+
+    ![http://www.miaomiaoqi.cn/images/elastic/search/es_36.png](http://www.miaomiaoqi.cn/images/elastic/search/es_36.png)
+
+* has_child 返回包含某子文档的父文档
+
+    ![http://www.miaomiaoqi.cn/images/elastic/search/es_37.png](http://www.miaomiaoqi.cn/images/elastic/search/es_37.png)
+
+* has_parent 返回包含某父文档的子文档
+
+```json
+# 使用 parent child 方式完成关联查询
+DELETE blog_index_parent_child
+PUT blog_index_parent_child
+{
+  "mappings": {
+    "doc": {
+      "properties": {
+        "join": {
+          "type": "join",
+          "relations": {
+            "blog": "comment"
+          }
+        }
+      }
+    }
+  }
+}
+
+GET blog_index_parent_child
+
+GET blog_index_parent_child/_search
+
+# 创建两个父文档
+PUT blog_index_parent_child/doc/1
+{
+  "title":"blog",
+  "join":"blog"
+}
+
+PUT blog_index_parent_child/doc/2
+{
+  "title":"blog2",
+  "join":"blog"
+}
+
+# 创建一个子文档, 当前父子文档是在一个 index 下, 要保证 id 唯一
+# routing 指定父文档的 id, 保证父子文档在一个分片上
+PUT blog_index_parent_child/doc/comment-1?routing=1
+{
+  "comment":"comment world",
+  "join":{
+    "name":"comment",
+    "parent":1
+  }
+}
+
+
+PUT blog_index_parent_child/doc/comment-2?routing=2
+{
+  "comment":"comment hello",
+  "join":{
+    "name":"comment",
+    "parent":2
+  }
+}
+
+GET blog_index_parent_child/_search
+
+# get all child for parent
+GET blog_index_parent_child/_search
+{
+  "query":{
+    "parent_id":{
+      "type":"comment",
+      "id":"2"
+    }
+  }
+}
+
+GET blog_index_parent_child/_search
+{
+  "query":{
+    "match": {
+      "comment": "world"
+    }
+  }
+}
+
+
+# get parent documents which has child matching following conditions
+GET blog_index_parent_child/_search
+{
+  "query":{
+    "has_child": {
+      "type": "comment",
+      "query": {
+        "match": {
+          "comment": "world"
+        }
+      }
+    }
+  }
+}
+
+GET blog_index_parent_child/_search
+{
+  "query":{
+    "has_parent": {
+      "parent_type": "blog",
+      "query": {
+        "match": {
+          "title": "blog"
+        }
+      }
+    }
+  }
+}
+```
+
+#### 两种方式对比
+
+| 对比 |          Nested Object           |                    Parent/Child                    |
+| :--: | :------------------------------: | :------------------------------------------------: |
+| 优点 |  文档存储在一起, 因此读取性能高  |           父子文档可以独立更新, 互不影响           |
+| 缺点 | 更新父或子文档时需要更新整个文档 | 为了维护 join 的关系, 需要占用部分内存读取性能较差 |
+| 场景 |     子文档偶尔更新, 查询频繁     |                   子文档更新频繁                   |
+
+建议尽量选择 nested object 来解决问题
+
+
+
+### Reindex
+
+指重建所有数据的过程, 一般发生在如下情况
+
+* mapping 设置变更, 比如字段类型发生变化, 分词器字典更新等
+* index 设置变更, 比如分片数更改等
+* 迁移数据
+
+ES 提供了现成的 API 用于完成该工作
+
+#### _update_by_query
+
+在现有索引上重建
+
+![http://www.miaomiaoqi.cn/images/elastic/search/es_38.png](http://www.miaomiaoqi.cn/images/elastic/search/es_38.png)
+
+```json
+DELETE blog_index
+# 添加数据
+PUT blog_index/doc/1
+{
+  "title": "Blog Number One",
+  "author": "alfred",
+  "comments": [
+    {
+      "username": "lee",
+      "date": "2017-01-02",
+      "content": "awesome article!"
+    },
+    {
+      "username": "fax",
+      "date": "2017-04-02",
+      "content": "thanks!"
+    }
+  ]
+}
+
+# 可以看出 version 是 1
+GET blog_index/doc/1
+
+# 执行 reindex 操作
+POST blog_index/_update_by_query?conflicts=proceed
+
+# 再次查看 version 变为了 2
+GET blog_index/doc/1
+```
+
+
+
+#### _reindex
+
+在其他索引上重建
+
+![http://www.miaomiaoqi.cn/images/elastic/search/es_39.png](http://www.miaomiaoqi.cn/images/elastic/search/es_39.png)
+
+![http://www.miaomiaoqi.cn/images/elastic/search/es_40.png](http://www.miaomiaoqi.cn/images/elastic/search/es_40.png)
+
+```json
+DELETE blog_index
+# 添加数据
+PUT blog_index/doc/1
+{
+  "title": "Blog Number One",
+  "author": "alfred",
+  "comments": [
+    {
+      "username": "lee",
+      "date": "2017-01-02",
+      "content": "awesome article!"
+    },
+    {
+      "username": "fax",
+      "date": "2017-04-02",
+      "content": "thanks!"
+    }
+  ]
+}
+
+DELETE blog_new_index
+# 执行 reindex 操作
+POST _reindex
+{
+  "source": {
+    "index": "blog_index"
+  },
+  "dest": {
+    "index": "blog_new_index"
+  }
+}
+
+GET blog_index
+GET blog_new_index
+GET blog_new_index/_search
+```
+
+#### Reindex-Task
+
+数据重建的时间受源索引文档规模的影响, 当规模越大时, 所需时间越多, 此时需要通过设定 url 参数 `wait_for_completion` 为 `false` 来异步执行, ES 以 Task 来描述此类执行任务
+
+ES 提供了 Task API 来查看任务的执行进度和相关数据
+
+![http://www.miaomiaoqi.cn/images/elastic/search/es_41.png](http://www.miaomiaoqi.cn/images/elastic/search/es_41.png)
+
+```json
+POST blog_index/_update_by_query?conflicts=proceed&wait_for_completion=false
+
+GET _tasks/_qKI6E8_TDWjXyo_x-bhmw:11996
+```
+
+### 其他建议
+
+#### 对 Mapping 进行版本管理
+
+包含在代码或者以专门的文件进行管理, 添加好注释, 并加入 Git 版本管理仓库中, 方便回顾
+
+为每个增加一个 metadata 字段, 在其中维护一些文档相关的元数据, 方便对数据进行管理
 
 ## ElasticSearch 分布式架构
 
