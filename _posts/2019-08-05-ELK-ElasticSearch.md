@@ -584,7 +584,7 @@ PUT /lib2
 
 **如果要修改可以重新建立新的索引, 然后做 reindex 操作**
 
-**允许新增索引**
+**允许新增字段类型**
 
 **当 ES 在文档中碰到一个以前没见过的字段时，它会利用动态映射来决定该字段的类型，并自动地对该字段添加映射。**
 
@@ -664,7 +664,7 @@ GET /myindex/doc/_search
 {
 	"query": {
 		"match": {
-			"desc": "here" # 查不到, 因为定义了 dynamic 是 false
+			"desc": "here" # 查不到, 因为定义了 dynamic 是 false, desc 字段没法插入
 		}
 	}
 }
@@ -3926,7 +3926,7 @@ es 对此提供了两种实现方式
     "properties": {
       "username": {
         "type": "keyword",
-        "doc_values": false # 关闭 docvalues, 就不能排序了, 后续也不能修改该字段
+        "doc_values": false # 关闭 doc_values, 就不能排序了, 后续也不能修改该字段
       },
       "hobby": {
         "type": "keyword"
@@ -3951,7 +3951,7 @@ es 对此提供了两种实现方式
   }
   ```
 
-  ```
+  ```json
   # can be used to get original field value for not stored field
   PUT test_search_index/_mapping/doc
   {
