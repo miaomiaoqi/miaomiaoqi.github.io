@@ -804,15 +804,15 @@ index_options 用于控制倒排索引记录的内容, 有如下 4 中配置
 
 #### 其他属性
 
-`"store": false` // 是否单独设置此字段的是否存储而从_source字段中分离，默认是false，只能搜索，不能获取值
+`"store": false` // 是否单独设置此字段的是否存储而从 _source 字段中分离，默认是false，只能搜索，不能获取值
 
-`"analyzer":"ik"` // 指定分词器,默认分词器为standard analyzer
+`"analyzer":"ik"` // 指定分词器,默认分词器为 standard analyzer
 
 `"boost":1.23` // 字段级别的分数加权，默认值是1.0
 
-`"doc_values":false` // 对not_analyzed字段，默认都是开启，分词字段不能使用，对排序和聚合能提升较大性能，节约内存
+`"doc_values":false` // 对 not_analyzed 字段，默认都是开启，分词字段不能使用，对排序和聚合能提升较大性能，节约内存
 
-`"fielddata":{"format":"disabled"}` // 针对分词字段，参与排序或聚合时能提高性能，不分词字段统一建议使用doc_value
+`"fielddata":{"format":"disabled"}` // 针对分词字段，参与排序或聚合时能提高性能，不分词字段统一建议使用 doc_value
 
 `"fields":{"xxxxx":{"type":"text","index":"not_analyzed"}}` // 可以对一个字段提供多种索引模式，同一个字段的值，一个分词，一个不分词
 
@@ -4972,6 +4972,209 @@ GET test_search_index/_search
 ![http://www.miaomiaoqi.cn/images/elastic/search/es_30.png](http://www.miaomiaoqi.cn/images/elastic/search/es_30.png)
 
 ## 数据建模
+
+英文为 Data Modeling, 为创建数据模型的过程
+
+数据模型(Data Model)
+
+* 对现实世界进行抽象描述的一种工具和方法
+* 通过抽象的实体及实体之间联系的形式去描述业务规则, 从而实现对现实世界的映射
+
+### 数据建模的过程
+
+* 概念模型
+
+    确定系统的核心需求和范围边界, 设计实体和实体间的关系
+
+* 逻辑模型
+
+    进一步梳理业务需求, 确定每个实体属性, 关系和约束等
+
+* 物理模型
+
+    * 结合具体的数据库产品, 在满足业务读写性能等需求的前提下确定最终的定义
+    * Mysql, MongoDB, ElasticSearch 等
+    * 第三范式
+
+### ES 中的数据建模
+
+ES 是基于 Lucene 以倒排索引为基础实现的存储体系, 不遵循关系型数据库中的范式约定
+
+![http://www.miaomiaoqi.cn/images/elastic/search/es_31.png](http://www.miaomiaoqi.cn/images/elastic/search/es_31.png)
+
+#### Mapping 字段相关设置
+
+|                    属性名称                    |   可选值    |                             说明                             |
+| :--------------------------------------------: | :---------: | :----------------------------------------------------------: |
+|                    enabled                     | true\|false |                  仅存储, 不做搜索或聚合分析                  |
+|                     index                      | true\|false |                       是否构建倒排索引                       |
+| index_options  |      docs\|freqs\|positions\|offsets      |                    存储倒排索引的哪些信息                    |
+|               norms                |     true\|false        | 是否存储归一化相关参数, 如果字段仅用于过滤和聚合分析, 可关闭 |
+|            doc_values              |        true\|false     |            是否启用 doc_values 用于排序和聚合分析            |
+|            field_data              |      false\|true       |      是否为 text 类型启用 fielddata, 实现排序和聚合分析      |
+|               store                |       false\|true      |                       是否存储该字段值                       |
+|              coerce                |    true\|false         | 是否开启自动数据类型转换功能, 比如字符串转为数字, 浮点转为整型等 |
+|                  multifields                  |             |        多字段, 灵活使用多字段特性来解决多样的业务需求        |
+|          dynamic           |       true\|false\|strict      |                    控制 mapping 自动更新                     |
+|          date_detection            |      true\|false       |               是否自动识别日期类型, 建议 false               |
+
+
+
+#### Mapping 字段属性的设定流程
+
+![http://www.miaomiaoqi.cn/images/elastic/search/es_32.png](http://www.miaomiaoqi.cn/images/elastic/search/es_32.png)
+
+##### 何种类型
+
+* 字符串类型
+
+    需要分词则设定为 text 类型, 否则设置 keyword 类型
+
+* 枚举类型
+
+    基于性能考虑将其设定为 keyword 类型, 即便该数据为整形
+
+* 数值类型
+
+    尽量选择贴近的类型, 比如 byte 即可表示所有数值时, 即选用 byte, 不要用 long
+
+* 其他类型
+
+    比如布尔类型, 日期, 地理位置数据等
+
+##### 是否需要检索
+
+* 完全不需要检索, 排序, 聚合分析的字段
+
+    enabled 设置为 false
+
+* 不需要检索的字段
+
+    index 设置为 false
+
+* 需要检索的字段时, 可以通过如下配置设定需要的存储粒度
+
+    index_options 结合需要设定
+
+    norms 不需要归一化数据时关闭即可
+
+##### 是否需要排序和聚合分析
+
+* 不需要排序或者聚合分析功能
+
+    doc_values 设定为 false
+
+    fielddata设定为 false
+
+##### 是否需要另行存储
+
+* 是否需要专门存储当前字段的数据
+
+    store 设定为 true, 即可存储该字段的原始内容(与_srouce 中的数据不相关)
+
+    一般结合 _source 的 enabled 设定为 false 时使用
+
+### 实例
+
+博客文章 blog_index
+
+* 标题 title
+* 发布日期 publish_date
+
+* 作者 author
+
+* 摘要 abstract
+* 网络地址 url
+
+##### blog_index 的 mapping 设置1
+
+```json
+DELETE blog_index
+PUT blog_index
+{
+  "mappings": {
+    "doc":{
+      "properties": {
+        "title":{
+          "type": "text", # 标题需要分词检索所以用 text
+          "fields": { # 还使用了 multifield, 方便完全匹配搜索
+            "keyword":{
+              "type":"keyword",
+              "ignore_above": 100
+            }
+          }
+        },
+        "publish_date":{ # 日期类型
+          "type":"date"
+        },
+        "author":{ # 作者不需要分词
+          "type":"keyword",
+          "ignore_above": 100
+        },
+        "abstract":{ # 摘要需要分词检索
+          "type": "text"
+        },
+        "url":{ # 仅做展示, 不需要搜索
+          "enabled":false
+        }
+      }
+    }
+  }
+}
+```
+
+blog
+
+```json
+PUT blog_index
+{
+  "mappings": {
+    "doc": {
+      "_source": {
+        "enabled": false
+      },
+      "properties": {
+        "title": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 100
+            }
+          },
+          "store": true
+        },
+        "publish_date": {
+          "type": "date",
+          "store": true
+        },
+        "author": {
+          "type": "keyword",
+          "ignore_above": 100, 
+          "store": true
+        },
+        "abstract": {
+          "type": "text",
+          "store": true
+        },
+        "content": {
+          "type": "text",
+          "store": true
+        },
+        "url": {
+          "type": "keyword",
+          "doc_values":false,
+          "norms":false,
+          "ignore_above": 100, 
+          "store": true
+        }
+      }
+    }
+  }
+}
+```
+
+
 
 ## ElasticSearch 分布式架构
 
