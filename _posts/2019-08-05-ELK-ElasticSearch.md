@@ -430,8 +430,8 @@ PUT /test_index
 			"char_filter": {},
 			"tokenizer": {},
 			"filter": {},
-			"analyzer": {}
-		}
+      "analyzer": {}
+		} 
 	}
 }
 ```
