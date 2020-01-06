@@ -54,7 +54,9 @@ mac 上使用 brew 安装的 es 的配置文件目录位于 `/usr/local/etc/elas
 
 **linux 安装**
 
-
+1. 到 [ES 官网](https://www.elastic.co/cn/downloads/elasticsearch) 下载对应操作系统的压缩包
+2. 解压缩到安装目录
+3. 运行 `bin/elasticsearch` 即可
 
 
 
@@ -64,7 +66,7 @@ mac 上使用 brew 安装的 es 的配置文件目录位于 `/usr/local/etc/elas
 
 ### 安装 Kibana
 
-Kibana是一个针对Elasticsearch的开源分析及可视化平台，使用Kibana可以查询、查看并与存储在ES索引的数据进行交互操作，使用Kibana能执行高级的数据分析，并能以图表、表格和地图的形式查看数据
+Kibana 是一个针对 Elasticsearch 的开源分析及可视化平台，使用Kibana可以查询、查看并与存储在ES索引的数据进行交互操作，使用Kibana能执行高级的数据分析，并能以图表、表格和地图的形式查看数据
 
 我的是 mac, 使用命令 `brew install kibana` 可以一键安装, 安装后的目录在 `/usr/local/Cellar/kibana/6.8.1` 配置文件目录为`/usr/local/etc/kibana`
 
@@ -74,9 +76,7 @@ Kibana是一个针对Elasticsearch的开源分析及可视化平台，使用Kiba
 
 ### 安装 cerebro 插件
 
-cerebro 是 ES 集群的管理工具, 可以方便的查看集群状态
-
-下载地址 https://github.com/lmenezes/cerebro
+cerebro 是 ES 集群的管理工具, 可以方便的查看集群状态 [下载地址](https://github.com/lmenezes/cerebro)
 
 下载对应的压缩包解压运行即可
 
@@ -92,7 +92,7 @@ http://localhost:9000
 
 ### 集群启动
 
-```
+```shell
 elasticsearch -Ecluster.name=miaoqi_cluster -Epath.data=miaoqi_cluster_node1 -Enode.name=miaoqi_node1 -Ehttp.port=7200 -d
 
 elasticsearch -Ecluster.name=miaoqi_cluster -Epath.data=miaoqi_cluster_node2 -Enode.name=miaoqi_node2 -Ehttp.port=8200 -d
@@ -108,19 +108,19 @@ elasticsearch -Ecluster.name=miaoqi_cluster -Epath.data=miaoqi_cluster_node2 -En
 
 ### 术语介绍
 
-**Index:** 类似于mysql数据库中的database
+**Index:** 类似于mysql数据库中的 database
 
-**Type:** 类似于mysql数据库中的table表，es中可以在Index中建立type（table），通过mapping进行映射, 6.0 以后一个 Index 下只允许创建一个 Type。
+**Type:** 类似于mysql数据库中的 table 表，es 中可以在 Index 中建立 type（table），通过 mapping 进行映射, 6.0 以后一个 Index 下只允许创建一个 Type。
 
-**Document:** 由于es存储的数据是文档型的，一条数据对应一篇文档即相当于mysql数据库中的一行数据row，一个文档中可以有多个字段也就是mysql数据库一行可以有多列。
+**Document:** 由于 es 存储的数据是文档型的，一条数据对应一篇文档即相当于 mysql 数据库中的一行数据 row，一个文档中可以有多个字段也就是 mysql 数据库一行可以有多列。
 
-**Field:** es中一个文档中对应的多个列与mysql数据库中每一列对应
+**Field:** es中一个文档中对应的多个列与 mysql 数据库中每一列对应
 
-**Mapping:** 可以理解为mysql或者solr中对应的schema，只不过有些时候es中的mapping增加了动态识别功能，感觉很强大的样子，其实实际生产环境上不建议使用，最好还是开始制定好了对应的schema为主。
+**Mapping:** 可以理解为 mysql 或者 solr 中对应的 schema，只不过有些时候 es 中的 mapping 增加了动态识别功能，感觉很强大的样子，其实实际生产环境上不建议使用，最好还是开始制定好了对应的 schema 为主。
 
-**Indexed:** 就是名义上的建立索引。mysql中一般会对经常使用的列增加相应的索引用于提高查询速度，而在es中默认都是会加上索引的，除非你特殊制定不建立索引只是进行存储用于展示，这个需要看你具体的需求和业务进行设定了。
+**Indexed:** 就是名义上的建立索引。mysql 中一般会对经常使用的列增加相应的索引用于提高查询速度，而在 es 中默认都是会加上索引的，除非你特殊制定不建立索引只是进行存储用于展示，这个需要看你具体的需求和业务进行设定了。
 
-**Query DSL:** 类似于mysql的sql语句，只不过在es中是使用的json格式的查询语句，专业术语就叫：QueryDSL
+**Query DSL:** 类似于 mysql 的 sql 语句，只不过在 es 中是使用的 json 格式的查询语句，专业术语就叫：QueryDSL
 
 GET/PUT/POST/DELETE: 分别类似与mysql中的select/update/delete......
 
@@ -142,9 +142,9 @@ PUT /lib/user/4?version=3
 如果 version 和文档中的版本号不一致会抛出异常
 ```
 
-外部版本控制：elasticsearch在处理外部版本号时会与对内部版本号的处理有些不同。它不再是检查_version是否与请求中指定的数值_相同_,而是检查当前的_version是否比指定的数值小。如果请求成功，那么外部的版本号就会被存储到文档中的_version中。
+外部版本控制: elasticsearch 在处理外部版本号时会与对内部版本号的处理有些不同。它不再是检查 `_version` 是否与请求中指定的数值相同, 而是检查当前的 `_version` 是否比指定的数值小。如果请求成功，那么外部的版本号就会被存储到文档中的 `_version` 中。
 
-为了保持_version与外部版本控制的数据一致
+为了保持 `_version` 与外部版本控制的数据一致
 使用version_type=external
 
 
@@ -1110,7 +1110,7 @@ PUT /my_index/my_type/1
 GET /my_index/_mapping
 ```
 
-#### Dynamic Templates
+#### Dynamic Mapping Templates
 
 允许根据 es 自动识别的数据类型, 字段名等来动态设定字段类型, 可以实现如下效果
 
@@ -1145,7 +1145,7 @@ PUT /my_index
 
 match_mapping_type: 匹配 es 自动识别的类型, 如 boolean, long, string 等
 
-match, unmatch: 匹配字段名
+match, unmatch: 匹配字段名, 如 `*_en: 以 en 结尾的字段`
 
 path_match, path_unmatch: 匹配路径
 
@@ -1309,7 +1309,7 @@ GET /my_product_index/_mapping
 
 ### 索引模板
 
-索引模板, 英文名称 Index Template, 主要用于在新建索引时自动应用预先设定的配置
+索引模板, 英文名称 Index Template, **主要用于在新建索引时自动应用预先设定的配置**
 
 简化索引创建的操作步骤
 
@@ -1321,15 +1321,19 @@ GET /my_product_index/_mapping
 ```json
 PUT /_template/test_template # template 的名称
 {
-	"index_patterns": ["te*", "bar*"], # 匹配的索引名称
-	"order": 0, # order 的顺序配置, order 越大优先级越高
-	"settings": { # 索引的配置
+  # 匹配的索引名称
+	"index_patterns": ["te*", "bar*"],
+  # order 的顺序配置, order 越大优先级越高
+	"order": 0,
+	# 索引的配置
+	"settings": {
 		"number_of_shards": 1
 	},
 	"mappings": {
 		"doc": {
 			"_source": {
-				"enabled": false # 不记录原始数据
+        # 不记录原始数据
+				"enabled": false
 			},
 			"properties": {
 				"name": {
@@ -1365,8 +1369,10 @@ PUT /lib/
 {
   "settings": {
     "index": {
-      "number_of_shards": 3, # 默认 5
-      "number_of_replicas": 0 # 默认 1
+      # 默认 5
+      "number_of_shards": 3,
+      # 默认 1
+      "number_of_replicas": 0
     }
   }
 }
@@ -6392,7 +6398,7 @@ PUT /lib3
 
 3. strict:约到陌生字段就报错
 
-```
+```json
 PUT /lib8
 {
   "settings": {
@@ -6416,9 +6422,9 @@ PUT /lib8
 }
 ```
 
-#会报错
+**会报错, 因为添加了 age 字段, 并且 mappings 中设置了 dynamic=strict**
 
-```
+```json
 PUT  /lib8/user/1
 {
   "name": "lisi",
@@ -6430,12 +6436,11 @@ PUT  /lib8/user/1
 }
 ```
 
-
-**date_detection**:默认会按照一定格式识别date，比如yyyy-MM-dd
+**date_detection**: 默认会按照一定格式识别date，比如yyyy-MM-dd
 
 可以手动关闭某个 type 的 date_detection
 
-```
+```json
 PUT /lib8
 {
   "settings": {
@@ -6452,7 +6457,7 @@ PUT /lib8
 
 **定制 dynamic mapping template(type)**
 
-```
+```json
 PUT /my_index
 {
   "mappings": {
@@ -6474,25 +6479,25 @@ PUT /my_index
 }
 ```
 
-#使用了模板
+**使用了模板, en 后缀**
 
-```
+```json
 PUT /my_index/my_type/3
 {
   "title_en": "this is my dog"
 }
 ```
 
-#没有使用模板
+**没有使用模板**
 
-```
+```json
 PUT /my_index/my_type/5
 {
   "title": "this is my cat"
 }
 ```
 
-```
+```json
 GET my_index/my_type/_search
 {
   "query": {
@@ -6507,11 +6512,11 @@ GET my_index/my_type/_search
 
 ### 重建索引
 
-一个field的设置是不能修改的，如果要修改一个 field，那么应该重新按照新的 mapping，建立一个 index，然后将数据批量查询出来，重新用bulk api写入到 index 中。
+一个 field 的设置是不能修改的，如果要修改一个 field，那么应该重新按照新的 mapping，建立一个 index，然后将数据批量查询出来，重新用 bulk api 写入到 index 中。
 
 批量查询的时候，建议采用 scroll api，并且采用多线程并发的方式来 reindex 数据，每次 scroll 就查询指定日期的一段数据，交给一个线程即可。
 
-```
+```json
 PUT /index1/type1/4
 {
    "content":"1990-12-12"
@@ -6524,16 +6529,16 @@ GET /index1/type1/_mapping
 
 **报错**
 
-```
+```json
 PUT /index1/type1/4
 {
    "content":"I am very happy." # 上边自动映射为了 date 类型, 而这次插入的是 string 类型
 }
 ```
 
-**修改content的类型为string类型,报错，不允许修改**
+**修改 content 的类型为 string 类型, 报错, 不允许修改**
 
-```
+```json
 PUT /index1/type1/_mapping
 {
   "properties": {
@@ -6544,16 +6549,16 @@ PUT /index1/type1/_mapping
 }
 ```
 
-1. 创建一个新的索引，把index1索引中的数据查询出来导入到新的索引中
-2. 但是应用程序使用的是之前的索引，为了不用重启应用程序，给index1这个索引起个别名
+1. 创建一个新的索引，把 index1 索引中的数据查询出来导入到新的索引中
+2. 但是应用程序使用的是之前的索引，为了不用重启应用程序，给 index1 这个索引起个别名
 
 ```
 PUT /index1/_alias/index2
 ```
 
-**创建新的索引，把content的类型改为字符串**
+**创建新的索引，把 content 的类型改为字符串**
 
-```
+```json
 PUT /newindex
 {
   "mappings": {
@@ -6570,7 +6575,7 @@ PUT /newindex
 
 使用scroll批量查询
 
-```
+```json
 GET /index1/type1/_search?scroll=1m
 {
   "query": {
@@ -6581,17 +6586,17 @@ GET /index1/type1/_search?scroll=1m
 }
 ```
 
-使用bulk批量写入新的索引
+使用 bulk 批量写入新的索引
 
-```
+```json
 POST /_bulk
 {"index":{"_index":"newindex","_type":"type1","_id":1}}
 {"content":"1982-12-12"}
 ```
 
-将别名index2和新的索引关联，应用程序不用重启
+将别名 index2 和新的索引关联，应用程序不用重启
 
-```
+```json
 POST /_aliases
 {
   "actions": [
@@ -6618,7 +6623,7 @@ GET index2/type1/_search
 
 可以一直保存在缓存中（filter）
 
-节省cpu和io开销
+节省 cpu 和 io 开销
 
 
 
@@ -6628,7 +6633,7 @@ GET index2/type1/_search
 
 pom中加入ElasticSearch6.2.4的依赖：
 
-```
+```xml
 <dependencies>
     <dependency>
         <groupId>org.elasticsearch.client</groupId>
@@ -6660,15 +6665,17 @@ pom中加入ElasticSearch6.2.4的依赖：
 
 ### 在Java应用中实现添加文档
 
-    "{" +
-    "\"id\":\"1\"," +
-    "\"title\":\"Java设计模式之装饰模式\"," +
-    "\"content\":\"在不必改变原类文件和使用继承的情况下，动态地扩展一个对象的功能。\"," +
-    "\"postdate\":\"2018-05-20 14:38:00\"," +
-    "\"url\":\"csdn.net/79239072\"" +
-    "}"
-
+```java
+"{" +
+"\"id\":\"1\"," +
+"\"title\":\"Java设计模式之装饰模式\"," +
+"\"content\":\"在不必改变原类文件和使用继承的情况下，动态地扩展一个对象的功能。\"," +
+"\"postdate\":\"2018-05-20 14:38:00\"," +
+"\"url\":\"csdn.net/79239072\"" +
+"}"
 ```
+
+```java
  XContentBuilder doc1 = XContentFactory.jsonBuilder()
                     .startObject()
                     .field("id","3")
@@ -6679,14 +6686,16 @@ pom中加入ElasticSearch6.2.4的依赖：
                     .endObject();        
 ```
 
-    IndexResponse response = client.prepareIndex("index1", "blog", null)
-    	.setSource(doc1)
-    	.get();
-    System.out.println(response.status());
+```java
+IndexResponse response = client.prepareIndex("index1", "blog", null)
+	.setSource(doc1)
+	.get();
+System.out.println(response.status());
+```
 
 ### 在Java应用中实现删除文档
 
-```
+```java
 DeleteResponse response=client.prepareDelete("index1","blog","SzYJjWMBjSAutsuLRP_P").get();
 
 //删除成功返回OK，否则返回NOT_FOUND
@@ -6698,7 +6707,7 @@ System.out.println(response.status());
 
 ### 在Java应用中实现更新文档 
 
-```
+```java
 UpdateRequest request=new UpdateRequest();
 request.index("index1").type("blog")
        .id("2").doc(XContentFactory.jsonBuilder().startObject()
@@ -6741,7 +6750,7 @@ System.out.println(response.status());
 
 ### 在Java应用中实现批量操作
 
-```
+```java
 MultiGetResponse mgResponse = client.prepareMultiGet()
 	                .add("index1","blog","3","2")
 	                .add("lib3","user","1","2","3")
@@ -6787,3 +6796,4 @@ if (bulkResponse.hasFailures()) {
 
 
 
+## 集群调优建议
