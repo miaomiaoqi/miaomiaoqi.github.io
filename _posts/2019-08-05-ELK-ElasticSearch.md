@@ -601,29 +601,30 @@ false：不允许自动新增字段, 但是文档可以正常写入, 但无法�
 strict：如果碰到陌生字段，抛出异常, 不能写入
 ```
 
-**dynamic 设置可以适用在根对象上或者object类型的任意字段上。**
+**dynamic 设置可以适用在根对象上或者 object 类型的任意字段上。**
 
 ```json
 PUT /my_index
 {
-	"mapping": {
-		"my_type": {
-			"dynamic": false,
-			"properties": {
-				"user": {
-					"properties": {
-						"name": {
-							"type": "text"
-						},
-						"social_networks": {
-							"dynamic": true,
-							"properties": {}
-						}
-					}
-				}
-			}
-		}
-	}
+  "mapping": {
+    "my_type": {
+      "dynamic": false,
+      "properties": {
+        "user": {
+          "properties": {
+            "name": {
+              "type": "text"
+            },
+            "social_networks": {
+              "dynamic": true,
+              "properties": {
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }
 ```
 
@@ -652,26 +653,26 @@ GET /myindex/_mapping
 
 PUT /myindex/doc/1
 {
-	"title": "hello world",
-	"desc": "nothing here"
+  "title": "hello world",
+  "desc": "nothing here"
 }
 
 GET /myindex/doc/_search
 {
-	"query": {
-		"match": {
-			"title": "hello" # 可以查到, 因为定义了 mapping
-		}
-	}
+  "query": {
+    "match": {
+      "title": "hello"#可以查到, 因为定义了mapping
+    }
+  }
 }
 
 GET /myindex/doc/_search
 {
-	"query": {
-		"match": {
-			"desc": "here" # 查不到, 因为定义了 dynamic 是 false, desc 字段没法插入
-		}
-	}
+  "query": {
+    "match": {
+      "desc": "here" # 查不到, 因为定义了dynamic是false, desc字段没法插入
+    }
+  }
 }
 ```
 
@@ -735,36 +736,36 @@ PUT /myindex
 
 PUT /myindex/article/_mapping
 {
-	"properties": {
-		"post_date": {
-			"type": "date"
-		},
-		"title": {
-			"type": "text",
-			"copy_to": "fullcontents"
-		},
-		"content": {
-			"type": "text",
-			"copy_to": "fullcontents"
-		},
-		"author_id": {
-			"type": "integer"
-		},
-		"fullcontents": {
-			"type": "text"
-		}
-	}
+  "properties": {
+    "post_date": {
+      "type": "date"
+    },
+    "title": {
+      "type": "text",
+      "copy_to": "fullcontents"
+    },
+    "content": {
+      "type": "text",
+      "copy_to": "fullcontents"
+    },
+    "author_id": {
+      "type": "integer"
+    },
+    "fullcontents": {
+      "type": "text"
+    }
+  }
 }
 
 GET /myindex/article/_search
 {
-	"query": {
-		"match": {
-			"fullcontents": {
-				"query": "xxxx"
-			}
-		}
-	}
+  "query": {
+    "match": {
+      "fullcontents": {
+        "query": "xxxx"
+      }
+    }
+  }
 }
 ```
 
@@ -773,18 +774,18 @@ GET /myindex/article/_search
 控制当前字段是否索引, 默认为 true, 即记录索引, false 不记录, 即不可搜索
 
 ```json
-PUT /my_inde
+PUT /my_index
 {
-	"mappings": {
-		"doc": {
-			"properties": {
-				"cookie": {
-					"type": text,
-					"index": false
-				}
-			}
-		}
-	}
+  "mappings": {
+    "doc": {
+      "properties": {
+        "cookie": {
+          "type": text,
+          "index": false
+        }
+      }
+    }
+  }
 }
 ```
 
@@ -946,8 +947,8 @@ DELETE /test_index
 
 PUT /test_index/doc/1
 {
-	"username": "alfred",
-	"age": 1
+  "username": "alfred",
+  "age": 1
 }
 
 GET /test_index/_mapping
@@ -993,13 +994,16 @@ DELETE /test_index
 
 PUT /test_index/doc/1
 {
-	"username": "alfred",
-	"age": 14,
-	"birth": "1998-10-10",
-	"married": false,
-	"year": "18",
-	"tags": ["boy", "fashion"],
-	"money": 100.1
+  "username": "alfred",
+  "age": 14,
+  "birth": "1998-10-10",
+  "married": false,
+  "year": "18",
+  "tags": [
+    "boy",
+    "fashion"
+  ],
+  "money": 100.1
 }
 
 GET /test_index/_mapping
@@ -1073,16 +1077,18 @@ DELETE /my_index
 
 PUT /my_index
 {
-	"mappings": {
-		"my_type":{
-			"dynamic_date_formats": ["MM/dd/yyyy"]
-		}
-	}
+  "mappings": {
+    "my_type": {
+      "dynamic_date_formats": [
+        "MM/dd/yyyy"
+      ]
+    }
+  }
 }
 
 PUT /my_index/doc/1
 {
-	"create_date": "09/25/2015" # 默认不会识别为日期, 因为格式错误
+  "create_date": "09/25/2015" # 默认不会识别为日期, 因为格式错误
 }
 
 GET /my_index/_mapping
@@ -1099,19 +1105,17 @@ DELETE /my_index
 
 PUT /my_index
 {
-	"mappings": {
-		"my_type": {
-			"numeric_detection": true
-		}
-	}
+  "mappings": {
+    "my_type": {
+      "numeric_detection": true
+    }
+  }
 }
-
 PUT /my_index/my_type/1
 {
-	"my_float": "1.0",
-	"my_integer": "1"
+  "my_float": "1.0",
+  "my_integer": "1"
 }
-
 GET /my_index/_mapping
 ```
 
@@ -1129,20 +1133,20 @@ DELETE /my_index
 
 PUT /my_index
 {
-	"mappings": {
-		"doc": {
-			"dynamic_templates": [ # 动态模板数组, 可以指定多个匹配规则, 先匹配到的先生效
+  "mappings": {
+    "doc": {
+      "dynamic_templates": [ # 动态模板数组, 可以指定多个匹配规则, 先匹配到的先生效
 				{
-					"strings": { # template 的名称, 随意指定
+					"strings": { # template的名称, 随意指定
 						"match_mapping_type": "string", # 匹配规则
-            "mapping": { # 设置 mapping 信息
-            	"type": "keyword"
-             }
+						"mapping": { # 设置 mapping 信息
+							"type": "keyword"
+						}
 					}
-				}
+        }
       ]
-		}
-	}
+    }
+  }
 }
 ```
 
@@ -1165,25 +1169,25 @@ DELETE /my_index
 
 PUT /my_index
 {
-	"mappings": {
-		"doc": {
-			"dynamic_templates": [
-				{
-					"strings_as_keyword": {
-						"match_mapping_type": "string",
-						"mapping": {
-							"type": "keyword"
-						}
-					}
-				}
-			]
-		}
-	}
+  "mappings": {
+    "doc": {
+      "dynamic_templates": [
+        {
+          "strings_as_keyword": {
+            "match_mapping_type": "string",
+            "mapping": {
+              "type": "keyword"
+            }
+          }
+        }
+      ]
+    }
+  }
 }
 
 PUT /my_index/doc/1
 {
-	"name": "alfred"
+  "name": "alfred"
 }
 
 GET /my_index/_mapping
@@ -1198,9 +1202,9 @@ DELETE /my_index
 
 PUT /my_index
 {
-	"mappings": {
-		"doc": {
-    	"dynamic_templates": [
+  "mappings": {
+    "doc": {
+      "dynamic_templates": [
         {
           "message_as_text": {
             "match_mapping_type": "string",
@@ -1211,18 +1215,17 @@ PUT /my_index
           }
         },
         {
-					"strings_as_keyword": {
-						"match_mapping_type": "string",
-						"mapping": {
-							"type": "keyword"
-						}
-					}
-				}
+          "strings_as_keyword": {
+            "match_mapping_type": "string",
+            "mapping": {
+              "type": "keyword"
+            }
+          }
+        }
       ]
     }
-	}
+  }
 }
-
 PUT /my_index/doc/1
 {
   "title": "学好 java",
