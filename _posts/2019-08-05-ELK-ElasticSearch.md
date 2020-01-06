@@ -322,8 +322,8 @@ POST _analyze
 ```json
 POST test_index/_analyze
 {
-	"field": "username", # 测试字段
-	"text": "hello world" # 测试文本
+  "field": "username", # 测试字段
+  "text": "hello world" # 测试文本
 }
 ```
 
@@ -332,9 +332,11 @@ POST test_index/_analyze
 ```json
 POST _analyze
 {
-	"tokenizer": "standard",
-	"filter": ["lowercase"],
-	"text": "Hello World!"
+  "tokenizer": "standard",
+  "filter": [
+    "lowercase"
+  ],
+  "text": "Hello World!"
 }
 ```
 
@@ -407,22 +409,22 @@ python 中最流行的分词系统, 支持分词和词性标注
 ```json
 POST _analyze
 {
-	"test": "a Hello,World!",
-	"tokenizer": "standard",
-	"filter": {
-		"stop",
-		"lowercase":{
-			"type": "ngram",
-			"min_gram": 4,
-			"max_gram": 4
-		}
-	}
+  "test": "a Hello,World!",
+  "tokenizer": "standard",
+  "filter": {
+    "stop",
+    "lowercase": {
+      "type": "ngram",
+      "min_gram": 4,
+      "max_gram": 4
+    }
+  }
 }
 ```
 
 **自定义分词 Api**
 
-```
+```json
 PUT /test_index
 {
   "settings": {
