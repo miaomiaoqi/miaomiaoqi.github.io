@@ -290,7 +290,7 @@ es 提供了一个测试分词的 api 接口, 方便验证分词效果, endpoint
 
 **可以直接指定 analyzer 进行测试**
 
-```
+```json
 POST _analyze
 {
 	"analyzer": "standard",
@@ -319,7 +319,7 @@ POST _analyze
 
 **可以直接指定索引中的字段进行测试**
 
-```
+```json
 POST test_index/_analyze
 {
 	"field": "username", # 测试字段
@@ -329,7 +329,7 @@ POST test_index/_analyze
 
 **可以自定义分词器进行测试**
 
-```
+```json
 POST _analyze
 {
 	"tokenizer": "standard",
@@ -404,7 +404,7 @@ python 中最流行的分词系统, 支持分词和词性标注
 * NGram 和 Edge NGram 连词分割
 * Synonym 添加近义词的 term
 
-```
+```json
 POST _analyze
 {
 	"test": "a Hello,World!",
@@ -422,7 +422,7 @@ POST _analyze
 
 **自定义分词 Api**
 
-```
+```json
 PUT /test_index
 {
 	"settings": {
@@ -482,7 +482,7 @@ PUT /myindex/article/3
 }
 ```
 
-```
+```json
 GET /myindex/article/_search?q=2018-05
 
 GET /myindex/article/_search?q=2018-05-10
@@ -494,7 +494,7 @@ GET /myindex/article/_search?q=java
 
 **查看 mapping**
 
-```
+```json
 GET /myindex/_mapping
 
 {
