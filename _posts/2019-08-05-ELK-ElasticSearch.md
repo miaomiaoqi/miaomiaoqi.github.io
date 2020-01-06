@@ -1330,26 +1330,29 @@ GET /my_product_index/_mapping
 PUT /_template/test_template # template 的名称
 {
   # 匹配的索引名称
-	"index_patterns": ["te*", "bar*"],
-  # order 的顺序配置, order 越大优先级越高
+  "index_patterns": [
+    "te*",
+    "bar*"
+  ],
+  #order的顺序配置, order越大优先级越高
 	"order": 0,
-	# 索引的配置
+  #索引的配置
 	"settings": {
-		"number_of_shards": 1
-	},
-	"mappings": {
-		"doc": {
-			"_source": {
-        # 不记录原始数据
+    "number_of_shards": 1
+  },
+  "mappings": {
+    "doc": {
+      "_source": {
+        #不记录原始数据
 				"enabled": false
-			},
-			"properties": {
-				"name": {
-					"type": "keyword"
-				}
-			}
-		}
-	}
+      },
+      "properties": {
+        "name": {
+          "type": "keyword"
+        }
+      }
+    }
+  }
 }
 
 DELETE /test_index
@@ -1644,7 +1647,7 @@ POST /lib2/books/_bulk
 ```json
 GET /lib2/books/_mget
 {
-	"ids": ["1","2","3","4"]
+  "ids": ["1", "2", "3", "4"]
 }
 ```
 
@@ -1701,15 +1704,16 @@ GET /my_*/_search
   ```json
   GET /my_index/_search
   {
-  	"query": {
-  		"term": {
-  			"name": ["user", "alfred"]
-  		}
-  	}
+    "query": {
+      "term": {
+        "name": [
+          "user",
+          "alfred"
+        ]
+      }
+    }
   }
   ```
-
-
 
 ### URI Search
 
@@ -1842,7 +1846,7 @@ GET /test_search_index/_search?q=alfred
 # 查看真正执行的查询语句
 GET /test_search_index/_search?q=alfred
 {
-	"profile": true
+  "profile": true
 }
 # 指定字段查询
 GET /test_search_index/_search?q=username:alfred
@@ -1884,66 +1888,74 @@ DELETE /lib3
 
 PUT /lib3
 {
-    "settings":{
-    "number_of_shards" : 3,
-    "number_of_replicas" : 0
-    },
-     "mappings":{
-      "user":{
-        "properties":{
-            "name": {"type":"text"},
-            "address": {"type":"text"},
-            "age": {"type":"integer"},
-            "interests": {"type":"text"},
-            "birthday": {"type":"date"}
+  "settings": {
+    "number_of_shards": 3,
+    "number_of_replicas": 0
+  },
+  "mappings": {
+    "user": {
+      "properties": {
+        "name": {
+          "type": "text"
+        },
+        "address": {
+          "type": "text"
+        },
+        "age": {
+          "type": "integer"
+        },
+        "interests": {
+          "type": "text"
+        },
+        "birthday": {
+          "type": "date"
         }
       }
-     }
+    }
+  }
 }
-
 PUT /lib3/user/1
 {
-	"name": "zhaoliu",
-	"address": "hei long jiang sheng tie ling shi",
-	"age": 50,
-	"birthday": "1970-12-12",
-	"interests": "xi huan hejiu,duanlian,lvyou"
+  "name": "zhaoliu",
+  "address": "hei long jiang sheng tie ling shi",
+  "age": 50,
+  "birthday": "1970-12-12",
+  "interests": "xi huan hejiu,duanlian,lvyou"
 }
-
 PUT /lib3/user/2
 {
-	"name": "zhaoming",
-	"address": "bei jing hai dian qu qing he zhen",
-	"age": 20,
-	"birthday": "1998-10-12",
-	"interests": "xi huan hejiu,duanlian,changge"
+  "name": "zhaoming",
+  "address": "bei jing hai dian qu qing he zhen",
+  "age": 20,
+  "birthday": "1998-10-12",
+  "interests": "xi huan hejiu,duanlian,changge"
 }
 
 PUT /lib3/user/3
 {
-	"name": "lisi",
-	"address": "bei jing hai dian qu qing he zhen",
-	"age": 23,
-	"birthday": "1998-10-12",
-	"interests": "xi huan hejiu,duanlian,changge"
+  "name": "lisi",
+  "address": "bei jing hai dian qu qing he zhen",
+  "age": 23,
+  "birthday": "1998-10-12",
+  "interests": "xi huan hejiu,duanlian,changge"
 }
 
 PUT /lib3/user/4
 {
-	"name": "wangwu",
-	"address": "bei jing hai dian qu qing he zhen",
-	"age": 26,
-	"birthday": "1995-10-12",
-	"interests": "xi huan biancheng,tingyinyue,lvyou"
+  "name": "wangwu",
+  "address": "bei jing hai dian qu qing he zhen",
+  "age": 26,
+  "birthday": "1995-10-12",
+  "interests": "xi huan biancheng,tingyinyue,lvyou"
 }
 
 PUT /lib3/user/5
 {
-	"name": "zhangsan",
-	"address": "bei jing chao yang qu",
-	"age": 29,
-	"birthday": "1988-10-12",
-	"interests": "xi huan biancheng,tingyinyue,tiaowu"
+  "name": "zhangsan",
+  "address": "bei jing chao yang qu",
+  "age": 29,
+  "birthday": "1988-10-12",
+  "interests": "xi huan biancheng,tingyinyue,tiaowu"
 }
 ```
 
@@ -1953,8 +1965,6 @@ PUT /lib3/user/5
 GET /lib3/user/_search?q=name:lisi
 
 GET /lib3/user/_search?q=interests:changge&sort=age:desc
-
-
 
 {
   "took" : 2, # 耗时 2 毫秒
@@ -2380,65 +2390,75 @@ DELETE /lib3
 
 PUT /lib3
 {
-    "settings":{
-    "number_of_shards" : 3,
-    "number_of_replicas" : 0
-    },
-     "mappings":{
-      "user":{
-        "properties":{
-            "name": {"type":"text", "analyzer": "ik_max_word"},
-            "address": {"type":"text", "analyzer": "ik_max_word"},
-            "age": {"type":"integer"},
-            "interests": {"type":"text", "analyzer": "ik_max_word"},
-            "birthday": {"type":"date"}
+  "settings": {
+    "number_of_shards": 3,
+    "number_of_replicas": 0
+  },
+  "mappings": {
+    "user": {
+      "properties": {
+        "name": {
+          "type": "text",
+          "analyzer": "ik_max_word"
+        },
+        "address": {
+          "type": "text",
+          "analyzer": "ik_max_word"
+        },
+        "age": {
+          "type": "integer"
+        },
+        "interests": {
+          "type": "text",
+          "analyzer": "ik_max_word"
+        },
+        "birthday": {
+          "type": "date"
         }
       }
-     }
+    }
+  }
 }
+
 PUT /lib3/user/1
 {
-	"name": "赵六",
-	"address": "黑龙江省铁岭",
-	"age": 50,
-	"birthday": "1970-12-12",
-	"interests": "喜欢喝酒,锻炼,说相声"
+  "name": "赵六",
+  "address": "黑龙江省铁岭",
+  "age": 50,
+  "birthday": "1970-12-12",
+  "interests": "喜欢喝酒,锻炼,说相声"
 }
-
 PUT /lib3/user/2
 {
-	"name": "赵明",
-	"address": "北京海淀区清河",
-	"age": 20,
-	"birthday": "1998-10-12",
-	"interests": "喜欢喝酒,锻炼,唱歌"
+  "name": "赵明",
+  "address": "北京海淀区清河",
+  "age": 20,
+  "birthday": "1998-10-12",
+  "interests": "喜欢喝酒,锻炼,唱歌"
 }
-
 PUT /lib3/user/3
 {
-	"name": "lisi",
-	"address": "北京海淀区清河",
-	"age": 23,
-	"birthday": "1998-10-12",
-	"interests": "喜欢喝酒,锻炼,唱歌"
+  "name": "lisi",
+  "address": "北京海淀区清河",
+  "age": 23,
+  "birthday": "1998-10-12",
+  "interests": "喜欢喝酒,锻炼,唱歌"
 }
-
 PUT /lib3/user/4
 {
-	"name": "王五",
-	"address": "北京海淀区清河",
-	"age": 26,
-	"birthday": "1995-10-12",
-	"interests": "喜欢编程,听音乐,旅游"
+  "name": "王五",
+  "address": "北京海淀区清河",
+  "age": 26,
+  "birthday": "1995-10-12",
+  "interests": "喜欢编程,听音乐,旅游"
 }
-
 PUT /lib3/user/5
 {
-	"name": "张三",
-	"address": "北京海淀区清河",
-	"age": 29,
-	"birthday": "1988-10-12",
-	"interests": "喜欢摄影,听音乐,跳舞"
+  "name": "张三",
+  "address": "北京海淀区清河",
+  "age": 29,
+  "birthday": "1988-10-12",
+  "interests": "喜欢摄影,听音乐,跳舞"
 }
 ```
 
@@ -3516,7 +3536,7 @@ Document1 是如何存储到分片 P1 的? 选择 P1 的依据是什么?
 
 3 个节点组成的集群, 突然 node1 的网络和其他两个节点中断, node2 和 node3 会重新选举 master, 比如 node2 成为了新的 master, 此时会更新 cluster state, node1 自己组成集群后, 也会更新 cluster state, 同一个集群由两个master, 而且维护不同的cluster state, 网络恢复后无法选择正确的 master
 
-![http://www.miaomiaoqi.cn/images/elastic/search/es_16.png](http://www.miaomiaoqi.cn//elastic/search/es_16.png)
+![http://www.miaomiaoqi.cn/images/elastic/search/es_16.png](http://www.miaomiaoqi.cn/images/elastic/search/es_16.png)
 
 解决方案为仅在可选举的 master-eligible 节点数大于等于 quorum 时才可以进行 master 选举
 
@@ -3578,7 +3598,7 @@ es 引入了 translog 机制, 写入文档到 buffer 时, 同时将该操作写�
 PUT /my_index/_settings
 {
     "index.translog.durability": "async",
-    "index.translog.sync_interval": "5s"	# 每 5 秒落盘一次
+    "index.translog.sync_interval": "5s" # 每 5 秒落盘一次
 }
 ```
 
@@ -3733,11 +3753,11 @@ es 默认会采用相关性算分排序, 用户可以通过设定 sorting 参数
 ```json
 GET test_search_index/_search
 {
-	"sort": { # 关键词
-		"birth": "desc"
-	}
+  "sort": {
+    # 关键词
+    "birth": "desc"
+  }
 }
-
 GET test_search_index/_search
 {
   "sort": [
@@ -3902,12 +3922,14 @@ es 对此提供了两种实现方式
   ```json
   PUT test_search_index/_mapping/doc
   {
-  	"properties": {
-  		"username": {
-  			"type": "text", # 类型不可以修改
-  			"fielddata": true # fielddate 可以随时开启和关闭
-  		}
-  	}
+    "properties": {
+      "username": {
+        # 类型不可以修改
+        "type": "text",
+        # fielddate可以随时开启和关闭
+        "fielddata": true
+      }
+    }
   }
   
   GET test_search_index/_search
@@ -4021,8 +4043,8 @@ es 提供了 3 种方式来解决分页与遍历的问题
 ```json
 GET test_search_index/_search
 {
-	"from": 1,
-	"size": 2
+  "from": 1,
+  "size": 2
 }
 ```
 
@@ -4184,16 +4206,20 @@ GET test_search_index/_search
 ```json
 GET test_search_index/_search
 {
-    "size": 0,
-    "aggs": { # 关键词与 query 同级
-        "<aggregation_name>": { # 自定义聚合名称
-            "<aggregation_type>": {
-                "<aggregation_body>"
-            }
-        [,"aggs": {[<sub_aggregation>]+}]? # 子查询
-        }
-        [,"<aggregation_name_2>": {...}]* # 可以包含多个聚合分析
+  "size": 0,
+  # 关键词与query同级
+  "aggs": {
+  	# 自定义聚合名称
+    "<aggregation_name>": {
+      "<aggregation_type>": {
+        "<aggregation_body>"
+      }
+		# 子查询
+		[,"aggs": {[<sub_aggregation>]+}]?
     }
+		# 可以包含多个聚合分析
+		[,"<aggregation_name_2>": {...}]*
+  }
 }
 ```
 
@@ -4202,14 +4228,14 @@ GET test_search_index/_search
 ```json
 GET test_search_index/_search
 {
-    "size": 0,
-    "aggs": {
-        "pepole_per_job": {
-            "terms": {
-                "field": "job.keyword"
-            }
-        }
+  "size": 0,
+  "aggs": {
+    "pepole_per_job": {
+      "terms": {
+        "field": "job.keyword"
+      }
     }
+  }
 }
 ```
 
@@ -4280,8 +4306,6 @@ GET /test_search_index/_search
 }
 ```
 
-
-
 #### avg
 
 ```json
@@ -4298,8 +4322,6 @@ GET /test_search_index/_search
 }
 ```
 
-
-
 #### sum
 
 ```json
@@ -4315,8 +4337,6 @@ GET /test_search_index/_search
   }
 }
 ```
-
-
 
 #### cardinality
 
@@ -4336,8 +4356,6 @@ GET /test_search_index/_search
 }
 ```
 
-
-
 #### stats
 
 返回一系列数值类型的统计值, 包含 min, max, avg, sum 和 count
@@ -4345,14 +4363,14 @@ GET /test_search_index/_search
 ```json
 GET /test_search_index/_search
 {
-    "size": 0,
-    "aggs": {
-        "stats_age": {
-            "stats": {
-                "field": "age"
-            }
-        }
+  "size": 0,
+  "aggs": {
+    "stats_age": {
+      "stats": {
+        "field": "age"
+      }
     }
+  }
 }
 ```
 
@@ -4363,14 +4381,14 @@ GET /test_search_index/_search
 ```json
 GET /test_search_index/_search
 {
-    "size": 0,
-    "aggs": {
-        "stats_age": {
-            "extended_stats": {
-                "field": "age"
-            }
-        }
+  "size": 0,
+  "aggs": {
+    "stats_age": {
+      "extended_stats": {
+        "field": "age"
+      }
     }
+  }
 }
 ```
 
@@ -4381,14 +4399,14 @@ GET /test_search_index/_search
 ```json
 GET /test_search_index/_search
 {
-    "size": 0,
-    "aggs": {
-        "per_salary": {
-            "percentiles": {
-                "field": "salary"
-            }
-        }
+  "size": 0,
+  "aggs": {
+    "per_salary": {
+      "percentiles": {
+        "field": "salary"
+      }
     }
+  }
 }
 ```
 
@@ -4400,18 +4418,18 @@ GET /test_search_index/_search
 # 30 和 50 在当前年龄里边处于一个怎样的百分位
 GET /test_search_index/_search
 {
-    "size": 0,
-    "aggs": {
-        "per_age": {
-            "percentile_ranks": {
-                "field": "age",
-                "values": [
-                  30,
-                  50
-                ]
-            }
-        }
+  "size": 0,
+  "aggs": {
+    "per_age": {
+      "percentile_ranks": {
+        "field": "age",
+        "values": [
+          30,
+          50
+        ]
+      }
     }
+  }
 }
 ```
 
@@ -4467,15 +4485,17 @@ Bucket 意为桶, 即按照一定规则将文档分配到不同的桶中, 达到
 ```json
 GET /test_search_index/_search
 {
-    "size": 0,
-    "aggs": {
-        "jobs_terms": {
-            "terms": {
-                "field": "job.keyword", # 指定 term 字段
-                "size": 5 # 指定返回数目
-            }
-        }
+  "size": 0,
+  "aggs": {
+    "jobs_terms": {
+      "terms": {
+        # 指定term字段
+        "field": "job.keyword",
+        # 指定返回数目
+        "size": 5
+      }
     }
+  }
 }
 ```
 
@@ -4886,7 +4906,6 @@ GET test_search_index/_search
     }
   }
 }
-
 
 GET test_search_index/_search
 {
