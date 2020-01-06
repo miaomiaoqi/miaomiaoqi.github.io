@@ -422,17 +422,21 @@ POST _analyze
 
 **自定义分词 Api**
 
-```json
+```
 PUT /test_index
 {
-	"settings": {
-		"analysis": {
-			"char_filter": {},
-			"tokenizer": {},
-			"filter": {},
-      "analyzer": {}
-		} 
-	}
+  "settings": {
+    "analysis": {
+      "char_filter": {
+      },
+      "tokenizer": {
+      },
+      "filter": {
+      },
+      "analyzer": {
+      }
+    }
+  }
 }
 ```
 
