@@ -1372,9 +1372,9 @@ PUT /lib/
 }
 ```
 
-number_of_shards: 分片, 确定后不能修改
+**number_of_shards: 分片, 确定后不能修改**
 
-number_of_replicas: 备份数量
+**number_of_replicas: 备份数量**
 
 **使用默认配置添加索引**
 
@@ -5631,7 +5631,20 @@ GET _tasks/_qKI6E8_TDWjXyo_x-bhmw:11996
 
 包含在代码或者以专门的文件进行管理, 添加好注释, 并加入 Git 版本管理仓库中, 方便回顾
 
-为每个增加一个 metadata 字段, 在其中维护一些文档相关的元数据, 方便对数据进行管理
+为每个文档增加一个 metadata 字段, 在其中维护一些文档相关的元数据, 方便对数据进行管理
+
+![http://www.miaomiaoqi.cn/images/elastic/search/es_42.png](http://www.miaomiaoqi.cn/images/elastic/search/es_42.png)
+
+#### 防止字段过多
+
+字段过多有如下坏处
+
+* 难于维护, 当字段成百上千时, 基本很难有人能明确知道每个字段的含义
+* mapping 的信息存储在 cluster state 里面, 过多的字段会导致 mapping 过大, 最终导致更新变慢
+
+通过设置 `index.mapping.total_fields.limit` 可以限定索引中最大字段数, 默认是 `1000`
+
+可以通过 key/value 的方式解决字段过多的问题, 但并不完美
 
 ## ElasticSearch 分布式架构
 
