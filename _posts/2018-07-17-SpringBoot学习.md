@@ -1004,40 +1004,89 @@ SpringBoot使用它来做日志功能;
     
     6. 最终导致自动配置失效
 
-## 注册Servlet三大组件【Servlet、Filter、Listener】
+## 注册 Web 三大组件【Servlet、Filter、Listener】
 
-* 由于SpringBoot默认是以jar包的方式启动嵌入式的Servlet容器来启动SpringBoot的web应用，没有web.xml文件
+由于 SpringBoot 默认是以 jar 包的方式启动嵌入式的 Servlet 容器来启动 SpringBoot 的 web 应用，没有 web.xml 文件
 
-* 注册三大组件
+注册三大组件
 
-    ```java
-    @Configuration
-    public class MyServerConfig {
-    
-        // servlet
-        @Bean
-        public ServletRegistrationBean myServlet() {
-            return new ServletRegistrationBean(new MyServlet(), "/myServlet");
-        }
-    
-        // filter
-        @Bean
-        public FilterRegistrationBean myFilter() {
-            FilterRegistrationBean registrationBean = new FilterRegistrationBean();
-            registrationBean.setFilter(new MyFilter());
-            registrationBean.setUrlPatterns(Arrays.asList("/hello", "/myServlet"));
-            return registrationBean;
-        }
-    
-        // listener
-        @Bean
-        public ServletListenerRegistrationBean myListener() {
-            ServletListenerRegistrationBean<MyListener> registrationBean = new ServletListenerRegistrationBean<>(
-                    new MyListener());
-            return registrationBean;
-        }
+```java
+@Configuration
+public class MyServerConfig {
+
+    // servlet
+    @Bean
+    public ServletRegistrationBean myServlet() {
+        return new ServletRegistrationBean(new MyServlet(), "/myServlet");
     }
-    ```
+
+    // filter
+    @Bean
+    public FilterRegistrationBean myFilter() {
+        FilterRegistrationBean registrationBean = new FilterRegistrationBean();
+        registrationBean.setFilter(new MyFilter());
+        registrationBean.setUrlPatterns(Arrays.asList("/hello", "/myServlet"));
+        return registrationBean;
+    }
+
+    // listener
+    @Bean
+    public ServletListenerRegistrationBean myListener() {
+        ServletListenerRegistrationBean<MyListener> registrationBean = new ServletListenerRegistrationBean<>(
+                new MyListener());
+        return registrationBean;
+    }
+}
+```
+
+### 注册 Filter
+
+方式一: @ServletComponentScan 扫描 Filter 所在的包
+
+```java
+@WebFilter(filterName = "myFilter",urlPatterns = "/*")
+public class MyFilter implements Filter {
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+    }
+
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
+    }
+
+    @Override
+    public void destroy() {
+    }
+}
+
+@SpringBootApplication
+@EnableAutoConfiguration
+@EnableWebMvc
+@ServletComponentScan(basePackages = "com.fanyin.eghm")
+public class Application {
+
+    public static void main(String[] args) {
+        SpringApplication.run(EghmApplication.class, args);
+    }
+}
+```
+
+方式二
+
+```java
+@Configuration
+public class FilterConfig {
+    @Bean
+    public FilterRegistrationBean filterRegistrationBean(){
+        FilterRegistrationBean bean = new FilterRegistrationBean();
+        bean.setFilter(new MyFilter2());
+        bean.addUrlPatterns("/*");
+        return bean;
+    }
+}
+```
+
+
 
 ## SpringTask
 
@@ -1283,7 +1332,11 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(authorizationInterceptor);
+      	// 1. 加入的顺序就是拦截器执行的顺序
+      	// 2. 按顺序执行所有拦截器的 preHandle
+      	// 3. 所有的 preHandle 执行完再执行全部 postHandle 最后是 afterHandle
+        registry.addInterceptor(authorizationInterceptor).addPathPatterns("/**");
+      	registry.addInterceptor(studentInterceptor).addPathPatterns("/**");
     }
 
 }
@@ -2060,7 +2113,7 @@ public class HttpRequestLogAOP {
 
 ### 全局响应拦截器
 
-实现 ResponseBodyAdvice 接口, 对 RestController 接口的返回值进行统一处理, **全局异常处理器的优先级高于全局响应拦截器**
+实现 ResponseBodyAdvice 接口, 对 RestController 接口的返回值进行统一处理
 
 ```java
 @RestControllerAdvice
@@ -2513,7 +2566,17 @@ private HandlerMethodArgumentResolver getArgumentResolver(MethodParameter parame
 }
 ```
 
+### AOP 执行顺序
 
+自定义的 AOP 可以通过 `@Order(1)` 注解, 或者实现 `Ordered` 接口指明 AOP 的顺序, **值越小优先级越高**
+
+#### 正常执行流程
+
+`filter4...pre -> filter1...pre -> filter2...pre -> filter3...pre -> inteceptor1...pre -> inteceptor2...pre -> @Around1 -> @Before1 -> @Around2 -> @Before2 -> 目标方法 -> @Around2 -> @After2 -> @AfterReturning2 -> @Around1 -> @After1 -> @AfterReturning1 -> 全局响应处理 -> inteceptor2...post -> inteceptor1...post -> inteceptor2...after -> inteceptor1...after -> filter3...after -> filter2...after -> filter1...after -> filter4...after`
+
+#### 异常执行流程
+
+`filter4...pre -> filter1...pre -> filter2...pre -> filter3...pre -> inteceptor1...pre -> inteceptor2...pre -> @Around1 -> @Before1 -> @Around2 -> @Before2 -> 目标方法 -> @After2 -> @AfterThrowing2 -> @After1 -> @AfterThrowing1 -> inteceptor2...after -> inteceptor1...after -> filter3...after -> filter2...after -> filter1...after -> filter4...after`
 
 
 
