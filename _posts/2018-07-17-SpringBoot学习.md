@@ -2568,7 +2568,13 @@ private HandlerMethodArgumentResolver getArgumentResolver(MethodParameter parame
 
 ### AOP 执行顺序
 
-自定义的 AOP 可以通过 `@Order(1)` 注解, 或者实现 `Ordered` 接口指明 AOP 的顺序, **值越小优先级越高**
+**Filter 的优先级永远大于 Interceptor, Interceptor 优先级永远大于自定义 AOP**
+
+**Filter 使用 FilterRegistrationBean 注册的优先级高于 @ServletComponentScan 扫描 @WebFilter 的, FilterRegistrationBean 注册可以设定 order, order 越小优先级越高, @WebFilter 无法控制顺序**
+
+**Interceptor 的顺序就是注册时候的顺序, 先注册的先执行**
+
+**自定义的 AOP 可以通过 `@Order(1)` 注解, 或者实现 `Ordered` 接口指明 AOP 的顺序, 值越小优先级越高**
 
 #### 正常执行流程
 
@@ -2578,7 +2584,7 @@ private HandlerMethodArgumentResolver getArgumentResolver(MethodParameter parame
 
 `filter4...pre -> filter1...pre -> filter2...pre -> filter3...pre -> inteceptor1...pre -> inteceptor2...pre -> @Around1 -> @Before1 -> @Around2 -> @Before2 -> 目标方法 -> @After2 -> @AfterThrowing2 -> @After1 -> @AfterThrowing1 -> 全局异常处理 -> inteceptor2...after -> inteceptor1...after -> filter3...after -> filter2...after -> filter1...after -> filter4...after`
 
-
+**异常时 @Around 的后续不会执行, 不会执行全局响应, 拦截器的 post 方法不会执行**
 
 ## SpringBoot 整合 Swagger2
 
