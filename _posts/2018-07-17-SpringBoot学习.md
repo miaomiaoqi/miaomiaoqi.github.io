@@ -34,10 +34,10 @@ author: miaoqi
 
 ```java
 @SpringBootApplication
-public class HelloWorldMainApplication{ 
-  	public static void main(String[] args) {
-      	// Spring应用启动起来
-      	SpringApplication.run(HelloWorldMainApplication.class,args);
+public class HelloWorldMainApplication{
+    public static void main(String[] args) {
+        // Spring应用启动起来
+        SpringApplication.run(HelloWorldMainApplication.class,args);
     }
 }
 ```
@@ -716,12 +716,13 @@ JUL, JCL, Jboss-logging, logback, log4j, log4j2, slf4j....
     import org.slf4j.Logger; 
     import org.slf4j.LoggerFactory;
     
-    public class HelloWorld{
+    public class HelloWorld {
     
         public static void main(String[] args) {
             Logger logger = LoggerFactory.getLogger(HelloWorld.class);
             logger.info("Hello World");
         }
+    
     }
     ```
     
@@ -778,7 +779,7 @@ SpringBoot使用它来做日志功能;
 
 * 默认配置
 
-    SpringBoot 默认帮我们配置好了日志;
+    SpringBoot 默认帮我们配置好了日志
 
     ```java
     //记录器
@@ -787,7 +788,7 @@ SpringBoot使用它来做日志功能;
     public void contextLoads() {
         // 日志的级别由低到高 trace < debug < info < warn < error
         // 可以调整输出的日志级别;日志就只会在这个级别以以后的高级别生效       
-      	logger.trace("这是trace日志...");
+        logger.trace("这是trace日志...");
         logger.debug("这是debug日志..."); // SpringBoot 默认给我们使用的是 info 级别的, 没有指定级别的就用SpringBoot 默认规定的级别, root 级别
         logger.info("这是info日志...");
         logger.warn("这是warn日志...");
@@ -864,22 +865,22 @@ SpringBoot使用它来做日志功能;
 
     ```xml
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring‐boot‐starter‐web</artifactId>
-      <exclusions>
-        <exclusion>
-          <artifactId>logback‐classic</artifactId>
-          <groupId>ch.qos.logback</groupId>
-        </exclusion>
-        <exclusion>
-            <artifactId>log4j‐over‐slf4j</artifactId>
-            <groupId>org.slf4j</groupId>
-        </exclusion>
-      </exclusions>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring‐boot‐starter‐web</artifactId>
+        <exclusions>
+            <exclusion>
+                <artifactId>logback‐classic</artifactId>
+                <groupId>ch.qos.logback</groupId>
+            </exclusion>
+            <exclusion>
+                <artifactId>log4j‐over‐slf4j</artifactId>
+                <groupId>org.slf4j</groupId>
+            </exclusion>
+        </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j‐log4j12</artifactId>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j‐log4j12</artifactId>
     </dependency>
     ```
 
@@ -928,19 +929,21 @@ SpringBoot使用它来做日志功能;
     // 使用 WebMvcConfigurerAdapter 可以来扩展 SpringMVC 的功能
     @Configuration
     public class MyMvcConfig extends WebMvcConfigurerAdapter {
+        
         @Override
         public void addViewControllers(ViewControllerRegistry registry) {
             // super.addViewControllers(registry);
             // 浏览器发送 /miaoqi 请求来到 success
             registry.addViewController("/miaoqi").setViewName("success");
         }
-        
+    
         @Override
         public void addInterceptors(InterceptorRegistry registry) {
-           registry.addInterceptor(new LoginHandlerInterceptor()).addPathPatterns("/**").excludePathPatterns("/index.html")
-                   .excludePathPatterns("/").excludePathPatterns("/user/login").excludePathPatterns("/hello")
-                   .excludePathPatterns("/error/**");
+            registry.addInterceptor(new LoginHandlerInterceptor()).addPathPatterns("/**").excludePathPatterns("/index.html")
+                    .excludePathPatterns("/").excludePathPatterns("/user/login").excludePathPatterns("/hello")
+                    .excludePathPatterns("/error/**");
         }
+        
     }
     ```
 
@@ -961,12 +964,14 @@ SpringBoot使用它来做日志功能;
     @EnableWebMvc
     @Configuration
     public class MyMvcConfig extends WebMvcConfigurerAdapter {
+        
         @Override
         public void addViewControllers(ViewControllerRegistry registry) {
             // super.addViewControllers(registry);
             // 浏览器发送 /miaoqi 请求来到 success
             registry.addViewController("/miaoqi").setViewName("success");
-    		}
+        }
+        
     }
     ```
     
@@ -1039,10 +1044,10 @@ public class MyServerConfig {
     // listener
     @Bean
     public ServletListenerRegistrationBean myListener() {
-        ServletListenerRegistrationBean<MyListener> registrationBean = new ServletListenerRegistrationBean<>(
-                new MyListener());
+        ServletListenerRegistrationBean<MyListener> registrationBean = new ServletListenerRegistrationBean<>(new MyListener());
         return registrationBean;
     }
+
 }
 ```
 
@@ -1053,6 +1058,7 @@ public class MyServerConfig {
 ```java
 @WebFilter(filterName = "myFilter",urlPatterns = "/*")
 public class MyFilter implements Filter {
+    
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
     }
@@ -1064,6 +1070,7 @@ public class MyFilter implements Filter {
     @Override
     public void destroy() {
     }
+
 }
 
 @SpringBootApplication
@@ -1075,6 +1082,7 @@ public class Application {
     public static void main(String[] args) {
         SpringApplication.run(EghmApplication.class, args);
     }
+
 }
 ```
 
@@ -1165,7 +1173,7 @@ public class FilterConfig {
         0 15 10 ? * 6L 2002-2005" 2002年至2005年的每月的最后一个星期五上午10: 15触发 
         0 15 10 ? * 6#3 每月的第三个星期五上午10: 15触发
 
-* 在SpringBoot中使用SpringTask
+* 在 SpringBoot 中使用 SpringTask
 
     1. 开启任务注解
 
@@ -1174,12 +1182,14 @@ public class FilterConfig {
         @EnableScheduling // 开启定时任务注解
         @SpringBootApplication
         public class SpringBoot10TaskApplication {
+        
             public static void main(String[] args) {
                 SpringApplication.run(SpringBoot10TaskApplication.class, args);
             }
+        
     }
         ```
-
+    
     1. 编写定时任务类
     
         ```java
@@ -1458,15 +1468,15 @@ org.apache.tomcat.jdbc.pool.DataSource, HikariDataSource, BasicDataSource, Dbcp2
 @Configuration
 public class DruidConfig {
 
-  	// 数据源的基础配置通过 @ConfigurationProperties 使配置文件内容与 bean 关联起来
-  	// 因为这里返回的是接口, 一些 druid 的特殊配置没有 set 方法, 需要手动配置再返回给容器
+    // 数据源的基础配置通过 @ConfigurationProperties 使配置文件内容与 bean 关联起来
+    // 因为这里返回的是接口, 一些 druid 的特殊配置没有 set 方法, 需要手动配置再返回给容器
     @ConfigurationProperties(prefix = "spring.datasource")
     @Bean
     public DataSource druid() {
-      	// 其他特有数据手动配置
+        // 其他特有数据手动配置
         DruidDataSource dataSource = new DruidDataSource();
-    		dataSource.setDruidInitialSize(5);
-      	return dataSource;
+        dataSource.setDruidInitialSize(5);
+        return dataSource;
     }
 
     // 配置 Druid 的监控
@@ -1574,9 +1584,9 @@ spring:
 
 ```xml
 <dependency>
-  <groupId>org.mybatis.spring.boot</groupId>
-  <artifactId>mybatis-spring-boot-starter</artifactId>
-  <version>1.3.1</version>
+    <groupId>org.mybatis.spring.boot</groupId>
+    <artifactId>mybatis-spring-boot-starter</artifactId>
+    <version>1.3.1</version>
 </dependency>
 ```
 
@@ -1630,9 +1640,9 @@ public class MyBatisConfig{
     @SpringBootApplication
     public class SpringBoot06DataMybatisApplication {
     
-    		public static void main(String[] args) {
-    				SpringApplication.run(SpringBoot06DataMybatisApplication.class, args);
-    		}
+        public static void main(String[] args) {
+            SpringApplication.run(SpringBoot06DataMybatisApplication.class, args);
+        }
     
     }
     ```
@@ -1675,15 +1685,15 @@ org.apache.ibatis.binding.BindingException: Invalid bound statement (not found)
 
 ```xml
 <build>
-	<resources>
-		<resource>
-			<directory>src/main/java</directory>
-			<filtering>true</filtering>
-			<includes>
-				<include>**/*Mapper.xml</include>
-			</includes>
-			</resource>
-	</resources>
+    <resources>
+        <resource>
+            <directory>src/main/java</directory>
+            <filtering>true</filtering>
+            <includes>
+                <include>**/*Mapper.xml</include>
+            </includes>
+        </resource>
+    </resources>
 </build>
 ```
 
@@ -1691,22 +1701,22 @@ org.apache.ibatis.binding.BindingException: Invalid bound statement (not found)
 
 ```xml
 <build>
-	<resources>
-		<resource>
-			<directory>src/main/java</directory>
-			<filtering>true</filtering>
-			<includes>
-				<include>**/*Mapper.xml</include>
-			</includes>
-		</resource>
-		<resource>
-			<directory>src/main/resources</directory>
-			<filtering>true</filtering>
-			<includes>
-				<include>**/*.xml</include>
-			</includes>
-		</resource>
-	</resources>
+    <resources>
+        <resource>
+            <directory>src/main/java</directory>
+            <filtering>true</filtering>
+            <includes>
+                <include>**/*Mapper.xml</include>
+            </includes>
+        </resource>
+        <resource>
+            <directory>src/main/resources</directory>
+            <filtering>true</filtering>
+            <includes>
+                <include>**/*.xml</include>
+            </includes>
+        </resource>
+    </resources>
 </build>
 ```
 
@@ -1900,7 +1910,7 @@ public class MySqlConfig {
         factory.setVfs(SpringBootVFS.class);
         factory.setConfigLocation(this.resourceLoader.getResource("classpath: mybatis-config.xml"));
         return factory.getObject();
-	    }
+    }
 }
 ```
 
@@ -1948,9 +1958,9 @@ public interface BaseMapper<T> extends Mapper<T>, IdListMapper<T, Long>, InsertL
 ```xml
 <!-- 分页助手启动器 -->
 <dependency>
-	<groupId>com.github.pagehelper</groupId>
-	<artifactId>pagehelper-spring-boot-starter</artifactId>
-	<version>1.2.3</version>
+    <groupId>com.github.pagehelper</groupId>
+    <artifactId>pagehelper-spring-boot-starter</artifactId>
+    <version>1.2.3</version>
 </dependency>
 ```
 
@@ -2640,7 +2650,7 @@ Swagger 是一款 RESTful 接口的文档在线自动生成, 功能测试功能�
 @EnableSwagger2
 public class SwaggerConfig {
 
-		// swagger2的配置文件, 这里可以配置swagger2的一些基本的内容, 比如扫描的包等等
+    // swagger2的配置文件, 这里可以配置swagger2的一些基本的内容, 比如扫描的包等等
     @Bean
     public Docket createRestApi() {
         return new Docket(DocumentationType.SWAGGER_2)
@@ -2652,7 +2662,7 @@ public class SwaggerConfig {
                 .paths(PathSelectors.any()).build();
     }
 
-  	// swagger2 的一些基本信息
+    // swagger2 的一些基本信息
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
                 // 标题
