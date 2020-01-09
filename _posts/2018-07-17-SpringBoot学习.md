@@ -62,7 +62,7 @@ public class HelloController {
 
 ```xml
 <build>
-    <!‐‐ 这个插件, 可以将应用打包成一个可执行的jar包;‐‐> <build>
+    <!‐‐ 这个插件, 可以将应用打包成一个可执行的jar包;‐‐>
     <plugins>
         <plugin>
             <groupId>org.springframework.boot</groupId>
@@ -1187,6 +1187,8 @@ public class FilterConfig {
                 SpringApplication.run(SpringBoot10TaskApplication.class, args);
             }
         
+        ```
+    
     }
         ```
     
@@ -1303,7 +1305,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 }
 ```
 
-**但是根据官方标注 WebMvcConfigurerAdapter 过时了, 因为java8接口具有默认实现, 然后想通过继承WebMvcConfigurationSupport 实现添加. **
+**但是根据官方标注 WebMvcConfigurerAdapter 过时了, 因为java8接口具有默认实现, 然后想通过继承WebMvcConfigurationSupport 实现添加**
 
 ```java
 @Configuration
@@ -1822,7 +1824,7 @@ public class DcMySqlConfig {
 @Configuration
 @MapperScan(value = "com.miaoqi.mysql.mapper",sqlSessionFactoryRef = "rdsSqlSessionFactory")
 public class MySqlConfig {
-    
+
     @Autowired
     private ResourceLoader resourceLoader = new DefaultResourceLoader();
 
@@ -1834,7 +1836,7 @@ public class MySqlConfig {
 
     @Value("${spring.datasource.password}")
     private String password;
-    
+
     @Value("${spring.datasource.driverClassName}")
     private String driverClassName;
 
@@ -1843,7 +1845,7 @@ public class MySqlConfig {
 
     @Value("${spring.datasource.minIdle}")
     private int minIdle;
-    
+
     @Value("${spring.datasource.maxActive}")
     private int maxActive;
 
@@ -1873,7 +1875,7 @@ public class MySqlConfig {
 
     @Value("${spring.datasource.logSlowSql}")
     private String logSlowSql;
-    
+
     @Primary
     @Bean(name = "rdsDataSource")
     public DataSource dataSource() throws Exception {
@@ -1886,26 +1888,26 @@ public class MySqlConfig {
         datasource.setMinIdle(minIdle);
         datasource.setMaxActive(maxActive);
         datasource.setMaxWait(maxWait);
-			  datasource.setTimeBetweenEvictionRunsMillis(timeBetweenEvictionRunsMillis);
-		    datasource.setMinEvictableIdleTimeMillis(minEvictableIdleTimeMillis);
+        datasource.setTimeBetweenEvictionRunsMillis(timeBetweenEvictionRunsMillis);
+        datasource.setMinEvictableIdleTimeMillis(minEvictableIdleTimeMillis);
         datasource.setValidationQuery(validationQuery);
         datasource.setTestWhileIdle(testWhileIdle);
         datasource.setTestOnBorrow(testOnBorrow);
         datasource.setTestOnReturn(testOnReturn);
         datasource.setFilters(filters);
-    	  return datasource;
+        return datasource;
     }
-    
+
     @Primary
     @Bean(name = "rdsDataSourceTransactionManager")
     public DataSourceTransactionManager transactionManager(DataSource dataSource) {
-    		return new DataSourceTransactionManager(dataSource);
+        return new DataSourceTransactionManager(dataSource);
     }
-    
+
     @Primary
     @Bean(name = "rdsSqlSessionFactory")
     public SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception {
-    	SqlSessionFactoryBean factory = new SqlSessionFactoryBean();
+        SqlSessionFactoryBean factory = new SqlSessionFactoryBean();
         factory.setDataSource(dataSource);
         factory.setVfs(SpringBootVFS.class);
         factory.setConfigLocation(this.resourceLoader.getResource("classpath: mybatis-config.xml"));
