@@ -99,7 +99,8 @@ public class HelloController {
     以后我们导入依赖默认是不需要写版本;(没有在dependencies里面管理的依赖自然需要声明版本号)
 
 * 启动器
-		```xml
+
+	```xml
 	<dependency>
 		<groupId>org.springframework.boot</groupId>
   	<artifactId>spring-boot-starter-web</artifactId>
