@@ -94,8 +94,9 @@ public class HelloController {
         <version>1.5.9.RELEASE</version>
         <relativePath>../../spring‐boot‐dependencies</relativePath>
     </parent>
+    他来真正管理Spring Boot应用里面的所有依赖版本
     ```
-    
+
     以后我们导入依赖默认是不需要写版本;(没有在dependencies里面管理的依赖自然需要声明版本号)
 
 * 启动器
@@ -108,9 +109,9 @@ public class HelloController {
 	```
 
 	spring-boot-starter-web: 
-    
+  
 	spring-boot-starter: spring-boot 场景启动器;帮我们导入了 web 模块正常运行所依赖的组件;
-    
+  
 	Spring Boot 将所有的功能场景都抽取出来, 做成一个个的 starters(启动器), 只需要在项目里面引入这些 starter 相关场景的所有依赖都会导入进来. 要用什么功能就导入什么场景的启动器
 
 ### 主程序

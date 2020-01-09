@@ -128,11 +128,11 @@ GET/PUT/POST/DELETE: 分别类似与mysql中的select/update/delete......
 
 ### 版本控制
 
-ElasticSearch采用了乐观锁来保证数据的一致性，也就是说，当用户对document进行操作时，并不需要对该document作加锁和解锁的操作，只需要指定要操作的版本即可。当版本号一致时，ElasticSearch会允许该操作顺利执行，而当版本号存在冲突时，ElasticSearch会提示冲突并抛出异常（VersionConflictEngineException异常）。
+ElasticSearch 采用了乐观锁来保证数据的一致性，也就是说，当用户对 document 进行操作时，并不需要对该 document 作加锁和解锁的操作，只需要指定要操作的版本即可。当版本号一致时，ElasticSearch 会允许该操作顺利执行，而当版本号存在冲突时，ElasticSearch 会提示冲突并抛出异常（VersionConflictEngineException异常）。
 
-ElasticSearch的版本号的取值范围为1到2^63-1。
+ElasticSearch 的版本号的取值范围为 1 到 2^63-1。
 
-内部版本控制：使用的是_version
+内部版本控制：使用的是 `_version`
 
 ```json
 PUT /lib/user/4?version=3
@@ -236,8 +236,6 @@ jumped 和 leap, 尽管没有相同的词根，但他们的意思很相近。他
 | quick  |   X   |   X   |
 | summer |       |   X   |
 |  the   |   X   |   X   |
-
-
 
 
 
@@ -6824,3 +6822,243 @@ if (bulkResponse.hasFailures()) {
 
 
 ## 集群调优建议
+
+遵照官方建议设置所有系统参数
+
+[ES官方建议](https://www.elastic.co/guide/en/elasticsearch/reference/6.8/setup.html)
+
+### ES 设置尽量简洁
+
+elasticsearch.yml 中尽量只写必备的参数, 其他可以通过 api 动态设置的参数都通过 api 来设定
+
+参见文档 "Setup ElasticSearch -> Important ElasticSearch Configuration"
+
+随着 ES 的版本升级, 很多网络流传的配置参数已经不再支持, 因此不要随便复制别人的集群参数
+
+**elasticsearch.yml 中建议设定的基本参数**
+
+```yaml
+cluster.name
+
+node.name
+
+node.master/node.data/node.ingest
+
+network.host 建议显式指定为内网 ip, 不要偷懒直接设定为 0.0.0.0
+
+discovery.zen.ping.unicast.hosts 设定集群其他节点地址
+
+discovery.zen.minimum_master_nodes 一般设定为 2
+
+path.data/path.log
+
+除上述参数外再根据需要增加其他的静态配置参数
+```
+
+**动态设定的参数有 transient 和 persistent 两种设置, 前者在集群重启后会丢失, 后者不会, 但两种设定都会覆盖 elasticsearch.yml 中的配置**
+
+```
+PUT /_cluster/settings
+{
+	"persistent": {
+		"discovery.zen.minimum_master_nodes": 2
+	},
+	"transient": {
+		"indices.store.throttle.max_bytes_per_sec": "50mb"
+	}
+}
+```
+
+### 关于 JVM 内存设定
+
+不要超过 31GB
+
+**预留一半内存给操作系统, 用来做文件缓存**
+
+具体大小根据该 node 要存储的数据量来估算, 为了保证性能, 在内存和数据量之间有一个建议的比例
+
+* 搜索类项目比例建议在 1G 内存:16GB 数据 以内
+* 日志类项目比例建议在 1:48 ~ 1:96
+
+假设总数据量大小为 1TB, 3 个 node, 1 个副本, 那么每个 node 要存储的数据量为 2TB(因为包含一个副本)/3=666GB, 即 700GB 左右, 做 20% 的预留空间, 那么每个 node 要存储大约 850GB 的数据
+
+* 如果是搜索类项目, 每个 node 内存大小为 850GB/16 = 53GB 内存, 大于 31GB
+
+    31 * 16 = 496, 即每个 node 最多存储 496GB 数据, 所以需要至少 5 个 node
+
+* 如果是日志类型项目, 每个 node 内存大小为 850GB/48 = 18GB, 因此 3 个节点足够
+
+
+
+### 写性能优化
+
+**目标是增大写吞吐量-EPS(Event Per Second)越高越好**
+
+#### **refresh**
+
+segment 写入磁盘的过程依然很耗时, 可以借助文件系统缓存的特性, 先将 segment 在缓存中创建并开放查询来进一步提升实时性,   该过程在 es 中称为 refresh
+
+在 refresh 之前文档会先存储在一个 buffer 中, refresh 时将 buffer 中的所有文档清空并生成 segment
+
+es 默认每 1 秒执行一次 refresh, 因此文档的实时性被提高到 1 秒, 这也是 es 被称为近实时(Near Real Time)的原因
+
+#### **translog**
+
+如果在内存中的 segment 还没有写入磁盘前发生了宕机, 那么其中的文档就无法恢复了
+
+es 引入了 translog 机制, 写入文档到 buffer 时, 同时将该操作写入 translog
+
+translog 文件会即时写入磁盘(fsync), 6.x 默认每个请求都会落盘, 可以修改为每 5 秒落盘一次, 这样的风险是丢失 5 秒的数据, 相关配置为`index.translog`
+
+es 启动时会检查 translog 文件, 并从中恢复数据
+
+#### **flush**
+
+flush 负责将内存中的 segment 写入磁盘, 主要做如下工作
+
+* 将 translog 写入磁盘
+* 将 index buffer 清空, 其中的文档生成一个新的 segment, 相当于一个 refresh 操作
+* 更新 commit point 并写入磁盘
+* 执行 fsync 操作, 将内存中的 segment 写入磁盘
+* 删除旧的 translog 文件
+
+#### **优化方案**
+
+* 客户端: 多线程写, 批量写(10MB~20MB), 具体情况还要具体测试
+
+* ES: 在**高质量数据建模**的前提下, 主要是在 refresh, translog 和 flush 之间做文章
+
+    **目标为降低 refresh 频率**
+
+    * 增大 `index.refresh_interval`, 降低实时性, 以增大一次 refresh 处理的文档数, 因为过于频繁的 refresh 操作会产生很多 segment, 但是每个 segment 中的数据量却非常小, 默认是 1s, 设置为 -1 直接禁止自动 refresh, 需要手动 refresh
+    *  增大 index buffer size, 参数为 `indices.memory.index_buffer_size`(静态参数, 需要设定在 elasticsearch.yml 中), 默认为 10%, 如果 buffer 满了也会触发 refresh 操作
+
+    目标为降低 translog 写磁盘的频率, 从而提高写效率, 但会降低容灾能力
+
+    * `index.translog.durability` 设置为 async(异步), `index.translog.sync_interval` 设置需要的大小, 比如 120s, 那么 translog 会改为每 120s 写一次磁盘, 代价就是损失 120s 的数据
+
+    * `index.translog.flush_threshold_size` 默认为 512mb, 即 translog 超过该大小时会触发一次 flush, 那么调大该参数可以避免 flush 操作
+
+    目标为降低 flush 操作
+
+    * 在 6.x 可优化的点不多, 多为 es 自动完成
+
+* 副本设置为 0, 写入完毕再增加
+
+* 合理的设计 shard 数, 并保证 shard 均匀地分配在所有 node 上, 充分利用 node 的资源
+
+    * `index.routing.allocation.total_shards_per_node` 限定每个索引在每个 node 上可分配的总主副分片数
+
+    * 5 个 node, 某索引有 10 个主分片, 1 个副分片, 上述值应该设置多少?
+
+        (10 + 10) / 5 = 4
+
+        **但实际要设置为 5 个, 防止在某个 node 下线时, 分片迁移失败的问题**
+
+* 主要为 index 级别的设置优化, 以日志场景为例, 一般会有如下索引设定
+
+    ```json
+    PUT /myindex
+    {
+      "settings": {
+        "index": {
+          "refresh_interval": "30s",
+          "number_of_shards": "5",
+          "number_of_replicas": 1,
+          "routing": {
+            "allocation": {
+              "total_shards_per_node": "3"
+            }
+          },
+          "translog": {
+            "sync_interval": "30s",
+            "durability": "async"
+          }
+        }
+      },
+      "mappings": {
+        "doc": {
+          "dynamic": false,
+          "properties": {
+            "title": {
+              "type": "text"
+            }
+          }
+        }
+      }
+    }
+    ```
+
+
+
+### 读性能优化
+
+读性能主要受一下几方面印象
+
+* 数据模型是否符合业务模型
+* 数据规模是否过大
+* 索引配置是否优化
+* 查询语句是否优化
+
+#### 数据建模
+
+高质量的数据建模是优化的基础
+
+* 将需要通过 script 脚本动态计算的值提前计算好作为字段存到文档中
+* 尽量使得数据模型贴近业务模型
+
+#### 数据规模
+
+根据不同的数据规模设定不同的 SLA
+
+* 上万条数据与上千万条数据性能肯定存在差异
+
+#### 索引配置
+
+索引配置优化主要包括如下
+
+* 根据数据规模设置合理的主分片数, 可以通过测试得到最合适的分片数
+* 设置合理的副本数目, 不是越多越好
+
+#### 查询语句
+
+查询语句调优主要有以下几种常见手段
+
+* 尽量使用 Filter 上下文, 减少算分的场景, 由于 Filter 有缓存机制, 可以极大提升查询性能
+* 尽量不使用 Script 进行字段计算或者算分排序等
+* 集合 profile, explain API 分析慢查询语句的症结所在, 然后再去优化数据模型
+
+
+
+### 如何设定 Shard 数
+
+ES 的性能基本上是线性扩展的, 因此我们只要测出 1 个 shard 的性能指标, 然后根据实际性能需求就能算出需要的 shard 数, 比如单 shard 写入 eps 是 10000, 而线上 eps 需求是 50000, 那么你需要 5 个 shard(实际还要考虑副本的情况)
+
+测试 1 个 shard 的流程如下
+
+* 搭建与生产环境相同配置的单节点集群
+* 设定一个单分片 0 副本的索引
+* 写入实际生产数据进行测试, 获取写性能指标
+* 针对数据进行查询请求, 获取读性能指标
+
+压测工具可以采用 esrally
+
+压测的流程还是比较复杂的, 可以根据经验来设定, 如果是搜索引擎的场景, 单 Shard 大小不要超过 15GB, 如果是日志场景, 单 Shard 大小不要超过 150GB(Shard 越大, 查询性能越低)
+
+此时只要估算出你索引的总数据大小, 然后再除以上面的单 Shard 大小也可以得到分片数
+
+
+
+### X-Pack Monitoring
+
+官方推出的免费集群监控功能
+
+#### 安装
+
+`bin/elasticsearch-plugin install x-pack`
+
+`bin/kibana-plugin install x-pack`
+
+关闭 x-pack 账号机制, 修改 elasticsearch.yml 添加如下配置
+
+`xpack.security.enabled: false`
