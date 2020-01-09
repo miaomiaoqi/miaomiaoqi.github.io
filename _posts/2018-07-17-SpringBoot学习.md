@@ -104,7 +104,7 @@ public class HelloController {
 	```xml
 	<dependency>
 		<groupId>org.springframework.boot</groupId>
-  	<artifactId>spring-boot-starter-web</artifactId>
+		<artifactId>spring-boot-starter-web</artifactId>
 	</dependency>
 	```
 
@@ -116,8 +116,6 @@ public class HelloController {
 
 ### 主程序
 
-@SpringBootApplication
-
 @SpringBootApplication: Spring Boot 应用标注在某个类上说明这个类是 SpringBoot 的主配置类, SpringBoot 就应该运行这个类的 main 方法来启动 SpringBoot 应用;
 
 ```java
@@ -127,6 +125,7 @@ public class HelloController {
 @Inherited
 @SpringBootConfiguration
 @EnableAutoConfiguration
+@SpringBootApplication
 @ComponentScan(excludeFilters = {
       @Filter(type = FilterType.CUSTOM, classes = TypeExcludeFilter.class),
       @Filter(type = FilterType.CUSTOM, classes = AutoConfigurationExcludeFilter.class) })
@@ -323,7 +322,7 @@ person.dog.age=15
 
 * yaml写法
 
-    ```json
+    ```yaml
     person: 
       lastName: zhangas
       age: 18
@@ -344,13 +343,13 @@ person.dog.age=15
 * properties写法
   
     ```properties
-    person.last-name=啊发发
-    person.age=18
-    person.birth=2018/08/20
-    person.map.k1=v1
-    person.map.k2=14
-    person.list=a,b,c
-person.dog.age=15
+	person.last-name=啊发发
+	person.age=18
+	person.birth=2018/08/20
+	person.map.k1=v1
+	person.map.k2=14
+	person.list=a,b,c
+	person.dog.age=15
   ```
   
 * @ConfigurationProperties: 告诉 SpringBoot 将本类中的所有属性和配置文件中相关的配置进行绑定, prefix = "person": 配置文件中哪个下面的所有属性进行一一映射
@@ -1470,7 +1469,7 @@ public class DruidConfig {
       	return dataSource;
     }
 
-    // 配置Druid的监控
+    // 配置 Druid 的监控
     // 1. 配置一个管理后台的Servlet
     @Bean
     public ServletRegistrationBean statViewServlet() {
@@ -1906,7 +1905,7 @@ public class MySqlConfig {
 }
 ```
 
-**手动配置了SqlSessionFactory, 从不同的DataSource中获取连接, 注入到不同的mapper中, 即可实现多数据源**
+**手动配置了 SqlSessionFactory, 从不同的 DataSource 中获取连接, 注入到不同的 mapper 中, 即可实现多数据源**
 
 
 
