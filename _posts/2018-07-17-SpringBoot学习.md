@@ -2828,16 +2828,16 @@ public class UserController {
 ```java
 public class User {
 
-  	// 实体的属性
-		@ApiModelProperty(value = "订单ID", example = "123")
-		private int id = 1;
-		@ApiModelProperty(value = "用户名", example = "xxxx")
-		private String username;
-		@ApiModelProperty(value = "年龄", example = "13")
-		private int age = 1;
-		private Date ctm;
+    // 实体的属性
+    @ApiModelProperty(value = "订单ID", example = "123")
+    private int id = 1;
+    @ApiModelProperty(value = "用户名", example = "xxxx")
+    private String username;
+    @ApiModelProperty(value = "年龄", example = "13")
+    private int age = 1;
+    private Date ctm;
 
-		// Getter And Setter
+    // Getter And Setter
 
 }
 ```
