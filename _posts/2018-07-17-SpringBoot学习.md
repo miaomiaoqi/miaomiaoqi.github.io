@@ -293,13 +293,13 @@ YAML 是专门用来写配置文件的语言, 非常简洁和强大, 远比 JSON
 * 配置文件占位符
 
     ```properties
-    person.lastName=哈哈哈哈哈${random.uuid}
-    person.age=${random.int}
-    person.birth=2018/08/20
-    person.map.k1=v1
-    person.map.k2=14
-    person.list=a,b,c,d
-    person.dog.name=${person.lastName: xxx}小狗
+person.lastName=哈哈哈哈哈${random.uuid}
+person.age=${random.int}
+person.birth=2018/08/20
+person.map.k1=v1
+person.map.k2=14
+person.list=a,b,c,d
+person.dog.name=${person.lastName: xxx}小狗
 person.dog.age=15
     ```
 
@@ -323,7 +323,7 @@ person.dog.age=15
 
 * yaml写法
 
-    ```yaml
+    ```json
     person: 
       lastName: zhangas
       age: 18
@@ -338,6 +338,8 @@ person.dog.age=15
         name: 小狗
         age: 2
     ```
+
+    
 
 * properties写法
   
