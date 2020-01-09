@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "SpringBoot学习"
-date: 2018-07-16 14:34:32
+date: 2018-07-17 14:34:32
 categories: Framework
 tags: SpringBoot
 author: miaoqi
@@ -87,7 +87,6 @@ public class HelloController {
         <artifactId>spring‐boot‐starter‐parent</artifactId>
         <version>1.5.9.RELEASE</version>
     </parent>
-    
     他的父项目是
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -95,25 +94,23 @@ public class HelloController {
         <version>1.5.9.RELEASE</version>
         <relativePath>../../spring‐boot‐dependencies</relativePath>
     </parent>
-    他来真正管理Spring Boot应用里面的所有依赖版本;
     ```
-
+    
     以后我们导入依赖默认是不需要写版本;(没有在dependencies里面管理的依赖自然需要声明版本号)
 
 * 启动器
+		```xml
+	<dependency>
+		<groupId>org.springframework.boot</groupId>
+  	<artifactId>spring-boot-starter-web</artifactId>
+	</dependency>
+	```
 
-    ```xml
-    <dependency>
-    	<groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
-</dependency>
-    ```
+	spring-boot-starter-web: 
     
-    spring-boot-starter-web: 
+	spring-boot-starter: spring-boot 场景启动器;帮我们导入了 web 模块正常运行所依赖的组件;
     
-    spring-boot-starter: spring-boot 场景启动器;帮我们导入了 web 模块正常运行所依赖的组件;
-    
-    Spring Boot 将所有的功能场景都抽取出来, 做成一个个的 starters(启动器), 只需要在项目里面引入这些 starter 相关场景的所有依赖都会导入进来. 要用什么功能就导入什么场景的启动器
+	Spring Boot 将所有的功能场景都抽取出来, 做成一个个的 starters(启动器), 只需要在项目里面引入这些 starter 相关场景的所有依赖都会导入进来. 要用什么功能就导入什么场景的启动器
 
 ### 主程序
 
@@ -153,19 +150,21 @@ public @interface SpringBootApplication {}
     @Import(EnableAutoConfigurationImportSelector.class)
 public @interface EnableAutoConfiguration {
     
+    ```
+
 }
     ```
 
     * @AutoConfigurationPackage
-
+    
         自动配置包
-
+    
         **将主配置类(@SpringBootApplication 标注的类)的所在包及下面所有子包里面的所有组件扫描到 Spring 容器;**
-
+    
     * @Import(EnableAutoConfigurationImportSelector.class)
-
+    
         Spring 的底层注解 @Import, 给容器中导入一个组件;导入的组件由 EnableAutoConfigurationImportSelector.class 决定
-
+    
         将所有需要导入的组件以全类名的方式返回;这些组件就会被添加到容器中;
     
         会给容器中导入非常多的自动配置类(xxxAutoConfiguration);就是给容器中导入这个场景需要的所有组件, 并配置好这些组件;
@@ -249,16 +248,16 @@ YAML 是专门用来写配置文件的语言, 非常简洁和强大, 远比 JSON
     
       ```yaml
     str: 这是一行字符串
-        ```
-        
+      ```
+      
         如果字符串之中包含空格或特殊字符, 需要放在引号之中
-        
+      
         ```yaml
         str: '内容： 字符串'
         ```
-        
+      
         单引号和双引号都可以使用, 双引号不会对特殊字符转义
-        
+      
         ~~~yaml
         s1: '内容\n字符串'
         s2: "内容\n字符串"
@@ -725,6 +724,7 @@ JUL, JCL, Jboss-logging, logback, log4j, log4j2, slf4j....
     }
     ```
     
+
 ![http://www.miaomiaoqi.cn/images/springboot/long1.png](http://www.miaomiaoqi.cn/images/springboot/log1.png)
     
 每一个日志的实现框架都有自己的配置文件. 使用 slf4j 以后, 配置文件还是做成日志实现框架自己本身的配置文件
