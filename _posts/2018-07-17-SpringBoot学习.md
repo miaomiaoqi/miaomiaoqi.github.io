@@ -1078,7 +1078,7 @@ public class Application {
 }
 ```
 
-方式二
+方式二: 通过 FilterRegistrationBean 注册
 
 ```java
 @Configuration
@@ -1376,7 +1376,7 @@ spring:
   datasource: 
     username: root
     password: 123456
-    url: jdbc: mysql://192.168.15.22:3306/jdbc
+    url: jdbc:mysql://192.168.15.22:3306/jdbc
     driver‐class‐name: com.mysql.jdbc.Driver
 ```
 
@@ -1500,7 +1500,7 @@ public class DruidConfig {
 spring: 
   datasource: 
     type: com.alibaba.druid.pool.DruidDataSource
-    url: jdbc: mysql: //192.168.0.128: 3306/test?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8&useSSL=false
+    url: jdbc:mysql://192.168.0.128: 3306/test?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8&useSSL=false
     username: root
     password: 123456
     driverClassName: com.mysql.cj.jdbc.Driver
@@ -1580,9 +1580,9 @@ spring:
 </dependency>
 ```
 
-#### 注解版整合
+#### 注解版(@Mapper, @Select...)整合
 
-@Mapper 注解需要 MyBatis-3.4.0 以上版本, 3.4.0以上的版本又会导致 MyBatis 早期的分页拦截器不可使用, 需要修改
+@Mapper 注解需要 MyBatis-3.4.0 以上版本, 3.4.0 以上的版本又会导致 MyBatis 早期的分页拦截器不可使用, 需要修改
 
 ```java
 @Mapper
@@ -1604,7 +1604,7 @@ public interface DepartmentMapper {
 }
 ```
 
-自定义MyBatis的配置规则;给容器中添加一个ConfigurationCustomizer;
+自定义 MyBatis 的配置规则;给容器中添加一个ConfigurationCustomizer;
 
 ```java
 @Configuration
@@ -1621,9 +1621,9 @@ public class MyBatisConfig{
 }
 ```
 
-#### 配置版整合
+#### 配置版(Mapper + XML)整合
 
-1. 扫描所有Mapper文件所在的包
+1. 扫描所有 Mapper 文件所在的包
 
     ```java
     @MapperScan(basePackages = "com.miaoqi.springboot.mapper")
@@ -1633,6 +1633,7 @@ public class MyBatisConfig{
     		public static void main(String[] args) {
     				SpringApplication.run(SpringBoot06DataMybatisApplication.class, args);
     		}
+    
     }
     ```
 
@@ -1649,8 +1650,6 @@ mybatis:
   # 如果 xml 和 mapper 在同一个目录下, 可以不配该条配置
   mapper-locations: classpath: mybatis/mapper/*.xml
 ```
-
-
 
 **我们一般在 maven 环境下整合 mybatis 此处就有一个问题会发生**
 
@@ -1677,14 +1676,14 @@ org.apache.ibatis.binding.BindingException: Invalid bound statement (not found)
 ```xml
 <build>
 	<resources>
-        <resource>
-            <directory>src/main/java</directory>
-            <filtering>true</filtering>
-            <includes>
-                <include>**/*Mapper.xml</include>
-            </includes>
-        </resource>
-    </resources>
+		<resource>
+			<directory>src/main/java</directory>
+			<filtering>true</filtering>
+			<includes>
+				<include>**/*Mapper.xml</include>
+			</includes>
+			</resource>
+	</resources>
 </build>
 ```
 
@@ -1693,21 +1692,21 @@ org.apache.ibatis.binding.BindingException: Invalid bound statement (not found)
 ```xml
 <build>
 	<resources>
-        <resource>
-            <directory>src/main/java</directory>
-            <filtering>true</filtering>
-            <includes>
-                <include>**/*Mapper.xml</include>
-            </includes>
-        </resource>
-        <resource>
-        	<directory>src/main/resources</directory>
-        	<filtering>true</filtering>
-        	<includes>
-        		<include>**/*.xml</include>
-        	</includes>
-        </resource>
-    </resources>
+		<resource>
+			<directory>src/main/java</directory>
+			<filtering>true</filtering>
+			<includes>
+				<include>**/*Mapper.xml</include>
+			</includes>
+		</resource>
+		<resource>
+			<directory>src/main/resources</directory>
+			<filtering>true</filtering>
+			<includes>
+				<include>**/*.xml</include>
+			</includes>
+		</resource>
+	</resources>
 </build>
 ```
 
@@ -1960,7 +1959,7 @@ public interface BaseMapper<T> extends Mapper<T>, IdListMapper<T, Long>, InsertL
 ```java
 // 开始分页
 PageHelper.startPage(page, rows);
-
+spus = query();
 PageInfo<Spu> pageInfo = new PageInfo<>(spus);
 return pageInfo;
 ```
@@ -2829,16 +2828,16 @@ public class UserController {
 ```java
 public class User {
 
-		// 实体的属性
-    @ApiModelProperty(value = "订单ID", example = "123")
-    private int id = 1;
-    @ApiModelProperty(value = "用户名", example = "xxxx")
-    private String username;
-    @ApiModelProperty(value = "年龄", example = "13")
-    private int age = 1;
-    private Date ctm;
+  	// 实体的属性
+		@ApiModelProperty(value = "订单ID", example = "123")
+		private int id = 1;
+		@ApiModelProperty(value = "用户名", example = "xxxx")
+		private String username;
+		@ApiModelProperty(value = "年龄", example = "13")
+		private int age = 1;
+		private Date ctm;
 
-    // Getter And Setter
+		// Getter And Setter
 
 }
 ```
