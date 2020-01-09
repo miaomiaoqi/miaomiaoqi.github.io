@@ -147,31 +147,29 @@ public @interface SpringBootApplication {}
     
     @EnableAutoConfiguration 告诉 SpringBoot 开启自动配置功能;这样自动配置才能生效;
 
-    ```java
-    @AutoConfigurationPackage
-    @Import(EnableAutoConfigurationImportSelector.class)
-public @interface EnableAutoConfiguration {
-    
+	```java
+	@AutoConfigurationPackage
+	@Import(EnableAutoConfigurationImportSelector.class)
+	public @interface EnableAutoConfiguration {
+	
+	}
     ```
+    
+* @AutoConfigurationPackage
 
-}
-    ```
+    自动配置包
 
-    * @AutoConfigurationPackage
-    
-        自动配置包
-    
-        **将主配置类(@SpringBootApplication 标注的类)的所在包及下面所有子包里面的所有组件扫描到 Spring 容器;**
-    
-    * @Import(EnableAutoConfigurationImportSelector.class)
-    
-        Spring 的底层注解 @Import, 给容器中导入一个组件;导入的组件由 EnableAutoConfigurationImportSelector.class 决定
-    
-        将所有需要导入的组件以全类名的方式返回;这些组件就会被添加到容器中;
-    
-        会给容器中导入非常多的自动配置类(xxxAutoConfiguration);就是给容器中导入这个场景需要的所有组件, 并配置好这些组件;
-    
-    **Spring Boot 在启动的时候从类路径下的 META-INF/spring.factories 中获取 EnableAutoConfiguration 指定的值, 将以前我们需要自己配置的东西, 都由 SpringBoot 来配置, J2EE 的整体整合解决方案和自动配置都在 spring-boot-autoconfigure-1.5.9.RELEASE.jar;**
+    **将主配置类(@SpringBootApplication 标注的类)的所在包及下面所有子包里面的所有组件扫描到 Spring 容器;**
+
+* @Import(EnableAutoConfigurationImportSelector.class)
+
+    Spring 的底层注解 @Import, 给容器中导入一个组件;导入的组件由 EnableAutoConfigurationImportSelector.class 决定
+
+    将所有需要导入的组件以全类名的方式返回;这些组件就会被添加到容器中;
+
+    会给容器中导入非常多的自动配置类(xxxAutoConfiguration);就是给容器中导入这个场景需要的所有组件, 并配置好这些组件;
+
+**Spring Boot 在启动的时候从类路径下的 META-INF/spring.factories 中获取 EnableAutoConfiguration 指定的值, 将以前我们需要自己配置的东西, 都由 SpringBoot 来配置, J2EE 的整体整合解决方案和自动配置都在 spring-boot-autoconfigure-1.5.9.RELEASE.jar;**
 
 
 ## 配置文件
