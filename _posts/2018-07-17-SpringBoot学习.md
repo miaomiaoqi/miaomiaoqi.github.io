@@ -35,12 +35,10 @@ author: miaoqi
 ```java
 @SpringBootApplication
 public class HelloWorldMainApplication{ 
-
   	public static void main(String[] args) {
       	// Spring应用启动起来
       	SpringApplication.run(HelloWorldMainApplication.class,args);
     }
-  
 }
 ```
 
@@ -106,8 +104,8 @@ public class HelloController {
 
     ```xml
     <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-web</artifactId>
+    	<groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
 </dependency>
     ```
     
@@ -154,7 +152,7 @@ public @interface SpringBootApplication {}
     @AutoConfigurationPackage
     @Import(EnableAutoConfigurationImportSelector.class)
 public @interface EnableAutoConfiguration {
-      
+    
 }
     ```
 
@@ -306,9 +304,9 @@ YAML 是专门用来写配置文件的语言, 非常简洁和强大, 远比 JSON
 person.dog.age=15
     ```
 
-    ${random.uuid}, 生成随机uuid
+    ${random.uuid}, 生成随机 uuid
     
-    ${person.lastName: xxx}, 取上文中配置的person.lastName的属性值, 如果person.lastName不存在取xxx作为值
+    ${person.lastName: xxx}, 取上文中配置的 person.lastName 的属性值, 如果 person.lastName 不存在取 xxx 作为值
 
 ### 配置文件加载位置
 
