@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "SpringBoot学习"
-date:   2018-07-17 14:34:32
+date:   2018-07-17 14: 34: 32
 categories: Framework
 tags: SpringBoot
 author: miaoqi
@@ -11,9 +11,9 @@ author: miaoqi
 {:toc}
 ## HelloWorld
 
-创建一个maven工程;(jar) 
+创建一个 maven 工程;(jar) 
 
-导入spring boot相关的依赖
+导入 spring boot 相关的依赖
 
 ```xml
 <parent>
@@ -28,27 +28,29 @@ author: miaoqi
     </dependency>
 </dependencies>
 ```
-编写一个主程序;启动Spring Boot应用
+编写一个主程序;启动 Spring Boot 应用
 
 ```java
 @SpringBootApplication
 public class HelloWorldMainApplication{ 
-	public static void main(String[] args) {
-		// Spring应用启动起来
-		SpringApplication.run(HelloWorldMainApplication.class,args);
-	}
+
+  	public static void main(String[] args) {
+      	// Spring应用启动起来
+      	SpringApplication.run(HelloWorldMainApplication.class,args);
+    }
+  
 }
 ```
 
-编写相关的Controller、Service
+编写相关的 Controller, Service
 
 ```java
 @Controller
-public class HelloController{
+public class HelloController {
 
     @ResponseBody
     @RequestMapping("/hello")
-    public String hello(){
+    public String hello() {
         return "Hello World!";
     }
   
@@ -60,7 +62,7 @@ public class HelloController{
 
 ```xml
 <build>
-    <!‐‐ 这个插件，可以将应用打包成一个可执行的jar包;‐‐> <build>
+    <!‐‐ 这个插件, 可以将应用打包成一个可执行的jar包;‐‐> <build>
     <plugins>
         <plugin>
             <groupId>org.springframework.boot</groupId>
@@ -70,7 +72,7 @@ public class HelloController{
 </build>
 ```
 
-将这个应用打成jar包，直接使用java -jar的命令进行执行;
+将这个应用打成 jar 包, 直接使用 `java -jar` 的命令进行执行;
 
 
 ## 探究HelloWorld
@@ -109,15 +111,15 @@ public class HelloController{
     
     spring-boot-starter-web: 
     
-    spring-boot-starter:spring-boot场景启动器;帮我们导入了web模块正常运行所依赖的组件;
+    spring-boot-starter: spring-boot 场景启动器;帮我们导入了 web 模块正常运行所依赖的组件;
     
-    Spring Boot将所有的功能场景都抽取出来，做成一个个的starters(启动器)，只需要在项目里面引入这些starter 相关场景的所有依赖都会导入进来。要用什么功能就导入什么场景的启动器
+    Spring Boot 将所有的功能场景都抽取出来, 做成一个个的 starters(启动器), 只需要在项目里面引入这些 starter 相关场景的所有依赖都会导入进来. 要用什么功能就导入什么场景的启动器
 
 ### 主程序
 
 @SpringBootApplication
 
-@SpringBootApplication: Spring Boot应用标注在某个类上说明这个类是SpringBoot的主配置类，SpringBoot 就应该运行这个类的main方法来启动SpringBoot应用;
+@SpringBootApplication: Spring Boot 应用标注在某个类上说明这个类是 SpringBoot 的主配置类, SpringBoot 就应该运行这个类的 main 方法来启动 SpringBoot 应用;
 
 ```java
 @Target(ElementType.TYPE)
@@ -134,46 +136,48 @@ public @interface SpringBootApplication {}
 
 * @SpringBootConfiguration
 
-    标注在某个类上，表示这是一个Spring Boot的配置类;
+    标注在某个类上, 表示这是一个 Spring Boot 的配置类;
 
-    * @Configuration:配置类上来标注这个注解;
+    * @Configuration: 配置类上来标注这个注解;
 
         配置类 ----- 配置文件;配置类也是容器中的一个组件;@Component
 
 * @EnableAutoConfiguration
 
-    以前我们需要配置的东西，Spring Boot帮我们自动配置;
+    以前我们需要配置的东西, Spring Boot 帮我们自动配置;
     
-    @EnableAutoConfiguration告诉SpringBoot开启自动配置功能;这样自动配置才能生效;
+    @EnableAutoConfiguration 告诉 SpringBoot 开启自动配置功能;这样自动配置才能生效;
 
     ```java
     @AutoConfigurationPackage
     @Import(EnableAutoConfigurationImportSelector.class)
-public @interface EnableAutoConfiguration{}
+public @interface EnableAutoConfiguration {
+      
+}
     ```
 
     * @AutoConfigurationPackage
 
         自动配置包
 
-        **将主配置类(@SpringBootApplication标注的类)的所在包及下面所有子包里面的所有组件扫描到Spring容器;**
+        **将主配置类(@SpringBootApplication 标注的类)的所在包及下面所有子包里面的所有组件扫描到 Spring 容器;**
 
     * @Import(EnableAutoConfigurationImportSelector.class)
 
-        Spring的底层注解@Import，给容器中导入一个组件;导入的组件由EnableAutoConfigurationImportSelector.class决定
+        Spring 的底层注解 @Import, 给容器中导入一个组件;导入的组件由 EnableAutoConfigurationImportSelector.class 决定
 
         将所有需要导入的组件以全类名的方式返回;这些组件就会被添加到容器中;
-
-        会给容器中导入非常多的自动配置类(xxxAutoConfiguration);就是给容器中导入这个场景需要的所有组件， 并配置好这些组件;
     
-    **Spring Boot在启动的时候从类路径下的META-INF/spring.factories中获取EnableAutoConfiguration指定的值，将以前我们需要自己配置的东西, 都由SpringBoot来配置, J2EE的整体整合解决方案和自动配置都在spring-boot-autoconfigure-1.5.9.RELEASE.jar;**
+        会给容器中导入非常多的自动配置类(xxxAutoConfiguration);就是给容器中导入这个场景需要的所有组件, 并配置好这些组件;
+    
+    **Spring Boot 在启动的时候从类路径下的 META-INF/spring.factories 中获取 EnableAutoConfiguration 指定的值, 将以前我们需要自己配置的东西, 都由 SpringBoot 来配置, J2EE 的整体整合解决方案和自动配置都在 spring-boot-autoconfigure-1.5.9.RELEASE.jar;**
 
 
 ## 配置文件
 
-修改SpringBoot自动配置的默认值
+修改 SpringBoot 自动配置的默认值
 
-SpringBoot默认使用两种类型的文件作为配置文件:
+SpringBoot 默认使用两种类型的文件作为配置文件: 
 
 * application.properties
 
@@ -181,7 +185,7 @@ SpringBoot默认使用两种类型的文件作为配置文件:
 
 ### YAML
 
-YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JSON 格式方便。
+YAML 是专门用来写配置文件的语言, 非常简洁和强大, 远比 JSON 格式方便. 
 
 * 语法格式
 
@@ -189,33 +193,33 @@ YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JS
 
     * 使用缩进表示层级关系
 
-    * 缩进时不允许使用Tab键，只允许使用空格
+    * 缩进时不允许使用 Tab 键, 只允许使用空格
 
-    * **缩进的空格数目不重要，只要相同层级的元素左侧对齐即可**
+    * **缩进的空格数目不重要, 只要相同层级的元素左侧对齐即可**
 
-    * \# 表示注释，从这个字符一直到行尾，都会被解析器忽略
+    * \# 表示注释, 从这个字符一直到行尾, 都会被解析器忽略
 
 * 数据结构
 
     * 对象: 键值对的集合, 又称为映射(mapping)/哈希(hashes)/字典(dictionary)
 
-        对象的一组键值对，使用冒号结构表示
+        对象的一组键值对, 使用冒号结构表示
     
         ```yaml
         animal: pets
-        person:
+        person: 
           lastName: miaoqi
           age: 20
-        # 也允许另一种写法，将所有键值对写成一个行内对象
+        # 也允许另一种写法, 将所有键值对写成一个行内对象
         person: {lastName: Steve, age: 20}
         ```
         
-    * 数组: 一组按次序排列的值，又称为序列(sequence)/列表(list), 一组连词线开头的行, 构成一个数组
+    * 数组: 一组按次序排列的值, 又称为序列(sequence)/列表(list), 一组连词线开头的行, 构成一个数组
     
-        一组连词线开头的行，构成一个数组
+        一组连词线开头的行, 构成一个数组
     
         ```yaml
-    pets:
+    pets: 
           - Cat
           - Dog
           - Goldfish
@@ -229,7 +233,7 @@ YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JS
     
       
     
-* 纯量(scalars)：单个的、不可再分的值
+* 纯量(scalars)：单个的, 不可再分的值
   
     * 布尔值: 布尔值用true和false表示
     
@@ -247,31 +251,31 @@ YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JS
     str: 这是一行字符串
         ```
         
-        如果字符串之中包含空格或特殊字符，需要放在引号之中
+        如果字符串之中包含空格或特殊字符, 需要放在引号之中
         
         ```yaml
         str: '内容： 字符串'
         ```
         
-        单引号和双引号都可以使用，双引号不会对特殊字符转义
+        单引号和双引号都可以使用, 双引号不会对特殊字符转义
         
         ~~~yaml
         s1: '内容\n字符串'
         s2: "内容\n字符串"
-        # 单引号之中如果还有单引号，必须连续使用两个单引号转义
+        # 单引号之中如果还有单引号, 必须连续使用两个单引号转义
         str: 'labor''s day'
-        # 字符串可以写成多行，从第二行开始，必须有一个单空格缩进。换行符会被转为空格
+        # 字符串可以写成多行, 从第二行开始, 必须有一个单空格缩进. 换行符会被转为空格
         str: 这是一段
         多行
         字符串
-        # 多行字符串可以使用“|”保留换行符，也可以使用>折叠换行
+        # 多行字符串可以使用“|”保留换行符, 也可以使用>折叠换行
         this: |
         Foo
         Bar
         that: >
         Foo
         Bar
-        # + 表示保留文字块末尾的换行，- 表示删除字符串末尾的换行
+        # + 表示保留文字块末尾的换行, - 表示删除字符串末尾的换行
         s1: |
         Foo
         
@@ -296,13 +300,13 @@ YAML 是专门用来写配置文件的语言，非常简洁和强大，远比 JS
     person.map.k1=v1
     person.map.k2=14
     person.list=a,b,c,d
-    person.dog.name=${person.lastName:xxx}小狗
+    person.dog.name=${person.lastName: xxx}小狗
 person.dog.age=15
     ```
 
     ${random.uuid}, 生成随机uuid
     
-    ${person.lastName:xxx}, 取上文中配置的person.lastName的属性值, 如果person.lastName不存在取xxx作为值
+    ${person.lastName: xxx}, 取上文中配置的person.lastName的属性值, 如果person.lastName不存在取xxx作为值
 
 ### 配置文件加载位置
 
@@ -321,17 +325,17 @@ person.dog.age=15
 * yaml写法
 
     ```yaml
-    person:
+    person: 
       lastName: zhangas
       age: 18
       boss: false
       birth: 2017/12/12
       map: {k1: v1, k2: 12}
-      list:
+      list: 
         - lisi
         - wangwu
         - zhaoliu
-      dog:
+      dog: 
         name: 小狗
         age: 2
     ```
@@ -348,15 +352,15 @@ person.dog.age=15
 person.dog.age=15
   ```
   
-* @ConfigurationProperties: 告诉SpringBoot将本类中的所有属性和配置文件中相关的配置进行绑定, prefix = "person": 配置文件中哪个下面的所有属性进行一一映射
+* @ConfigurationProperties: 告诉 SpringBoot 将本类中的所有属性和配置文件中相关的配置进行绑定, prefix = "person": 配置文件中哪个下面的所有属性进行一一映射
   
-    只有这个组件是容器中的组件, 才能有容器提供的@ConfigurationProperties功能
+    只有这个组件是容器中的组件, 才能有容器提供的 @ConfigurationProperties 功能
     
     默认从全局配置文件中获取
     
     ```java
     @Component
-    @ConfigurationProperties(prefix = "person") // 从资源文件中自动装配属性值, 优先查找全局配置文件, 使用了@PropertySource就会查找指定配置文件
+    @ConfigurationProperties(prefix = "person") // 从资源文件中自动装配属性值, 优先查找全局配置文件, 使用了@PropertySource 就会查找指定配置文件
     public class Person {
         // @Value("${person.last-name}")
         private String lastName;
@@ -374,7 +378,7 @@ person.dog.age=15
 }
   ```
   
-* 使用@Value注解手动注入值
+* 使用 @Value 注解手动注入值
 
     ```java
     public class Person {
@@ -393,7 +397,7 @@ person.dog.age=15
     ```
 
 
-* @ConfigurationProperties和@Value的区别
+* @ConfigurationProperties 和 @Value 的区别
 
     ||@ConfigurationProperties|@Value|
     |-----|-----|-----|
@@ -405,34 +409,34 @@ person.dog.age=15
 
 * @PropertySource
 
-    SpringBoot默认加载全局配置文件中的内容, 使用该注解加载指定的配置文件
+    SpringBoot 默认加载全局配置文件中的内容, 使用该注解加载指定的配置文件, 顺序在全局配置文件之后
 
     ```java
-    @PropertySource(value = {"classpath:person.properties"})
+    @PropertySource(value = {"classpath: person.properties"})
     ```
 
 * 总结
 
-    @ConfigurationProperties自动装配和@Value手动装配默认匹配默认配置文件即application文件, 使用@PropertySource可以额外指定要加载的配置文件, @ConfigurationProperties, @Value, @PropertySource可以配合使用, 加载顺序如下
+    @ConfigurationProperties 自动装配和 @Value 手动装配默认匹配默认配置文件即 application 文件, 使用 @PropertySource可以额外指定要加载的配置文件, @ConfigurationProperties, @Value, @PropertySource 可以配合使用, 加载顺序如下
 
-    1. 自动装配application.properties
+    1. 自动装配 application.properties
 
-    1. 自动装配application.yaml
+    1. 自动装配 application.yaml
 
     1. 自动装配自定义配置文件
 
-    1. 手动装配application.properties
+    1. 手动装配 application.properties
 
-    1. 手动装配application.yaml
+    1. 手动装配 application.yaml
 
     1. 手动装配自定义配置文件
 
-    后边不会覆盖前边的内容
+    **后边不会覆盖前边的内容, 即 application.properties > application.yaml > 自定义配置文件, @ConfigurationProperties > @Value**
 
 
 ## Profile
 
-Spring提供的对不同环境提供不同配置功能的支持, 可以通过激活配置快速切换环境, 默认使用application.properties文件中的配置
+Spring 提供的对不同环境提供不同配置功能的支持, 可以通过激活配置快速切换环境, 默认使用 application.properties 文件中的配置
 
 * 多Profile文件
 
@@ -443,20 +447,20 @@ Spring提供的对不同环境提供不同配置功能的支持, 可以通过激
 * yml支持多文档块方式
 
     ```yaml
-    server:
+    server: 
       port: 8083
-    spring:
-      profiles:
+    spring: 
+      profiles: 
         active: dev
     ---
-    server:
+    server: 
       port: 8084
-    spring:
+    spring: 
       profiles: dev
     ---
-    server:
+    server: 
       port: 8085
-    spring:
+    spring: 
       profiles: prod
     ```
 
@@ -487,11 +491,11 @@ Spring提供的对不同环境提供不同配置功能的支持, 可以通过激
 
 ## 自动配置原理
 
-* SpringBoot启动的时候加载主配置类，开启了自动配置功能 @EnableAutoConfiguration
+* SpringBoot 启动的时候加载主配置类, 开启了自动配置功能 @EnableAutoConfiguration
 
-    @EnableAutoConfiguration 利用EnableAutoConfigurationImportSelector给容器中导入一些组件
+    @EnableAutoConfiguration 利用 EnableAutoConfigurationImportSelector 给容器中导入一些组件
     
-    可以查看selectImports()方法的内容;
+    可以查看 selectImports() 方法的内容;
 
     ```java
     // 获取候选的配置
@@ -501,9 +505,9 @@ Spring提供的对不同环境提供不同配置功能的支持, 可以通过激
     ```
     SpringFactoriesLoader.loadFactoryNames()
         
-    扫描所有jar包类路径下 META‐INF/spring.factories
-    把扫描到的这些文件的内容包装成properties对象
-    从properties中获取到EnableAutoConfiguration.class类(全类名)对应的值，然后把他们添加在容器中
+    扫描所有 jar 包类路径下 META‐INF/spring.factories
+    把扫描到的这些文件的内容包装成 properties 对象
+    从 properties 中获取到 EnableAutoConfiguration.class类(全类名)对应的值, 然后把他们添加在容器中
     ```
     
     ```properties
@@ -607,7 +611,7 @@ Spring提供的对不同环境提供不同配置功能的支持, 可以通过激
     org.springframework.boot.autoconfigure.webservices.WebServicesAutoConfiguration
     ```
     
-    **每一个这样的 xxxAutoConfiguration类都是容器中的一个组件，都加入到容器中;用他们来做自动配置**
+    **每一个这样的 xxxAutoConfiguration类都是容器中的一个组件, 都加入到容器中;用他们来做自动配置**
     
 * 以HttpEncodingAutoConfiguration(Http编码自动配置)为例解释自动配置原理;
 
@@ -617,23 +621,23 @@ Spring提供的对不同环境提供不同配置功能的支持, 可以通过激
     import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
     import org.springframework.web.filter.CharacterEncodingFilter;
     
-    @Configuration // 表示这是一个配置类，以前编写的配置文件一样，也可以给容器中添加组件
+    @Configuration // 表示这是一个配置类, 以前编写的配置文件一样, 也可以给容器中添加组件
     @EnableConfigurationProperties(HttpEncodingProperties.class) // 启动指定类的ConfigurationProperties功能;将配置文件中对应的值和HttpEncodingProperties绑定起来;并把HttpEncodingProperties加入到ioc容器中
-    @ConditionalOnWebApplication // Spring底层@Conditional注解(Spring注解版)，根据不同的条件，如果满足指定的条件，整个配置类里面的配置就会生效; 判断当前应用是否是web应用，如果是，当前配置类生效
-    @ConditionalOnClass(CharacterEncodingFilter.class) // 判断当前项目有没有这个类CharacterEncodingFilter;SpringMVC中进行乱码解决的过滤器;
-    @ConditionalOnProperty(prefix="spring.http.encoding",value="enabled",matchIfMissing= true) // 判断配置文件中是否存在某个配置 spring.http.encoding.enabled; matchIfMissing 如果不存在，判断也是成立的
-    // 即使我们配置文件中不配置spring.http.encoding.enabled=true，也是默认生效的;
+    @ConditionalOnWebApplication // Spring 底层 @Conditional 注解(Spring注解版), 根据不同的条件, 如果满足指定的条件, 整个配置类里面的配置就会生效; 判断当前应用是否是 web 应用, 如果是, 当前配置类生效
+    @ConditionalOnClass(CharacterEncodingFilter.class) // 判断当前项目有没有这个类CharacterEncodingFilter;SpringMVC 中进行乱码解决的过滤器;
+    @ConditionalOnProperty(prefix="spring.http.encoding", value="enabled", matchIfMissing= true) // 判断配置文件中是否存在某个配置 spring.http.encoding.enabled; matchIfMissing 如果不存在, 判断也是成立的
+    // 即使我们配置文件中不配置spring.http.encoding.enabled=true, 也是默认生效的;
     public class HttpEncodingAutoConfiguration{
     
-        // 他已经和SpringBoot的配置文件映射了
+        // 他已经和 SpringBoot 的配置文件映射了
         private final HttpEncodingProperties properties;
     
-        // 只有一个有参构造器的情况下，参数的值就会从容器中拿
+        // 只有一个有参构造器的情况下, 参数的值就会从容器中拿
         public HttpEncodingAutoConfiguration(HttpEncodingProperties properties) {
             this.properties = properties;
         }
     
-        @Bean // 给容器中添加一个组件，这个组件的某些值需要从properties中获取
+        @Bean // 给容器中添加一个组件, 这个组件的某些值需要从properties中获取
         @ConditionalOnMissingBean(CharacterEncodingFilter.class) // 判断容器没有这个组件?
         public CharacterEncodingFilter characterEncodingFilter() {
             CharacterEncodingFilter filter = new OrderedCharacterEncodingFilter();
@@ -653,39 +657,39 @@ Spring提供的对不同环境提供不同配置功能的支持, 可以通过激
     }
     ```
 
-* 精髓:
+* 精髓: 
 
-    1. SpringBoot启动会加载大量的自动配置类
+    1. SpringBoot 启动会加载大量的自动配置类
 
-    1. 我们看我们需要的功能有没有SpringBoot默认写好的自动配置类;
+    1. 我们看我们需要的功能有没有 SpringBoot 默认写好的自动配置类;
 
-    1. 我们再来看这个自动配置类中到底配置了哪些组件;(只要我们要用的组件有，我们就不需要再来配置了)
+    1. 我们再来看这个自动配置类中到底配置了哪些组件;(只要我们要用的组件有, 我们就不需要再来配置了)
 
-    1. 给容器中自动配置类添加组件的时候，会从properties类中获取某些属性。我们就可以在配置文件中指定这 些属性的值;
+    1. 给容器中自动配置类添加组件的时候, 会从 properties 类中获取某些属性. 我们就可以在配置文件中指定这 些属性的值;
 
-* @Conditional派生注解(Spring注解版原生的@Conditional作用)
+* @Conditional 派生注解(Spring 注解版原生的 @Conditional 作用)
 
-    必须是@Conditional指定的条件成立，才给容器中添加组件，配置配里面的所有内容才生效, 加在类上就对类中所有的bean都生效
+    必须是 @Conditional 指定的条件成立, 才给容器中添加组件, 配置配里面的所有内容才生效, 加在类上就对类中所有的 bean 都生效
     
     |@Conditional|扩展注解作用(判断是否满足当前指定条件)|
     |-----|-----|
-    |@ConditionalOnJava|系统的java版本是否符合要求|
-    |@ConditionalOnBean|容器中存在指定Bean, 及其子类 Bean|
-    |@ConditionalOnMissingBean|容器中不存在指定Bean, 及其子类 Bean|
-    |@ConditionalOnExpression|满足SpEL表达式指定|
+    |@ConditionalOnJava|系统的 java 版本是否符合要求|
+    |@ConditionalOnBean|容器中存在指定 Bean, 及其子类 Bean|
+    |@ConditionalOnMissingBean|容器中不存在指定 Bean, 及其子类 Bean|
+    |@ConditionalOnExpression|满足 SpEL 表达式指定|
     |@ConditionalOnClass|系统中有指定的类文件|
     |@ConditionalOnMissingClass|系统中没有指定的类|
-    |@ConditionalOnSingleCandidate|容器中只有一个指定的Bean，或者这个Bean是首选Bean|
+    |@ConditionalOnSingleCandidate|容器中只有一个指定的 Bean, 或者这个 Bean 是首选 Bean|
     |@ConditionalOnProperty|系统中指定的属性是否有指定的值|
     |@ConditionalOnResource|类路径下是否存在指定资源文件|
-    |@ConditionalOnWebApplication|当前是web环境|
-    |@ConditionalOnNotWebApplication|当前不是web环境|
+    |@ConditionalOnWebApplication|当前是 web 环境|
+    |@ConditionalOnNotWebApplication|当前不是 web 环境|
     |@ConditionalOnJndiJNDI|存在指定项|
 
 
 ## 日志
 
-小张开发一个大型系统:
+小张开发一个大型系统: 
 
 1. System.out.println("");将关键数据打印在控制台;去掉?写在一个文件? 
 
@@ -693,20 +697,20 @@ Spring提供的对不同环境提供不同配置功能的支持, 可以通过激
 
 3. 高大上的几个功能?异步模式?自动归档?xxxx? zhanglogging-good.jar? 
 
-4. 将以前框架卸下来?换上新的框架，重新修改之前相关的API;zhanglogging-prefect.jar; 
+4. 将以前框架卸下来?换上新的框架, 重新修改之前相关的API;zhanglogging-prefect.jar; 
 
-5. JDBC---数据库驱动; 写了一个统一的接口层;日志门面(日志的一个抽象层);logging-abstract.jar; 给项目中导入具体的日志实现就行了;我们之前的日志框架都是实现的抽象层;
+5. JDBC ---数据库驱动; 写了一个统一的接口层;日志门面(日志的一个抽象层);logging-abstract.jar; 给项目中导入具体的日志实现就行了;我们之前的日志框架都是实现的抽象层;
 
 
-市面上的日志框架:
+市面上的日志框架: 
 
-JUL、JCL、Jboss-logging、logback、log4j、log4j2、slf4j....
+JUL, JCL, Jboss-logging, logback, log4j, log4j2, slf4j....
 
 ### 使用SLF4J
 
 1. 如何在系统中使用SLF4J
 
-    以后开发的时候，日志记录方法的调用，不应该来直接调用日志的实现类，而是调用日志抽象层里面的方法; 给系统里面导入slf4j的jar和 logback的实现jar
+    以后开发的时候, 日志记录方法的调用, 不应该来直接调用日志的实现类, 而是调用日志抽象层里面的方法; 给系统里面导入slf4j的jar和 logback的实现jar
 
     ```java
     import org.slf4j.Logger; 
@@ -715,24 +719,23 @@ JUL、JCL、Jboss-logging、logback、log4j、log4j2、slf4j....
     public class HelloWorld{
     
         public static void main(String[] args) {
-    
             Logger logger = LoggerFactory.getLogger(HelloWorld.class);
             logger.info("Hello World");
         }
     }
     ```
-
-    ![http://www.miaomiaoqi.cn/images/springboot/long1.png](http://www.miaomiaoqi.cn/images/springboot/log1.png)
-
-    每一个日志的实现框架都有自己的配置文件。使用slf4j以后，配置文件还是做成日志实现框架自己本身的配置文件
-
+    
+![http://www.miaomiaoqi.cn/images/springboot/long1.png](http://www.miaomiaoqi.cn/images/springboot/log1.png)
+    
+每一个日志的实现框架都有自己的配置文件. 使用 slf4j 以后, 配置文件还是做成日志实现框架自己本身的配置文件
+    
 2. 遗留问题
 
-    a(slf4j+logback): Spring(commons-logging)、Hibernate(jboss-logging)、MyBatis、xxxx统一日志记录，即使是别的框架和我一起统一使用slf4j进行输出?
+    a(slf4j+logback): Spring(commons-logging), Hibernate(jboss-logging), MyBatis, xxxx统一日志记录, 即使是别的框架和我一起统一使用slf4j进行输出?
 
     ![http://www.miaomiaoqi.cn/images/springboot/log2.png](http://www.miaomiaoqi.cn/images/springboot/log2.png)
 
-    如何让系统中所有的日志都统一到slf4j
+    如何让系统中所有的日志都统一到 slf4j
     
     1. **将系统中其他日志框架先排除出去**
     
@@ -762,27 +765,29 @@ SpringBoot使用它来做日志功能;
 
 总结: 
 
-1. SpringBoot底层也是使用slf4j+logback的方式进行日志记录
+1. SpringBoot底层也是使用 slf4j+logback 的方式进行日志记录
 
 2. SpringBoot也把其他的日志都替换成了slf4j+logback
 
 3. 中间替换包
 
-**SpringBoot能自动适配所有的日志，而且底层使用slf4j+logback的方式记录日志，引入其他框架的时候，只需要把这个框架依赖的日志框架排除掉即可**
+**SpringBoot 能自动适配所有的日志, 而且底层使用 slf4j+logback 的方式记录日志, 引入其他框架的时候, 只需要把这个框架依赖的日志框架排除掉即可**
 
 ### 日志使用
 
 * 默认配置
 
-    SpringBoot默认帮我们配置好了日志;
+    SpringBoot 默认帮我们配置好了日志;
 
     ```java
     //记录器
-    Logger logger = LoggerFactory.getLogger(getClass()); @Test
+    Logger logger = LoggerFactory.getLogger(getClass());
+    @Test
     public void contextLoads() {
         // 日志的级别由低到高 trace < debug < info < warn < error
-        // 可以调整输出的日志级别;日志就只会在这个级别以以后的高级别生效       logger.trace("这是trace日志...");
-        logger.debug("这是debug日志..."); //SpringBoot默认给我们使用的是info级别的，没有指定级别的就用SpringBoot默认规定的级别, root级别
+        // 可以调整输出的日志级别;日志就只会在这个级别以以后的高级别生效       
+      	logger.trace("这是trace日志...");
+        logger.debug("这是debug日志..."); // SpringBoot 默认给我们使用的是 info 级别的, 没有指定级别的就用SpringBoot 默认规定的级别, root 级别
         logger.info("这是info日志...");
         logger.warn("这是warn日志...");
         logger.error("这是error日志...");
@@ -792,23 +797,23 @@ SpringBoot使用它来做日志功能;
 * 日志输出格式
 
     ```
-    %d表示日期时间，
-    %thread表示线程名，
-    %‐5level:级别从左显示5个字符宽度
-    %logger{50} 表示logger名字最长50个字符，否则按照句点分割。 
-    %msg:日志消息，
-    %n是换行符
+    %d 表示日期时间, 
+    %thread 表示线程名, 
+    %‐5level: 级别从左显示5个字符宽度
+    %logger{50} 表示logger名字最长50个字符, 否则按照句点分割.  
+    %msg: 日志消息, 
+    %n 是换行符
     
-    %d{yyyy‐MM‐dd HH:mm:ss.SSS} [%thread] %‐5level %logger{50} ‐ %msg%n
+    %d{yyyy‐MM‐dd HH: mm: ss.SSS} [%thread] %‐5level %logger{50} ‐ %msg%n
     ```
 
-    SpringBoot修改日志的默认配置
+    SpringBoot 修改日志的默认配置
 
     ```properties
     logging.level.com.miaoqi=trace
     
     # logging.path=
-    # 不指定路径在当前项目下生成springboot.log日志
+    # 不指定路径在当前项目下生成 springboot.log 日志
     # 可以指定完整的路径;
     # logging.file=G:/springboot.log
     
@@ -822,7 +827,7 @@ SpringBoot使用它来做日志功能;
 
 * 指定配置
 
-    给类路径下放上每个日志框架自己的配置文件即可;SpringBoot就不使用他默认配置的了
+    给类路径下放上每个日志框架自己的配置文件即可;SpringBoot 就不使用他默认配置的了
 
     |Logging System|Customization|
     |-----|-----|
@@ -830,9 +835,9 @@ SpringBoot使用它来做日志功能;
     |Log4j2|log4j2-spring.xml or log4j2.xml|
     |JDK (Java Util Logging)|logging.properties|
 
-    logback.xml:直接就被日志框架识别了;
+    logback.xml: 直接就被日志框架识别了;
 
-    logback-spring.xml:日志框架就不直接加载日志的配置项，由SpringBoot解析日志配置，可以使用SpringBoot 的高级Profile功能
+    logback-spring.xml: 日志框架就不直接加载日志的配置项, 由 SpringBoot 解析日志配置, 可以使用 SpringBoot 的高级 Profile功能
 
     ```xml
     <springProfile name="staging">
@@ -842,19 +847,19 @@ SpringBoot使用它来做日志功能;
     
     <layout class="ch.qos.logback.classic.PatternLayout">
         <springProfile name="dev">
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} ----> [%thread] ---> %-5level %logger{50} - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH: mm: ss.SSS} ----> [%thread] ---> %-5level %logger{50} - %msg%n</pattern>
         </springProfile>
         <springProfile name="!dev">
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} ==== [%thread] ==== %-5level %logger{50} - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH: mm: ss.SSS} ==== [%thread] ==== %-5level %logger{50} - %msg%n</pattern>
         </springProfile>
     </layout>
     ```
 
 * 切换日志框架
 
-    可以按照slf4j的日志适配图，进行相关的切换; 
+    可以按照 slf4j 的日志适配图, 进行相关的切换; 
 
-    slf4j+log4j的方式;
+    slf4j + log4j 的方式;
 
     ```xml
     <dependency>
@@ -881,15 +886,15 @@ SpringBoot使用它来做日志功能;
 
 1. Spring MVC auto-configuration
 
-    Spring Boot 自动配置好了SpringMVC 以下是SpringBoot对SpringMVC的默认配置:(WebMvcAutoConfiguration)
+    Spring Boot 自动配置好了SpringMVC 以下是 SpringBoot 对 SpringMVC 的默认配置: (WebMvcAutoConfiguration)
     
     * Inclusion of ContentNegotiatingViewResolver and BeanNameViewResolver beans.
     
-        * 自动配置了ViewResolver(视图解析器:根据方法的返回值得到视图对象(View)，视图对象决定如何 渲染(转发?重定向?))
+        * 自动配置了 ViewResolver(视图解析器: 根据方法的返回值得到视图对象(View), 视图对象决定如何 渲染(转发?重定向?))
     
-        * ContentNegotiatingViewResolver:组合所有的视图解析器的
+        * ContentNegotiatingViewResolver: 组合所有的视图解析器的
         
-        * 如何定制:我们可以自己给容器中添加一个视图解析器;自动的将其组合进来;
+        * 如何定制: 我们可以自己给容器中添加一个视图解析器;自动的将其组合进来;
     
     * Support for serving static resources, including support for WebJars (see below).静态资源文件夹路 径,webjars
     
@@ -899,33 +904,33 @@ SpringBoot使用它来做日志功能;
     
     * 自动注册了 of Converter , GenericConverter , Formatter beans
     
-        * Converter:转换器; public String hello(User user):类型转换使用Converter
+        * Converter: 转换器; public String hello(User user): 类型转换使用Converter
     
         * Formatter 格式化器; 2017.12.17===Date;
 
 
-2. 自己扩展SpringMVC
+2. 自己扩展 SpringMVC
 
     ```xml
-    <mvc:view‐controller path="/hello" view‐name="success"/>
-    <mvc:interceptors>
-        <mvc:interceptor>
-            <mvc:mapping path="/hello"/>
+    <mvc: view‐controller path="/hello" view‐name="success"/>
+    <mvc: interceptors>
+        <mvc: interceptor>
+            <mvc: mapping path="/hello"/>
             <bean></bean>
-        </mvc:interceptor>
-    </mvc:interceptors>
+        </mvc: interceptor>
+    </mvc: interceptors>
     ```
 
-    编写一个配置类(@Configuration)，是WebMvcConfigurerAdapter类型;**不能标注@EnableWebMvc;** 既保留了所有的自动配置，也能用我们扩展的配置;
+    编写一个配置类(@Configuration), 是 WebMvcConfigurerAdapter 类型;**不能标注 @EnableWebMvc;** 既保留了所有的自动配置, 也能用我们扩展的配置;
 
     ```java
-    //使用WebMvcConfigurerAdapter可以来扩展SpringMVC的功能
+    // 使用 WebMvcConfigurerAdapter 可以来扩展 SpringMVC 的功能
     @Configuration
     public class MyMvcConfig extends WebMvcConfigurerAdapter {
         @Override
         public void addViewControllers(ViewControllerRegistry registry) {
             // super.addViewControllers(registry);
-            //浏览器发送 /miaoqi 请求来到 success
+            // 浏览器发送 /miaoqi 请求来到 success
             registry.addViewController("/miaoqi").setViewName("success");
         }
         
@@ -938,18 +943,18 @@ SpringBoot使用它来做日志功能;
     }
     ```
 
-    原理:
+    原理: 
 
-    1. WebMvcAutoConfiguration是SpringMVC的自动配置类
+    1. WebMvcAutoConfiguration 是 SpringMVC 的自动配置类
     1. 在做其他自动配置时会导入;@Import(EnableWebMvcConfiguration.class)
-    1. 容器中所有的WebMvcConfigurer都会一起起作用
-    1. 我们的配置类也会被调用; 效果:SpringMVC的自动配置和我们的扩展配置都会起作用
+    1. 容器中所有的 WebMvcConfigurer 都会一起起作用
+    1. 我们的配置类也会被调用; 效果: SpringMVC 的自动配置和我们的扩展配置都会起作用
 
-3. 全面接管SpringMVC
+3. 全面接管 SpringMVC
 
-    SpringBoot对SpringMVC的自动配置不需要了，所有都是我们自己配置;所有的SpringMVC的自动配置都失效了
+    SpringBoot 对 SpringMVC 的自动配置不需要了, 所有都是我们自己配置;所有的 SpringMVC 的自动配置都失效了
 
-    我们需要在配置类中添加@EnableWebMvc即可;
+    我们需要在配置类中添加 @EnableWebMvc 即可;
 
     ```java
     @EnableWebMvc
@@ -960,32 +965,33 @@ SpringBoot使用它来做日志功能;
             // super.addViewControllers(registry);
             // 浏览器发送 /miaoqi 请求来到 success
             registry.addViewController("/miaoqi").setViewName("success");
-    }
+    		}
     }
     ```
-```
     
-原理: 为什么自己标注@EnableWebMvc注解会导致SpringMVC自动配置就失效
+    **原理: 为什么自己标注 @EnableWebMvc 注解会导致 SpringMVC 自动配置就失效**
     
-    1. @EnableWebMvc的核心引入了DelegatingWebMvcConfiguration.class
+    1. @EnableWebMvc 的核心引入了 DelegatingWebMvcConfiguration.class
     
         ```java
         @Import(DelegatingWebMvcConfiguration.class)
         public @interface EnableWebMvc{
         }
-```
-
-2. DelegatingWebMvcConfiguration继承WebMvcConfigurationSupport
-   
+        ```
+    
+        
+    
+    2. DelegatingWebMvcConfiguration 继承 WebMvcConfigurationSupport
+    
         ```java
         @Configuration
         public class Delegating WebMvcConfiguration extends WebMvcConfigurationSupport{
         }
         ```
     
+        
     
-    
-    3. WebMvcAutoConfiguration中如果没有WebMvcConfigurationSupport才会进行自动配置, 然而@EnableWebMvc引入了该类, 导致自动配置失效
+    3. WebMvcAutoConfiguration 中如果没有 WebMvcConfigurationSupport 才会进行自动配置, 然而 @EnableWebMvc 引入了该类, 导致自动配置失效
     
         ```java
         @Configuration
@@ -998,15 +1004,15 @@ SpringBoot使用它来做日志功能;
         }
         ```
     
-    4. @EnableWebMvc将WebMvcConfigurationSupport组件导入进来
+    4. @EnableWebMvc 将 WebMvcConfigurationSupport 组件导入进来
     
-    5. 导入的WebMvcConfigurationSupport只是SpringMVC最基本的功能
+    5. 导入的 WebMvcConfigurationSupport 只是 SpringMVC 最基本的功能
     
     6. 最终导致自动配置失效
 
-## 注册 Web 三大组件【Servlet、Filter、Listener】
+## 注册 Web 三大组件【Servlet, Filter, Listener】
 
-由于 SpringBoot 默认是以 jar 包的方式启动嵌入式的 Servlet 容器来启动 SpringBoot 的 web 应用，没有 web.xml 文件
+由于 SpringBoot 默认是以 jar 包的方式启动嵌入式的 Servlet 容器来启动 SpringBoot 的 web 应用, 没有 web.xml 文件
 
 注册三大组件
 
@@ -1090,11 +1096,11 @@ public class FilterConfig {
 
 ## SpringTask
 
-* 在企业级应用中，经常会制定一些“计划任务”，即在某个时间点做某件事情，核心是以时间为关注点，即在一个特定的时间点，系统执行指定的一个操作。常见的任务调度框架有Quartz和SpringTask等
+* 在企业级应用中, 经常会制定一些“计划任务”, 即在某个时间点做某件事情, 核心是以时间为关注点, 即在一个特定的时间点, 系统执行指定的一个操作. 常见的任务调度框架有 Quartz 和 SpringTask 等
 
-* Cron表达式
+* Cron 表达式
 
-    Cron表达式是一个字符串，字符串以5或6个空格隔开，分为6或7个域，每一个域代表一个含义，Cron有如下两种语法格式： 
+    Cron 表达式是一个字符串, 字符串以 5 或 6 个空格隔开, 分为 6 或 7 个域, 每一个域代表一个含义, Cron 有如下两种语法格式： 
 
     * Seconds Minutes Hours DayofMonth Month DayofWeek Year
 
@@ -1102,61 +1108,61 @@ public class FilterConfig {
 
     每一个域可出现的字符如下： 
     
-    * Seconds:可出现", - * /"四个字符，有效范围为0-59的整数 
+    * Seconds: 可出现", - * /"四个字符, 有效范围为 0-59 的整数 
     
-    * Minutes:可出现", - * /"四个字符，有效范围为0-59的整数 
+    * Minutes: 可出现", - * /"四个字符, 有效范围为 0-59 的整数 
     
-    * Hours:可出现", - * /"四个字符，有效范围为0-23的整数 
+    * Hours: 可出现", - * /"四个字符, 有效范围为 0-23 的整数 
     
-    * DayofMonth:可出现", - * / ? L W C"八个字符，有效范围为1-31的整数 
+    * DayofMonth: 可出现", - * / ? L W C"八个字符, 有效范围为 1-31 的整数 
     
-    * Month:可出现", - * /"四个字符，有效范围为1-12的整数或JAN-DEc 
+    * Month: 可出现", - * /"四个字符, 有效范围为1-12的整数或 JAN-DEc 
     
-    * DayofWeek:可出现", - * / ? L C #"四个字符，有效范围为1-7的整数或SUN-SAT两个范围。1表示星期天，2表示星期一， 依次类推 
+    * DayofWeek: 可出现", - * / ? L C #"四个字符, 有效范围为 1-7 的整数或 SUN-SAT 两个范围. 1 表示星期天, 2 表示星期一, 依次类推 
     
-    * Year:可出现", - * /"四个字符，有效范围为1970-2099年
+    * Year: 可出现", - * /"四个字符, 有效范围为 1970-2099 年
     
-    每一个域都使用数字，但还可以出现如下特殊字符，它们的含义是： 
+    每一个域都使用数字, 但还可以出现如下特殊字符, 它们的含义是： 
     
-    * \*：表示匹配该域的任意值，假如在Minutes域使用\*, 即表示每分钟都会触发事件。
+    * \*：表示匹配该域的任意值, 假如在 Minutes 域使用\*, 即表示每分钟都会触发事件. 
     
-    * ?:只能用在DayofMonth和DayofWeek两个域。它也匹配域的任意值，但实际不会。因为DayofMonth和 DayofWeek会相互影响。例如想在每月的20日触发调度，不管20日到底是星期几，则只能使用如下写法： 13 13 15 20 * ?, 其中最后一位只能用？，而不能使用\*，如果使用*表示不管星期几都会触发，实际上并不是这样。 
+    * ?: 只能用在 DayofMonth 和 DayofWeek 两个域. 它也匹配域的任意值, 但实际不会. 因为 DayofMonth 和 DayofWeek 会相互影响. 例如想在每月的 20 日触发调度, 不管 20 日到底是星期几, 则只能使用如下写法： 13 13 15 20 * ?, 其中最后一位只能用？, 而不能使用\*, 如果使用*表示不管星期几都会触发, 实际上并不是这样. 
     
-    * -:表示范围，例如在Minutes域使用5-20，表示从5分到20分钟每分钟触发一次 
+    * -: 表示范围, 例如在 Minutes 域使用 5-20, 表示从 5 分到 20 分钟每分钟触发一次 
     
-    * /：表示起始时间开始触发，然后每隔固定时间触发一次，例如在Minutes域使用5/20,则意味着5分钟触发一次，而25，45等分别触发一次. 
+    * /：表示起始时间开始触发, 然后每隔固定时间触发一次, 例如在Minutes域使用5/20,则意味着5分钟触发一次, 而25, 45等分别触发一次. 
     
-    * ,:表示列出枚举值值。例如：在Minutes域使用5,20，则意味着在5和20分每分钟触发一次。 
+    * ,: 表示列出枚举值值. 例如：在Minutes域使用 5,20, 则意味着在 5 和 20 分每分钟触发一次. 
     
-    * L:表示最后，只能出现在DayofWeek和DayofMonth域，如果在DayofWeek域使用5L,意味着在最后的一个星期四触发。 
+    * L: 表示最后, 只能出现在 DayofWeek 和 DayofMonth 域, 如果在 DayofWeek 域使用 5L,意味着在最后的一个星期四触发. 
     
-    * W: 表示有效工作日(周一到周五),只能出现在DayofMonth域，系统将在离指定日期的最近的有效工作日触发事件。例如：在 DayofMonth使用5W，如果5日是星期六，则将在最近的工作日：星期五，即4日触发。如果5日是星期天，则在6日(周一)触发；如果5日在星期一 到星期五中的一天，则就在5日触发。另外一点，W的最近寻找不会跨过月份 
+    * W: 表示有效工作日(周一到周五),只能出现在DayofMonth域, 系统将在离指定日期的最近的有效工作日触发事件. 例如：在 DayofMonth 使用 5W, 如果 5 日是星期六, 则将在最近的工作日：星期五, 即 4 日触发. 如果 5 日是星期天, 则在 6 日(周一)触发；如果 5 日在星期一 到星期五中的一天, 则就在 5 日触发. 另外一点, W的最近寻找不会跨过月份 
     
-    * LW:这两个字符可以连用，表示在某个月最后一个工作日，即最后一个星期五。 
+    * LW: 这两个字符可以连用, 表示在某个月最后一个工作日, 即最后一个星期五. 
     
-    * \#:用于确定每个月第几个星期几，只能出现在DayofMonth域。例如在4#2，表示某月的第二个星期三。
+    * \#: 用于确定每个月第几个星期几, 只能出现在 DayofMonth 域. 例如在4#2, 表示某月的第二个星期三. 
 
 * Cron举例
 
-        0 0 10,14,16 * * ? 每天上午10点，下午2点，4点 
+        0 0 10,14,16 * * ? 每天上午10点, 下午2点, 4点 
         0 0/30 9-17 * * ? 朝九晚五工作时间内每半小时 
         0 0 12 ? * WED 表示每个星期三中午12点 
         0 0 12 * * ? 每天中午12点触发 
-        0 15 10 ? * * 每天上午10:15触发 
-        0 15 10 * * ? 每天上午10:15触发 
-        0 15 10 * * ? * 每天上午10:15触发 
-        0 15 10 * * ? 2005 2005年的每天上午10:15触发 
-        0 * 14 * * ? 在每天下午2点到下午2:59期间的每1分钟触发 
-        0 0/5 14 * * ? 在每天下午2点到下午2:55期间的每5分钟触发 
-        0 0/5 14,18 * * ? 在每天下午2点到2:55期间和下午6点到6:55期间的每5分钟触发 
-        0 0-5 14 * * ? 在每天下午2点到下午2:05期间的每1分钟触发 
-        0 10,44 14 ? 3 WED 每年三月的星期三的下午2:10和2:44触发 
-        0 15 10 ? * MON-FRI 周一至周五的上午10:15触发 
-        0 15 10 15 * ? 每月15日上午10:15触发 
-        0 15 10 L * ? 每月最后一日的上午10:15触发 
-        0 15 10 ? * 6L 每月的最后一个星期五上午10:15触发 
-        0 15 10 ? * 6L 2002-2005" 2002年至2005年的每月的最后一个星期五上午10:15触发 
-        0 15 10 ? * 6#3 每月的第三个星期五上午10:15触发
+        0 15 10 ? * * 每天上午10: 15触发 
+        0 15 10 * * ? 每天上午10: 15触发 
+        0 15 10 * * ? * 每天上午10: 15触发 
+        0 15 10 * * ? 2005 2005年的每天上午10: 15触发 
+        0 * 14 * * ? 在每天下午2点到下午2: 59期间的每1分钟触发 
+        0 0/5 14 * * ? 在每天下午2点到下午2: 55期间的每5分钟触发 
+        0 0/5 14,18 * * ? 在每天下午2点到2: 55期间和下午6点到6: 55期间的每5分钟触发 
+        0 0-5 14 * * ? 在每天下午2点到下午2: 05期间的每1分钟触发 
+        0 10,44 14 ? 3 WED 每年三月的星期三的下午2: 10和2: 44触发 
+        0 15 10 ? * MON-FRI 周一至周五的上午10: 15触发 
+        0 15 10 15 * ? 每月15日上午10: 15触发 
+        0 15 10 L * ? 每月最后一日的上午10: 15触发 
+        0 15 10 ? * 6L 每月的最后一个星期五上午10: 15触发 
+        0 15 10 ? * 6L 2002-2005" 2002年至2005年的每月的最后一个星期五上午10: 15触发 
+        0 15 10 ? * 6#3 每月的第三个星期五上午10: 15触发
 
 * 在SpringBoot中使用SpringTask
 
@@ -1180,13 +1186,13 @@ public class FilterConfig {
         public class ScheduledService {
         
             /**
-             * second(秒), minute（分）, hour（时）, day of month（日）, month（月）, day of week（周几）
+             * second(秒), minute(分), hour(时), day of month(日), month(月), day of week(周几)
              * 0 * * * * MON-FRI
-             *  【0 0/5 14,18 * * ?】 每天14点整，和18点整，每隔5分钟执行一次
-             *  【0 15 10 ? * 1-6】 每个月的周一至周六10:15分执行一次
+             *  【0 0/5 14,18 * * ?】 每天14点整, 和18点整, 每隔5分钟执行一次
+             *  【0 15 10 ? * 1-6】 每个月的周一至周六10: 15分执行一次
              *  【0 0 2 ? * 6L】每个月的最后一个周六凌晨2点执行一次
              *  【0 0 2 LW * ?】每个月的最后一个工作日凌晨2点执行一次
-             *  【0 0 2-4 ? * 1#1】每个月的第一个周一凌晨2点到4点期间，每个整点都执行一次；
+             *  【0 0 2-4 ? * 1#1】每个月的第一个周一凌晨2点到4点期间, 每个整点都执行一次；
              */
             /*
              * second(秒 0-59), minute(分 0-59), hour(时 0-23), day of month(日 1-31), month(月 1-12), day of week(周几 0-7或SUN-SAT)
@@ -1286,7 +1292,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 }
 ```
 
-**但是根据官方标注WebMvcConfigurerAdapter过时了，因为java8接口具有默认实现，然后想通过继承WebMvcConfigurationSupport实现添加。**
+**但是根据官方标注 WebMvcConfigurerAdapter 过时了, 因为java8接口具有默认实现, 然后想通过继承WebMvcConfigurationSupport 实现添加. **
 
 ```java
 @Configuration
@@ -1312,7 +1318,7 @@ public class WebConfig extends WebMvcConfigurationSupport {
 }
 ```
 
-**出现的问题：静态资源的访问的问题，在静态资源的访问的过程中，如果继承了 WebMvconfigureSupport 的方法的时候，SpringBoot 中的自动的配置会失效。 @ConditionalOnMissingBean({WebMvcConfigurationSupport.class}) 表示的是在WebMvcConfigurationSupport 类被注册的时候，SpringMVC的自动的配置会失效，就需要你自己进行配置, 最终我们自己实现 WebMvcConfigurer 接口, 重写自己需要的方法即可**
+**出现的问题：静态资源的访问的问题, 在静态资源的访问的过程中, 如果继承了 WebMvconfigureSupport 的方法的时候, SpringBoot 中的自动的配置会失效. @ConditionalOnMissingBean({WebMvcConfigurationSupport.class}) 表示的是在WebMvcConfigurationSupport 类被注册的时候, SpringMVC 的自动的配置会失效, 就需要你自己进行配置, 最终我们自己实现 WebMvcConfigurer 接口, 重写自己需要的方法即可**
 
 ```java
 @Configuration
@@ -1365,11 +1371,11 @@ public class WebConfig implements WebMvcConfigurer {
 配置数据源
 
 ```yaml
-spring:
-  datasource:
+spring: 
+  datasource: 
     username: root
     password: 123456
-    url: jdbc:mysql://192.168.15.22:3306/jdbc
+    url: jdbc: mysql://192.168.15.22:3306/jdbc
     driver‐class‐name: com.mysql.jdbc.Driver
 ```
 
@@ -1423,7 +1429,7 @@ static class Hikari {
 }
 ```
 
-**参考DataSourceConfiguration，根据配置创建数据源，默认使用Tomcat连接池;可以使用 spring.datasource.type 指定自定义的数据源类型, 前提是 Spring 内置了这些数据源的自动配置才可以**
+**参考 DataSourceConfiguration, 根据配置创建数据源, 默认使用 Tomcat 连接池;可以使用 spring.datasource.type 指定自定义的数据源类型, 前提是 Spring 内置了这些数据源的自动配置才可以**
 
 SpringBoot默认可以支持如下数据源, 各个版本支持的数据源不一样, 默认加载的顺序也不一样自行查看
 
@@ -1490,14 +1496,14 @@ public class DruidConfig {
 **后期版本只需要修改配置文件即可实现自动装配**
 
 ```yaml
-spring:
-  datasource:
+spring: 
+  datasource: 
     type: com.alibaba.druid.pool.DruidDataSource
-    url: jdbc:mysql://192.168.0.128:3306/test?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8&useSSL=false
+    url: jdbc: mysql: //192.168.0.128: 3306/test?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8&useSSL=false
     username: root
     password: 123456
     driverClassName: com.mysql.cj.jdbc.Driver
-    druid:
+    druid: 
       # 连接池的配置信息
       # 初始化时建立物理连接的个数
       initial-size: 5
@@ -1505,49 +1511,49 @@ spring:
       min-idle: 5
       # 连接池最大连接数
       max-active: 30
-      # 获取连接时最大等待时间，单位毫秒
+      # 获取连接时最大等待时间, 单位毫秒
       max-wait: 60000
-      # 申请连接的时候检测，如果空闲时间大于timeBetweenEvictionRunsMillis，执行validationQuery检测连接是否有效。
+      # 申请连接的时候检测, 如果空闲时间大于 timeBetweenEvictionRunsMillis, 执行 validationQuery 检测连接是否有效. 
       test-while-idle: true
-      # 既作为检测的间隔时间又作为testWhileIdel执行的依据
+      # 既作为检测的间隔时间又作为 testWhileIdel 执行的依据
       time-between-connect-error-millis: 60000
-      # 销毁线程时检测当前连接的最后活动时间和当前时间差大于该值时，关闭当前连接
+      # 销毁线程时检测当前连接的最后活动时间和当前时间差大于该值时, 关闭当前连接
       min-evictable-idle-time-millis: 30000
-      # 用来检测连接是否有效的sql 必须是一个查询语句
-      # mysql中为 select 'x'
-      # oracle中为 select 1 from dual
+      # 用来检测连接是否有效的 sql 必须是一个查询语句
+      # mysql 中为 select 'x'
+      # oracle 中为 select 1 from dual
       validation-query: select 'x'
-      # 申请连接时会执行validationQuery检测连接是否有效,开启会降低性能,默认为true
+      # 申请连接时会执行 validationQuery 检测连接是否有效,开启会降低性能,默认为true
       test-on-borrow: false
-      # 归还连接时会执行validationQuery检测连接是否有效,开启会降低性能,默认为true
+      # 归还连接时会执行 validationQuery 检测连接是否有效,开启会降低性能,默认为true
       test-on-return: false
-      # 是否缓存preparedStatement,mysql5.5+建议开启
+      # 是否缓存 preparedStatement, mysql5.5+ 建议开启
       pool-prepared-statements: true
-      # 当值大于0时poolPreparedStatements会自动修改为true
+      # 当值大于 0 时 poolPreparedStatements 会自动修改为 true
       max-pool-prepared-statement-per-connection-size: 20
-      # 合并多个DruidDataSource的监控数据
+      # 合并多个 DruidDataSource 的监控数据
       use-global-data-source-stat: false
       # 配置扩展插件
       filters: stat,wall,slf4j
-      # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
+      # 通过 connectProperties 属性来打开 mergeSql 功能；慢 SQL 记录
       connect-properties: druid.stat.mergeSql=false;druid.stat.slowSqlMillis=5000
-      # 定时输出统计信息到日志中，并每次输出日志会导致清零（reset）连接池相关的计数器。
+      # 定时输出统计信息到日志中, 并每次输出日志会导致清零(reset)连接池相关的计数器. 
       time-between-log-stats-millis: 300000
-      # 配置DruidStatFilter
-      web-stat-filter:
+      # 配置 DruidStatFilter
+      web-stat-filter: 
         enabled: true
         url-pattern: '/*'
         exclusions: '*.js,*.gif,*.jpg,*.bmp,*.png,*.css,*.ico,/druid/*'
-      # 配置DruidStatViewServlet
-      stat-view-servlet:
-        # 是否启用StatViewServlet（监控页面）默认值为false（考虑到安全问题默认并未启动，如需启用建议设置密码或白名单以保障安全）
+      # 配置 DruidStatViewServlet
+      stat-view-servlet: 
+        # 是否启用 StatViewServlet(监控页面)默认值为 false(考虑到安全问题默认并未启动, 如需启用建议设置密码或白名单以保障安全)
         enabled: true
         url-pattern: '/druid/*'
-        # IP白名单(没有配置或者为空，则允许所有访问)
+        # IP 白名单(没有配置或者为空, 则允许所有访问)
         allow: 127.0.0.1,192.168.0.1
-        # IP黑名单 (存在共同时，deny优先于allow)
+        # IP 黑名单存在共同时, deny优先于allow)
         deny: 192.168.0.128
-        # 禁用HTML页面上的“Reset All”功能
+        # 禁用 HTML 页面上的“Reset All”功能
         reset-enable: false
         # 登录名
         login-username: admin
@@ -1623,9 +1629,9 @@ public class MyBatisConfig{
     @SpringBootApplication
     public class SpringBoot06DataMybatisApplication {
     
-    	public static void main(String[] args) {
-    		SpringApplication.run(SpringBoot06DataMybatisApplication.class, args);
-    	}
+    		public static void main(String[] args) {
+    				SpringApplication.run(SpringBoot06DataMybatisApplication.class, args);
+    		}
     }
     ```
 
@@ -1636,22 +1642,22 @@ public class MyBatisConfig{
 **修改 SpringBoot 配置文件, 这里的配置是原来 mybatis 的全局配置文件如果不需要可省略**
 
 ```yaml
-mybatis:
+mybatis: 
   # 可以指定 mybatis 自己的配置文件, 如果不需要可以不配
-  config-location: classpath:mybatis/mybatis-config.xml
+  config-location: classpath: mybatis/mybatis-config.xml
   # 如果 xml 和 mapper 在同一个目录下, 可以不配该条配置
-  mapper-locations: classpath:mybatis/mapper/*.xml
+  mapper-locations: classpath: mybatis/mapper/*.xml
 ```
 
 
 
 **我们一般在 maven 环境下整合 mybatis 此处就有一个问题会发生**
 
-```
+```java
 org.apache.ibatis.binding.BindingException: Invalid bound statement (not found)
 ```
 
-**如果出现上面那个错误, 一般的原因是Mapper interface和xml文件的定义对应不上，需要检查包名，namespace，函数名称等能否对应上，需要比较细致的对比，我经常就是写错了一两个字母搞的很长时间找不到错误**
+**如果出现上面那个错误, 一般的原因是 Mapper interface 和 xml 文件的定义对应不上, 需要检查包名, namespace, 函数名称等能否对应上, 需要比较细致的对比, 我经常就是写错了一两个字母搞的很长时间找不到错误**
 
 按以下步骤一一执行：
 
@@ -1796,7 +1802,7 @@ public class DcMySqlConfig {
         SqlSessionFactoryBean factory = new SqlSessionFactoryBean();
         factory.setDataSource(dataSource());
         factory.setVfs(SpringBootVFS.class);
-        factory.setConfigLocation(this.resourceLoader.getResource("classpath:dc-mybatis-config.xml"));
+        factory.setConfigLocation(this.resourceLoader.getResource("classpath: dc-mybatis-config.xml"));
         return factory.getObject();
     }
 }
@@ -1892,7 +1898,7 @@ public class MySqlConfig {
     	SqlSessionFactoryBean factory = new SqlSessionFactoryBean();
         factory.setDataSource(dataSource);
         factory.setVfs(SpringBootVFS.class);
-        factory.setConfigLocation(this.resourceLoader.getResource("classpath:mybatis-config.xml"));
+        factory.setConfigLocation(this.resourceLoader.getResource("classpath: mybatis-config.xml"));
         return factory.getObject();
 	    }
 }
@@ -1904,7 +1910,7 @@ public class MySqlConfig {
 
 #### 通用 Mapper
 
-通用 Mapper 的作者也为自己的插件编写了启动器，我们直接引入即可
+通用 Mapper 的作者也为自己的插件编写了启动器, 我们直接引入即可
 
 **需要注意的是, 如果使用了通用 Mapper 那么我们的 @MapperScan 就需要使用 tk.mybatis 包下的注解, 而不是 MyBatis 的**
 
@@ -1960,7 +1966,7 @@ return pageInfo;
 
 ## AOP应用
 
-### 全局异常处理器, 对Controller层加入异常通知, 新建全局异常处理器类
+### 全局异常处理器, 对 Controller 层加入异常通知, 新建全局异常处理器类
 
 @ControllerAdvice 是 Spring 提供的注解, 改注解监听了所有 Controller 类抛出的异常
 
@@ -2036,7 +2042,7 @@ public class HttpRequestLogAOP {
             Collection<String> headers = response.getHeaderNames();
             headers.forEach(s -> {
                 if (!s.toLowerCase().contains("password")) {
-                    sb.append(s + ":");
+                    sb.append(s + ": ");
                     Collection<String> values = response.getHeaders(s);
                     values.forEach(v -> sb.append(v));
                     sb.append(",");
@@ -2063,7 +2069,7 @@ public class HttpRequestLogAOP {
                 if (header.toLowerCase().contains("password")) {
                     continue;
                 }
-                sb.append(header + ":");
+                sb.append(header + ": ");
                 Enumeration<String> hvs = request.getHeaders(header);
                 while (hvs.hasMoreElements()) {
                     sb.append(hvs.nextElement());
@@ -2188,9 +2194,9 @@ public @interface IgnoreResponseAdvice {
 
 ### 自定义注解解析器
 
-**自定义注解解析器的原理实际是还是利用了AOP功能**
+**自定义注解解析器的原理实际是还是利用了 AOP 功能**
 
-首先定义一个LogAnnotation注解
+首先定义一个 LogAnnotation 注解
 
 ```java
 @Target(ElementType.METHOD)
@@ -2393,15 +2399,11 @@ public class XRedisCacheAspects {
 }
 ```
 
-
-
-
-
 ### 自定义参数解析器
 
-开发过程中, 在Controller层接收参数SpringMVC提供了@RequestParam进行参数解析, 但在一些特殊情况下这个注解的功能不够用, 比如后台返回页面时对id进行了AES加密操作, 前台传参时, id参数都是经过AES加密后的数据, 这时就需要自定义参数解析器进行解密后传入
+开发过程中, 在 Controller 层接收参数 SpringMVC 提供了 @RequestParam 进行参数解析, 但在一些特殊情况下这个注解的功能不够用, 比如后台返回页面时对 id 进行了 AES 加密操作, 前台传参时, id 参数都是经过 AES 加密后的数据, 这时就需要自定义参数解析器进行解密后传入
 
-Spring提供了自定义参数解析器的功能
+Spring 提供了自定义参数解析器的功能
 
 1. 自定义两个注解, 该注解类似 @RequestParam
 
@@ -2431,7 +2433,7 @@ Spring提供了自定义参数解析器的功能
     }
     ```
 
-1. 自定义参数解析器实现HandlerMethodArgumentResolver接口, 该接口有两个方法需要实现, supprts方法用于判断是否满足解析条件, resolve方法真正进行解析
+1. 自定义参数解析器实现 HandlerMethodArgumentResolver 接口, 该接口有两个方法需要实现, supprts 方法用于判断是否满足解析条件, resolve 方法真正进行解析
 
     ```java
     @Component
@@ -2492,7 +2494,7 @@ Spring提供了自定义参数解析器的功能
     }
     ```
 
-1. Controller层在入参上标明注解
+1. Controller 层在入参上标明注解
 
     ```java
     @RestController
@@ -2512,10 +2514,12 @@ Spring提供了自定义参数解析器的功能
 
 1. 浏览器中访问接口
 
-        http://localhost:8089/param/test?param=aa&param2=ll
+    ```http
+http://localhost:8089/param/test?param=aa&param2=ll
+    ```
 
     第一次访问控制台打印如下
-
+    
         判断是否支持AES解密
         testParamParser
         param1
@@ -2527,31 +2531,31 @@ Spring提供了自定义参数解析器的功能
         testParamParser
         param2
         ------------------
-        aajiemi
+    aajiemi
         ll
 
     第二次访问控制台打印如下
-
+    
         进到了AES参数解析器中
         ------------------
         vvvvjiemi
         ll
 
-第一次访问接口, 会依次调用参数解析器根据supportsParameter方法的返回值判断是否进行参数解析, 如果返回为true, 则立刻进入到resolveArgument方法进行参数解析, 并将返回值赋值给标注的参数, 并且不会进入到后续的参数解析器中, 如果返回为false, 则进入到下一个参数解析器中继续判断. **每个参数都会执行一次参数解析器链**
+第一次访问接口, 会依次调用参数解析器根据 supportsParameter 方法的返回值判断是否进行参数解析, 如果返回为 true, 则立刻进入到 resolveArgument 方法进行参数解析, 并将返回值赋值给标注的参数, 并且不会进入到后续的参数解析器中, 如果返回为false, 则进入到下一个参数解析器中继续判断. **每个参数都会执行一次参数解析器链**
 
-第二次访问接口, 会根据之前supportsParameter方法的返回值直接进入resolveArgument方法中, 原因是SpringMVC对参数解析器加了缓存
+第二次访问接口, 会根据之前 supportsParameter 方法的返回值直接进入 resolveArgument 方法中, 原因是 SpringMVC 对参数解析器加了缓存
 
 ```java
 private HandlerMethodArgumentResolver getArgumentResolver(MethodParameter parameter) {
     // parameter是参数对象
     // 从缓存中, 根据参数对象获取参数解析器
     HandlerMethodArgumentResolver result = this.argumentResolverCache.get(parameter);
-	if (result == null) {
-		// 解析器为空的话, 遍历所有的参数解析器
-		for (HandlerMethodArgumentResolver methodArgumentResolver : this.argumentResolvers) {
+    if (result == null) {
+        // 解析器为空的话, 遍历所有的参数解析器
+        for (HandlerMethodArgumentResolver methodArgumentResolver : this.argumentResolvers) {
             if (logger.isTraceEnabled()) {
                 logger.trace("Testing if argument resolver [" + methodArgumentResolver + "] supports [" +
-      parameter.getGenericParameterType() + "]");
+                        parameter.getGenericParameterType() + "]");
             }
             // 根据supportsParameter方法的返回值判断是否支持解析
             if (methodArgumentResolver.supportsParameter(parameter)) {
@@ -2561,8 +2565,8 @@ private HandlerMethodArgumentResolver getArgumentResolver(MethodParameter parame
                 break;
             }
         }
-	}
-	return result;
+    }
+    return result;
 }
 ```
 
@@ -2588,9 +2592,9 @@ private HandlerMethodArgumentResolver getArgumentResolver(MethodParameter parame
 
 ## SpringBoot 整合 Swagger2
 
-Swagger是一款RESTful接口的文档在线自动生成、功能测试功能框架。一个规范和完整的框架，用于生成、描述、调用和可视化RESTful风格的Web服务，加上swagger-ui，可以有很好的呈现。
+Swagger 是一款 RESTful 接口的文档在线自动生成, 功能测试功能框架. 一个规范和完整的框架, 用于生成, 描述, 调用和可视化RESTful 风格的 Web 服务, 加上 swagger-ui, 可以有很好的呈现. 
 
-当我们在后台的接口修改了后，swagger可以实现自动的更新，而不需要人为的维护这个接口进行测试。
+当我们在后台的接口修改了后, swagger 可以实现自动的更新, 而不需要人为的维护这个接口进行测试. 
 
 ### 引入 jar 包
 
@@ -2630,13 +2634,13 @@ Swagger是一款RESTful接口的文档在线自动生成、功能测试功能框
 要使用 Swagger 要进行一些配置, 需要编写一个 Swagger 的配置类
 
 ```java
-// 是否开启 swagger，正式环境一般是需要关闭的（避免不必要的漏洞暴露！），可根据 springboot 的多环境配置进行设置
+// 是否开启 swagger, 正式环境一般是需要关闭的(避免不必要的漏洞暴露！), 可根据 springboot 的多环境配置进行设置
 // @ConditionalOnProperty(prefix = "swagger", value = "enabled", matchIfMissing = true)
 @Configuration
 @EnableSwagger2
 public class SwaggerConfig {
 
-		// swagger2的配置文件，这里可以配置swagger2的一些基本的内容，比如扫描的包等等
+		// swagger2的配置文件, 这里可以配置swagger2的一些基本的内容, 比如扫描的包等等
     @Bean
     public Docket createRestApi() {
         return new Docket(DocumentationType.SWAGGER_2)
@@ -2654,7 +2658,7 @@ public class SwaggerConfig {
                 // 标题
                 .title("xx 服务接口文档")
                 // 描述
-                .description("xx 服务接口文档").termsOfServiceUrl("http://localhost:8080")
+                .description("xx 服务接口文档").termsOfServiceUrl("http: //localhost: 8080")
                 // 文档版本
                 .version("1.0").build();
     }
@@ -2668,7 +2672,7 @@ Controller 就是我们平时编写的对外接口的类
 
 ```java
 @RestController
-// 这个注解是用在Controller类上面的，可以对Controller做必要的说明
+// 这个注解是用在Controller类上面的, 可以对Controller做必要的说明
 @Api(value = "用户接口服务", tags = {"用户操作接口"})
 public class UserController {
 
@@ -2681,7 +2685,7 @@ public class UserController {
      * @param id
      * @return
      */
-    // 作用在具体的方法上，其实就是对一个具体的API的描述
+    // 作用在具体的方法上, 其实就是对一个具体的API的描述
     @ApiOperation(value = "获取用户详细信息", notes = "根据url的id来获取用户详细信息")
     // 作用在具体的方法上, 对 API 参数的描述
     @ApiImplicitParam(name = "id", value = "用户ID", required = true, dataType = "Integer", paramType = "path")
@@ -2693,7 +2697,7 @@ public class UserController {
             r.setResult(user);
             r.setStatus("ok");
         } catch (Exception e) {
-            r.setResult(e.getClass().getName() + ":" + e.getMessage());
+            r.setResult(e.getClass().getName() + ": " + e.getMessage());
             r.setStatus("error");
             e.printStackTrace();
         }
@@ -2720,7 +2724,7 @@ public class UserController {
             r.setResult(userList);
             r.setStatus("ok");
         } catch (Exception e) {
-            r.setResult(e.getClass().getName() + ":" + e.getMessage());
+            r.setResult(e.getClass().getName() + ": " + e.getMessage());
             r.setStatus("error");
             e.printStackTrace();
         }
@@ -2743,7 +2747,7 @@ public class UserController {
             r.setResult(user.getId());
             r.setStatus("ok");
         } catch (Exception e) {
-            r.setResult(e.getClass().getName() + ":" + e.getMessage());
+            r.setResult(e.getClass().getName() + ": " + e.getMessage());
             r.setStatus("error");
 
             e.printStackTrace();
@@ -2768,7 +2772,7 @@ public class UserController {
             r.setResult(id);
             r.setStatus("ok");
         } catch (Exception e) {
-            r.setResult(e.getClass().getName() + ":" + e.getMessage());
+            r.setResult(e.getClass().getName() + ": " + e.getMessage());
             r.setStatus("error");
 
             e.printStackTrace();
@@ -2799,7 +2803,7 @@ public class UserController {
             r.setResult(u);
             r.setStatus("ok");
         } catch (Exception e) {
-            r.setResult(e.getClass().getName() + ":" + e.getMessage());
+            r.setResult(e.getClass().getName() + ": " + e.getMessage());
             r.setStatus("error");
 
             e.printStackTrace();
@@ -2860,7 +2864,7 @@ public class JsonResult {
 
 ### 访问 Swgger 页面
 
-启动项目, 在地址栏中输入 `http://localhost:8080/swagger-ui.html` 即可访问 swagger 页面
+启动项目, 在地址栏中输入 `http: //localhost: 8080/swagger-ui.html` 即可访问 swagger 页面
 
 ### 相关注解
 
