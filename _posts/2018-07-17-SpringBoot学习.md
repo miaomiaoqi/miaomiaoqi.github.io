@@ -1,7 +1,7 @@
 ---
 layout: post
-title:  "SpringBoot学习"
-date:   2018-07-17 14: 34: 32
+title: "SpringBoot学习"
+date: 2018-07-17 14:34:32
 categories: Framework
 tags: SpringBoot
 author: miaoqi
