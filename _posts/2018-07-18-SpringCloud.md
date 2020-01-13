@@ -102,11 +102,9 @@ eureka:
 
 查看注册信息
 
-```yaml
+```http
 http://127.0.0.1:9901/eureka/apps
 ```
-
-
 
 ## Spring Cloud Eureka Client
 
@@ -362,8 +360,8 @@ public interface ProductClient {
 
     ```xml
     <dependency>
-    	<groupId>org.springframework.cloud</groupId>
-    	<artifactId>spring-cloud-config-client</artifactId>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-config-client</artifactId>
     </dependency>
     ```
 
@@ -598,8 +596,7 @@ zuul:
     # SPRINGCLOUD-SELL-PRODUCT: /myProduct/** 如果只有 serviceId 和 path 可以简写成这样, 默认去掉前缀
   ignored-patterns: # 忽略的路由规则, 即禁止访问, 是个 Set 集合
     - /**/product/listForOrder
-  # 忽略全部服务敏感头
-  sensitive-headers:
+  sensitive-headers: # 忽略全部服务敏感头
 management:
   endpoints:
     web:
@@ -617,7 +614,7 @@ management:
 
 默认的敏感头
 
-```
+```java
 private Set<String> sensitiveHeaders = new LinkedHashSet(Arrays.asList("Cookie", "Set-Cookie", "Authorization"));
 ```
 
@@ -828,7 +825,7 @@ public class CorsConfig {
 
 * 加入 hystrix 依赖
 
-    ```
+    ```xml
     <dependency>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-starter-hystrix</artifactId>
