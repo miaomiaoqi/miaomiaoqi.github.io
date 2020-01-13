@@ -598,7 +598,7 @@ zuul:
     # SPRINGCLOUD-SELL-PRODUCT: /myProduct/** 如果只有 serviceId 和 path 可以简写成这样, 默认去掉前缀
   ignored-patterns: # 忽略的路由规则, 即禁止访问, 是个 Set 集合
     - /**/product/listForOrder
-	# 忽略全部服务敏感头
+  # 忽略全部服务敏感头
   sensitive-headers:
 management:
   endpoints:
