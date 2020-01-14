@@ -1,253 +1,109 @@
-# Welcome to Anodyne
+# The Merlot theme
 
-[![Screenshot](http://www.codeblocq.com/img/hexo-theme-thumbnail/hexo-theme-anodyne-screenshot.jpg)](http://www.codeblocq.com/assets/projects/hexo-theme-anodyne/)
+[![Build Status](https://travis-ci.org/pages-themes/merlot.svg?branch=master)](https://travis-ci.org/pages-themes/merlot) [![Gem Version](https://badge.fury.io/rb/jekyll-theme-merlot.svg)](https://badge.fury.io/rb/jekyll-theme-merlot)
 
-[Live Demo Here](http://www.codeblocq.com/assets/projects/hexo-theme-anodyne/)
+*Merlot is a Jekyll theme for GitHub Pages. You can [preview the theme to see what it looks like](http://pages-themes.github.io/merlot), or even [use it today](#usage).*
 
-<!-- more -->
+![Thumbnail of Merlot](thumbnail.png)
 
-## Features Overview
+## Usage
 
-- Responsive
-- Disqus comments
-- Google Analytics
-- Tags Support
-- Responsive Images
-- Responsive YouTube and Vimeo videos
-- Social Accounts configuration
-- Pagination
-- Pages
-- Categories Support (widget)
-- About widget
-- Recent posts widget
-- Stylus CSS preprocessor
-- ejs HTML templates
+To use the Merlot theme:
 
-Note: No Image Gallery. Useless and too heavyweight. Feel free to develop one and send me a PR if you feel like this is a must.
+1. Add the following to your site's `_config.yml`:
 
-## External libraries used
+    ```yml
+    theme: jekyll-theme-merlot
+    ```
 
-- [tachyons](http://tachyons.io/)
-- [Font Awesome](http://fontawesome.io/icons/)
+2. Optionally, if you'd like to preview your site on your computer, add the following to your site's `Gemfile`:
 
-## Installation
+    ```ruby
+    gem "github-pages", group: :jekyll_plugins
+    ```
 
-### Install the theme
+## Customizing
 
-Install the theme by using:
+### Configuration variables
 
-```
-$ git clone https://github.com/klugjo/hexo-theme-anodyne themes/anodyne
+Merlot will respect the following variables, if set in your site's `_config.yml`:
+
+```yml
+title: [The title of your site]
+description: [A short description of your site's purpose]
 ```
 
-Then update your blog's main `_config.yml` to set the theme to `anodyne`:
+Additionally, you may choose to set the following optional variables:
 
-i.e:
-
-``` yaml
-# Extensions
-## Plugins: http://hexo.io/plugins/
-## Themes: http://hexo.io/themes/
-theme: anodyne
+```yml
+show_downloads: ["true" or "false" to indicate whether to provide a download URL]
+google_analytics: [Your Google Analytics tracking ID]
 ```
 
-## Post Configuration
+### Stylesheet
 
-Each post supports the standard `title`, `date`, `categories`, `tags`.
+If you'd like to add your own custom styles:
 
-### Post Icon
+1. Create a file called `/assets/css/style.scss` in your site
+2. Add the following content to the top of the file, exactly as shown:
+    ```scss
+    ---
+    ---
 
-On top of that, you can specify a custom font-Awesome icon in the front matter:
+    @import "{{ site.theme }}";
+    ```
+3. Add any custom CSS (or Sass, including imports) you'd like immediately after the `@import` line
 
-Example:
+*Note: If you'd like to change the theme's Sass variables, you must set new values before the `@import` line in your stylesheet.*
 
-``` yaml
-title: Welcome to Anodyne
-tags: ["ThisIsATag", "Intro", "Welcome", "Anodyne"]
-categories: ["Configuration", "Hexo"]
-icon: fa-handshake-o
----
-```
+### Layouts
 
-## Theme Configuration
+If you'd like to change the theme's HTML layout:
 
-The theme's global configuration is done in `/themes/hexo-theme-anodyne/_config.yml`.
+1. [Copy the original template](https://github.com/pages-themes/merlot/blob/master/_layouts/default.html) from the theme's repository<br />(*Pro-tip: click "raw" to make copying easier*)
+2. Create a file called `/_layouts/default.html` in your site
+3. Paste the default layout content copied in the first step
+4. Customize the layout as you'd like
 
-### Menu
+### Overriding GitHub-generated URLs
 
-The menu is configured in the theme's `_config.yml`.
+Templates often rely on URLs supplied by GitHub such as links to your repository or links to download your project. If you'd like to override one or more default URLs:
 
-``` yaml
-# Header
-menu:
-  Home: /
-  Archives: /archives
-  About: /about.html
-```
+1. Look at [the template source](https://github.com/pages-themes/merlot/blob/master/_layouts/default.html) to determine the name of the variable. It will be in the form of `{{ site.github.zip_url }}`.
+2. Specify the URL that you'd like the template to use in your site's `_config.yml`. For example, if the variable was `site.github.url`, you'd add the following:
+    ```yml
+    github:
+      zip_url: http://example.com/download.zip
+      another_url: another value
+    ```
+3. When your site is built, Jekyll will use the URL you specified, rather than the default one provided by GitHub.
 
-The object key is the label and the value is the path.
+*Note: You must remove the `site.` prefix, and each variable name (after the `github.`) should be indent with two space below `github:`.*
 
-### Blog's Logo Image Source
+For more information, see [the Jekyll variables documentation](https://jekyllrb.com/docs/variables/).
 
-The blog's logo is configured in the theme's `_config.yml`.
+## Roadmap
 
-It should be an image or svg
+See the [open issues](https://github.com/pages-themes/merlot/issues) for a list of proposed features (and known issues).
 
-``` yaml
-# Logo
-logo_image_source: /assets/anodyne.svg
-```
+## Project philosophy
 
-### Footer About Section Text
+The Merlot theme is intended to make it quick and easy for GitHub Pages users to create their first (or 100th) website. The theme should meet the vast majority of users' needs out of the box, erring on the side of simplicity rather than flexibility, and provide users the opportunity to opt-in to additional complexity if they have specific needs or wish to further customize their experience (such as adding custom CSS or modifying the default layout). It should also look great, but that goes without saying.
 
-The About section's text in the footer is configured in the theme's `_config.yml`. HTML allowed.
+## Contributing
 
-``` yaml
-# Footer about
-footer_about: "@Untitled. All right reserved"
-```
+Interested in contributing to Merlot? We'd love your help. Merlot is an open source project, built one contribution at a time by users like you. See [the CONTRIBUTING file](docs/CONTRIBUTING.md) for instructions on how to contribute.
 
-### Default post title
+### Previewing the theme locally
 
-The default post title (used when no title is specified) is configured in the theme's `_config.yml`.
+If you'd like to preview the theme locally (for example, in the process of proposing a change):
 
-``` yaml
-default_post_title: Untitled
-```
+1. Clone down the theme's repository (`git clone https://github.com/pages-themes/merlot`)
+2. `cd` into the theme's directory
+3. Run `script/bootstrap` to install the necessary dependencies
+4. Run `bundle exec jekyll serve` to start the preview server
+5. Visit [`localhost:4000`](http://localhost:4000) in your browser to preview the theme
 
-### Default post icon
+### Running tests
 
-The default post icon (used when no icon is specified) is configured in the theme's `_config.yml`.
-
-``` yaml
-default_post_icon: fa-file-text-o
-```
-
-### Home page configuration
-
-Likewise, you can configure the home page's title, subtitle and icon in the `_config.yml`
-
-``` yaml
-# Index Page
-index_banner_text: Welcome to Anodyne
-index_banner_text_secondary: Create Websites. Make Magic.
-index_font_awesome_icon_css: fa fa-magic
-```
-
-### Archive Date Format
-
-You can change the date format for the archive page if you so desire
-
-``` yaml
-# Archive Date Format
-archive_date_format: MMM YYYY
-```
-
-### Disqus Comments
-
-The disqus shortname is specified in the theme's `_config.yml`.
-
-``` yaml
-# Comments.
-comments:
-  # Disqus comments
-  disqus_shortname: yournametest
-```
-
-### Google Analytics
-
-The Google Analytics Tracking ID is configured in the theme's `_config.yml`.
-
-``` yaml
-# Google Analytics Tracking ID
-google_analytics:
-```
-
-### Social Account
-
-Setup the links to your social pages in the theme's `_config.yml` as an array of objects. Links are in the footer.
-
-Example:
-
-``` yaml
-# Social Accounts
-social_platforms:
-  - url: https://twitter.com/?lang=en
-    fa_icon: fa-twitter
-  - url: https://www.facebook.com/
-    fa_icon: fa-facebook
-  - url: https://dribbble.com/
-    fa_icon: fa-dribbble 
-  - url: https://github.com/klugjo/hexo-theme-anodyne
-    fa_icon: fa-github
-```
-
-## Tags page.
-
-> Follow these steps to add a `tags` page that contains all the tags in your site.
-
-- Create a page named `tags`
-
-```
-$ hexo new page "tags"
-```
-
-- Edit the newly created page and set page type to `tags` in the front matter.
-
-```
-title: All tags
-type: "tags"
-```
-
-- Add `tags` to the menu in the theme `_config.yml`:
-
-```
-# Header
-menu:
-  Home: /
-  Archives: /archives
-  Tags: /tags
-```
-
-## Categories page.
-
-> Follow these steps to add a `categories` page that contains all the categories in your site.
-
-- Create a page named `categories`
-
-```
-$ hexo new page "categories"
-```
-
-- Edit the newly created page and set page type to `categories` in the front matter.
-
-```
-title: All tags
-type: "categories"
-```
-
-- Add `Categories` to the menu in the theme `_config.yml`:
-
-```
-# Header
-menu:
-  Home: /
-  Archives: /archives
-  Categories: /categories
-```
-
-## Creator
-
-This theme was created by Jonathan Klughertz, check out my [github](https://github.com/klugjo) and [blog](http://www.codeblocq.com/).
-
-## Bugs
-
-If you have a question, feature request or a bug you need me to fix, please [click here](https://github.com/klugjo/hexo-theme-anodyne/issues/new) to file an issue.
-
-## License
-
-MIT
-
-Enjoy :)
-
-
+The theme contains a minimal test suite, to ensure a site with the theme would build successfully. To run the tests, simply run `script/cibuild`. You'll need to run `script/bootstrap` one before the test script will work.
