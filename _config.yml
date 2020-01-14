@@ -1,62 +1,63 @@
-# Welcome to Jekyll!
 #
-# This config file is meant for settings that affect your whole blog, values
-# which you are expected to set up once and rarely need to edit after that.
-# For technical reasons, this file is *NOT* reloaded automatically when you use
-# 'jekyll serve'. If you change this file, please restart the server process.
+theme: anodyne
+# Logo
+logo_image_source: http://www.codeblocq.com/assets/projects/hexo-theme-anodyne/assets/anodyne.svg
 
-# Site settings
-title: miaoqi
-brief-intro: 
-baseurl: "" # the subpath of your site, e.g. /blog
-url: "https://miaomiaoqi.github.io" # the base hostname & protocol for your site
+# Index Page
+index_banner_text: Welcome to Anodyne
+index_banner_text_secondary: Create Websites. Make Magic.
+index_font_awesome_icon_css: fa fa-magic
 
-permalink: /:year/:month/:day/:title/
+# Header
+menu:
+  Home: /
+  Archives: /archives
+  Tags: /tags
+  Categories: /categories
+  About: /about.html
+  Contact: /contact.html
 
-# other links
-twitter_username:
-facebook_username:
-github_username: miaomiaoqi
-email: 363962900@qq.com
-weibo_username:
-zhihu_username:
-linkedIn_username:
-dribbble_username:
+# Post
+default_post_title: Untitled
+default_post_icon: fa-file-text-o
 
-description_footer: 本站记录我的编程之路!
+# Archive Date Format
+archive_date_format: MMM YYYY
+archive_font_awesome_icon_css: fa-folder-open
 
-# comments
-# two ways to comment, only choose one, and use your own short name
-# 两种评论插件，选一个就好了，使用自己的 short_name
-duoshuo_shortname: miaoqi
-disqus_shortname: #gaohaoyang
+# About Widget
+about_widget_avatar_url: http://tachyons.io/img/avatar_1.jpg
+about_widget_text: "My name is Jonathan Klughertz and this is my blog.<br>I am a full stack software engineer with a strong front-end focus.<br> I currently live and work in Singapore, hit me up if you are in the region."
 
-# statistic analysis 统计代码
-# 百度统计 id，将统计代码替换为自己的百度统计id，即
-# hm.src = "//hm.baidu.com/hm.js?xxxxxxxxxxxx";
-# xxxxx字符串
-baidu_tongji_id:
-google_analytics_id: # google 分析追踪id
 
-# Build settings
-markdown: kramdown
+# Comments.
+comments:
+  # Disqus comments
+  disqus_shortname: 
 
-kramdown:
-  input: GFM
-  syntax_highlighter: rouge
+# Google Analytics Tracking ID
+google_analytics:
 
-# port
-# port: 1234
+# Social Media Platforms
+social_platforms:
+  - url: https://twitter.com/?lang=en
+    fa_icon: fa-twitter
+  - url: https://www.facebook.com/
+    fa_icon: fa-facebook
+  - url: https://dribbble.com/
+    fa_icon: fa-dribbble 
+  - url: https://github.com/klugjo/hexo-theme-anodyne
+    fa_icon: fa-github
+  - url: https://plus.google.com/
+    fa_icon: fa-google-plus
+  - url: https://www.behance.net/
+    fa_icon: fa-behance
+  - url: https://500px.com/
+    fa_icon: fa-500px
+  - url: mailto:test@example.com
+    fa_icon: fa-envelope
+  - url: /#
+    fa_icon: fa-rss
 
-# url
-category_dir: category/
-tag_dir: tag/
-
-# excerpt
-excerpt_separator: "\n\n\n\n"
-
-# paginate
-gems: [jekyll-paginate]
-paginate: 6
-
-theme: jekyll-theme-merlot
+# Footer about
+footer_about: "@Untitled. All right reserved | Design & Hexo <a class=\"link dim white\" href=\"http://www.codeblocq.com/\">Jonathan Klughertz</a>"
