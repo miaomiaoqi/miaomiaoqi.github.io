@@ -1,0 +1,7 @@
+- name: 慕课网
+  url: https://www.imooc.com/
+  src: technology
+
+- name: Maven 仓库
+  url: https://search.maven.org/
+  src: technology
