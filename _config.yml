@@ -2,12 +2,12 @@
 #   Main Configs   #
 # ---------------- #
 baseurl:
-url: http://www.miaomiaoqi.cn
+url: http://www.miaomiaoqi.cn # 修改
 date_format: "ordinal"
-title: milky的个人博客
-subtitle: "打码改变人生"
-description: "全是总结"
-keywords:  milky, java
+title: milky的个人博客 # 修改
+subtitle: "打码改变人生" # 修改
+description: "全是总结" # 修改
+keywords:  milky, java # 修改
 timezone: Asia/Shanghai
 encoding: "utf-8"
 side_bar_repo_limit: 5
@@ -15,12 +15,12 @@ side_bar_repo_limit: 5
 # ---------------- #
 #      Author      #
 # ---------------- #
-author: milky
+author: milky # 修改
 organization: 
 organization_url: 
-github_username: miaomiaoqi
-location: BeiJing, China
-email: 363962900@qq.com
+github_username: miaomiaoqi # 修改
+location: BeiJing, China # 修改
+email: 363962900@qq.com # 修改
 
 # ---------------- #
 #    Navigation    #
@@ -34,9 +34,9 @@ navs:
     href: /categories/
     label: 分类
 
-#   -
-#     href: /archives/
-#     label: 归档
+   -
+     href: /archives/
+     label: 归档
 
 #  -
 #    href: /wiki/
@@ -81,7 +81,7 @@ collections:
         output: true
         permalink: /wiki/:path/
 
-repository: mzlogin/mzlogin.github.io
+repository: miaomiaoqi/miaomiaoqi.github.io # 修改
 
 # ---------------- #
 #      Comments    #
@@ -121,5 +121,5 @@ simple_jekyll_search:
 # ---------------- #
 #    Analytics     #
 # ---------------- #
-google:
-    analytics_id: UA-80669434-1
+# google:
+#    analytics_id: UA-80669434-1
