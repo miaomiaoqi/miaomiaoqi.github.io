@@ -12,6 +12,7 @@ permalink: /links/
 
 {% for link in site.data.links %}
   {% if link.src == 'life' %}
+
 * [{{ link.name }}]({{ link.url }})
   {% endif %}
 {% endfor %}
@@ -20,6 +21,16 @@ permalink: /links/
 
 {% for link in site.data.links %}
   {% if link.src == 'www' %}
+
 * [{{ link.name }}]({{ link.url }})
   {% endif %}
 {% endfor %}
+
+> 技术网站
+
+{% for link in site.data.links %}
+  {% if link.src == 'technology' %}
+
+* [{{ link.name }}]({{ link.url }})
+    {% endif %}
+    {% endfor %}
