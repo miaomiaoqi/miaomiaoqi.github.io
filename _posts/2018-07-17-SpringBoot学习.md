@@ -2594,13 +2594,20 @@ private HandlerMethodArgumentResolver getArgumentResolver(MethodParameter parame
 #### 正常执行流程
 
 ```
-filter4...pre -> filter1...pre -> filter2...pre -> filter3...pre -> inteceptor1...pre -> inteceptor2...pre -> @Around1 -> @Before1 -> @Around2 -> @Before2 -> 目标方法 -> @Around2 -> @After2 -> @AfterReturning2 -> @Around1 -> @After1 -> @AfterReturning1 -> 全局响应处理 -> inteceptor2...post -> inteceptor1...post -> inteceptor2...after -> inteceptor1...after -> filter3...after -> filter2...after -> filter1...after -> filter4...after
+filter4...pre -> filter1...pre -> filter2...pre -> filter3...pre -> inteceptor1...pre -> 
+inteceptor2...pre -> @Around1 -> @Before1 -> @Around2 -> @Before2 -> 目标方法 -> @Around2 -> 
+@After2 -> @AfterReturning2 -> @Around1 -> @After1 -> @AfterReturning1 -> 全局响应处理 -> 
+inteceptor2...post -> inteceptor1...post -> inteceptor2...after -> inteceptor1...after -> 
+filter3...after -> filter2...after -> filter1...after -> filter4...after
 ```
 
 #### 异常执行流程
 
 ```
-filter4...pre -> filter1...pre -> filter2...pre -> filter3...pre -> inteceptor1...pre -> inteceptor2...pre -> @Around1 -> @Before1 -> @Around2 -> @Before2 -> 目标方法 -> @After2 -> @AfterThrowing2 -> @After1 -> @AfterThrowing1 -> 全局异常处理 -> inteceptor2...after -> inteceptor1...after -> filter3...after -> filter2...after -> filter1...after -> filter4...after
+filter4...pre -> filter1...pre -> filter2...pre -> filter3...pre -> inteceptor1...pre -> 
+inteceptor2...pre -> @Around1 -> @Before1 -> @Around2 -> @Before2 -> 目标方法 -> @After2 -> 
+@AfterThrowing2 -> @After1 -> @AfterThrowing1 -> 全局异常处理 -> inteceptor2...after -> 
+inteceptor1...after -> filter3...after -> filter2...after -> filter1...after -> filter4...after
 ```
 
 **异常时 @Around 的后续不会执行, 不会执行全局响应, 拦截器的 post 方法不会执行**
