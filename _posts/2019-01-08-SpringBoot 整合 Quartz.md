@@ -1,15 +1,14 @@
 ---
 layout: post
-title:  "SpringBoot整合Quartz"
-date:   2019-01-08 14:06:15
-categories: Framework
-tags: SpringBoot
-author: miaoqi
+title: "SpringBoot 整合 Quartz"
+categories: [Framework]
+description:
+keywords:
 ---
 
 * content
 {:toc}
-# 基于SpringBoot & Quartz完成定时任务分布式单节点持久化
+## 基于SpringBoot & Quartz完成定时任务分布式单节点持久化
 
 定时任务在企业项目比较常用到, 几乎所有的项目都会牵扯该功能模块, 定时任务一般会处理指定时间点执行某一些业务逻辑、间隔时间执行某一些业务逻辑等. 
 
@@ -17,11 +16,11 @@ author: miaoqi
 
 本次就研究一下基于`SpringBoot`架构整合定时任务框架`quartz`来完成**分布式单节点定时任务持久化**, 将任务持久化到数据库, 更好的预防任务丢失. 
 
-## 构建项目
+### 构建项目
 
 我们使用`idea`开发工具创建一个`SpringBoot`项目, pom.xml依赖配置如下所示：
 
-```
+```xml
 <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -87,13 +86,13 @@ author: miaoqi
 我们采用的是`quartz`官方最新版本`2.3.0`, 新版本的任务调度框架做出了很多封装, 使用也变得简易明了. 
 创建初始化完成, 下面我们来创建定时任务相关的`Configuration`配置. 
 
-## 创建Quartz配置类
+### 创建Quartz配置类
 
 `quartz`与`Spring`相关框架的整合方式有很多种, 我们采用`jobDetail`使用`Spring Ioc`托管方式来完成整合, 我们可以在定时任务实例中使用`Spring`注入注解完成业务逻辑处理, 配置类如下:
 
 - **AutowiringSpringBeanJobFactory**
 
-    ```
+    ```java
     package com.miaoqi.springboot.springbootquartz.configuration;
     
     import org.quartz.spi.TriggerFiredBundle;
@@ -141,7 +140,7 @@ author: miaoqi
 
 - **QuartzPropertiesConfig**
 
-    ```
+    ```java
     package com.miaoqi.springboot.springbootquartz.configuration;
     
     import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -175,7 +174,7 @@ author: miaoqi
 
 - **QuartzThreadPoolConfiguration**
 
-    ```
+    ```java
     package com.miaoqi.springboot.springbootquartz.configuration;
     
     import org.springframework.context.annotation.Bean;
@@ -211,7 +210,7 @@ author: miaoqi
 
 - **SchedulerFactoryConfiguration**
 
-    ```
+    ```java
     package com.miaoqi.springboot.springbootquartz.configuration;
     
     import org.quartz.spi.JobFactory;
@@ -284,7 +283,7 @@ author: miaoqi
 
     下面我们来看下`application.yml`文件内的配置, 如下所示：
 
-    ```
+    ```yaml
     # 业务数据源
     spring:
       datasource:
@@ -364,13 +363,13 @@ author: miaoqi
 
 
 
-## 创建任务
+### 创建任务
 
-### 定义固定执行时间定时任务
+#### 定义固定执行时间定时任务
 
 我们先来创建一个任务实例, 并且继承`org.springframework.scheduling.quartz.QuartzJobBean`抽象类, 重写父抽象类内的`executeInternal`方法来实现任务的主体逻辑. 如下所示：
 
-```
+```java
 package com.miaoqi.springboot.springbootquartzfirst.job;
 
 import org.quartz.JobExecutionContext;
@@ -406,11 +405,11 @@ public class StartAtJob extends QuartzJobBean {
 }
 ```
 
-### 定义cron表达式定时任务
+#### 定义cron表达式定时任务
 
 同样需要继承`org.springframework.scheduling.quartz.QuartzJobBean`抽象类实现抽象类内的`executeInternal`方法, 如下所示：
 
-```
+```java
 package com.miaoqi.springboot.springbootquartzfirst.job;
 
 import com.miaoqi.springboot.springbootquartzfirst.service.ProductService;
@@ -453,11 +452,11 @@ public class CronJob extends QuartzJobBean {
 
 
 
-## 将任务与触发器关联到调度器
+### 将任务与触发器关联到调度器
 
-### 设置固定执行时间定时任务到调度器
+#### 设置固定执行时间定时任务到调度器
 
-```
+```java
 package com.miaoqi.springboot.springbootquartzfirst.scheduler;
 
 import com.miaoqi.springboot.springbootquartzfirst.job.StartAtJob;
@@ -516,9 +515,9 @@ public class StartAtScheduler implements ApplicationRunner {
 
 **最后将任务以及任务的触发器共同交付给任务调度器, 这样就完成了一个任务的设置. **
 
-### 设置cron表达式定时任务调度器
+#### 设置cron表达式定时任务调度器
 
-```
+```java
 package com.miaoqi.springboot.springbootquartzfirst.scheduler;
 
 import com.miaoqi.springboot.springbootquartzfirst.job.CronJob;
@@ -572,11 +571,11 @@ public class CronScheduler implements ApplicationRunner {
 
 下面我们就来测试下任务是否可以顺序的被持久化到数据库, 并且是否可以在重启服务后执行重启前添加的任务. 
 
-## 测试
+### 测试
 
 下面我们来启动项目, 启动成功后, 我们来查看控制台输出的分布式节点的信息, 如下所示：
 
-```
+```bash
 2019-01-15 14:23:09.382  INFO 67908 --- [anualScheduler]] o.s.s.quartz.SchedulerFactoryBean        : Starting Quartz Scheduler now, after delay of 2 seconds
 2019-01-15 14:23:09.392  INFO 67908 --- [anualScheduler]] org.quartz.core.QuartzScheduler          : Scheduler manualScheduler_$_localhost1547533386943 started.
 ```
@@ -585,14 +584,14 @@ public class CronScheduler implements ApplicationRunner {
 
 接下来我们查看任务是否写入成功呢? 我们来查看`qrtz_job_details`表内任务列表, 如下所示
 
-```
+```bash
 manualScheduler	CronScheduler	TestQuartz		com.miaoqi.springboot.springbootquartzfirst.job.CronJob	0	0	0	0	
 manualScheduler	StartAtScheduler	TestQuartz		com.miaoqi.springboot.springbootquartzfirst.job.StartAtJob	0	0	0	0	
 ```
 
 任务已经被成功的持久化到数据库内, 等待1分钟后查看控制台输出内容如下所示：
 
-```
+```bash
 2019-01-15 14:23:45.013  INFO 67908 --- [eduler_Worker-3] c.m.s.springbootquartzfirst.job.CronJob  : cron job, execute at：Tue Jan 15 14:23:45 CST 2019
 业务类执行了
 2019-01-15 14:24:00.014  INFO 67908 --- [eduler_Worker-4] c.m.s.springbootquartzfirst.job.CronJob  : cron job, execute at：Tue Jan 15 14:24:00 CST 2019
@@ -604,17 +603,17 @@ manualScheduler	StartAtScheduler	TestQuartz		com.miaoqi.springboot.springbootqua
 
 根据输出的内容来判定完全吻合我们的配置参数, 库存检查为15秒执行一次, 而添加成功后的提醒则是1分钟后执行一次. 执行完成后就会被直接销毁, 我们再来查看数据库表`qrtz_job_details`, 这时就可以看到还剩下`1个任务`. 
 
-```
+```bash
 manualScheduler	CronScheduler	TestQuartz		com.miaoqi.springboot.springbootquartzfirst.job.CronJob	0	0	0	0	
 ```
 
 至此我们的分布式单节点SpringBoot整合Quartz告一段落, 接下来是多节点的整合
 
-# 基于SpringBoot & Quartz完成定时任务分布式多节点负载持久化
+## 基于SpringBoot & Quartz完成定时任务分布式多节点负载持久化
 
 我们基于单节点项目复制一份代码, 因为实际项目中同一个Scheduler是根据job的全类名去执行任务的, 而多节点一般情况下是集群模式
 
-## 配置分布式
+### 配置分布式
 
 - **org.quartz.scheduler.instanceId**
 
@@ -634,9 +633,9 @@ manualScheduler	CronScheduler	TestQuartz		com.miaoqi.springboot.springbootquartz
 
 - 修改第二个项目的端口号不要与第一个项目冲突
 
-## 修改job的代码区分两个项目
+### 修改job的代码区分两个项目
 
-### 修改first项目代码
+#### 修改first项目代码
 
 ```
 package com.miaoqi.springboot.springbootquartz.job;
@@ -677,9 +676,9 @@ public class CronJob extends QuartzJobBean {
 }
 ```
 
-### 修改second项目代码
+#### 修改second项目代码
 
-```
+```java
 package com.miaoqi.springboot.springbootquartz.job;
 
 import com.miaoqi.springboot.springbootquartz.service.ProductService;
@@ -720,13 +719,13 @@ public class CronJob extends QuartzJobBean {
 
 
 
-## 启动项目
+### 启动项目
 
-### 启动项目一
+#### 启动项目一
 
 启动项目一, 观察日志
 
-```
+```bash
 2019-01-15 15:03:58.998  INFO 82022 --- [anualScheduler]] o.s.s.quartz.SchedulerFactoryBean        : Starting Quartz Scheduler now, after delay of 2 seconds
 2019-01-15 15:03:59.006  INFO 82022 --- [anualScheduler]] org.quartz.impl.jdbcjobstore.JobStoreTX  : ClusterManager: detected 1 failed or restarted instances.
 2019-01-15 15:03:59.007  INFO 82022 --- [anualScheduler]] org.quartz.impl.jdbcjobstore.JobStoreTX  : ClusterManager: Scanning for instance "localhost1547534376982"'s failed in-progress jobs.
@@ -737,7 +736,7 @@ public class CronJob extends QuartzJobBean {
 
 查看输出
 
-```
+```bash
 2019-01-15 15:04:00.097  INFO 82022 --- [eduler_Worker-1] c.m.s.springbootquartz.job.CronJob       : first cron job, execute at：Tue Jan 15 15:04:00 CST 2019
 业务类执行了
 2019-01-15 15:04:15.013  INFO 82022 --- [eduler_Worker-2] c.m.s.springbootquartz.job.CronJob       : first cron job, execute at：Tue Jan 15 15:04:15 CST 2019
@@ -746,22 +745,22 @@ public class CronJob extends QuartzJobBean {
 
 通过日志的信息我们可以看到输出内容中带有"first", 确实是第一个项目中的输出
 
-### 启动项目二
+#### 启动项目二
 
 启动项目二, 观察日志
 
-```
+```bash
 2019-01-15 15:08:11.979  INFO 83229 --- [anualScheduler]] o.s.s.quartz.SchedulerFactoryBean        : Starting Quartz Scheduler now, after delay of 2 seconds
 2019-01-15 15:08:11.985  INFO 83229 --- [anualScheduler]] org.quartz.core.QuartzScheduler          : Scheduler manualScheduler_$_localhost1547536089485 started.
 ```
 
 项目启动完成后, 定时节点并没有实例化`ClusterManager`来完成分布式节点的初始化, 因为`quartz`检测到有其他的节点正在处理任务, 这样也是保证了任务执行的唯一性. 
 
-## 测试任务自动漂移
+### 测试任务自动漂移
 
 我们关闭first项目, 预计达到second项目会自动接管数据库中的任务, 完成任务执行的自动漂移, 关闭第一个项目后我们观察一下日志
 
-```
+```bash
 2019-01-15 15:08:11.979  INFO 83229 --- [anualScheduler]] o.s.s.quartz.SchedulerFactoryBean        : Starting Quartz Scheduler now, after delay of 2 seconds
 2019-01-15 15:08:11.985  INFO 83229 --- [anualScheduler]] org.quartz.core.QuartzScheduler          : Scheduler manualScheduler_$_localhost1547536089485 started.
 2019-01-15 15:09:10.156  INFO 83229 --- [eduler_Worker-1] c.m.s.springbootquartz.job.StartAtJob    : startAt job, execute at：Tue Jan 15 15:09:10 CST 2019
@@ -775,13 +774,13 @@ public class CronJob extends QuartzJobBean {
 
 
 
-# Quartz任务调度的基本实现原理
+## Quartz任务调度的基本实现原理
 
-## Quartz核心元素
+### Quartz核心元素
 
 Quartz任务调度的核心元素为：Scheduler——任务调度器、Trigger——触发器、Job——任务. 其中trigger和job是任务调度的元数据, scheduler是实际执行调度的控制器. Quartz把触发job，叫做**fire**。**TRIGGER_STATE**是当前trigger的状态，**PREV_FIRE_TIME**是上一次触发时间，**NEXT_FIRE_TIME**是下一次触发时间，**misfire**是指这个job在某一时刻要触发，却因为某些原因没有触发的情况。
 
-### Trigger
+#### Trigger
 
 是用于定义调度时间的元素, 即按照什么时间规则去执行任务. Quartz中主要提供了**四种类型的trigger：SimpleTrigger, CronTirgger, DateIntervalTrigger, 和NthIncludedDayTrigger.** 这四种trigger可以满足企业应用中的绝大部分需求. 
 
@@ -795,7 +794,7 @@ Quartz任务调度的核心元素为：Scheduler——任务调度器、Trigger�
 
 - trigger状态：`WAITING, ACQUIRED, EXECUTING, COMPLETE, BLOCKED, ERROR, PAUSED, PAUSED_BLOCKED, DELETED`
 
-    ![![http://www.miaomiaoqi.cn/images/distributed/quartz/quartz_4.png]()]()
+    ![http://www.miaomiaoqi.cn/images/distributed/quartz/quartz_4.png](http://www.miaomiaoqi.cn/images/distributed/quartz/quartz_4.png)
 
     trigger的初始状态是**WAITING**，处于**WAITING**状态的trigger等待被触发。调度线程会不停地扫triggers表，根据NEXT_FIRE_TIME提前拉取即将触发的trigger，如果这个trigger被该调度线程拉取到，它的状态就会变为**ACQUIRED**。因为是提前拉取trigger，并未到达trigger真正的触发时刻，所以调度线程会等到真正触发的时刻，再将trigger状态由**ACQUIRED**改为**EXECUTING**。如果这个trigger不再执行，就将状态改为**COMPLETE**,否则为**WAITING**，开始新的周期。如果这个周期中的任何环节抛出异常，trigger的状态会变成**ERROR**。如果手动暂停这个trigger，状态会变成**PAUSED**。
 
@@ -814,11 +813,11 @@ Quartz任务调度的核心元素为：Scheduler——任务调度器、Trigger�
     | MISFIRE_INSTRUCTION_FIRE_ONCE_NOW | 立即触发一次               |
     | MISFIRE_INSTRUCTION_DO_NOTHING    | 忽略, 不处理, 等待下次触发 |
 
-### Job
+#### Job
 
 用于表示被调度的任务. 主要有两种类型的job：无状态的（stateless）和有状态的（stateful）. 对于同一个trigger来说, 有状态的job不能被并行执行, 只有上一次触发的任务被执行完之后, 才能触发下一次执行. Job主要有两种属性：volatility和durability, 其中volatility表示任务是否被持久化到数据库存储, 而durability表示在没有trigger关联的时候任务是否被保留. 两者都是在值为true的时候任务被持久化或保留. **一个job可以被多个trigger关联, 但是一个trigger只能关联一个job**. 
 
-### Scheduler
+#### Scheduler
 
 由scheduler工厂创建：DirectSchedulerFactory或者StdSchedulerFactory. 第二种工厂StdSchedulerFactory使用较多, 因为DirectSchedulerFactory使用起来不够方便, 需要作许多详细的手工编码设置. Scheduler主要有三种：RemoteMBeanScheduler, RemoteScheduler和StdScheduler. 主要负责job和trigger的持久化管理, 包括新增、删除、修改、触发、暂停、恢复调度、停止调度等；
 
@@ -826,7 +825,7 @@ Quartz任务调度的核心元素为：Scheduler——任务调度器、Trigger�
 
 
 
-## Quartz线程视图
+### Quartz线程视图
 
 在Quartz中, 有两类线程, Scheduler调度线程和任务执行线程, 其中任务执行线程通常使用一个线程池维护一组线程. 
 
@@ -836,21 +835,21 @@ Scheduler调度线程主要有两个：执行常规调度的线程, 和执行mis
 
 
 
-## QuartzJob数据存储
+### QuartzJob数据存储
 
 Quartz中的trigger和job需要存储下来才能被使用. Quartz中有两种存储方式：RAMJobStore,JobStoreSupport, 其中RAMJobStore是将trigger和job存储在内存中, 而JobStoreSupport是基于jdbc将trigger和job存储到数据库中. **RAMJobStore的存取速度非常快, 但是由于其在系统被停止后所有的数据都会丢失, 所以在集群应用中, 必须使用JobStoreSupport. **
 
 
 
-# Quartz集群原理
+## Quartz 集群原理
 
-## Quartz 集群架构
+### Quartz 集群架构
 
 一个Quartz集群中的每个节点是一个独立的Quartz应用, 它又管理着其他的节点. 这就意味着你必须对每个节点分别启动或停止. Quartz集群中, 独立的Quartz节点并不与另一其的节点或是管理节点通信, 而是通过相同的数据库表来感知到另一Quartz应用的, 如图2.1所示. 
 
 ![http://www.miaomiaoqi.cn/images/distributed/quartz/quartz_3.png](http://www.miaomiaoqi.cn/images/distributed/quartz/quartz_3.png)
 
-## Quartz 集群相关数据库表
+### Quartz 集群相关数据库表
 
 因为Quartz集群依赖于数据库, 所以必须首先创建Quartz数据库表, Quartz发布包中包括了所有被支持的数据库平台的SQL脚本. 这些SQL脚本存放于<quartz_home>/docs/dbTables 目录下. 这里采用的Quartz 2.3.0版本, 总共11张表, 不同版本, 表个数可能不同. 数据库为mysql, 用tables_mysql_innodb.sql创建数据库表
 
@@ -942,7 +941,7 @@ Quartz中的trigger和job需要存储下来才能被使用. Quartz中有两种�
 
 
 
-## 集群原理分析
+### 集群原理分析
 
 trigger的状态储存在数据库，Quartz支持分布式，所以如果起了多个quartz服务，会有多个调度线程来抢夺触发同一个trigger。mysql在默认情况下执行select 语句，是不上锁的，那么如果同时有1个以上的调度线程抢到同一个trigger，是否会导致这个trigger重复调度呢？我们来看看，Quartz是如何解决这个问题的。
 
@@ -958,7 +957,7 @@ SELECT * FROM QRTZ_LOCKS WHERE CHED_NAME = 'quartzScheduler' AND LOCK_NAME = ? F
 
 ![http://www.miaomiaoqi.cn/images/distributed/quartz/quartz_5.png](http://www.miaomiaoqi.cn/images/distributed/quartz/quartz_5.png)
 
-### 拉取待触发trigger
+#### 拉取待触发 trigger
 
 调度线程会一次性拉取距离现在，一定时间窗口内的，一定数量内的，即将触发的trigger信息。那么，时间窗口和数量信息如何确定呢，我们先来看一下，以下几个参数：
 
@@ -970,11 +969,11 @@ SELECT * FROM QRTZ_LOCKS WHERE CHED_NAME = 'quartzScheduler' AND LOCK_NAME = ? F
 
 调度线程一次会拉取**NEXT_FIRE_TIME**小于（`now + idleWaitTime +batchTimeWindow`）,大于（`now - misfireThreshold`）的，`min(availThreadCount,maxBatchSize)`个triggers，默认情况下，会拉取未来30s，过去60s之间还未fire的1个trigger。随后将这些triggers的状态由**WAITING**改为**ACQUIRED**，并插入fired_triggers表。
 
-### 触发trigger
+#### 触发trigger
 
 首先，我们会检查每个trigger的状态是不是**ACQUIRED**，如果是，则将状态改为**EXECUTING**，然后更新trigger的**NEXT_FIRE_TIME**，如果这个trigger的**NEXT_FIRE_TIME**为空，也就是未来不再触发，就将其状态改为**COMPLETE**。如果trigger不允许并发执行（即Job的实现类标注了`@DisallowConcurrentExecution`），则将状态变为**BLOCKED**，否则就将状态改为**WAITING**。
 
-### 包装trigger，丢给工作线程池
+#### 包装trigger，丢给工作线程池
 
 遍历triggers，如果其中某个trigger在第二步出错，即返回值里面有exception或者为null，就会做一些triggers表，fired_triggers表的内容修正，跳过这个trigger，继续检查下一个。否则，则根据trigger信息实例化`JobRunShell`（实现了Thread接口），同时依据`JOB_CLASS_NAME`实例化`Job`，随后我们将`JobRunShell`实例丢入工作线。
 
