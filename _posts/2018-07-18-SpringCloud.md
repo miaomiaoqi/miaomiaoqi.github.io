@@ -1,10 +1,9 @@
 ---
 layout: post
-title:  "SpringCloud学习"
-date:   2018-07-18 14:36:38
-categories: Framework
-tags: Spring
-author: miaoqi
+title: "SpringCloud学习"
+categories: [Framework]
+description:
+keywords:
 ---
 
 * content

@@ -1,10 +1,9 @@
 ---
 layout: post
-title:  "Spring注解学习"
-date:   2018-07-16 14:34:32
-categories: Framework
-tags: Spring
-author: miaoqi
+title: "Spring注解学习"
+categories: [Framework]
+description:
+keywords:
 ---
 
 * content
