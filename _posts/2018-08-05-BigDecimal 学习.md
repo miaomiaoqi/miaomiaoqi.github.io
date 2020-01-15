@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "BigDecimal学习"
+title: "BigDecimal 学习"
 categories: [Java]
 description:
 keywords:

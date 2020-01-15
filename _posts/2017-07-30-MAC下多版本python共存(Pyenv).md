@@ -1,6 +1,6 @@
 ---
 layout: post
-title: MAC下多版本python共存(Pyenv)
+title: MAC 下多版本 python 共存(Pyenv)
 categories: [Python]
 description:
 keywords:
