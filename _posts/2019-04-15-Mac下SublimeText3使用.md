@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Mac 下 SublimeText3 使用"
-categories: pMac]
+categories: Mac
 description:
 keywords:
 ---
