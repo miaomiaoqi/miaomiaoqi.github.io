@@ -1,10 +1,9 @@
 ---
 layout: post
-title:  "MySQL的binlog"
-date:   2018-12-06 18:53:58
-categories: RDBMS
-tags: MySQL
-author: miaoqi
+title: "MySQL 的 binlog"
+categories: [RDBMS]
+description:
+keywords:
 ---
 
 * content
