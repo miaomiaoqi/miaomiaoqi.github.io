@@ -1,10 +1,9 @@
 ---
 layout: post
 title:  "ELK-ElasticSearch"
-date:   2019-08-05 13:54:25
-categories: BigData
-tags: ElasticSearch
-author: miaoqi
+categories: [BigData]
+description:
+keywords:
 ---
 
 * content

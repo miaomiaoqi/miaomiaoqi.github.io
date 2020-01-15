@@ -1,10 +1,9 @@
 ---
 layout: post
-title:  "ELK-Logstash"
-date:   2019-08-05 19:15:25
-categories: BigData
-tags: Logstash
-author: miaoqi
+title: "ELK-Logstash"
+categories: [BigData]
+description:
+keywords:
 ---
 
 * content

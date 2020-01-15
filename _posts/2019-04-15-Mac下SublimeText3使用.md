@@ -1,15 +1,14 @@
 ---
 layout: post
-title:  "Mac下SublimeText3使用"
-date:   2019-04-15 10:41:28
-categories: Mac
-tags: Editor
-author: miaoqi
+title: "Mac 下 SublimeText3 使用"
+categories: pMac]
+description:
+keywords:
 ---
 
 * content
 {:toc}
-# 修改默认配置
+## 修改默认配置
 
 使用 command + , 打开个人配置, 其中 User Settings 是个人配置, 优先级高于全局配置, 我的配置如下
 
@@ -31,7 +30,7 @@ author: miaoqi
 }
 ```
 
-# 安装包管理工具
+## 安装包管理工具
 
 使用快捷键 **control + `** 或者菜单栏选择`View > Show Console`, 输入如下代码
 
@@ -39,19 +38,19 @@ author: miaoqi
 import urllib.request,os,hashlib; h = '7183a2d3e96f11eeadd761d777e62404' + 'e330c659d4bb41d3bdf022e94cab3cd0'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)
 ```
 
-# 安装插件
+## 安装插件
 
 使用 **command + shift + p**, 输入 **install,** 等待几秒钟后，在新弹出的输入框里，输入你想要安装的插件名称
 
-## ConvertToUTF8
+### ConvertToUTF8
 
 通过本插件，可以编辑并保存目前编码不被 Sublime Text 支持的文件，特别是中日韩用户使用的 GB2312，GBK，BIG5，EUC-KR，EUC-JP 等。
 
-## 调整当前语言
+### 调整当前语言
 
 使用 `command + shift + p`, 输入当前使用的编程语言, sublime 会自动转换相应的语法
 
-# 快捷键使用
+## 快捷键使用
 
 | 快捷键组合          | 功能                                |
 | ------------------- | ----------------------------------- |
