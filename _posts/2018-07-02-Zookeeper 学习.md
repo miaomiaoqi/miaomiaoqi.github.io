@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Zookeeper学习"
+title: "Zookeeper 学习"
 categories: [BigData]
 description:
 keywords:

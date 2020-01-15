@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "SpringCloud学习"
+title: "SpringCloud 学习"
 categories: [Framework]
 description:
 keywords:

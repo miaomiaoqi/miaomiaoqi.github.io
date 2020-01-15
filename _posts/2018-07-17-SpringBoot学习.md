@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "SpringBoot学习"
+title: "SpringBoot 学习"
 categories: [Framework]
 description:
 keywords:
