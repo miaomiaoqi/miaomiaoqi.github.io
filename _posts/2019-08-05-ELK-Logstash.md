@@ -85,7 +85,7 @@ output {
 ```shell
 echo "foo
 bar 
-"|bin/logstash -f codec.conf
+"|bin/logstash -f imooc/codec.conf
 ```
 
 ![http://www.miaomiaoqi.cn/images/elastic/logstash/ls_3.png](http://www.miaomiaoqi.cn/images/elastic/logstash/ls_3.png)
@@ -126,7 +126,7 @@ bar
 
 
 
-### 线程
+### 线程配置
 
 ![http://www.miaomiaoqi.cn/images/elastic/logstash/ls_10.png](http://www.miaomiaoqi.cn/images/elastic/logstash/ls_10.png)
 
@@ -148,14 +148,83 @@ bar
 
 logstash 设置相关的配置文件(在 conf 文件夹中, setting files)
 
-* logstash.yml logstash 相关的配置, 比如 node.name, path.data, pipeline.workers, queue.type 等, 这其中的配置可以被命令行参数中的相关参数覆盖
-* jvm.options 修改 jvm 相关的参数, 比如修改 heap size 等
+* logstash.yml: logstash 相关的配置, 比如 node.name, path.data, pipeline.workers, queue.type 等, 这其中的配置可以被命令行参数中的相关参数覆盖
+
+    ```yaml
+    pipeline:
+      batch:
+        size: 125
+        delay: 50
+    ```
+
+* jvm.options: 修改 jvm 相关的参数, 比如修改 heap size 等
 
 pipeline 配置文件
 
 * 定义数据处理流程的文件, 以 .conf 结尾
 
+#### logstash.yml 配置项
 
+**`node.name`:** 节点名, 便于识别
+
+**`path.data`:** 持久化存储数据的文件夹, 默认是 logstash home 目录下的 data
+
+**`path.config`:** 设定 pipeline 配置文件的目录
+
+**`path.log`:** 设定 pipeline 日志文件的目录
+
+**`pipeline.workers`:** 设定 pipeline 的线程数(filter + output), **优化的常用项**
+
+**`pipeline.batch.size/delay`:** 设定批量处理数据的数目和延迟
+
+**`queue.type`:** 设定队列类型, 默认是 memory
+
+**`queue.max_bytes`:** 队列总容量, 默认是 1g
+
+#### 命令行配置项
+
+**`--node.name`:** 节点名称
+
+**`-f --path.config.pipeline`:** 路径, 可以使文件或者文件夹
+
+**`--path.settings`:** logstash 配置文件夹路径, 其中要包含 logstash.yml, 集群方案
+
+**`-e --config.string`:** 指明 pipeline 内容, 多用于测试使用
+
+```bash
+bin/logstash -e "input{stdin{}}output{stdout{codec=>line}}" -t
+
+Sending Logstash logs to /usr/local/logstash-6.8.4/logs which is now configured via log4j2.properties
+[2020-01-16T10:48:13,569][WARN ][logstash.config.source.multilocal] Ignoring the 'pipelines.yml' file because modules or command line options are specified
+Configuration OK
+[2020-01-16T10:48:29,921][INFO ][logstash.runner          ] Using config.test_and_exit mode. Config Validation Result: OK. Exiting Logstash
+```
+
+**`-w --pipeline.workers`**
+
+**`-b --pipeline.batch.size`**
+
+**`--path.data`:** 数据存储路径
+
+**`--debug`:** 打开调试日志
+
+**`-t --config.test_and_exit`:** 做测试, 只是检验配置文件是否正确
+
+#### logstash 配置方式建议
+
+线上环境推荐采用配置文件的方式来设定 logstash 的相关配置, 这样可以减少犯错机会, 而且文件便于进行版本化管理
+
+命令行形式多用来进行快速的配置测试, 验证, 检查等
+
+
+
+### logstash 多实例运行方式
+
+bin/logstash \-\-path.settings config1
+
+bin/logstash \-\-path.settings config1
+
+不同 config 中修改 logstash.yml, 自定义 path.data, 确保其不相同即可
 
 
 
@@ -173,11 +242,118 @@ pipeline 配置文件
 
 ## Pipeline
 
-input-filter-output 的 3 阶段处理流程
+用于配置 input, filter 和 output 插件, 队列管理, 插件生命周期管理
 
-队列管理
+```json
+input{}
 
-插件生命周期管理
+filter{}
+
+output{}
+```
+
+### 配置语法
+
+主要有如下数据类型
+
+* 布尔类型 Boolean
+
+    isFailed => true
+
+* 数值类型 Number
+
+    port => 33
+
+* 字符串类型 String
+
+    name => "Hello World"
+
+* 数组 Array/List
+
+    users => [{id => 1, name => bob}, {id => 2, name => jane}]
+
+    path => ["/var/log/messages", "/var/log/*.log"]
+
+* 哈希类型 Hash
+
+    match => {
+
+    ​	"field1" => "value1"
+
+    ​	"field2" => "value2"
+
+    }
+
+* 注释 #
+
+    \# this is a comment
+
+* 在配置中可以引用 Logstash Event 的属性(字段), 主要有如下两种方式
+
+    * 直接引用字段值 Field Reference
+
+        使用 [] 即可, 嵌套字段写多层 [] 即可
+
+        ```json
+        {
+          "agent": "Mozilla/5.0",
+          "ip": "192.168.24.44",
+          "request", "/index.html",
+          "response": {
+            "status": 200,
+            "bytes": 52353
+          },
+          "ua": {
+            "os": "Mac OS"
+          }
+        }
+        ```
+
+        ```
+        ...
+        if [request] =~ "index"{}
+        ...
+        ```
+
+        ```
+        ...
+        if [ua][os] =~ "Windows"{}
+        ...
+        ```
+
+    * 在字符串中以 sprintf 方式引用, 使用 %{} 实现
+
+        ```
+        req => "request is %{request}"
+        ```
+
+        ```
+        ua => "ua is %{[ua][us]}"
+        ```
+
+* 支持条件判断语法, 从而扩展了配置的多样性
+
+    ```
+    if EXPRESSION {
+      ...
+    } else if EXPRESSION {
+      ...
+    } else {
+      ...
+    }
+    ```
+
+* 表达式包含如下的操作符
+
+    **比较:** ==, !=, <, >, <=, >=
+
+    **正则是否匹配:** =~, !~
+
+    **包含(字符串或者数组):** in, not in
+
+    **布尔操作符:** and, or, nand, xor, !
+
+    **分组操作符:** ()
 
 
 
