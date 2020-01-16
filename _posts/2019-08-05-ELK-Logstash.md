@@ -20,11 +20,29 @@ Data Shipper, 与 Beat 不同, Logstash 是比较重的数据传送者, 但功�
 
 ![http://www.miaomiaoqi.cn/images/elastic/logstash/ls_1.png](http://www.miaomiaoqi.cn/images/elastic/logstash/ls_1.png)
 
-## 安装
+## 安装运行
 
-到[官网](https://www.elastic.co/cn/downloads/logstash)下载对应版本上传到服务器解压即可
+到[官网](https://www.elastic.co/cn/downloads/logstash)下载对应版本上传到服务器解压, bin/logstash 即可单实例运行
 
-## 处理流程
+
+
+### logstash 多实例运行方式
+
+bin/logstash \-\-path.settings config1
+
+bin/logstash \-\-path.settings config2
+
+**不同 config 中修改 logstash.yml, 自定义 path.data, 确保其不相同即可**
+
+
+
+## 架构
+
+多种数据输入源经过 codec 投递到队列中, Batcher 从队列中拉取数据, 当达到等待时间或者数据阈值会将数据流转到 filter,output 中处理
+
+![http://www.miaomiaoqi.cn/images/elastic/logstash/ls_5.png](http://www.miaomiaoqi.cn/images/elastic/logstash/ls_5.png)
+
+### 数据处理流程
 
 Input 数据采集: file, reids, beats, kafka
 
@@ -36,11 +54,11 @@ Output 数据输出: stdout, elasticsearch, redis, kafka
 
 ![http://www.miaomiaoqi.cn/images/elastic/logstash/ls_2.png](http://www.miaomiaoqi.cn/images/elastic/logstash/ls_2.png)
 
-### Input 配置
+#### Input 配置
 
 input {file{path => "/tmp/abc.log"}}
 
-### Filter 配置
+#### Filter 配置
 
 Grok
 * 基于正则表达式提供了丰富的可重用的模式(pattern)
@@ -54,11 +72,11 @@ Mutate
 
 * 进行增加, 修改, 删除, 替换等字段相关的处理
 
-### Output 配置
+#### Output 配置
 
 Output{stdout{codec => rubydebug}}
 
-### 简单示例
+#### 简单示例
 
 编写 codec.conf 配置文件
 
@@ -92,13 +110,17 @@ bar
 
 ![http://www.miaomiaoqi.cn/images/elastic/logstash/ls_4.png](http://www.miaomiaoqi.cn/images/elastic/logstash/ls_4.png)
 
-## 架构
-
-![http://www.miaomiaoqi.cn/images/elastic/logstash/ls_5.png](http://www.miaomiaoqi.cn/images/elastic/logstash/ls_5.png)
 
 
+### Logstash Event
 
-### Life_of_an_Event
+Logstash 内部流转的数据表现形式, 数据都会被封装为 logstash event
+
+原始数据在 input 被转换为 Event, 在 output event 被转换为目标格式数据
+
+在配置文件中可以对 Event 中的属性进行增删改查
+
+**event 生命周期**
 
 ![http://www.miaomiaoqi.cn/images/elastic/logstash/ls_6.png](http://www.miaomiaoqi.cn/images/elastic/logstash/ls_6.png)
 
@@ -113,7 +135,7 @@ bar
 
 **Persistent Queue In Disk**
 
-* 可以处理进行 Crash 等情况, 保证数据不丢失
+* 可以处理进行 Crash 等情况, 保证数据不丢失, 通过各种 ack 下图中展示
 * 保证数据至少消费一次
 * 充当缓冲区, 可以替代 Kafka 等消息队列的作用
 
@@ -126,11 +148,11 @@ bar
 
 
 
-### 线程配置
+### 线程配置(调优)
 
 ![http://www.miaomiaoqi.cn/images/elastic/logstash/ls_10.png](http://www.miaomiaoqi.cn/images/elastic/logstash/ls_10.png)
 
-* pipeline.works \| -w
+* pipeline.workers(配置文件) \| -w(命令行)
 
     pipeline 线程数, 即 filter_output 的处理线程数, 默认是 cpu 核数
 
@@ -144,7 +166,7 @@ bar
 
     Batcher 的等待时长, 单位为 ms
 
-### 配置文件
+## 配置文件
 
 logstash 设置相关的配置文件(在 conf 文件夹中, setting files)
 
@@ -159,11 +181,11 @@ logstash 设置相关的配置文件(在 conf 文件夹中, setting files)
 
 * jvm.options: 修改 jvm 相关的参数, 比如修改 heap size 等
 
-pipeline 配置文件
+pipeline 配置文件, 定义了 input, filter, output
 
 * 定义数据处理流程的文件, 以 .conf 结尾
 
-#### logstash.yml 配置项
+### logstash.yml 配置项
 
 **`node.name`:** 节点名, 便于识别
 
@@ -181,7 +203,7 @@ pipeline 配置文件
 
 **`queue.max_bytes`:** 队列总容量, 默认是 1g
 
-#### 命令行配置项
+### 命令行配置项
 
 **`--node.name`:** 节点名称
 
@@ -210,27 +232,11 @@ Configuration OK
 
 **`-t --config.test_and_exit`:** 做测试, 只是检验配置文件是否正确
 
-#### logstash 配置方式建议
+### logstash 配置方式建议
 
 线上环境推荐采用配置文件的方式来设定 logstash 的相关配置, 这样可以减少犯错机会, 而且文件便于进行版本化管理
 
 命令行形式多用来进行快速的配置测试, 验证, 检查等
-
-
-
-### logstash 多实例运行方式
-
-bin/logstash \-\-path.settings config1
-
-bin/logstash \-\-path.settings config1
-
-不同 config 中修改 logstash.yml, 自定义 path.data, 确保其不相同即可
-
-
-
-
-
-
 
 
 
@@ -242,7 +248,7 @@ bin/logstash \-\-path.settings config1
 
 ## Pipeline
 
-用于配置 input, filter 和 output 插件, 队列管理, 插件生命周期管理
+用于配置 input, filter 和 output 插件, 队列管理, 插件生命周期管理, 以 .conf 结尾的文件
 
 ```json
 input{}
@@ -355,17 +361,7 @@ output{}
 
     **分组操作符:** ()
 
-
-
-## Logstash Event
-
-内部流转的数据表现形式
-
-原始数据在 input 被转换为 Event, 在 output event 被转换为目标格式数据
-
-在配置文件中可以对 Event 中的属性进行增删改查
-
-
+### Input 插件
 
 
 
