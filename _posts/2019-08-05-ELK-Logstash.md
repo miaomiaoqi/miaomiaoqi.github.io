@@ -209,7 +209,7 @@ pipeline 配置文件, 定义了 input, filter, output
 
 **`-f --path.config.pipeline`:** 路径, 可以使文件或者文件夹
 
-**`--path.settings`:** logstash 配置文件夹路径, 其中要包含 logstash.yml, 集群方案
+**`--path.settings`:** logstash 配置文件夹路径, 其中要包含 logstash.yml, 集群方案, 默认是 config 目录
 
 **`-e --config.string`:** 指明 pipeline 内容, 多用于测试使用
 
@@ -237,12 +237,6 @@ Configuration OK
 线上环境推荐采用配置文件的方式来设定 logstash 的相关配置, 这样可以减少犯错机会, 而且文件便于进行版本化管理
 
 命令行形式多用来进行快速的配置测试, 验证, 检查等
-
-
-
-
-
-
 
 
 
@@ -363,11 +357,116 @@ output{}
 
 ### Input 插件
 
+input 插件指定数据输入源, 一个 pipeline 可以有多个 input 插件, 我们主要了解下面几个 input 插件
 
+* stdin
+* file
+* kafka
 
+#### stdin
 
+**最简单的输入, 从标准输入读取数据, 通用配置为**
 
+* codec 类型为 codec
+* type 类型为 string, 自定义该事件的类型, 可用于后续判断
+* tag 类型为 array, 自定义该事件的 tag, 可用于后续判断
+* add_field 类型为 hash, 为该事件添加字段
 
+编辑 input-stdin.conf 文件
 
+```json
+input {
+  stdin {
+    codec => "plain"
+    tags => ["test"]
+    type => "std"
+    add_field => {"key" => "value"}
+  }
+}
 
+output {
+  stdout {
+    codec => "rubydebug"
+  }
+}
+```
 
+执行该 pipeline
+
+```bash
+echo "test"|bin/logstash -f imooc/input-stdin.conf
+```
+
+查看输出结果
+
+```bash
+[2020-01-16T15:38:46,675][INFO ][logstash.inputs.stdin    ] Automatically switching from plain to line codec {:plugin=>"stdin"}
+[2020-01-16T15:38:46,983][INFO ][logstash.pipeline        ] Pipeline started successfully {:pipeline_id=>"main", :thread=>"#<Thread:0x6536cb97 run>"}
+[2020-01-16T15:38:47,263][INFO ][logstash.agent           ] Pipelines running {:count=>1, :running_pipelines=>[:main], :non_running_pipelines=>[]}
+[2020-01-16T15:38:49,107][INFO ][logstash.agent           ] Successfully started Logstash API endpoint {:port=>9600}
+/usr/local/logstash-6.8.4/vendor/bundle/jruby/2.5.0/gems/awesome_print-1.7.0/lib/awesome_print/formatters/base_formatter.rb:31: warning: constant ::Fixnum is deprecated
+{
+          "tags" => [
+        [0] "test"
+    ],
+      "@version" => "1",
+          "type" => "std",
+       "message" => "test",
+           "key" => "value",
+          "host" => "VM_0_9_centos",
+    "@timestamp" => 2020-01-16T07:38:47.390Z
+}
+[2020-01-16T15:38:49,354][INFO ][logstash.pipeline        ] Pipeline has terminated {:pipeline_id=>"main", :thread=>"#<Thread:0x6536cb97 run>"}
+[2020-01-16T15:38:49,869][INFO ][logstash.runner          ] Logstash shut down.
+```
+
+#### file
+
+**从文件读取数据, 如常见的日志文件, 文件读取通常要解决几个问题**
+
+* 文件内容如何只被读取一次, 即重启 LS 时, 从上次读取的位置继续
+
+    sincedb
+
+* 如何即时读取到文件的新内容
+
+    定时检查文件是否有更新
+
+* 如何发现新文件并进行读取
+
+    可以定时检查新文件
+
+* 如果文件发生了归档(rotation)操作, 是否影响当前的内容读取
+
+    不影响, 被归档的文件内容可以继续被读取
+
+**通用配置如下**
+
+* path 类型为数组, 指明读取的文件路径, 基于 glob 匹配语法
+
+    path => ["/var/log/\*\*/\*.log", "/var/log/message"]
+
+* exclude 类型为数组, 排除不想监听的文件规则, 基于 glob 匹配语法
+
+    exclude => "\*.gz"
+
+* sincedb_path 类型为字符串, 记录 sincedb 文件路径
+
+* start_position 类型为字符串, beginning or end, 是否从头读取文件, 默认 end(从 logstash 启动之后读取)
+
+* start_interval 类型为数值, 单位秒, 定时检查文件是否有更新, 默认 1 秒
+
+* discover_interval 类型为数值, 单位秒, 定时检查是否有新文件待读取, 默认 15 秒
+
+* ignore_older 类型为数值, 单位秒, 扫描文件列表时, 如果该文件上次更改时间超过设定的时长, 则不做处理, 但依然会监控是否有新内容, 默认关闭
+
+* close_older 类型为属猪, 单位秒, 如果正在监听的文件超过该设定时间内没有新内容, 会被关闭文件句柄, 释放资源, 但依然会监控是否有新内容, 默认 3600 秒, 即 1 小时
+
+**glob 匹配语法**
+
+* \* 匹配任意字符, 但不匹配以 \.开头的隐藏文件, 匹配这类文件使用 .\*来匹配
+* \*\* 递归匹配子目录
+* ? 匹配单一字符
+* [] 匹配多个字符, 比如[a-z], \[^a-z\]
+* {} 匹配多个单词, 比如{foo, bar, hello}
+* \ 转义字符

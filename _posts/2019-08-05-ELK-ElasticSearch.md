@@ -5760,7 +5760,7 @@ GET _cat/health # 查询集群的健康状态
 
 ### 单节点环境下创建索引分析
 
-```
+```json
 PUT /myindex
 {
    "settings" : {
@@ -5853,7 +5853,7 @@ PUT /myindex
 
 替换方式：首先查出原有 document 的数据, 将这条 document 标记为 deleted, 再根据用户数据创建一份新的 document, 用户未提交的数据不会保存
 
-```
+```json
 PUT /lib/user/4
 {
 	"first_name": "Jane",
@@ -5866,7 +5866,7 @@ PUT /lib/user/4
 
 修改方式(partial update)：只修改部分 field 内容, es 接收用的数据, 更新 document 的部分字段, 再将这个 document 标记为 deleted, 再根据更新后的 document 创建一份新的 document
 
-```
+```json
 POST /lib/user/2/_update
 {
     "doc":{
@@ -5886,7 +5886,7 @@ es有内置的脚本支持，可以基于groovy脚本实现复杂的操作
 
 1. 修改年龄
 
-    ```
+    ```json
     POST /lib/user/4/_update
     {
       "script": "ctx._source.age+=1"
@@ -5895,7 +5895,7 @@ es有内置的脚本支持，可以基于groovy脚本实现复杂的操作
 
 2. 修改名字
 
-    ```
+    ```json
     POST /lib/user/4/_update
     {
       "script": "ctx._source.last_name+='hehe'"
@@ -5904,7 +5904,7 @@ es有内置的脚本支持，可以基于groovy脚本实现复杂的操作
 
 3. 添加爱好
 
-    ```
+    ```json
     POST /lib/user/4/_update
     {
       "script": {
@@ -5918,7 +5918,7 @@ es有内置的脚本支持，可以基于groovy脚本实现复杂的操作
 
 4. 删除爱好
 
-    ```
+    ```json
     POST /lib/user/4/_update
     {
       "script": {
