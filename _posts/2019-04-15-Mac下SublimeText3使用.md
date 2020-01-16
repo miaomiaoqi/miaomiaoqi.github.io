@@ -8,6 +8,8 @@ keywords:
 
 * content
 {:toc}
+
+
 ## 修改默认配置
 
 使用 command + , 打开个人配置, 其中 User Settings 是个人配置, 优先级高于全局配置, 我的配置如下
