@@ -66,17 +66,17 @@ Output{stdout{codec => rubydebug}}
 
 ```
 input {
-	stdin {
-		codec => line
-	}
+  stdin {
+    codec => line
+  }
 }
 
 filter {}
 
 output {
-	stdout {
-		codec => json
-	}
+  stdout {
+    codec => json
+  }
 }
 ```
 
@@ -130,17 +130,17 @@ bar
 
 ![http://www.miaomiaoqi.cn/images/elastic/logstash/ls_10.png](http://www.miaomiaoqi.cn/images/elastic/logstash/ls_10.png)
 
-* pipeline.works | -w
+* pipeline.works \| -w
 
     pipeline 线程数, 即 filter_output 的处理线程数, 默认是 cpu 核数
 
     `bin/logstash -f codec.conf -w 2`
 
-* pipeline.batch.size | -b
+* pipeline.batch.size \| -b
 
     Batcher 一次批量获取的待处理文档树, 默认是 125 个, 可以根据输出进行调整(比如输出到 es, es 建议批量 10mb~20mb, 根据每个文档的大小, 可以反推出 batchsize 的合理值), 越大会占越多的 heap 空间, 可以通过 jvm.options 调整
 
-* pipeline.batch.delay | -u
+* pipeline.batch.delay \| -u
 
     Batcher 的等待时长, 单位为 ms
 
