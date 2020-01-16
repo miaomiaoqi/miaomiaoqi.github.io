@@ -40,7 +40,7 @@ bin/logstash \-\-path.settings config2
 
 多种数据输入源经过 codec 投递到队列中, Batcher 从队列中拉取数据, 当达到等待时间或者数据阈值会将数据流转到 filter,output 中处理
 
-![http://www.miaomiaoqi.cn/images/elastic/logstash/ls_5.png](http://www.miaomiaoqi.cn/images/elastic/logstash/ls_5.png)
+<img src="http://www.miaomiaoqi.cn/images/elastic/logstash/ls_5.png" alt="http://www.miaomiaoqi.cn/images/elastic/logstash/ls_5.png" style="zoom:50%;" />
 
 ### 数据处理流程
 
@@ -52,7 +52,7 @@ Output 数据输出: stdout, elasticsearch, redis, kafka
 
 传输过程中数据都会被封装成 Logstash Event
 
-![http://www.miaomiaoqi.cn/images/elastic/logstash/ls_2.png](http://www.miaomiaoqi.cn/images/elastic/logstash/ls_2.png)
+<img src="http://www.miaomiaoqi.cn/images/elastic/logstash/ls_2.png" alt="http://www.miaomiaoqi.cn/images/elastic/logstash/ls_2.png" style="zoom: 67%;" />
 
 #### Input 配置
 
@@ -106,9 +106,9 @@ bar
 "|bin/logstash -f imooc/codec.conf
 ```
 
-![http://www.miaomiaoqi.cn/images/elastic/logstash/ls_3.png](http://www.miaomiaoqi.cn/images/elastic/logstash/ls_3.png)
+<img src="http://www.miaomiaoqi.cn/images/elastic/logstash/ls_3.png" alt="http://www.miaomiaoqi.cn/images/elastic/logstash/ls_3.png" style="zoom: 50%;" />
 
-![http://www.miaomiaoqi.cn/images/elastic/logstash/ls_4.png](http://www.miaomiaoqi.cn/images/elastic/logstash/ls_4.png)
+<img src="http://www.miaomiaoqi.cn/images/elastic/logstash/ls_4.png" alt="http://www.miaomiaoqi.cn/images/elastic/logstash/ls_4.png" style="zoom: 50%;" />
 
 
 
@@ -140,9 +140,9 @@ Logstash 内部流转的数据表现形式, 数据都会被封装为 logstash ev
 * 保证数据至少消费一次
 * 充当缓冲区, 可以替代 Kafka 等消息队列的作用
 
-![http://www.miaomiaoqi.cn/images/elastic/logstash/ls_8.png](http://www.miaomiaoqi.cn/images/elastic/logstash/ls_8.png)
+<img src="http://www.miaomiaoqi.cn/images/elastic/logstash/ls_8.png" alt="http://www.miaomiaoqi.cn/images/elastic/logstash/ls_8.png" style="zoom: 50%;" />
 
-![http://www.miaomiaoqi.cn/images/elastic/logstash/ls_9.png](http://www.miaomiaoqi.cn/images/elastic/logstash/ls_9.png)
+<img src="http://www.miaomiaoqi.cn/images/elastic/logstash/ls_9.png" alt="http://www.miaomiaoqi.cn/images/elastic/logstash/ls_9.png" style="zoom:50%;" />
 
 * queue.type: persisted 默认是 memory
 * queue.max_bytes: 4gb 队列存储最大数据量
@@ -243,7 +243,7 @@ Configuration OK
 
 ## Pipeline
 
-用于配置 input, filter 和 output 插件, 队列管理, 插件生命周期管理, 以 .conf 结尾的文件
+用于配置 input, codec, filter 和 output 插件, 队列管理, 插件生命周期管理, 以 .conf 结尾的文件
 
 ```json
 input{}
@@ -451,9 +451,9 @@ echo "test"|bin/logstash -f imooc/input-stdin.conf
 
     exclude => "\*.gz"
 
-* sincedb_path 类型为字符串, 记录 sincedb 文件路径
+* sincedb_path 类型为字符串, 记录 sincedb 文件路径, 上一次读取到的位置
 
-* start_position 类型为字符串, beginning or end, 是否从头读取文件, 默认 end(从 logstash 启动之后读取)
+* start_position 类型为字符串, beginning or end, 是否从头(sinced_path)读取文件, 默认 end(从 logstash 启动之后读取)
 
 * start_interval 类型为数值, 单位秒, 定时检查文件是否有更新, 默认 1 秒
 
@@ -471,3 +471,70 @@ echo "test"|bin/logstash -f imooc/input-stdin.conf
 * [] 匹配多个字符, 比如[a-z], \[^a-z\]
 * {} 匹配多个单词, 比如{foo, bar, hello}
 * \ 转义字符
+
+
+
+**"/var/log/*.log":** 匹配 /var/log 目录下以 .log 结尾的文件
+
+**"/var/log/\*\*/\*.log":** 匹配 /var/log 所有子目录下以 .log 结尾的文件
+
+**"/var/log/{app1, app2, app3}/\*.log":** 匹配 /var/log 目录下 app1, app2, app3 目录中以 .log 结尾的文件
+
+```json
+input {
+  file {
+    path => ["/var/log/access_log", "/var/log/err_log"],
+    type => "Web",
+    start_position => "beginning"
+  }
+}
+```
+
+**调试文件常用配置**
+
+```json
+input {
+  file {
+    path => "/var/log/*.log"
+    sincedb_path => "/dev/null"
+    start_position => "beginning"
+    ignore_older => 0
+    close_older => 5
+    discover_interval => 1
+  }
+}
+
+output {
+  stdout {
+    codec => "rubydebug"
+  }
+}
+
+# /dev/null 特殊文件, 所有的写入内容都不会存储, 那么每次运行该 pipeline 都会从头读取文件
+```
+
+#### kafka
+
+kafka 是最流行的消息队列, 也是 Elastic Stack 架构中常用的, 使用相对简单
+
+```json
+input {
+  kafka {
+    zk_connect => "kafka:2181"
+    group_id => "logstash"
+    topic_id => "apache_logs"
+    consumer_threads => 16
+  }
+}
+```
+
+### Codec 插件
+
+Codec Plugin 作用于 input 和 output plugin, 负责将数据在原始内容与 Logstash Event 之间转换, 常见的 codec 有
+
+* plain: 读取原始内容
+* dots: 将内容简化为点进行输出
+* rubydebug: 将 Logstash Events 按照 ruby 格式输出, 方便调试
+* line: 处理带有换行符的内容
+* json: 处理 json 格式的内容
+* multiline: 处理多行数据的内容
