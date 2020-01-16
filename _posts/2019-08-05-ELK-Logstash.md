@@ -122,15 +122,16 @@ Logstash 内部流转的数据表现形式, 数据都会被封装为 logstash ev
 
 **event 生命周期**
 
-![http://www.miaomiaoqi.cn/images/elastic/logstash/ls_6.png](http://www.miaomiaoqi.cn/images/elastic/logstash/ls_6.png)
+<img src="http://www.miaomiaoqi.cn/images/elastic/logstash/ls_6.png" alt="http://www.miaomiaoqi.cn/images/elastic/logstash/ls_6.png" style="zoom: 50%;" />
 
-![http://www.miaomiaoqi.cn/images/elastic/logstash/ls_7.png](http://www.miaomiaoqi.cn/images/elastic/logstash/ls_7.png)
+<img src="http://www.miaomiaoqi.cn/images/elastic/logstash/ls_7.png" alt="http://www.miaomiaoqi.cn/images/elastic/logstash/ls_7.png" style="zoom:50%;" />
 
 ### Queue 的分类
 
 **In Memory**
 
 * 固定大小, 无法修改
+
 * 无法处理进程 Crash, 机器宕机等情况, 会导致数据丢失
 
 **Persistent Queue In Disk**
@@ -150,7 +151,7 @@ Logstash 内部流转的数据表现形式, 数据都会被封装为 logstash ev
 
 ### 线程配置(调优)
 
-![http://www.miaomiaoqi.cn/images/elastic/logstash/ls_10.png](http://www.miaomiaoqi.cn/images/elastic/logstash/ls_10.png)
+<img src="http://www.miaomiaoqi.cn/images/elastic/logstash/ls_10.png" alt="http://www.miaomiaoqi.cn/images/elastic/logstash/ls_10.png" style="zoom: 50%;" />
 
 * pipeline.workers(配置文件) \| -w(命令行)
 
