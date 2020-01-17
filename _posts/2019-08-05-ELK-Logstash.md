@@ -538,3 +538,127 @@ Codec Plugin 作用于 input 和 output plugin, 负责将数据在原始内容�
 * line: 处理带有换行符的内容
 * json: 处理 json 格式的内容
 * multiline: 处理多行数据的内容
+
+```bash
+bin/logstash -e "input{stdin{codec=>line}}output{stdout{codec=>rubydebug}}"
+
+bin/logstash -e "input{stdin{codec=>line}}output{stdout{codec=>dots}}"
+
+bin/logstash -e "input{stdin{codec=>json}}output{stdout{codec=>rubydebug}}"
+```
+
+#### line
+
+每行数据都会被当做一个 message
+
+#### multiline
+
+当一个 Event 的 message 由多行组成时且需要当做一个整体来处理, 需要使用该 codec, 常见的情况是堆栈日志信息的处理
+
+```java
+Exception in thread "main" java.lang.NullPointeRException
+  at com.miaoqi.myproject.Book.getTitle(Book.java:16)
+  at com.miaoqi.myproject.Author.getBookTitles(Author.java:25)
+```
+
+主要设置参数如下
+
+* pattern 设置行匹配的正则表达式, 可以使用 grok
+* what previous\|next 如果匹配成功, 那么匹配行是归属上一个事件还是下一个事件
+* negate true or false 是否对 pattern 的结果取反
+
+编写 codec-multiline.conf 文件
+
+```
+input{
+  stdin {
+    codec => multiline{
+      pattern => "^\s"
+      what => "previous"
+    }
+  }
+}
+output {
+  stdout {
+    codec => "rubydebug"
+  }
+}
+```
+
+`bin/logstash -e imooc/codec-multiline.conf`
+
+
+
+### Filter 插件
+
+Filter 是 logstash 强大的主要原因, 它可以对 Logstash Event 进行丰富的处理, 比如解析数据, 删除字段, 类型转换等, 常见的有如下几个
+
+* date  日期解析
+* grok 正则匹配解析
+* dissect 分隔符解析
+* mutate 对字段作处理, 比如重命名, 删除, 替换等
+* json 按照 json 解析字段内容到指定字段中
+* geoip 增加地理位置数据
+* ruby 利用 ruby 代码来动态修改 Logstash Event
+
+
+
+#### date
+
+将日期字符串解析为日期类型, 然后替换@timestamp 字段或者指定的其他字段
+
+编写 imooc/filter-date1.conf
+
+```
+input {stdin{codec=>json}}
+filter {
+  date {
+    match => ["logdate", "MMM dd yyyy HH:mm:ss"]
+  }
+}
+output{stdout{codec=>rubydebug}}
+```
+
+运行该 pipeline 输入
+
+`{"logdate": "Jan 01 2018 12:02:03"}`
+
+**常用参数**
+
+* match
+
+    类型为数组, 用于指定日期匹配的格式, 可以一次指定多种日期格式
+
+    match => ["logdate", "MMM dd yyyy HH:mm:ss", "MMM d yyyy HH:mm:ss", "ISO8601"]
+
+* target
+
+    类型为字符串, 用于指定赋值的字段名, 默认是@timestamp
+
+* timezone
+
+    类型为字符串, 用于指定时区
+
+
+
+#### grok
+
+解析一段日志
+
+```
+144.23.4.1 -- [13/Mar/2016:02:38:26-0400] "GET /fancy.html HTTP/1.1" 200 6146 "-" "Mozilla/5.0()"
+```
+
+语法如下
+
+* %{SYNTAX:SEMANTIC}
+
+    SYNTAX 为 gork pattern 的名称, SEMANTIC 为赋值字段的名称
+
+    %{NUMBER:duration} 可以匹配数值类型, 但是 grok 匹配出的内容都是字符串类型, 可以通过在最后指定 int 或者 float 来强制转换类型
+
+    %{NUMBER:duration:float}
+
+* 熟悉一些常见的 Pattern 利于编写匹配规则
+
+* https://github.com/logstash-plugins/logstash-patterns-core/tree/master/patterns
