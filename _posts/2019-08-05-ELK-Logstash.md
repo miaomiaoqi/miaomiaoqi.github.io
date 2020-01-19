@@ -881,3 +881,16 @@ stdout 做 output, codec 使用 rubydebug, 即时查看结果
 ### 实例分析之 Apache Logs
 
 收集 Apache 日志
+
+手机 csv 到 elasticsearch
+
+
+
+### 监控运维之 API
+
+logstash 提供了丰富的 api 来查看 logstash 当前的状态
+
+* http://localhost:9600
+* http://localhost:9600/_node
+* http://localhost:9600/_node/stats
+* http://localhost:9600/_node/hot_threads
