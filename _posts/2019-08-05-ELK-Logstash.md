@@ -363,6 +363,7 @@ input 插件指定数据输入源, 一个 pipeline 可以有多个 input 插件,
 * stdin
 * file
 * kafka
+* http
 
 #### stdin
 
@@ -662,3 +663,80 @@ output{stdout{codec=>rubydebug}}
 * 熟悉一些常见的 Pattern 利于编写匹配规则
 
 * https://github.com/logstash-plugins/logstash-patterns-core/tree/master/patterns
+
+* 自定义 gork pattern
+
+    * (?<service_name>[0-9a-z]{10,11})
+
+        ```
+        input{stdin{}}
+        filter{
+          grok{
+            match => {
+              "message" -> "(?<service_name>[0-9a-z]{10,11})"
+            }
+          }
+        }
+        ```
+
+        如果需要重复使用, 利用率就很低了
+
+    * pattern_definitions 参数, 以键值对的方式定义 pattern 名称和内容
+
+        pattern_dir 参数, 以文件的形式被读取
+
+        ```
+        filter {
+          grok {
+            match => {
+              "message" => "%{SERVICE:service}"
+            }
+            pattern_definitions => {
+              "SERVICE" => [a-z0-9]{10,11}
+            }
+          }
+        }
+        ```
+
+    
+
+#### dissect
+
+基于分隔符原理解析数据, 解决 grok 解析时消耗过多 cpu 资源的问题
+
+```
+%{clientip} %{ident} %{auth} [%{timestamp}] "%{request}" %{response}
+```
+
+![http://www.milky.show/images/elastic/logstash/ls_11.png](http://www.milky.show/images/elastic/logstash/ls_11.png)
+
+主要适用于每行格式相似且分隔符明确简单的场景
+
+dissect 语法比较简单, 有一系列字段(field)和分隔符(delimiter)组成
+
+* %{} 字段
+* %{} 之间是分隔符
+
+dissect 分割后的字段值都是字符串, 可以使用 convert_datatype 属性进行类型转换
+
+```
+filter{
+  dissect {
+    convert_datatype => {
+      age => "int"
+    }
+  }
+}
+```
+
+
+
+#### mutate
+
+使用最频繁的插件, 可以对字段进行各种操作, 比如重命名, 删除, 替换, 更新等, 主要操作如下
+
+* convert 类型转换
+* gsub 字符串替换
+* split/join/merge 字符串切割, 数组合并为字符串, 数组合并为数组
+* rename 字段重命名
+* update/
