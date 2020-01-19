@@ -736,7 +736,148 @@ filter{
 使用最频繁的插件, 可以对字段进行各种操作, 比如重命名, 删除, 替换, 更新等, 主要操作如下
 
 * convert 类型转换
+
+    实现字段类型的转换, 类型为 hash, 仅支持转换为 integer, float, string 和 boolean
+
+    ```
+    filter {
+      mutate {
+        convert => {"age" => "integer"}
+      }
+    }
+    ```
+
 * gsub 字符串替换
+
+    对字段内容进行替换, 类型为数组, 每 3 项为一个替换配置
+
+    ```
+    filter {
+      mutate {
+        gsub => {
+          "path", "/", "-",
+          "urlparams", "[\\?#-]", "."
+        }
+      }
+    }
+    ```
+
+    
+
 * split/join/merge 字符串切割, 数组合并为字符串, 数组合并为数组
+
+    ```
+    filter{
+      mutate{
+        split => {"jobs" => ","}
+      }
+    }
+    ```
+
+    ```
+    filter{
+      mutate{
+        join => {"params" => ","}
+      }
+    }
+    ```
+
+    ```
+    filter{
+      mutate{
+        merge => {"dest_arr" => "source_arr"}
+      }
+    }
+    ```
+
 * rename 字段重命名
-* update/
+
+    ```
+    filter {
+      mutate {
+        rename => {"HOSTORIP" => "client_ip"}
+      }
+    }
+    ```
+
+    
+
+* update/replace 字段内容更新或替换
+
+* remove_field 删除字段
+
+#### json
+
+将字段内容为 json 格式的数据进行解析
+
+```
+filter {
+  json {
+    source => "message"
+    target => "msg_json"
+  }
+}
+```
+
+
+
+### Output 插件
+
+负责将 Logstash Event 输出, 常见的插件如下
+
+* stdout
+* file
+* elasticsearch
+
+#### stdout
+
+输出到标准输出, 多用于调试
+
+```
+output {
+  stdout {
+    codec => rubydebug
+  }
+}
+```
+
+#### file
+
+输出多文件, 实现将分散在多地的文件统一到一处的需求, 比如将所有 web 机器的 web 日志收集到 1 个文件中, 从而方便查阅
+
+```
+output {
+  file {
+    path => "/var/log/web.log"
+    codec => line{format => "%{message}"}
+  }
+}
+```
+
+#### elasticseatch
+
+```
+output {
+  elasticsearch {
+    hosts => ["127.0.0.1:9200", "127.0.0.2:9200"]
+    index => "nginx-%{+YYYY.MM.dd}"
+    template => "./nginx_tempalte.json"
+  }
+}
+```
+
+
+
+## Logstash 实战
+
+### 调试的配置建议
+
+http 做 input, 方便输入测试数据, 并且可以结合 reload 特性(stdin 无法 reload)
+
+stdout 做 output, codec 使用 rubydebug, 即时查看结果
+
+测试错误输入的情况下, 以便对错误情况进行处理
+
+### 实例分析之 Apache Logs
+
+收集 Apache 日志
