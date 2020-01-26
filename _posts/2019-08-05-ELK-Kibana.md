@@ -446,3 +446,24 @@ bin/logstash -f demo_data/imooc_log/ls.conf
 ```
 
 Management 创建 Index Patterns 即可通过 Discover 查看 imooc 的数据
+
+### 数据分析
+
+两个维度进行分析
+
+* Nginx 访问分析
+* 慕课网业务数据分析
+
+#### Nginx 访问分析
+
+访问人数? 流量? 请求 QPS?
+
+访问来源分布? 访问站点分布? 访问页面排名?
+
+请求响应时间分布?
+
+请求响应码分布?
+
+访问地图分布?
+
+慕课网业务数据分析
