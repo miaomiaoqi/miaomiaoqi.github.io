@@ -18,7 +18,7 @@ Data Shipper, 与 Beat 不同, Logstash 是比较重的数据传送者, 但功�
 
 **ETL 工具(Extract, Transform, Load)**
 
-![http://miaomiaoqi.github.io/images/elastic/logstash/ls_1.png](http://miaomiaoqi.github.io/images/elastic/logstash/ls_1.png)
+![https://miaomiaoqi.github.io/images/elastic/logstash/ls_1.png](https://miaomiaoqi.github.io/images/elastic/logstash/ls_1.png)
 
 ## 安装运行
 
@@ -40,7 +40,7 @@ bin/logstash \-\-path.settings config2
 
 多种数据输入源经过 codec 投递到队列中, Batcher 从队列中拉取数据, 当达到等待时间或者数据阈值会将数据流转到 filter,output 中处理
 
-<img src="http://miaomiaoqi.github.io/images/elastic/logstash/ls_5.png" alt="http://miaomiaoqi.github.io/images/elastic/logstash/ls_5.png" style="zoom:50%;" />
+<img src="https://miaomiaoqi.github.io/images/elastic/logstash/ls_5.png" alt="https://miaomiaoqi.github.io/images/elastic/logstash/ls_5.png" style="zoom:50%;" />
 
 ### 数据处理流程
 
@@ -52,7 +52,7 @@ Output 数据输出: stdout, elasticsearch, redis, kafka
 
 传输过程中数据都会被封装成 Logstash Event
 
-<img src="http://miaomiaoqi.github.io/images/elastic/logstash/ls_2.png" alt="http://miaomiaoqi.github.io/images/elastic/logstash/ls_2.png" style="zoom: 67%;" />
+<img src="https://miaomiaoqi.github.io/images/elastic/logstash/ls_2.png" alt="https://miaomiaoqi.github.io/images/elastic/logstash/ls_2.png" style="zoom: 67%;" />
 
 #### Input 配置
 
@@ -106,9 +106,9 @@ bar
 "|bin/logstash -f imooc/codec.conf
 ```
 
-<img src="http://miaomiaoqi.github.io/images/elastic/logstash/ls_3.png" alt="http://miaomiaoqi.github.io/images/elastic/logstash/ls_3.png" style="zoom: 50%;" />
+<img src="https://miaomiaoqi.github.io/images/elastic/logstash/ls_3.png" alt="https://miaomiaoqi.github.io/images/elastic/logstash/ls_3.png" style="zoom: 50%;" />
 
-<img src="http://miaomiaoqi.github.io/images/elastic/logstash/ls_4.png" alt="http://miaomiaoqi.github.io/images/elastic/logstash/ls_4.png" style="zoom: 50%;" />
+<img src="https://miaomiaoqi.github.io/images/elastic/logstash/ls_4.png" alt="https://miaomiaoqi.github.io/images/elastic/logstash/ls_4.png" style="zoom: 50%;" />
 
 
 
@@ -122,9 +122,9 @@ Logstash 内部流转的数据表现形式, 数据都会被封装为 logstash ev
 
 **event 生命周期**
 
-<img src="http://miaomiaoqi.github.io/images/elastic/logstash/ls_6.png" alt="http://miaomiaoqi.github.io/images/elastic/logstash/ls_6.png" style="zoom: 50%;" />
+<img src="https://miaomiaoqi.github.io/images/elastic/logstash/ls_6.png" alt="https://miaomiaoqi.github.io/images/elastic/logstash/ls_6.png" style="zoom: 50%;" />
 
-<img src="http://miaomiaoqi.github.io/images/elastic/logstash/ls_7.png" alt="http://miaomiaoqi.github.io/images/elastic/logstash/ls_7.png" style="zoom:50%;" />
+<img src="https://miaomiaoqi.github.io/images/elastic/logstash/ls_7.png" alt="https://miaomiaoqi.github.io/images/elastic/logstash/ls_7.png" style="zoom:50%;" />
 
 ### Queue 的分类
 
@@ -140,9 +140,9 @@ Logstash 内部流转的数据表现形式, 数据都会被封装为 logstash ev
 * 保证数据至少消费一次
 * 充当缓冲区, 可以替代 Kafka 等消息队列的作用
 
-<img src="http://miaomiaoqi.github.io/images/elastic/logstash/ls_8.png" alt="http://miaomiaoqi.github.io/images/elastic/logstash/ls_8.png" style="zoom: 50%;" />
+<img src="https://miaomiaoqi.github.io/images/elastic/logstash/ls_8.png" alt="https://miaomiaoqi.github.io/images/elastic/logstash/ls_8.png" style="zoom: 50%;" />
 
-<img src="http://miaomiaoqi.github.io/images/elastic/logstash/ls_9.png" alt="http://miaomiaoqi.github.io/images/elastic/logstash/ls_9.png" style="zoom:50%;" />
+<img src="https://miaomiaoqi.github.io/images/elastic/logstash/ls_9.png" alt="https://miaomiaoqi.github.io/images/elastic/logstash/ls_9.png" style="zoom:50%;" />
 
 * queue.type: persisted 默认是 memory
 * queue.max_bytes: 4gb 队列存储最大数据量
@@ -151,7 +151,7 @@ Logstash 内部流转的数据表现形式, 数据都会被封装为 logstash ev
 
 ### 线程配置(调优)
 
-<img src="http://miaomiaoqi.github.io/images/elastic/logstash/ls_10.png" alt="http://miaomiaoqi.github.io/images/elastic/logstash/ls_10.png" style="zoom: 50%;" />
+<img src="https://miaomiaoqi.github.io/images/elastic/logstash/ls_10.png" alt="https://miaomiaoqi.github.io/images/elastic/logstash/ls_10.png" style="zoom: 50%;" />
 
 * pipeline.workers(配置文件) \| -w(命令行)
 
@@ -708,7 +708,7 @@ output{stdout{codec=>rubydebug}}
 %{clientip} %{ident} %{auth} [%{timestamp}] "%{request}" %{response}
 ```
 
-![http://miaomiaoqi.github.io/images/elastic/logstash/ls_11.png](http://miaomiaoqi.github.io/images/elastic/logstash/ls_11.png)
+![https://miaomiaoqi.github.io/images/elastic/logstash/ls_11.png](https://miaomiaoqi.github.io/images/elastic/logstash/ls_11.png)
 
 主要适用于每行格式相似且分隔符明确简单的场景
 

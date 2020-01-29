@@ -120,7 +120,7 @@ delete_rows_event: 删除数据, 即 delete 操作
 
 **业内目前推荐使用的是row模式**，准确性高，虽然说文件大，但是现在有SSD和万兆光纤网络，这些磁盘IO和网络IO都是可以接受的。那么，大家一定想问，为什么不推荐使用mixed模式，理由如下, 假设master有两条记录，而slave只有一条记录。
 
-![http://miaomiaoqi.github.io/images/mysql/binlog_1.png](http://miaomiaoqi.github.io/images/mysql/binlog_1.png)
+![https://miaomiaoqi.github.io/images/mysql/binlog_1.png](https://miaomiaoqi.github.io/images/mysql/binlog_1.png)
 
 当在master上更新一条从库不存在的记录时，也就是id=2的记录，你会发现master是可以执行成功的。而slave拿到这个SQL后，也会照常执行，不报任何异常，只是更新操作不影响行数而已。并且你执行命令show slave status，查看输出，你会发现没有异常。但是，如果你是row模式，由于这行根本不存在，是会报1062错误的。
 

@@ -107,13 +107,13 @@ zkCli.sh [-server host:port]
 1. 节点Znode可以包含数据和子节点
 1. 客户端应用可以在节点上设置监视器
 
-![http://miaomiaoqi.github.io/images/bigdata/zookeeper/1.png](http://miaomiaoqi.github.io/images/bigdata/zookeeper/1.png)
+![https://miaomiaoqi.github.io/images/bigdata/zookeeper/1.png](https://miaomiaoqi.github.io/images/bigdata/zookeeper/1.png)
 
 ## Znode
 
 Znode 包含了数据, 子节点引用, 访问权限等等
 
-![http://miaomiaoqi.github.io/images/bigdata/zookeeper/2.png](http://miaomiaoqi.github.io/images/bigdata/zookeeper/2.png)
+![https://miaomiaoqi.github.io/images/bigdata/zookeeper/2.png](https://miaomiaoqi.github.io/images/bigdata/zookeeper/2.png)
 
 **data:** Znode存储的数据信息。
 
@@ -243,17 +243,17 @@ Znode分为四种类型：
 
 1. 客户端调用getData方法，watch参数是true。服务端接到请求，返回节点数据，并且在对应的哈希表里插入被Watch的Znode路径，以及Watcher列表。
 
-    ![http://miaomiaoqi.github.io/images/bigdata/zookeeper/3.png](http://miaomiaoqi.github.io/images/bigdata/zookeeper/3.png)
+    ![https://miaomiaoqi.github.io/images/bigdata/zookeeper/3.png](https://miaomiaoqi.github.io/images/bigdata/zookeeper/3.png)
 
 2. 当被Watch的Znode已删除，服务端会查找哈希表，找到该Znode对应的所有Watcher，异步通知客户端，并且删除哈希表中对应的Key-Value。
 
-    ![http://miaomiaoqi.github.io/images/bigdata/zookeeper/4.png](http://miaomiaoqi.github.io/images/bigdata/zookeeper/4.png)
+    ![https://miaomiaoqi.github.io/images/bigdata/zookeeper/4.png](https://miaomiaoqi.github.io/images/bigdata/zookeeper/4.png)
 
 # Zookeeper的一致性
 
 Zookepper身为分布式系统协调服务, 如果自身挂掉了怎么办呢? 为了防止单机挂掉的情况, Zookeeper 维护了一个集群
 
-![http://miaomiaoqi.github.io/images/bigdata/zookeeper/5.png](http://miaomiaoqi.github.io/images/bigdata/zookeeper/5.png)
+![https://miaomiaoqi.github.io/images/bigdata/zookeeper/5.png](https://miaomiaoqi.github.io/images/bigdata/zookeeper/5.png)
 
 Zookeeper Service集群是一主多从结构
 

@@ -441,7 +441,7 @@ Spring 提供的对不同环境提供不同配置功能的支持, 可以通过�
 
     在主配置文件编写的时候, 文件名可以是 applicaiton-{profile}.properties/yml
 
-    ![http://miaomiaoqi.github.io/images/springboot/profile.png](http://miaomiaoqi.github.io/images/springboot/profile.png)
+    ![https://miaomiaoqi.github.io/images/springboot/profile.png](https://miaomiaoqi.github.io/images/springboot/profile.png)
 
 * yml支持多文档块方式
 
@@ -726,7 +726,7 @@ JUL, JCL, Jboss-logging, logback, log4j, log4j2, slf4j....
     ```
     
 
-![http://miaomiaoqi.github.io/images/springboot/long1.png](http://miaomiaoqi.github.io/images/springboot/log1.png)
+![https://miaomiaoqi.github.io/images/springboot/long1.png](https://miaomiaoqi.github.io/images/springboot/log1.png)
     
 每一个日志的实现框架都有自己的配置文件. 使用 slf4j 以后, 配置文件还是做成日志实现框架自己本身的配置文件
     
@@ -734,7 +734,7 @@ JUL, JCL, Jboss-logging, logback, log4j, log4j2, slf4j....
 
     a(slf4j+logback): Spring(commons-logging), Hibernate(jboss-logging), MyBatis, xxxx统一日志记录, 即使是别的框架和我一起统一使用slf4j进行输出?
 
-    ![http://miaomiaoqi.github.io/images/springboot/log2.png](http://miaomiaoqi.github.io/images/springboot/log2.png)
+    ![https://miaomiaoqi.github.io/images/springboot/log2.png](https://miaomiaoqi.github.io/images/springboot/log2.png)
 
     如何让系统中所有的日志都统一到 slf4j
     
@@ -762,7 +762,7 @@ SpringBoot使用它来做日志功能;
 </dependency>
 ```
 
-![http://miaomiaoqi.github.io/images/springboot/log3.png](http://miaomiaoqi.github.io/images/springboot/log3.png)
+![https://miaomiaoqi.github.io/images/springboot/log3.png](https://miaomiaoqi.github.io/images/springboot/log3.png)
 
 总结: 
 
