@@ -796,7 +796,7 @@ Quartz任务调度的核心元素为：Scheduler——任务调度器、Trigger�
 
 - trigger状态：`WAITING, ACQUIRED, EXECUTING, COMPLETE, BLOCKED, ERROR, PAUSED, PAUSED_BLOCKED, DELETED`
 
-    ![http://www.milky.show/images/distributed/quartz/quartz_4.png](http://www.milky.show/images/distributed/quartz/quartz_4.png)
+    ![http://www.miaomiaoqi.github.io/images/distributed/quartz/quartz_4.png](http://www.miaomiaoqi.github.io/images/distributed/quartz/quartz_4.png)
 
     trigger的初始状态是**WAITING**，处于**WAITING**状态的trigger等待被触发。调度线程会不停地扫triggers表，根据NEXT_FIRE_TIME提前拉取即将触发的trigger，如果这个trigger被该调度线程拉取到，它的状态就会变为**ACQUIRED**。因为是提前拉取trigger，并未到达trigger真正的触发时刻，所以调度线程会等到真正触发的时刻，再将trigger状态由**ACQUIRED**改为**EXECUTING**。如果这个trigger不再执行，就将状态改为**COMPLETE**,否则为**WAITING**，开始新的周期。如果这个周期中的任何环节抛出异常，trigger的状态会变成**ERROR**。如果手动暂停这个trigger，状态会变成**PAUSED**。
 
@@ -823,7 +823,7 @@ Quartz任务调度的核心元素为：Scheduler——任务调度器、Trigger�
 
 由scheduler工厂创建：DirectSchedulerFactory或者StdSchedulerFactory. 第二种工厂StdSchedulerFactory使用较多, 因为DirectSchedulerFactory使用起来不够方便, 需要作许多详细的手工编码设置. Scheduler主要有三种：RemoteMBeanScheduler, RemoteScheduler和StdScheduler. 主要负责job和trigger的持久化管理, 包括新增、删除、修改、触发、暂停、恢复调度、停止调度等；
 
-![http://www.milky.show/images/distributed/quartz/quartz_1.png](http://www.milky.show/images/distributed/quartz/quartz_1.png)
+![http://www.miaomiaoqi.github.io/images/distributed/quartz/quartz_1.png](http://www.miaomiaoqi.github.io/images/distributed/quartz/quartz_1.png)
 
 
 
@@ -831,7 +831,7 @@ Quartz任务调度的核心元素为：Scheduler——任务调度器、Trigger�
 
 在Quartz中, 有两类线程, Scheduler调度线程和任务执行线程, 其中任务执行线程通常使用一个线程池维护一组线程. 
 
-![http://www.milky.show/images/distributed/quartz/quartz_2.png](http://www.milky.show/images/distributed/quartz/quartz_2.png)
+![http://www.miaomiaoqi.github.io/images/distributed/quartz/quartz_2.png](http://www.miaomiaoqi.github.io/images/distributed/quartz/quartz_2.png)
 
 Scheduler调度线程主要有两个：执行常规调度的线程, 和执行misfiredtrigger的线程. **常规调度线程轮询存储的所有trigger, 如果有需要触发的trigger, 即到达了下一次触发的时间, 则从任务执行线程池获取一个空闲线程, 执行与该trigger关联的任务. Misfire线程是扫描所有的trigger, 查看是否有misfiredtrigger, 如果有的话根据misfire的策略分别处理**(**fire now** OR **wait for the next fire**). **处理misfire job的线程MisfireHandler：轮训所有misfire的trigger, 原理就是从数据库中查询所有下次触发时间小于当前时间的trigger, 按照每个trigger设定的misfire策略处理这些trigger. **
 
@@ -849,7 +849,7 @@ Quartz中的trigger和job需要存储下来才能被使用. Quartz中有两种�
 
 一个Quartz集群中的每个节点是一个独立的Quartz应用, 它又管理着其他的节点. 这就意味着你必须对每个节点分别启动或停止. Quartz集群中, 独立的Quartz节点并不与另一其的节点或是管理节点通信, 而是通过相同的数据库表来感知到另一Quartz应用的, 如图2.1所示. 
 
-![http://www.milky.show/images/distributed/quartz/quartz_3.png](http://www.milky.show/images/distributed/quartz/quartz_3.png)
+![http://www.miaomiaoqi.github.io/images/distributed/quartz/quartz_3.png](http://www.miaomiaoqi.github.io/images/distributed/quartz/quartz_3.png)
 
 ### Quartz 集群相关数据库表
 
@@ -957,7 +957,7 @@ SELECT * FROM QRTZ_LOCKS WHERE CHED_NAME = 'quartzScheduler' AND LOCK_NAME = ? F
 
 这条SQL会给LOCKS表加上悲观锁, 其他线程就只能等待锁的释放
 
-![http://www.milky.show/images/distributed/quartz/quartz_5.png](http://www.milky.show/images/distributed/quartz/quartz_5.png)
+![http://www.miaomiaoqi.github.io/images/distributed/quartz/quartz_5.png](http://www.miaomiaoqi.github.io/images/distributed/quartz/quartz_5.png)
 
 #### 拉取待触发 trigger
 
