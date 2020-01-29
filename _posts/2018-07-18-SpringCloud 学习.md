@@ -264,7 +264,7 @@ public interface ProductClient {
 
 # 分布式统一配置中心 Config
 
-![http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_1.png](http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_1.png)
+![http://miaomiaoqi.github.io/images/springcloud/springcloud_sell_1.png](http://miaomiaoqi.github.io/images/springcloud/springcloud_sell_1.png)
 
 * 配置的内容安全与权限
 
@@ -390,7 +390,7 @@ public interface ProductClient {
 
 # 自动刷新配置 Spring Cloud Bus
 
-![http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_2.png](http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_2.png)
+![http://miaomiaoqi.github.io/images/springcloud/springcloud_sell_2.png](http://miaomiaoqi.github.io/images/springcloud/springcloud_sell_2.png)
 
 SpringCloudBus 依赖 mq 发消息实现服务自动更新配置
 
@@ -422,7 +422,7 @@ SpringCloudBus 依赖 mq 发消息实现服务自动更新配置
 
 * 启动 ConfigServer 服务, 会在 rabbitmq 中自动创建一个 queue, 如下图
 
-    ![http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_3.png](http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_3.png)
+    ![http://miaomiaoqi.github.io/images/springcloud/springcloud_sell_3.png](http://miaomiaoqi.github.io/images/springcloud/springcloud_sell_3.png)
 
     
 
@@ -467,7 +467,7 @@ SpringCloudBus 依赖 mq 发消息实现服务自动更新配置
 
 * 启动 Config Client 服务, 会在 rabbitmq 中自动创建一个 queue, 如下图
 
-    ![http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_4.png](http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_4.png)
+    ![http://miaomiaoqi.github.io/images/springcloud/springcloud_sell_4.png](http://miaomiaoqi.github.io/images/springcloud/springcloud_sell_4.png)
 
 * 修改 git 仓库中的配置文件内容, 向 ConfigServer 发送一条 POST 请求
 
@@ -477,7 +477,7 @@ SpringCloudBus 依赖 mq 发消息实现服务自动更新配置
 
 * **目前为止我们实现了手动的自动刷新, 接下来要配置 git 服务器的 webhooks 实现更改配置后自动 push**
 
-    ![http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_5.png](http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_5.png)
+    ![http://miaomiaoqi.github.io/images/springcloud/springcloud_sell_5.png](http://miaomiaoqi.github.io/images/springcloud/springcloud_sell_5.png)
 
     **我使用的是 git 所以需要配置外网域名进行 push, 生产环境我们可以搭建 gitlab 在内网中使用更安全**
 
@@ -519,7 +519,7 @@ amqp 定义了一系列消息接口, 典型的实现是 rabbitmq, springcloud �
 - 安全性
 - 扩展性
 
-![http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_6.png](http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_6.png)
+![http://miaomiaoqi.github.io/images/springcloud/springcloud_sell_6.png](http://miaomiaoqi.github.io/images/springcloud/springcloud_sell_6.png)
 
 * 加入 Zuul 依赖
 
@@ -995,7 +995,7 @@ feign 整合 hystrix 进行降级, feign 已经自动依赖了 hystrix 包
 
 当某个服务发生降级数量达到一定的百分比, 那么正常的逻辑也会直接触发降级, 将整个服务熔断, 一定时间后再恢复访问, 在 SpringCloud 中的熔断就是配置 4 个属性
 
-![http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_7.png](http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_7.png)
+![http://miaomiaoqi.github.io/images/springcloud/springcloud_sell_7.png](http://miaomiaoqi.github.io/images/springcloud/springcloud_sell_7.png)
 
 **Closed:** 默认熔断器是关闭的, 当失败次数达到一定阈值, 会变为打开状态
 
