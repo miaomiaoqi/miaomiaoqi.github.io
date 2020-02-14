@@ -129,7 +129,7 @@ https://github.com/miaomiaoqi/miaomiaoqi.github.io.git
 
 进入到本地, 将本地的内容和github上的仓库关联, 将本地的内容推送到远端
 
-这个时候在浏览器上输入 https://miaomiaoqi.github.io, 就可以看到博客了, 至此会生成一个简易的博客
+这个时候在浏览器上输入 http://www.milky.show, 就可以看到博客了, 至此会生成一个简易的博客
 
 ## 绑定域名
 
