@@ -1657,9 +1657,9 @@ public class MyBatisConfig{
 ```yaml
 mybatis: 
   # 可以指定 mybatis 自己的配置文件, 如果不需要可以不配
-  config-location: classpath: mybatis/mybatis-config.xml
+  config-location: classpath:mybatis/mybatis-config.xml
   # 如果 xml 和 mapper 在同一个目录下, 可以不配该条配置
-  mapper-locations: classpath: mybatis/mapper/*.xml
+  mapper-locations: classpath:mybatis/mapper/*.xml
 ```
 
 **我们一般在 maven 环境下整合 mybatis 此处就有一个问题会发生**
