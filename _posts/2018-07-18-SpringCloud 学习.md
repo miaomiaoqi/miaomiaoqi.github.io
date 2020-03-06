@@ -8,7 +8,7 @@ keywords:
 
 * content
 {:toc}
-# 微服务
+## 微服务
 
 一系列微小的服务组成
 
@@ -20,7 +20,7 @@ keywords:
 
 分布式的管理
 
-## 不适合微服务的场景
+### 不适合微服务的场景
 
 **系统中包含很多强事务场景的不适合做微服务**
 
@@ -30,19 +30,19 @@ keywords:
 
 **...**
 
-## 如何拆分功能
+### 如何拆分功能
 
 单一职责, 松耦合(不同服务尽量不影响), 高内聚(所有行为放到一个服务)
 
 关注点分离
 
-## 服务和数据的关系
+### 服务和数据的关系
 
 先考虑业务功能, 在考虑数据
 
 无状态服务
 
-# 注册中心Spring Cloud Eureka
+## 注册中心Spring Cloud Eureka
 
 @EnableEurekaServer, @EnableEurekaClient, @EnableDiscoveryClient
 
@@ -61,7 +61,7 @@ keywords:
 
 3. 当网络稳定时, 当前实例新的注册信息会同步到其他节点中
 
-## Spring Cloud Eureka Server
+### Spring Cloud Eureka Server
 
 启动类加入 `@EnableEurekaServer` 注解
 
@@ -105,7 +105,7 @@ eureka:
 http://127.0.0.1:9901/eureka/apps
 ```
 
-## Spring Cloud Eureka Client
+### Spring Cloud Eureka Client
 
 启动类加入 `@EnableDiscoveryClient` 注解
 
@@ -119,7 +119,7 @@ public class SpringcloudSellClientApplication {
 }
 ```
 
-## 高可用
+### 高可用
 
 拷贝 EurekaServer 项目, 修改端口号, 修改服务注册地址为其他 EurekaServer 的地址
 
@@ -144,15 +144,15 @@ eureka:
       defaultZone: http://eureka9901:9901/eureka/,http://eureka9902:9902/eureka/,http://eureka9903:9903/eureka/
 ```
 
-## 服务发现的两种方式
+### 服务发现的两种方式
 
-### 客户端发现
+#### 客户端发现
 
 客户端获取所有服务端地址, 需要自己实现负载均衡逻辑去调用, SpringCloud 就采用这种方式
 
 Eureka: http://eureka9901:9901/eureka/apps 可以查看注册信息
 
-### 服务端发现
+#### 服务端发现
 
 需要代理服务的介入, 对客户端是完全透明的
 
@@ -162,9 +162,9 @@ Zookeeper
 
 Kubernetes
 
-# 应用间通信 RestTemplate 和 Feign
+## 应用间通信 RestTemplate 和 Feign
 
-## RestTemplate(面向服务)
+### RestTemplate(面向服务)
 
 基于 Netflix Ribbon 实现的一套 http 客户端负载均衡工具, Ribbon + RestTemplate, 结合 eureka 使用, 会从 eureka 中查找可用的机器进行访问
 
@@ -214,7 +214,7 @@ public class RestTemplateConfig {
 }
 ```
 
-### Ribbon组件
+#### Ribbon组件
 
 Netflix Ribbon 是客户端负载均衡器, 是 LoadBalance 实现负载均衡的组件, 可以实现**服务发现, 服务选择规则, 服务监听**, **RestTemplate, Feign, Zuul 均使用该组件**
 
@@ -222,7 +222,7 @@ Netflix Ribbon 是客户端负载均衡器, 是 LoadBalance 实现负载均衡�
 * IRule: 根据规则获取一个地址
 * ServerListFilter: 过滤掉一部分服务地址
 
-## Feign(面向接口)
+### Feign(面向接口)
 
 声明式 REST 客户端(伪RPC), 采用了基于接口的注解 @FeignClient, 内部也使用了 Ribbon 做负载均衡
 
@@ -262,7 +262,7 @@ public interface ProductClient {
 }
 ```
 
-# 分布式统一配置中心 Config
+## 分布式统一配置中心 Config
 
 ![http://www.milky.show/images/springcloud/springcloud_sell_1.png](http://www.milky.show/images/springcloud/springcloud_sell_1.png)
 
@@ -288,7 +288,7 @@ public interface ProductClient {
 
     label: git 中的分支branch, 不写的话默认是 master 分支
 
-## ConfigServer
+### ConfigServer
 
 * 加入 ConfigServer 依赖, config 本身也是一个微服务, 需要注册到 eureka 中
 
@@ -353,7 +353,7 @@ public interface ProductClient {
 
 
 
-## ConfigClient
+### ConfigClient
 
 * 加入依赖
 
@@ -388,7 +388,7 @@ public interface ProductClient {
 
 
 
-# 自动刷新配置 Spring Cloud Bus
+## 自动刷新配置 Spring Cloud Bus
 
 ![http://www.milky.show/images/springcloud/springcloud_sell_2.png](http://www.milky.show/images/springcloud/springcloud_sell_2.png)
 
@@ -481,7 +481,7 @@ SpringCloudBus 依赖 mq 发消息实现服务自动更新配置
 
     **我使用的是 git 所以需要配置外网域名进行 push, 生产环境我们可以搭建 gitlab 在内网中使用更安全**
 
-# 消息队列 AMQP
+## 消息队列 AMQP
 
 amqp 定义了一系列消息接口, 典型的实现是 rabbitmq, springcloud 默认使用的实现就是 rabbitmq
 
@@ -510,7 +510,7 @@ amqp 定义了一系列消息接口, 典型的实现是 rabbitmq, springcloud �
 
 
 
-# 路由网关Zuul
+## 路由网关Zuul
 
 **Zuul 的核心是一系列的过滤器**, 过滤器配合路由就是 Zuul 的本质了, Zuul 是 Netflix 公司的产品, Zuul1.x 的内部是 servlet 阻塞模型, Zuul2.x 采用的是 netty 的非阻塞模型, 但是 Zuul2.x 没有整合进入 SpringCloud, SpringCloud 推出了自己的网关 SpringCloudGateway 需要结合 Webflux 使用
 
@@ -580,7 +580,7 @@ amqp 定义了一系列消息接口, 典型的实现是 rabbitmq, springcloud �
 
     springcloud-sell-product 就是 product 服务在 eureka 中的服务 id, gateway-zuul 会默认配置
 
-## 自定义路由
+### 自定义路由
 
 修改 git 中配置文件
 
@@ -607,7 +607,7 @@ management:
 
 使用 http://localhost:9946/actuator/routes 查看全部的路由规则
 
-## 传递 Cookie
+### 传递 Cookie
 
 路由规则中默认设置了敏感头, Zuul 会过滤掉这些值, 我们需要手动去除敏感头, 见上述配置
 
@@ -617,7 +617,7 @@ management:
 private Set<String> sensitiveHeaders = new LinkedHashSet(Arrays.asList("Cookie", "Set-Cookie", "Authorization"));
 ```
 
-## 动态更新配置
+### 动态更新配置
 
 * 将配置文件放到 git 中
 
@@ -640,7 +640,7 @@ private Set<String> sensitiveHeaders = new LinkedHashSet(Arrays.asList("Cookie",
     }
     ```
 
-## 过滤器
+### 过滤器
 
 - 前置(Pre): 限流, 鉴权, 参数校验调整
 - 路由(Route)
@@ -648,7 +648,7 @@ private Set<String> sensitiveHeaders = new LinkedHashSet(Arrays.asList("Cookie",
 
 - 错误(Error)
 
-## 鉴权
+### 鉴权
 
 利用前置过滤器, 需要前端携带参数 token 才能通过, 生产中校验 cookie 中的 jwt
 
@@ -696,7 +696,7 @@ public class TokenFilter extends ZuulFilter {
 }
 ```
 
-## 限流
+### 限流
 
 利用前置过滤器, **在请求被转发之前调用, 我们放在鉴权过滤器前**
 
@@ -757,7 +757,7 @@ public class RateLimitFilter extends ZuulFilter {
 
 
 
-## 全局加响应头, 利用后置过滤器
+### 全局加响应头, 利用后置过滤器
 
 ```java
 @Component
@@ -787,7 +787,7 @@ public class AddResponseHeaderFilter extends ZuulFilter {
 }
 ```
 
-## 跨域
+### 跨域
 
 * 在被调用的类或方法上增加 @CrossOrigin 注解
 * 在 Zuul 里增加 CorsFilter 过滤器
@@ -814,11 +814,11 @@ public class CorsConfig {
 }
 ```
 
-# Spring Cloud Hystrix
+## Spring Cloud Hystrix
 
 基于 Netflix 的 Hystrix 开发的防雪崩利器, 为服务提供一系列容错保护功能
 
-## 服务降级
+### 服务降级
 
 **优先核心服务可用, 非核心服务不可用或若可用**, 通过 HystrixCommand 注解指定, fallbackMethod(回退函数)中具体实现降级逻辑
 
@@ -899,7 +899,7 @@ public class CorsConfig {
                 timeoutInMilliseconds: 3000
     ```
 
-### Feign-Hystrix
+#### Feign-Hystrix
 
 feign 整合 hystrix 进行降级, feign 已经自动依赖了 hystrix 包
 
@@ -940,7 +940,7 @@ feign 整合 hystrix 进行降级, feign 已经自动依赖了 hystrix 包
     }
     ```
 
-### 可视化 hystrix 工具 Hystrix-Dashboard
+#### 可视化 hystrix 工具 Hystrix-Dashboard
 
 * 加入依赖
 
@@ -991,7 +991,7 @@ feign 整合 hystrix 进行降级, feign 已经自动依赖了 hystrix 包
 
 
 
-## 服务熔断
+### 服务熔断
 
 当某个服务发生降级数量达到一定的百分比, 那么正常的逻辑也会直接触发降级, 将整个服务熔断, 一定时间后再恢复访问, 在 SpringCloud 中的熔断就是配置 4 个属性
 
@@ -1030,11 +1030,11 @@ http://localhost:9926/getProductInfoList?number=2 会正常访问
 
 **当降级请求达到 60%的比例后, 正常访问的接口, 也会直接降级整个服务熔断 , 10s 后恢复一定量访问**
 
-## 依赖隔离
+### 依赖隔离
 
 线程池隔离, Hystrix 自动实现了依赖隔离
 
-## Zuul超时设置(降级)
+### Zuul超时设置(降级)
 
 Zuul 使用 ribbon 负载均衡组件, 所以 zuul 的超时配置时配置 ribbon 的超时时间, 同时也可以指定 hystrix 超时配置, 两者可以同时存在, 哪个时间小就先触发哪个
 
@@ -1164,7 +1164,24 @@ public class GatewayFallback implements FallbackProvider {
 
 
 
-# 链路监控 Spring Cloud Sleuth
+## 链路监控 Spring Cloud Sleuth
 
 
 
+
+
+## SpringCloud 多版本选择
+
+英文命名方式也比较有意思，Spring Cloud 采用了英国伦敦地铁站的名称来命名，并由地铁站名称字母A-Z依次类推的形式来发布迭代版本。
+
+由上可知，Spring Cloud 的第一个版本 "Angel" 就不觉得奇怪了，接着 "Brixton" 就是第二个版本。当一个项目到达发布临界点或者解决了一个严重的 BUG 后就会发布一个 "Service Release" 版本， 简称 SR(X) 版本，x 代表一个递增数字。
+
+**由此我们可以得出 "Finchley M9" 就是目前最新的开发版本，"Edgware SR3" 是最新稳定版本。**
+
+| Release Train | Boot Version |
+| :------------ | :----------- |
+| Hoxton        | 2.2.x        |
+| Greenwich     | 2.1.x        |
+| Finchley      | 2.0.x        |
+| Edgware       | 1.5.x        |
+| Dalston       | 1.5.x        |

@@ -1,7 +1,7 @@
 ---
 layout: post
 title: SpringSecurity学习
-categories: [project]
+categories: [Security]
 description: 
 keywords: 
 ---
