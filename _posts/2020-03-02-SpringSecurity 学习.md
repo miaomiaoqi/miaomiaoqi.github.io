@@ -69,3 +69,15 @@ SpringSecurity 并没有提供验证码的校验过滤器, 需要自定义 Filte
 
 
 ## 实现短信验证码登录
+
+### 开发短信验证码
+
+根据随机数生成图片
+
+将随机数放到 session 中
+
+将生成的验证码发送到手机端
+
+### 短信验证码登录
+
+SpringSecurity 并没有提供短信验证码的登录功能, 所以我们需要自己实现 SmsAuthenticationTokenFilter
