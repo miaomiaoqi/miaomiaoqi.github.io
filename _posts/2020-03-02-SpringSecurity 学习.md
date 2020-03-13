@@ -12,7 +12,7 @@ keywords:
 
 ## SpringSecurity 基本原理
 
-![http://www.milky.show/images/springsecurity/authen_1.png](http://www.milky.show/images/springsecurity/authen_1.png)
+<img src="http://www.milky.show/images/springsecurity/authen_1.png" alt="http://www.milky.show/images/springsecurity/authen_1.png" style="zoom: 25%;" />
 
 SpringSecurity 的基本原理是内置了许多的过滤器, 所有的过滤器都可以根据我们的配置进行插拔式的配置, 其中绿色的部分是我们可控的, 其余的部分是必须存在的
 
@@ -82,7 +82,7 @@ SpringSecurity 并没有提供验证码的校验过滤器, 需要自定义 Filte
 
 SpringSecurity 并没有提供短信验证码的登录功能, 所以我们需要自己实现 SmsAuthenticationTokenFilter
 
-![http://www.milky.show/images/springsecurity/authen_2.png](http://www.milky.show/images/springsecurity/authen_2.png)
+<img src="http://www.milky.show/images/springsecurity/authen_2.png" alt="http://www.milky.show/images/springsecurity/authen_2.png" style="zoom: 25%;" />
 
 自定义一个 SmsAuthenticationFilter, 根据手机号生成未认证的 SmsAuthenticationToken(封装登录信息, 身份认证之前封装的是手机号, 认证成功后封装的是用户信息), AuthenticationManager 会检索系统中所有的 Provider, 这时我们提供一个 SmsAuthenticationProvider 用这个 provider 来校验手机号的信息, provider 调用 UserDetailsService 获取用户信息进行认证, 认证成功的话将我们的 Token 置为已认证状态
 
