@@ -18,6 +18,10 @@ SpringSecurity 的基本原理是内置了许多的过滤器, 所有的过滤器
 
 ## 自定义用户认证逻辑
 
+配置类继承 WebSecurityConfigurerAdapter 重写 configure 方法
+
+
+
 ### 处理用户信息获取逻辑
 
 实现 UserDetailsService 接口重写 loadUserByUsername 方法, 所有的用户信息都从底层数据库中查找, 返回给 SpringSecurity 进行密码校验
@@ -78,12 +82,24 @@ SpringSecurity 并没有提供验证码的校验过滤器, 需要自定义 Filte
 
 将生成的验证码发送到手机端
 
-### 短信验证码登录
+### 短信验证码组件开发
 
-SpringSecurity 并没有提供短信验证码的登录功能, 所以我们需要自己实现 SmsAuthenticationTokenFilter
+**SpringSecurity 并没有提供短信验证码的登录功能, 所以我们需要自己实现 SmsAuthenticationTokenFilter**
 
 <img src="http://www.milky.show/images/springsecurity/authen_2.png" alt="http://www.milky.show/images/springsecurity/authen_2.png" style="zoom: 25%;" />
 
 自定义一个 SmsAuthenticationFilter, 根据手机号生成未认证的 SmsAuthenticationToken(封装登录信息, 身份认证之前封装的是手机号, 认证成功后封装的是用户信息), AuthenticationManager 会检索系统中所有的 Provider, 这时我们提供一个 SmsAuthenticationProvider 用这个 provider 来校验手机号的信息, provider 调用 UserDetailsService 获取用户信息进行认证, 认证成功的话将我们的 Token 置为已认证状态
 
 验证短信验证码的过程还要单独写一个 filter 达到可复用的目的
+
+
+
+
+
+## OAuth 协议简介
+
+### OAuth 协议要解决的问题
+
+### OAuth 协议中的各种角色
+
+### OAuth 协议运行流程
