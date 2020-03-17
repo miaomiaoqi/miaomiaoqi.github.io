@@ -1977,9 +1977,11 @@ return pageInfo;
 
 ## AOP应用
 
-### 全局异常处理器, 对 Controller 层加入异常通知, 新建全局异常处理器类
+### 全局异常处理
 
-@ControllerAdvice 是 Spring 提供的注解, 改注解监听了所有 Controller 类抛出的异常
+#### @ControllerAdvice + @ExceptionHandler 注解处理异常
+
+@ControllerAdvice 是 Spring 提供的注解, 该注解监听了所有 Controller 类抛出的异常
 
 ```java
 /**
@@ -2006,6 +2008,23 @@ public class GlobalExceptionHandler {
     }
 }
 ```
+**但是这种处理方式处理不了 404，如果想通过这种方式处理，则需要在配置文件里面添加**
+
+```properties
+spring.mvc.throw-exception-if-no-handler-found=true
+spring.resources.add-mappings=false
+```
+
+**但是这两句代码添加之后, 又会导致静态资源不可使用.**
+
+
+
+#### 继承 ErrorController + @ControllerAdvice + @ExceptionHandle 处理一切异常
+
+
+
+
+
 ### 全局参数拦截
 
 自定义切面类, 拦截所有的 Controller 方法进行参数的输出
