@@ -939,8 +939,8 @@ SpringBoot使用它来做日志功能;
         @Override
         public void addInterceptors(InterceptorRegistry registry) {
             registry.addInterceptor(new LoginHandlerInterceptor()).addPathPatterns("/**").excludePathPatterns("/index.html")
-                    .excludePathPatterns("/").excludePathPatterns("/user/login").excludePathPatterns("/hello")
-                    .excludePathPatterns("/error/**");
+                   .excludePathPatterns("/").excludePathPatterns("/user/login").excludePathPatterns("/hello")
+                   .excludePathPatterns("/error/**");
         }
         
     }
@@ -1950,8 +1950,6 @@ public interface BaseMapper<T> extends Mapper<T>, IdListMapper<T, Long>, InsertL
 }
 ```
 
-
-
 #### 分页助手启动器
 
 引入分页助手相关 jar 包
@@ -1978,6 +1976,8 @@ return pageInfo;
 ## AOP应用
 
 ### 全局异常处理
+
+当我们的程序发生异常时, SpringBoot 会将这个 Request forward 到一个错误处理的接口上去 ,  默认是 **/error**, Spring Boot 提供了一个默认的 **BasicErrorController** 来处理这个 /error 接口的请求. 一个方法处理响应 json 格式数据, 另一个函数响应一个 html 页面, 也就是我们看到的那个不能再糊弄事的 Whitelabel Error Page. 我们可以通过多种方式将错误请求进行自定义处理, 以一个好的方式展示
 
 #### @ControllerAdvice + @ExceptionHandler 注解处理异常
 
@@ -2008,7 +2008,7 @@ public class GlobalExceptionHandler {
     }
 }
 ```
-**但是这种处理方式处理不了 404，如果想通过这种方式处理，则需要在配置文件里面添加**
+**但是这种处理方式处理不了 404 的异常因为没有经过 Controller, 如果想通过这种方式处理, 则需要在配置文件里面添加**
 
 ```properties
 spring.mvc.throw-exception-if-no-handler-found=true
@@ -2021,7 +2021,92 @@ spring.resources.add-mappings=false
 
 #### 继承 ErrorController + @ControllerAdvice + @ExceptionHandle 处理一切异常
 
+**除去 Controller 中的异常, 会转发到 /error 接口中, 通过 produces 进行区分是浏览器还是其他客户端进行的访问**
 
+```java
+@Controller
+public class OtherErrorController implements ErrorController {
+ 
+    private static final String ERROR_PATH = "/error";
+
+    private ErrorAttributes errorAttributes;
+
+    @Override
+    public String getErrorPath() {
+        return ERROR_PATH;
+    }
+
+    @Autowired
+    public OtherErrorController(ErrorAttributes errorAttributes) {
+        this.errorAttributes = errorAttributes;
+    }
+
+    /**
+     * 通过限定 produces 来控制 Web 页面错误处理
+     */
+    @RequestMapping(value = ERROR_PATH, produces = "text/html")
+    public String errorPageHandler(HttpServletRequest request, HttpServletResponse response) {
+        int status = response.getStatus();
+        switch (status) {
+            case 403:
+                return "403";
+            case 404:
+                return "404";
+            case 500:
+                return "500";
+        }
+        return "index";
+    }
+
+    /**
+     * 除 Web 页面外的错误处理, 比如 Json/XML 等
+     */
+    @RequestMapping(value = ERROR_PATH)
+    @ResponseBody
+    public ApiResponse errorApiHandler(HttpServletRequest request, HttpServletResponse response) {
+        RequestAttributes requestAttributes = new ServletRequestAttributes(request);
+        Map<String, Object> attr = this.errorAttributes.getErrorAttributes(requestAttributes, false);
+        int status = this.getStatus(request);
+        return ApiResponse.ofMessage(status, String.valueOf(attr.getOrDefault("message", "error")));
+    }
+
+    private int getStatus(HttpServletRequest request) {
+        Integer status = (Integer) request.getAttribute("javax.servlet.error.status_code");
+        if (status != null) {
+            return status;
+        }
+        return 500;
+    }
+}
+```
+
+**Controller 中的异常不用改变, 继续处理 Controller 中抛出的异常**
+
+```java
+/**
+ * 全局异常捕获处理器
+ * 1. 捕获返回json格式
+ * 2. 捕获返回页面
+ *
+ * @author miaoqi
+ * @date 2018/9/4
+ */
+@ControllerAdvice(basePackages = "com.miaoqi.controller")
+public class GlobalExceptionHandler {
+    
+    // @ResponseBody 返回json格式
+    // ModelAndView 返回页面
+    @ExceptionHandler(RuntimeException.class)
+    @ResponseBody
+    public Map<String, Object> errorResult(RuntimeException e) {
+        // 实际开发中, 将异常信息写到日志中(发邮件通知管理者)
+        Map<String, Object> errorResultMap = new HashMap<>();
+        errorResultMap.put("errorCode", "500");
+        errorResultMap.put("errorMsg", "全局捕获异常系统错误: " + e);
+        return errorResultMap;
+    }
+}
+```
 
 
 
@@ -2686,22 +2771,22 @@ public class SwaggerConfig {
     public Docket createRestApi() {
         return new Docket(DocumentationType.SWAGGER_2)
                 // 设置 swagger-ui.html 页面上的一些元素信息
-                .apiInfo(this.apiInfo()).select()
+               .apiInfo(this.apiInfo()).select()
                 // 定义要扫描的路径, 可以扫描包, 类注解, 方法注解
-                .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
+               .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
                 // 定义要生成文档的 Api 的 url 路径规则
-                .paths(PathSelectors.any()).build();
+               .paths(PathSelectors.any()).build();
     }
 
     // swagger2 的一些基本信息
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
                 // 标题
-                .title("xx 服务接口文档")
+               .title("xx 服务接口文档")
                 // 描述
-                .description("xx 服务接口文档").termsOfServiceUrl("http: //localhost: 8080")
+               .description("xx 服务接口文档").termsOfServiceUrl("http: //localhost: 8080")
                 // 文档版本
-                .version("1.0").build();
+               .version("1.0").build();
     }
 
 }
