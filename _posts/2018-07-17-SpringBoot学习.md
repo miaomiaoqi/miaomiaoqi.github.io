@@ -692,13 +692,13 @@ Spring 提供的对不同环境提供不同配置功能的支持, 可以通过�
 
 1. System.out.println("");将关键数据打印在控制台;去掉?写在一个文件? 
 
-2. 框架来记录系统的一些运行时信息;日志框架 ; zhanglogging.jar; 
+2. 框架来记录系统的一些运行时信息; 日志框架; zhanglogging.jar; 
 
-3. 高大上的几个功能?异步模式?自动归档?xxxx? zhanglogging-good.jar? 
+3. 高大上的几个功能?异步模式?自动归档? xxxx? zhanglogging-good.jar? 
 
-4. 将以前框架卸下来?换上新的框架, 重新修改之前相关的API;zhanglogging-prefect.jar; 
+4. 将以前框架卸下来?换上新的框架, 重新修改之前相关的API; zhanglogging-prefect.jar; 
 
-5. JDBC ---数据库驱动; 写了一个统一的接口层;日志门面(日志的一个抽象层);logging-abstract.jar; 给项目中导入具体的日志实现就行了;我们之前的日志框架都是实现的抽象层;
+5. JDBC ---数据库驱动; 写了一个统一的接口层; 日志门面(日志的一个抽象层); logging-abstract.jar; 给项目中导入具体的日志实现就行了; 我们之前的日志框架都是实现的抽象层;
 
 
 市面上的日志框架: 
@@ -727,9 +727,10 @@ JUL, JCL, Jboss-logging, logback, log4j, log4j2, slf4j....
     
 
 ![http://www.milky.show/images/springboot/long1.png](http://www.milky.show/images/springboot/log1.png)
-    
+
 每一个日志的实现框架都有自己的配置文件. 使用 slf4j 以后, 配置文件还是做成日志实现框架自己本身的配置文件
     
+
 2. 遗留问题
 
     a(slf4j+logback): Spring(commons-logging), Hibernate(jboss-logging), MyBatis, xxxx统一日志记录, 即使是别的框架和我一起统一使用slf4j进行输出?
@@ -737,11 +738,11 @@ JUL, JCL, Jboss-logging, logback, log4j, log4j2, slf4j....
     ![http://www.milky.show/images/springboot/log2.png](http://www.milky.show/images/springboot/log2.png)
 
     如何让系统中所有的日志都统一到 slf4j
-    
+
     1. **将系统中其他日志框架先排除出去**
-    
+
     2. **用中间包来替换原有的日志框架**
-    
+
     3. **我们导入slf4j其他的实现**
 
 ### SpringBoot的日志关系
