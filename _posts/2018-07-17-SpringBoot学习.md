@@ -418,17 +418,17 @@ person.dog.age=15
 
     @ConfigurationProperties 自动装配和 @Value 手动装配默认匹配默认配置文件即 application 文件, 使用 @PropertySource可以额外指定要加载的配置文件, @ConfigurationProperties, @Value, @PropertySource 可以配合使用, 加载顺序如下
 
-    1. 自动装配 application.properties
+    1.  自动装配 application.properties
 
-    1. 自动装配 application.yaml
+    2.  自动装配 application.yaml
 
-    1. 自动装配自定义配置文件
+    3.  自动装配自定义配置文件
 
-    1. 手动装配 application.properties
+    4.  手动装配 application.properties
 
-    1. 手动装配 application.yaml
+    5.  手动装配 application.yaml
 
-    1. 手动装配自定义配置文件
+    6.  手动装配自定义配置文件
 
     **后边不会覆盖前边的内容, 即 application.properties > application.yaml > 自定义配置文件, @ConfigurationProperties > @Value**
 
@@ -1174,7 +1174,7 @@ public class FilterConfig {
 
 * 在 SpringBoot 中使用 SpringTask
 
-    1. 开启任务注解
+    1.  开启任务注解
 
         ```java
         @EnableAsync // 开启异步注解
@@ -1185,14 +1185,11 @@ public class FilterConfig {
             public static void main(String[] args) {
                 SpringApplication.run(SpringBoot10TaskApplication.class, args);
             }
-        
+        }
         ```
-    
-    }
-        ```
-    
-    1. 编写定时任务类
-    
+
+    2.  编写定时任务类
+
         ```java
         @Service
         public class ScheduledService {
@@ -1224,8 +1221,6 @@ public class FilterConfig {
         }
         ```
 
-
-
 ## 自定义拦截器
 
 ### 编写拦截器
@@ -1253,7 +1248,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 }
 ```
 
-**继承 HandlerInterceptorAdapter, HandlerInterceptorAdapter也是实现了 HandlerInterceptor 接口, 本质是一样的**
+**继承 HandlerInterceptorAdapter, HandlerInterceptorAdapter 也是实现了 HandlerInterceptor 接口, 本质是一样的**
 
 ```java
 public class LoginInterceptor extends HandlerInterceptorAdapter {
@@ -1304,7 +1299,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 }
 ```
 
-**但是根据官方标注 WebMvcConfigurerAdapter 过时了, 因为java8接口具有默认实现, 然后想通过继承WebMvcConfigurationSupport 实现添加**
+**但是根据官方标注 WebMvcConfigurerAdapter 过时了, 因为 java8 接口具有默认实现, 然后想通过继承WebMvcConfigurationSupport 实现添加**
 
 ```java
 @Configuration
@@ -1360,8 +1355,6 @@ public class WebConfig implements WebMvcConfigurer {
 }
 ```
 
-
-
 ## 数据访问
 
 ### 整合JDBC
@@ -1391,11 +1384,11 @@ spring:
     driver‐class‐name: com.mysql.jdbc.Driver
 ```
 
-默认是用 org.apache.tomcat.jdbc.pool.DataSource 作为数据库连接池; 
+默认是用 org.apache.tomcat.jdbc.pool.DataSource 作为数据库连接池
 
-数据源的相关配置都在 **DataSourceProperties** 里面;
+数据源的相关配置都在 **DataSourceProperties** 里面
 
-**自动配置原理: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;**
+**自动配置原理: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration**
 
 **在 DataSourceAutoConfiguration 中使用 Import 加载多种数据源组件**
 
@@ -2766,7 +2759,7 @@ Swagger 是一款 RESTful 接口的文档在线自动生成, 功能测试功能�
 @EnableSwagger2
 public class SwaggerConfig {
 
-    // swagger2的配置文件, 这里可以配置swagger2的一些基本的内容, 比如扫描的包等等
+    // swagger2 的配置文件, 这里可以配置 swagger2 的一些基本的内容, 比如扫描的包等等
     @Bean
     public Docket createRestApi() {
         return new Docket(DocumentationType.SWAGGER_2)
@@ -2931,7 +2924,6 @@ public class UserController {
         } catch (Exception e) {
             r.setResult(e.getClass().getName() + ": " + e.getMessage());
             r.setStatus("error");
-
             e.printStackTrace();
         }
         return ResponseEntity.ok(r);
@@ -2990,7 +2982,7 @@ public class JsonResult {
 
 ### 访问 Swgger 页面
 
-启动项目, 在地址栏中输入 `http: //localhost: 8080/swagger-ui.html` 即可访问 swagger 页面
+启动项目, 在地址栏中输入 `http://localhost:8080/swagger-ui.html` 即可访问 swagger 页面
 
 ### 相关注解
 
