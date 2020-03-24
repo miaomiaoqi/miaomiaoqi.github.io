@@ -88,11 +88,9 @@ SpringSecurity 并没有提供验证码的校验过滤器, 需要自定义 Filte
 
 <img src="http://www.milky.show/images/springsecurity/authen_2.png" alt="http://www.milky.show/images/springsecurity/authen_2.png" style="zoom: 25%;" />
 
-自定义一个 SmsAuthenticationFilter, 根据手机号生成未认证的 SmsAuthenticationToken(封装登录信息, 身份认证之前封装的是手机号, 认证成功后封装的是用户信息), AuthenticationManager 会检索系统中所有的 Provider, 这时我们提供一个 SmsAuthenticationProvider 用这个 provider 来校验手机号的信息, provider 调用 UserDetailsService 获取用户信息进行认证, 认证成功的话将我们的 Token 置为已认证状态
+自定义一个 **SmsAuthenticationFilter**, 根据手机号生成未认证的 **SmsAuthenticationToken**(封装登录信息, 身份认证之前封装的是手机号, 认证成功后封装的是用户信息), AuthenticationManager 会检索系统中所有的 Provider, 这时我们提供一个 **SmsAuthenticationProvider** 用这个 provider 来校验手机号的信息, provider 调用 UserDetailsService 获取用户信息进行认证, 认证成功的话将我们的 Token 置为已认证状态
 
 验证短信验证码的过程还要单独写一个 filter 达到可复用的目的
-
-
 
 
 
@@ -100,6 +98,53 @@ SpringSecurity 并没有提供验证码的校验过滤器, 需要自定义 Filte
 
 ### OAuth 协议要解决的问题
 
+<img src="http://www.milky.show/images/springsecurity/authen_3.png" alt="http://www.milky.show/images/springsecurity/authen_3.png" style="zoom: 25%;" />
+
+用户将微信用户名和密码告诉第三方, 第三方程序员再向微信请求数据, 会存在如下风险
+
+*   第三方应用可以访问用户在微信上的所有数据
+*   用户只有修改密码, 才能收回授权
+*   密码泄露的可能性大大提高
+
+OAuth 就是用来解决上述问题的
+
 ### OAuth 协议中的各种角色
 
-### OAuth 协议运行流程
+<img src="http://www.milky.show/images/springsecurity/authen_4.png" alt="http://www.milky.show/images/springsecurity/authen_4.png" style="zoom: 25%;" />
+
+上图是 OAuth 的核心流程, 其中第 2 步同意授权又包含 4 种模式
+
+*   **授权码模式(authorization code)**
+*   **密码模式(resource owner password credentials)**
+*   客户端模式(client credentials)
+*   简化模式(implicit)
+
+#### 授权码模式
+
+<img src="http://www.milky.show/images/springsecurity/authen_5.png" alt="http://www.milky.show/images/springsecurity/authen_5.png" style="zoom: 25%;" />
+
+用户同意授权的动作是在认证服务器上完成的, 认证服务器可以明确知道是用户同意授权了, 安全性高
+
+第三方应用需要有一个后台服务器接收认证服务器返回的授权码
+
+## SpringSocial
+
+<img src="http://www.milky.show/images/springsecurity/authen_7.png" alt="http://www.milky.show/images/springsecurity/authen_7.png" style="zoom: 25%;" />
+
+SpringSocial 将 OAuth 的流程封装成了 SocialAuthenticationFilter 中并加入到了过滤器链中
+
+### SpringSocial 开发第三方登录
+
+<img src="http://www.milky.show/images/springsecurity/authen_6.png" alt="http://www.milky.show/images/springsecurity/authen_6.png" style="zoom: 25%;" />
+
+ServiceProvider(AbstractOAuth2ServiceProvider):
+
+OAuth2Operations(OAuth2Template): 封装了 1~5 步
+
+Api(AbstractOAuth2ApiBinding): 第 6 步封装接口的实现, 因为每个提供商的返回值都不一样
+
+
+
+Connection(OAuth2Connection): 封装获取到的用户信息
+
+ConnectionFactory(OAuth2ConnectionFactory): 负责创建 Connection 实例, 通过调用 ServiceProvider
