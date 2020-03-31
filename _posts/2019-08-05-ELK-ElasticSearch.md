@@ -57,7 +57,7 @@ mac 上使用 brew 安装的 es 的配置文件目录位于 `/usr/local/etc/elas
 
 1. 到 [ES 官网](https://www.elastic.co/cn/downloads/elasticsearch) 下载对应操作系统的压缩包
 2. 解压缩到安装目录
-3. 运行 `bin/elasticsearch` 即可
+3. 运行 `bin/elasticsearch -d` 后台运行即可
 
 
 
