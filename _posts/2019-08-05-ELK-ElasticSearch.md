@@ -63,7 +63,9 @@ mac 上使用 brew 安装的 es 的配置文件目录位于 `/usr/local/etc/elas
 
 ### 安装中文分词器插件
 
-`elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v6.8.4/elasticsearch-analysis-ik-6.8.4.zip`
+```shell
+elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v6.8.4/elasticsearch-analysis-ik-6.8.4.zip
+```
 
 ### 安装 Kibana
 
