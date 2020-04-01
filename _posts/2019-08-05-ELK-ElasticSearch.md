@@ -681,7 +681,7 @@ GET /myindex/doc/_search
 
 ### 支持的属性
 
-#### **copy_to解析**
+#### copy_to解析
 
 ```json
 DELETE /myindex
