@@ -4266,7 +4266,7 @@ POST test_search_index/doc/_bulk
 
 ### Metric 聚合分析
 
-#### **min**
+#### min
 
 返回数值类字段的最小值
 
@@ -5682,27 +5682,27 @@ GET _tasks/_qKI6E8_TDWjXyo_x-bhmw:11996
 
 ![http://www.milky.show/images/elastic/search/es_1.png](http://www.milky.show/images/elastic/search/es_1.png)
 
-### **Gateway层**
+### Gateway层
 
 es用来存储索引文件的一个文件系统且它支持很多类型，例如：本地磁盘、共享存储（做snapshot的时候需要用到）、hadoop的hdfs分布式存储、亚马逊的S3。它的主要职责是用来对数据进行长持久化以及整个集群重启之后可以通过gateway重新恢复数据。
 
-### **Distributed Lucene Directory**
+### Distributed Lucene Directory
 
 Gateway上层就是一个lucene的分布式框架，lucene是做检索的，但是它是一个单机的搜索引擎，像这种es分布式搜索引擎系统，虽然底层用lucene，但是需要在每个节点上都运行lucene进行相应的索引、查询以及更新，所以需要做成一个分布式的运行框架来满足业务的需要。
 
-### **四大模块组件**
+### 四大模块组件
 
 districted lucene directory之上就是一些es的模块，Index Module是索引模块，就是对数据建立索引也就是通常所说的建立一些倒排索引等；Search Module是搜索模块，就是对数据进行查询搜索；Mapping模块是数据映射与解析模块，就是你的数据的每个字段可以根据你建立的表结构通过mapping进行映射解析，如果你没有建立表结构，es就会根据你的数据类型推测你的数据结构之后自己生成一个mapping，然后都是根据这个mapping进行解析你的数据；River模块在es2.0之后应该是被取消了，它的意思表示是第三方插件，例如可以通过一些自定义的脚本将传统的数据库（mysql）等数据源通过格式化转换后直接同步到es集群里，这个river大部分是自己写的，写出来的东西质量参差不齐，将这些东西集成到es中会引发很多内部bug，严重影响了es的正常应用，所以在es2.0之后考虑将其去掉。
 
-### **Discovery, Script**
+### Discovery, Script
 
 es4大模块组件之上有 Discovery模块：es是一个集群包含很多节点，很多节点需要互相发现对方，然后组成一个集群包括选主的，这些es都是用的discovery模块，默认使用的是 Zen，也可是使用EC2；es查询还可以支撑多种script即脚本语言，包括mvel、js、python等等。
 
-### **Transport协议层**
+### Transport协议层
 
 再上一层就是es的通讯接口Transport，支持的也比较多：Thrift、Memcached以及Http，默认的是http，JMX就是java的一个远程监控管理框架，因为es是通过java实现的。
 
-### **RESTful接口层**
+### RESTful接口层
 
 最上层就是es暴露给我们的访问接口，官方推荐的方案就是这种Restful接口，直接发送http请求，方便后续使用nginx做代理、分发包括可能后续会做权限的管理，通过http很容易做这方面的管理。如果使用java客户端它是直接调用api，在做负载均衡以及权限管理还是不太好做。
 
@@ -6895,7 +6895,7 @@ PUT /_cluster/settings
 
 **目标是增大写吞吐量-EPS(Event Per Second)越高越好**
 
-#### **refresh**
+#### refresh
 
 segment 写入磁盘的过程依然很耗时, 可以借助文件系统缓存的特性, 先将 segment 在缓存中创建并开放查询来进一步提升实时性,   该过程在 es 中称为 refresh
 
@@ -6903,7 +6903,7 @@ segment 写入磁盘的过程依然很耗时, 可以借助文件系统缓存的�
 
 es 默认每 1 秒执行一次 refresh, 因此文档的实时性被提高到 1 秒, 这也是 es 被称为近实时(Near Real Time)的原因
 
-#### **translog**
+#### translog
 
 如果在内存中的 segment 还没有写入磁盘前发生了宕机, 那么其中的文档就无法恢复了
 
@@ -6913,7 +6913,7 @@ translog 文件会即时写入磁盘(fsync), 6.x 默认每个请求都会落盘,
 
 es 启动时会检查 translog 文件, 并从中恢复数据
 
-#### **flush**
+#### flush
 
 flush 负责将内存中的 segment 写入磁盘, 主要做如下工作
 
@@ -6923,7 +6923,7 @@ flush 负责将内存中的 segment 写入磁盘, 主要做如下工作
 * 执行 fsync 操作, 将内存中的 segment 写入磁盘
 * 删除旧的 translog 文件
 
-#### **优化方案**
+#### 优化方案
 
 * 客户端: 多线程写, 批量写(10MB~20MB), 具体情况还要具体测试
 
