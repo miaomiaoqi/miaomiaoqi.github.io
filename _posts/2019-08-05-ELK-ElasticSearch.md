@@ -842,9 +842,7 @@ index_options 用于控制倒排索引记录的内容, 有如下 4 中配置
 
 https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-params.html
 
-
-
-### **支持的数据类型**
+### 支持的数据类型
 
 1. 核心数据类型（Core datatypes）
 
