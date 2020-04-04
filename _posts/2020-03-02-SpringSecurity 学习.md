@@ -148,3 +148,4 @@ Api(AbstractOAuth2ApiBinding): 第 6 步封装接口的实现, 因为每个提�
 Connection(OAuth2Connection): 封装获取到的用户信息
 
 ConnectionFactory(OAuth2ConnectionFactory): 负责创建 Connection 实例, 通过调用 ServiceProvider
+
