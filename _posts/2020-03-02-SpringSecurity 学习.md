@@ -137,7 +137,9 @@ SpringSocial 将 OAuth 的流程封装成了 SocialAuthenticationFilter 中并�
 
 <img src="http://www.milky.show/images/springsecurity/authen_6.png" alt="http://www.milky.show/images/springsecurity/authen_6.png" style="zoom: 50%;" />
 
-ServiceProvider(AbstractOAuth2ServiceProvider):
+<img src="http://www.milky.show/images/springsecurity/authen_8.png" alt="http://www.milky.show/images/springsecurity/authen_8.png" style="zoom: 50%;" />
+
+ServiceProvider(AbstractOAuth2ServiceProvider): 负责 1~6 步的流程
 
 OAuth2Operations(OAuth2Template): 封装了 1~5 步
 
