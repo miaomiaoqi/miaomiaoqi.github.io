@@ -305,17 +305,25 @@ person.dog.age=15
     
     ${person.lastName: xxx}, 取上文中配置的 person.lastName 的属性值, 如果 person.lastName 不存在取 xxx 作为值
 
-### 配置文件加载位置
+### 配置文件加载顺序
 
-1. 项目路径下/config/
+#### 同一目录下的 application 和 bootstrap
 
-1. 项目路径下
+1.  bootstrap 优先级高于 application, 优先被加载
+2.  bootstrap 用于应用程序上文的的引导阶段, 由父 ApplicationContext 加载
+3.  bootstrap 是系统级别的配置(不变的参数), application 是应用级别的配置
 
-1. 类路径下/config/
+#### 不同位置的配置文件加载顺序
 
-1. 类路径下/
+1. file: ./config/ 优先级最高(项目路径下的 config)
 
-**优先级从高到低, 高优先级的内容会覆盖低优先级的内容**
+1. file: ./ 优先级第二(项目路径下)
+
+1. classpath:/config/ 优先级第三(项目 resources/config 下)
+
+1. classpath:/ 优先级第四(项目 resources 下)
+
+**优先级从高到低, 高优先级的内容会覆盖低优先级的内容, 多个配置文件互补**
 
 ### 绑定配置文件中的值
 
@@ -2709,6 +2717,99 @@ inteceptor1...after -> filter3...after -> filter2...after -> filter1...after -> 
 ```
 
 **异常时 @Around 的后续不会执行, 不会执行全局响应, 拦截器的 post 方法不会执行**
+
+
+
+## Actuator 监控
+
+引入 actuator 依赖
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+```
+
+开启配置
+
+```yaml
+info:
+  app:
+    name: imooc-springboot-study
+    groupId: com.imooc.springboot.study
+    version: 1.0-SNAPSHOT
+```
+
+应用配置类常用监控
+
+*   自己配置的 info 信息: /actuator/info
+*   应用中的 bean 的信息: /actuator/beans
+*   应用中 url 路径信息: /actuator/mappings
+
+度量指标类常用监控
+
+*   检查应用的运行状态: /actuator/health
+*   当前线程活动快照: /actuator/threaddump
+
+操作控制类常用监控
+
+*   关闭应用(POST): /actuator/shutdown
+
+    curl -X POST "http://localhost:8080/actuator/shutdown"
+
+## 自定义监控指标
+
+编写指标类
+
+```java
+@Endpoint(id = "datetime")
+public class DateTimeEndPoint {
+
+    private String format = "yyyy-MM-dd HH:mm:ss";
+
+    /**
+     * <h2>用来显示监控指标</h2>
+     * /actuator/datetime
+     * */
+    @ReadOperation
+    public Map<String, Object> info() {
+
+        Map<String, Object> info = new HashMap<>();
+        info.put("name", "qinyi");
+        info.put("age", "19");
+        info.put("datetime", new SimpleDateFormat(this.format).format(new Date()));
+        return info;
+    }
+
+    /**
+     * <h2>动态更改监控指标</h2>
+     * */
+    @WriteOperation
+    public void setFormat(String format) {
+        this.format = format;
+    }
+
+}
+```
+
+编写指标配置类
+
+```java
+@Configuration
+public class DateTimeEndpointConfig {
+
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnEnabledEndpoint
+    public DateTimeEndPoint dateTimeEndPoint() {
+        return new DateTimeEndPoint();
+    }
+
+}
+```
+
+
 
 ## SpringBoot 整合 Swagger2
 
