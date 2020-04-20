@@ -135,9 +135,9 @@ SpringSocial 将 OAuth 的流程封装成了 SocialAuthenticationFilter 中并�
 
 ### SpringSocial 开发第三方登录
 
-<img src="http://www.milky.show/images/springsecurity/authen_6.png" alt="http://www.milky.show/images/springsecurity/authen_6.png" style="zoom: 50%;" />
-
 <img src="http://www.milky.show/images/springsecurity/authen_8.png" alt="http://www.milky.show/images/springsecurity/authen_8.png" style="zoom: 50%;" />
+
+<img src="http://www.milky.show/images/springsecurity/authen_6.png" alt="http://www.milky.show/images/springsecurity/authen_6.png" style="zoom: 50%;" />
 
 ServiceProvider(AbstractOAuth2ServiceProvider): 负责 1~6 步的流程
 
@@ -150,4 +150,6 @@ Api(AbstractOAuth2ApiBinding): 第 6 步封装接口的实现, 因为每个提�
 Connection(OAuth2Connection): 封装获取到的用户信息
 
 ConnectionFactory(OAuth2ConnectionFactory): 负责创建 Connection 实例, 通过调用 ServiceProvider
+
+ApiAdapter: 将服务商个性化的结果转化为标准的 OAuth 对象
 
