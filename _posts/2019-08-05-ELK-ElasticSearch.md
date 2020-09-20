@@ -157,15 +157,15 @@ PUT /lib/user/4?version=3
 Elasticsearch 使用一种称为 倒排索引 的结构，它适用于快速的全文搜索。一个倒排索引由文档中所有不重复词的列表构成，对于其中每个词，有一个包含它的文档列表。
 
 假设文档集合包含五个文档，每个文档内容如图所示，在图中最左端一栏是每个文档对应的文档编号。我们的任务就是对这个文档集合建立倒排索引。
-![http://www.milky.show/images/elastic/search/es_2.png](http://www.milky.show/images/elastic/search/es_2.png)
+<img src="http://www.milky.show/images/elastic/search/es_2.png" alt="http://www.milky.show/images/elastic/search/es_2.png" style="zoom: 67%;" />
 
 (2):中文和英文等语言不同，单词之间没有明确分隔符号，所以首先要用分词系统将文档自动切分成单词序列。这样每个文档就转换为由单词序列构成的数据流，为了系统后续处理方便，需要对每个不同的单词赋予唯一的单词编号，同时记录下哪些文档包含这个单词，在如此处理结束后，我们可以得到最简单的倒排索引
-![http://www.milky.show/images/elastic/search/es_3.png](http://www.milky.show/images/elastic/search/es_3.png)
+<img src="http://www.milky.show/images/elastic/search/es_3.png" alt="http://www.milky.show/images/elastic/search/es_3.png" style="zoom:67%;" />
 “单词ID”一栏记录了每个单词的单词编号，第二栏是对应的单词，第三栏即每个单词对应的倒排列表
 
 (3):索引系统还可以记录除此之外的更多信息,下图还记载了单词频率信息（TF）即这个单词在某个文档中的出现次数，之所以要记录这个信息，是因为词频信息在搜索结果排序时，计算查询和文档相似度是很重要的一个计算因子，所以将其记录在倒排列表中，以方便后续排序时进行分值计算。
 
-![http://www.milky.show/images/elastic/search/es_4.png](http://www.milky.show/images/elastic/search/es_4.png)
+<img src="http://www.milky.show/images/elastic/search/es_4.png" alt="http://www.milky.show/images/elastic/search/es_4.png" style="zoom:67%;" />
 
 (4):倒排列表中还可以记录单词在某个文档出现的位置信息
 
@@ -258,28 +258,28 @@ jumped 和 leap, 尽管没有相同的词根，但他们的意思很相近。他
 
 **standard 分词器**：(默认的)他会将词汇单元转换成小写形式，并去除停用词和标点符号，支持中文采用的方法为单字切分
 
-![http://www.milky.show/images/elastic/search/es_8.png](http://www.milky.show/images/elastic/search/es_8.png)
+<img src="http://www.milky.show/images/elastic/search/es_8.png" alt="http://www.milky.show/images/elastic/search/es_8.png" style="zoom:67%;" />
 
 **simple 分词器**：首先会通过非字母字符来分割文本信息，然后将词汇单元统一为小写形式。该分析器会去掉数字类型的字符。
 
-![http://www.milky.show/images/elastic/search/es_9.png](http://www.milky.show/images/elastic/search/es_9.png)
+<img src="http://www.milky.show/images/elastic/search/es_9.png" alt="http://www.milky.show/images/elastic/search/es_9.png" style="zoom:67%;" />
 
 **Whitespace** 分词器：仅仅是去除空格，对字符没有lowcase化,不支持中文；
 并且不对生成的词汇单元进行其他的标准化处理。
 
-![http://www.milky.show/images/elastic/search/es_10.png](http://www.milky.show/images/elastic/search/es_10.png)
+<img src="http://www.milky.show/images/elastic/search/es_10.png" alt="http://www.milky.show/images/elastic/search/es_10.png" style="zoom:67%;" />
 
 **Stop 分词器**: 
 
-![http://www.milky.show/images/elastic/search/es_11.png](http://www.milky.show/images/elastic/search/es_11.png)
+<img src="http://www.milky.show/images/elastic/search/es_11.png" alt="http://www.milky.show/images/elastic/search/es_11.png" style="zoom:67%;" />
 
 **Keyword 分词器**:
 
-![http://www.milky.show/images/elastic/search/es_12.png](http://www.milky.show/images/elastic/search/es_12.png)
+<img src="http://www.milky.show/images/elastic/search/es_12.png" alt="http://www.milky.show/images/elastic/search/es_12.png" style="zoom:67%;" />
 
 **Pattern 分词器**:
 
-![http://www.milky.show/images/elastic/search/es_13.png](http://www.milky.show/images/elastic/search/es_13.png)
+<img src="http://www.milky.show/images/elastic/search/es_13.png" alt="http://www.milky.show/images/elastic/search/es_13.png" style="zoom:67%;" />
 
 **language 分词器**：特定语言的分词器，不支持中文
 
@@ -3463,7 +3463,7 @@ GET _cluster/health
 
 以9个shard，3个节点为例：
 
-![http://www.milky.show/images/elastic/search/es_5.png](http://www.milky.show/images/elastic/search/es_5.png)
+<img src="http://www.milky.show/images/elastic/search/es_5.png" alt="http://www.milky.show/images/elastic/search/es_5.png" style="zoom: 50%;" />
 
 如果 master node 宕机，此时不是所有的 primary shard 都是 Active status，所以此时的集群状态是 red。
 
@@ -3505,7 +3505,7 @@ Document1 是如何存储到分片 P1 的? 选择 P1 的依据是什么?
 5. P1 接收副本分片结果后, 通知 node3 创建成功
 6. node3 返回结果到 Client
 
-![http://www.milky.show/images/elastic/search/es_15.png](http://www.milky.show/images/elastic/search/es_15.png)
+<img src="http://www.milky.show/images/elastic/search/es_15.png" alt="http://www.milky.show/images/elastic/search/es_15.png" style="zoom:67%;" />
 
 **文档读取流程**
 
@@ -3535,7 +3535,7 @@ Document1 是如何存储到分片 P1 的? 选择 P1 的依据是什么?
 
 3 个节点组成的集群, 突然 node1 的网络和其他两个节点中断, node2 和 node3 会重新选举 master, 比如 node2 成为了新的 master, 此时会更新 cluster state, node1 自己组成集群后, 也会更新 cluster state, 同一个集群由两个master, 而且维护不同的cluster state, 网络恢复后无法选择正确的 master
 
-![http://www.milky.show/images/elastic/search/es_16.png](http://www.milky.show/images/elastic/search/es_16.png)
+<img src="http://www.milky.show/images/elastic/search/es_16.png" alt="http://www.milky.show/images/elastic/search/es_16.png" style="zoom:67%;" />
 
 解决方案为仅在可选举的 master-eligible 节点数大于等于 quorum 时才可以进行 master 选举
 
@@ -3555,17 +3555,17 @@ Document1 是如何存储到分片 P1 的? 选择 P1 的依据是什么?
 
 坏处为需要写入新文档时, 必须重新构建倒排索引, 然后替换老文件后, 新文档才能被检索, 导致文档实时性差
 
-![http://www.milky.show/images/elastic/search/es_17.png](http://www.milky.show/images/elastic/search/es_17.png)
+<img src="http://www.milky.show/images/elastic/search/es_17.png" alt="http://www.milky.show/images/elastic/search/es_17.png" style="zoom:67%;" />
 
 解决方案是新文档直接生成新的倒排索引文件, 查询的时候查询所有的倒排索引文件, 然后做结果的汇总即可
 
-![http://www.milky.show/images/elastic/search/es_18.png](http://www.milky.show/images/elastic/search/es_18.png)
+<img src="http://www.milky.show/images/elastic/search/es_18.png" alt="http://www.milky.show/images/elastic/search/es_18.png" style="zoom:67%;" />
 
 Lucene 便是采用了这种方案, 它构建的单个倒排索引称为 segment, 合在一起称为 Index, 与 ES 中的 Index 概念不同, ES 中的一个 Shard 对应一个 Lucene Index
 
 Lucene 会有一个专门的文件来记录所有的 segment 信息, 称为 commit point
 
-![http://www.milky.show/images/elastic/search/es_19.png](http://www.milky.show/images/elastic/search/es_19.png)
+<img src="http://www.milky.show/images/elastic/search/es_19.png" alt="http://www.milky.show/images/elastic/search/es_19.png" style="zoom:67%;" />
 
 ### 文档搜索实时性
 
@@ -3577,7 +3577,7 @@ segment 写入磁盘的过程依然很耗时, 可以借助文件系统缓存的�
 
 es 默认每 1 秒执行一次 refresh, 因此文档的实时性被提高到 1 秒, 这也是 es 被称为近实时(Near Real Time)的原因
 
-![http://www.milky.show/images/elastic/search/es_20.png](http://www.milky.show/images/elastic/search/es_20.png)
+<img src="http://www.milky.show/images/elastic/search/es_20.png" alt="http://www.milky.show/images/elastic/search/es_20.png" style="zoom:67%;" />
 
 refresh 发生的时机主要有如下几种情况
 
@@ -3601,7 +3601,7 @@ PUT /my_index/_settings
 }
 ```
 
-![http://www.milky.show/images/elastic/search/es_21.png](http://www.milky.show/images/elastic/search/es_21.png)
+<img src="http://www.milky.show/images/elastic/search/es_21.png" alt="http://www.milky.show/images/elastic/search/es_21.png" style="zoom:67%;" />
 
 **flush**
 
@@ -3615,14 +3615,14 @@ PUT /my_index/_settings
 
 删除旧的 translog 文件
 
-![http://www.milky.show/images/elastic/search/es_22.png](http://www.milky.show/images/elastic/search/es_22.png)
+<img src="http://www.milky.show/images/elastic/search/es_22.png" alt="http://www.milky.show/images/elastic/search/es_22.png" style="zoom:67%;" />
 
 flush 发生时机
 
 * 间隔时间达到时, 默认是 30 分钟, 5.x 之前可以通过 `index.translog.flush_threshold_period` 修改, 之后无法修改
 * translog 占满时, 其大小可以通过 `index.translog.flush_threshold_size` 控制, 默认是 512m, 每个 index 有自己的 translog
 
-![http://www.milky.show/images/elastic/search/es_23.png](http://www.milky.show/images/elastic/search/es_23.png)
+<img src="http://www.milky.show/images/elastic/search/es_23.png" alt="http://www.milky.show/images/elastic/search/es_23.png" style="zoom:67%;" />
 
 **图中的每个 shard 对应一个 lucene index**
 
@@ -3663,7 +3663,7 @@ Query-Then-Fetch
 3. 被选中的 3 个分片会分别执行查询并排序, 返回 from + size 个文档 id 和排序值(这里只返回 id, 不返回文档本身内容)
 4. node3 整合 3 个分片返回的 from + size 个文档 id, **根据排序值排序后选取 from 到 from + size 的文档 id**
 
-![http://www.milky.show/images/elastic/search/es_24.png](http://www.milky.show/images/elastic/search/es_24.png)
+<img src="http://www.milky.show/images/elastic/search/es_24.png" alt="http://www.milky.show/images/elastic/search/es_24.png" style="zoom: 50%;" />
 
 ### Fetch 阶段
 
@@ -3672,7 +3672,7 @@ Query-Then-Fetch
 3. 3 个分片返回文档的详细数据
 4. node3 拼接返回的结果并返回给客户
 
-![http://www.milky.show/images/elastic/search/es_25.png](http://www.milky.show/images/elastic/search/es_25.png)
+<img src="http://www.milky.show/images/elastic/search/es_25.png" alt="http://www.milky.show/images/elastic/search/es_25.png" style="zoom: 50%;" />
 
 ### 相关性算分问题
 
@@ -4947,17 +4947,17 @@ GET test_search_index/_search
 
 协调节点从各个分片上获取最小的数据, 再求出最小的数据返回给客户端
 
-![http://www.milky.show/images/elastic/search/es_26.png](http://www.milky.show/images/elastic/search/es_26.png)
+<img src="http://www.milky.show/images/elastic/search/es_26.png" alt="http://www.milky.show/images/elastic/search/es_26.png" style="zoom: 50%;" />
 
 #### Terms 聚合的执行流程
 
 协调节点从各个分片上获取到 Top5 的数据, 再求出真正的 top5 返回给客户端
 
-![http://www.milky.show/images/elastic/search/es_27.png](http://www.milky.show/images/elastic/search/es_27.png)
+<img src="http://www.milky.show/images/elastic/search/es_27.png" alt="http://www.milky.show/images/elastic/search/es_27.png" style="zoom:50%;" />
 
 **Terms 永远不准确**
 
-![http://www.milky.show/images/elastic/search/es_28.png](http://www.milky.show/images/elastic/search/es_28.png)
+<img src="http://www.milky.show/images/elastic/search/es_28.png" alt="http://www.milky.show/images/elastic/search/es_28.png" style="zoom:50%;" />
 
 **Terms 不准确的原因**
 
@@ -4995,7 +4995,7 @@ GET test_search_index/_search
     * doc_count_error_upper_bonud 被遗漏的 term 可能的最大值, 0 表明计算准确
     * sum_other_doc_count 返回结果 bucket 的 term 外其他 term 的文档总数
 
-    ![http://www.milky.show/images/elastic/search/es_29.png](http://www.milky.show/images/elastic/search/es_29.png)
+    <img src="http://www.milky.show/images/elastic/search/es_29.png" alt="http://www.milky.show/images/elastic/search/es_29.png" style="zoom:50%;" />
 
 ### 近似统计算法
 
@@ -5004,7 +5004,7 @@ GET test_search_index/_search
 * 结果是近似准确的, 但不一定精准
 * 可以通过参数的调整使其结果精准, 但同时也意味着更多的计算时间和更大的性能消耗
 
-![http://www.milky.show/images/elastic/search/es_30.png](http://www.milky.show/images/elastic/search/es_30.png)
+<img src="http://www.milky.show/images/elastic/search/es_30.png" alt="http://www.milky.show/images/elastic/search/es_30.png" style="zoom: 67%;" />
 
 ## 数据建模
 
@@ -5035,7 +5035,7 @@ GET test_search_index/_search
 
 ES 是基于 Lucene 以倒排索引为基础实现的存储体系, 不遵循关系型数据库中的范式约定
 
-![http://www.milky.show/images/elastic/search/es_31.png](http://www.milky.show/images/elastic/search/es_31.png)
+<img src="http://www.milky.show/images/elastic/search/es_31.png" alt="http://www.milky.show/images/elastic/search/es_31.png" style="zoom:67%;" />
 
 #### Mapping 字段相关设置
 
@@ -5057,7 +5057,7 @@ ES 是基于 Lucene 以倒排索引为基础实现的存储体系, 不遵循关�
 
 #### Mapping 字段属性的设定流程
 
-![http://www.milky.show/images/elastic/search/es_32.png](http://www.milky.show/images/elastic/search/es_32.png)
+<img src="http://www.milky.show/images/elastic/search/es_32.png" alt="http://www.milky.show/images/elastic/search/es_32.png" style="zoom: 67%;" />
 
 ##### 何种类型
 
@@ -5263,7 +5263,7 @@ ES 不擅长处理关系型数据库中的关联关系, 比如文章表 blog 与
 * 评论日期 date
 * 评论内容 content
 
-![http://www.milky.show/images/elastic/search/es_33.png](http://www.milky.show/images/elastic/search/es_33.png)
+<img src="http://www.milky.show/images/elastic/search/es_33.png" alt="http://www.milky.show/images/elastic/search/es_33.png" style="zoom:67%;" />
 
 #### Nested Object
 
@@ -5410,19 +5410,19 @@ GET blog_index_nested/_search
 
 ES 还提供了类似关系型数据库中 `join` 的实现方式, 使用 `join` 数据类型实现, 需要 es6.0 以上的版本
 
-![http://www.milky.show/images/elastic/search/es_34.png](http://www.milky.show/images/elastic/search/es_34.png)
+<img src="http://www.milky.show/images/elastic/search/es_34.png" alt="http://www.milky.show/images/elastic/search/es_34.png" style="zoom:67%;" />
 
-![http://www.milky.show/images/elastic/search/es_35.png](http://www.milky.show/images/elastic/search/es_35.png)
+<img src="http://www.milky.show/images/elastic/search/es_35.png" alt="http://www.milky.show/images/elastic/search/es_35.png" style="zoom:67%;" />
 
 常见 `query` 语法包括如下几种
 
 * parent_id 返回某父文档的子文档
 
-    ![http://www.milky.show/images/elastic/search/es_36.png](http://www.milky.show/images/elastic/search/es_36.png)
+    <img src="http://www.milky.show/images/elastic/search/es_36.png" alt="http://www.milky.show/images/elastic/search/es_36.png" style="zoom:67%;" />
 
 * has_child 返回包含某子文档的父文档
 
-    ![http://www.milky.show/images/elastic/search/es_37.png](http://www.milky.show/images/elastic/search/es_37.png)
+    <img src="http://www.milky.show/images/elastic/search/es_37.png" alt="http://www.milky.show/images/elastic/search/es_37.png" style="zoom:67%;" />
 
 * has_parent 返回包含某父文档的子文档
 
@@ -5562,7 +5562,7 @@ ES 提供了现成的 API 用于完成该工作
 
 在现有索引上重建
 
-![http://www.milky.show/images/elastic/search/es_38.png](http://www.milky.show/images/elastic/search/es_38.png)
+<img src="http://www.milky.show/images/elastic/search/es_38.png" alt="http://www.milky.show/images/elastic/search/es_38.png" style="zoom: 50%;" />
 
 ```json
 DELETE blog_index
@@ -5601,9 +5601,9 @@ GET blog_index/doc/1
 
 在其他索引上重建
 
-![http://www.milky.show/images/elastic/search/es_39.png](http://www.milky.show/images/elastic/search/es_39.png)
+<img src="http://www.milky.show/images/elastic/search/es_39.png" alt="http://www.milky.show/images/elastic/search/es_39.png" style="zoom: 67%;" />
 
-![http://www.milky.show/images/elastic/search/es_40.png](http://www.milky.show/images/elastic/search/es_40.png)
+<img src="http://www.milky.show/images/elastic/search/es_40.png" alt="http://www.milky.show/images/elastic/search/es_40.png" style="zoom: 67%;" />
 
 ```json
 DELETE blog_index
@@ -5649,7 +5649,7 @@ GET blog_new_index/_search
 
 ES 提供了 Task API 来查看任务的执行进度和相关数据
 
-![http://www.milky.show/images/elastic/search/es_41.png](http://www.milky.show/images/elastic/search/es_41.png)
+<img src="http://www.milky.show/images/elastic/search/es_41.png" alt="http://www.milky.show/images/elastic/search/es_41.png" style="zoom:67%;" />
 
 ```json
 POST blog_index/_update_by_query?conflicts=proceed&wait_for_completion=false
@@ -5665,7 +5665,7 @@ GET _tasks/_qKI6E8_TDWjXyo_x-bhmw:11996
 
 为每个文档增加一个 metadata 字段, 在其中维护一些文档相关的元数据, 方便对数据进行管理
 
-![http://www.milky.show/images/elastic/search/es_42.png](http://www.milky.show/images/elastic/search/es_42.png)
+<img src="http://www.milky.show/images/elastic/search/es_42.png" alt="http://www.milky.show/images/elastic/search/es_42.png" style="zoom:67%;" />
 
 #### 防止字段过多
 
@@ -5680,7 +5680,7 @@ GET _tasks/_qKI6E8_TDWjXyo_x-bhmw:11996
 
 ## ElasticSearch 分布式架构
 
-![http://www.milky.show/images/elastic/search/es_1.png](http://www.milky.show/images/elastic/search/es_1.png)
+<img src="http://www.milky.show/images/elastic/search/es_1.png" alt="http://www.milky.show/images/elastic/search/es_1.png" style="zoom:67%;" />
 
 ### Gateway层
 
@@ -6002,7 +6002,7 @@ POST /lib/user/4/_update?retry_on_conflict=3
 
 ### 文档增删改内部原理
 
-![http://www.milky.show/images/elastic/search/es_6.png](http://www.milky.show/images/elastic/search/es_6.png)
+<img src="http://www.milky.show/images/elastic/search/es_6.png" alt="http://www.milky.show/images/elastic/search/es_6.png" style="zoom:67%;" />
 
 1. 发送增删改请求时，可以选择任意一个节点，该节点就成了协调节点(coordinating node)
 
@@ -6052,7 +6052,7 @@ POST /lib/user/4/_update?retry_on_conflict=3
 
 ### 文档查询内部原理
 
-![http://www.milky.show/images/elastic/search/es_7.png](http://www.milky.show/images/elastic/search/es_7.png)
+<img src="http://www.milky.show/images/elastic/search/es_7.png" alt="http://www.milky.show/images/elastic/search/es_7.png" style="zoom:67%;" />
 
 1. 查询请求发给任意一个节点，该节点就成了协调节点(coordinating node)，该节点使用路由算法算出文档所在的primary shard
 
