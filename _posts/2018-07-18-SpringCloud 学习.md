@@ -162,6 +162,185 @@ Zookeeper
 
 Kubernetes
 
+Eureka
+
+
+
+### SpringCloudEureka 常用配置
+
+#### EurekaServer 配置
+
+```yaml
+#eureka server刷新readCacheMap的时间, 注意, client读取的是readCacheMap, 这个时间决定了多久会把readWriteCacheMap的缓存更新到readCacheMap上
+#默认30s
+eureka.server.responseCacheUpdateIntervalMs=3000
+#eureka server缓存readWriteCacheMap失效时间, 这个只有在这个时间过去后缓存才会失效, 失效前不会更新, 过期后从registry重新读取注册服务信息, registry是一个ConcurrentHashMap. 
+#由于启用了evict其实就用不太上改这个配置了
+#默认180s
+eureka.server.responseCacheAutoExpirationInSeconds=180
+
+#启用主动失效, 并且每次主动失效检测间隔为3s
+#默认60s
+eureka.server.eviction-interval-timer-in-ms=3000
+
+#服务过期时间配置,超过这个时间没有接收到心跳EurekaServer就会将这个实例剔除
+#注意, EurekaServer一定要设置eureka.server.eviction-interval-timer-in-ms否则这个配置无效, 这个配置一般为服务刷新时间配置的三倍
+#默认90s
+eureka.instance.lease-expiration-duration-in-seconds=15
+#服务刷新时间配置, 每隔这个时间会主动心跳一次
+#默认30s
+eureka.instance.lease-renewal-interval-in-seconds=5
+#eureka client 间隔多久去拉取服务注册信息, 对于 api-gateway 如果要迅速获得服务注册状态, 可以缩小该值, 比如 5 秒
+#默认30s
+eureka.client.registryFetchIntervalSeconds=5
+#eureka客户端ribbon刷新时间
+#默认30s
+ribbon.ServerListRefreshInterval=1000
+eureka.instance.preferIpAddress=true
+#关闭自我保护
+eureka.server.enable-self-preservation=false
+eureka.client.serviceUrl.defaultZone=http://10.120.242.153:8211/eureka/,http://10.120.242.154:8211/eureka/
+```
+
+#### EurekaClient 配置
+
+```yaml
+#服务过期时间配置,超过这个时间没有接收到心跳EurekaServer就会将这个实例剔除
+#注意, EurekaServer一定要设置eureka.server.eviction-interval-timer-in-ms否则这个配置无效, 这个配置一般为服务刷新时间配置的三倍
+#默认90s
+eureka.instance.lease-expiration-duration-in-seconds=15
+#服务刷新时间配置, 每隔这个时间会主动心跳一次
+#默认30s
+eureka.instance.lease-renewal-interval-in-seconds=5
+#eureka client刷新本地缓存时间
+#默认30s
+eureka.client.registryFetchIntervalSeconds=5
+#eureka客户端ribbon刷新时间
+#默认30s
+ribbon.ServerListRefreshInterval=1000
+eureka.instance.preferIpAddress=true
+#关闭自我保护
+eureka.server.enable-self-preservation=false
+eureka.client.serviceUrl.defaultZone=http://10.120.242.153:8211/eureka/,http://10.120.242.154:8211/eureka/
+```
+
+
+
+### SpringCloud 注册中心 Eureka 集群是怎么保持数据一致的
+
+<img src="http://www.milky.show/images/springcloud/springcloud_sell_8.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_8.png" style="zoom:67%;" />
+
+服务注册中心不可能是单点的, 一定会有一个集群, 那么集群中的服务注册信息如何在集群中保持一致的呢？
+
+首先要明确的是 Eureka 是**弱数据一致性**的. 
+
+下面从2个方面来说明：
+
+1.  什么是弱数据一致性
+2.  Eureka 是如何同步数据的
+
+#### 弱数据一致性
+
+我们知道 ZooKeeper 也可以实现数据中心, ZooKeeper 就是强一致性的. 
+
+分布式系统中有一个重要理论：CAP. 
+
+<img src="http://www.milky.show/images/springcloud/springcloud_sell_9.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_9.png" style="zoom:67%;" />
+
+该理论提到了分布式系统中的3个特性：
+
+-   Consistency 数据一致性
+
+分布式系统中, 数据会存在多个副本中, 有一些问题会导致写入数据时, 一部分副本成功、一部分副本失败, 造成数据不一致. 
+
+满足一致性就要求对数据的更新操作成功后, 多副本的数据必须保持一致. 
+
+-   Availability 可用性
+
+在任何时候客户端对集群进行读写操作时, 请求能够正常响应. 
+
+-   Partition Tolerance 分区容忍性
+
+发生通信故障时, 集群被分割为多个无法通信的分区时, 集群仍然可用. 
+
+>   CAP 理论指出：这3个特性不可能同时满足, 最多满足2个. 
+
+**P** 是客观存在的, *不可绕过*, 那么就是选择 **C** 还是选择 **A**. 
+
+ZooKeeper 选择了 **C**, 就是尽可能的保证数据一致性, 某些情况下可以牺牲可用性. 
+
+Eureka 则选择了 **A**, 所以 Eureka 具有高可用性, 在任何时候, 服务消费者都能正常获取服务列表, 但不保证数据的强一致性, 消费者可能会拿到过期的服务列表. 
+
+<img src="http://www.milky.show/images/springcloud/springcloud_sell_10.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_10.png" style="zoom:67%;" />
+
+>   Eureka 的设计理念：保留可用及过期的数据总比丢掉可用的数据好. 
+
+#### Eureka 的数据同步方式
+
+##### 复制方式
+
+分布式系统的数据在多个副本之间的复制方式, 主要有：
+
+-   主从复制
+
+就是 **Master-Slave** 模式, 有一个主副本, 其他为从副本, 所有写操作都提交到主副本, 再由主副本更新到其他从副本. 
+
+写压力都集中在主副本上, 是系统的瓶颈, 从副本可以分担读请求. 
+
+-   对等复制
+
+就是 **Peer to Peer** 模式, 副本间不分主从, 任何副本都可以接收写操作, 然后每个副本间互相进行数据更新. 
+
+对等复制模式, 任何副本都可以接收写请求, 不存在写压力瓶颈, 但各个副本间数据同步时可能产生数据冲突. 
+
+Eureka 采用的就是 **Peer to Peer** 模式. 
+
+##### 同步过程
+
+Eureka Server 本身依赖了 Eureka Client, 也就是每个 Eureka Server 是作为其他 Eureka Server 的 Client. 
+
+Eureka Server 启动后, 会通过 Eureka Client 请求其他 Eureka Server 节点中的一个节点, 获取注册的服务信息, 然后复制到其他 peer 节点. 
+
+Eureka Server 每当自己的信息变更后, 例如 Client 向自己发起*注册、续约、注销*请求,  就会把自己的最新信息通知给其他 Eureka Server, 保持数据同步. 
+
+<img src="http://www.milky.show/images/springcloud/springcloud_sell_11.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_11.png" style="zoom:67%;" />
+
+如果自己的信息变更是另一个Eureka Server同步过来的, 这是再同步回去的话就出现**数据同步死循环**了. 
+
+<img src="http://www.milky.show/images/springcloud/springcloud_sell_12.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_12.png" style="zoom:67%;" />
+
+Eureka Server 在执行复制操作的时候, 使用 `HEADER_REPLICATION` 这个 http header 来区分普通应用实例的正常请求, 说明这是一个复制请求, 这样其他 peer 节点收到请求时, 就不会再对其进行复制操作, 从而避免死循环. 
+
+还有一个问题, 就是**数据冲突**, 比如 server A 向 server B 发起同步请求, 如果 A 的数据比 B 的还旧, B 不可能接受 A 的数据, 那么 B 是如何知道 A 的数据是旧的呢？这时 A 又应该怎么办呢？
+
+数据的新旧一般是通过*版本号*来定义的, Eureka 是通过 `lastDirtyTimestamp` 这个类似版本号的属性来实现的. 
+
+>   `lastDirtyTimestamp` 是注册中心里面服务实例的一个属性, 表示此服务实例最近一次变更时间. 
+
+比如 Eureka Server A 向 Eureka Server B 复制数据, 数据冲突有2种情况：
+
+1.  A 的数据比 B 的新, B 返回 404, A 重新把这个应用实例注册到 B. 
+
+2.  A 的数据比 B 的旧, B 返回 409, 要求 A 同步 B 的数据. 
+
+<img src="http://www.milky.show/images/springcloud/springcloud_sell_13.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_13.png" style="zoom:67%;" />
+
+还有一个重要的机制：**hearbeat 心跳**, 即续约操作, 来进行数据的最终修复, 因为节点间的复制可能会出错, 通过心跳就可以发现错误, 进行弥补. 
+
+例如发现某个应用实例数据与某个server不一致, 则server放回404, 实例重新注册即可. 
+
+#### 小结
+
+Eureka 是弱数据一致性, 选择了 CAP 中的 AP. 
+
+Eureka 采用 Peer to Peer 模式进行数据复制. 
+
+Eureka 通过 lastDirtyTimestamp 来解决复制冲突. 
+
+Eureka 通过心跳机制实现数据修复. 
+
+
+
 ## 应用间通信 RestTemplate 和 Feign
 
 ### RestTemplate(面向服务)
@@ -264,7 +443,7 @@ public interface ProductClient {
 
 ## 分布式统一配置中心 Config
 
-![http://www.milky.show/images/springcloud/springcloud_sell_1.png](http://www.milky.show/images/springcloud/springcloud_sell_1.png)
+<img src="http://www.milky.show/images/springcloud/springcloud_sell_1.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_1.png" style="zoom:67%;" />
 
 * 配置的内容安全与权限
 
@@ -390,7 +569,7 @@ public interface ProductClient {
 
 ## 自动刷新配置 Spring Cloud Bus
 
-![http://www.milky.show/images/springcloud/springcloud_sell_2.png](http://www.milky.show/images/springcloud/springcloud_sell_2.png)
+<img src="http://www.milky.show/images/springcloud/springcloud_sell_2.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_2.png" style="zoom:67%;" />
 
 SpringCloudBus 依赖 mq 发消息实现服务自动更新配置
 
@@ -519,7 +698,7 @@ amqp 定义了一系列消息接口, 典型的实现是 rabbitmq, springcloud �
 - 安全性
 - 扩展性
 
-![http://www.milky.show/images/springcloud/springcloud_sell_6.png](http://www.milky.show/images/springcloud/springcloud_sell_6.png)
+<img src="http://www.milky.show/images/springcloud/springcloud_sell_6.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_6.png" style="zoom:67%;" />
 
 * 加入 Zuul 依赖
 
@@ -995,7 +1174,7 @@ feign 整合 hystrix 进行降级, feign 已经自动依赖了 hystrix 包
 
 当某个服务发生降级数量达到一定的百分比, 那么正常的逻辑也会直接触发降级, 将整个服务熔断, 一定时间后再恢复访问, 在 SpringCloud 中的熔断就是配置 4 个属性
 
-![http://www.milky.show/images/springcloud/springcloud_sell_7.png](http://www.milky.show/images/springcloud/springcloud_sell_7.png)
+<img src="http://www.milky.show/images/springcloud/springcloud_sell_7.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_7.png" style="zoom:67%;" />
 
 **Closed:** 默认熔断器是关闭的, 当失败次数达到一定阈值, 会变为打开状态
 
@@ -1007,9 +1186,9 @@ feign 整合 hystrix 进行降级, feign 已经自动依赖了 hystrix 包
 // 熔断
 @HystrixCommand(commandProperties = {
         @HystrixProperty(name = "circuitBreaker.enabled", value = "true"), // 设置熔断
-        @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "10"), // 默认值20.意思是至少有20个请求才进行 errorThresholdPercentage 错误百分比计算。
-        @HystrixProperty(name = "circuitBreaker.sleepWindowInMilliseconds", value = "10000"), // 半开试探休眠时间，默认值5000ms。当熔断器开启一段时间之后比如5000ms，会尝试放过去一部分流量进行试探，确定依赖服务是否恢复。
-        @HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value = "60") // 设定错误百分比，默认值50%，例如一段时间（10s）内有100个请求，其中有55个超时或者异常返回了，那么这段时间内的错误百分比是55%，大于了默认值50%，这种情况下触发熔断器-打开。 
+        @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "10"), // 默认值20.意思是至少有20个请求才进行 errorThresholdPercentage 错误百分比计算. 
+        @HystrixProperty(name = "circuitBreaker.sleepWindowInMilliseconds", value = "10000"), // 半开试探休眠时间, 默认值5000ms. 当熔断器开启一段时间之后比如5000ms, 会尝试放过去一部分流量进行试探, 确定依赖服务是否恢复. 
+        @HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value = "60") // 设定错误百分比, 默认值50%, 例如一段时间（10s）内有100个请求, 其中有55个超时或者异常返回了, 那么这段时间内的错误百分比是55%, 大于了默认值50%, 这种情况下触发熔断器-打开.  
 })
 @GetMapping("/getProductInfoList")
 public String getProductInfoList(@RequestParam("number") Integer number) {
@@ -1051,11 +1230,11 @@ zuul:
       serviceid: SPRINGCLOUD-SELL-ORDER
       stripPrefix: true # 是否去除前缀
       sensitiveHeaders:
-  host: # 如果路由方式是 url 的方式，那么该超时配置生效
+  host: # 如果路由方式是 url 的方式, 那么该超时配置生效
     connect-timeout-millis: 100 # HTTP连接超时
     socket-timeout-millis: 100  # socket超时
 
-ribbon: # 如果路由方式是 serviceId 的方式，那么该全局超时配置生效
+ribbon: # 如果路由方式是 serviceId 的方式, 那么该全局超时配置生效
   eureka:
     enabled: true
   ReadTimeout: 1000
@@ -1109,7 +1288,7 @@ public class GatewayFallback implements FallbackProvider {
 	// 指定哪些服务支持 fallback
     @Override
     public String getRoute() {
-        // api服务id，如果需要所有调用都支持回退，则return "*"或return null
+        // api服务id, 如果需要所有调用都支持回退, 则return "*"或return null
         // return "api-user-server";
         return "*";
     }
@@ -1122,20 +1301,20 @@ public class GatewayFallback implements FallbackProvider {
             public InputStream getBody() throws IOException {
                 Map<String, String> result = new HashMap<>();
                 result.put("state", "9999");
-                result.put("msg", "系统错误，请求失败");
+                result.put("msg", "系统错误, 请求失败");
                 return new ByteArrayInputStream(JsonUtil.toJson(result).getBytes("UTF-8"));
             }
 
             @Override
             public HttpHeaders getHeaders() {
                 HttpHeaders headers = new HttpHeaders();
-                // 和body中的内容编码一致，否则容易乱码
+                // 和body中的内容编码一致, 否则容易乱码
                 headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
                 return headers;
             }
 
             /**
-             * 网关向api服务请求是失败了，但是消费者客户端向网关发起的请求是OK的，
+             * 网关向api服务请求是失败了, 但是消费者客户端向网关发起的请求是OK的, 
              * 不应该把api的404,500等问题抛给客户端
              * 网关和api服务集群对于客户端来说是黑盒子
              */
@@ -1172,11 +1351,11 @@ public class GatewayFallback implements FallbackProvider {
 
 ## SpringCloud 多版本选择
 
-英文命名方式也比较有意思，Spring Cloud 采用了英国伦敦地铁站的名称来命名，并由地铁站名称字母A-Z依次类推的形式来发布迭代版本。
+英文命名方式也比较有意思, Spring Cloud 采用了英国伦敦地铁站的名称来命名, 并由地铁站名称字母A-Z依次类推的形式来发布迭代版本. 
 
-由上可知，Spring Cloud 的第一个版本 "Angel" 就不觉得奇怪了，接着 "Brixton" 就是第二个版本。当一个项目到达发布临界点或者解决了一个严重的 BUG 后就会发布一个 "Service Release" 版本， 简称 SR(X) 版本，x 代表一个递增数字。
+由上可知, Spring Cloud 的第一个版本 "Angel" 就不觉得奇怪了, 接着 "Brixton" 就是第二个版本. 当一个项目到达发布临界点或者解决了一个严重的 BUG 后就会发布一个 "Service Release" 版本,  简称 SR(X) 版本, x 代表一个递增数字. 
 
-**由此我们可以得出 "Finchley M9" 就是目前最新的开发版本，"Edgware SR3" 是最新稳定版本。**
+**由此我们可以得出 "Finchley M9" 就是目前最新的开发版本, "Edgware SR3" 是最新稳定版本. **
 
 | Release Train | Boot Version |
 | :------------ | :----------- |
