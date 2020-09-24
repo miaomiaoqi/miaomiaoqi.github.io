@@ -393,13 +393,31 @@ public class RestTemplateConfig {
 }
 ```
 
-#### Ribbon组件
+#### Ribbon 组件
 
 Netflix Ribbon 是客户端负载均衡器, 是 LoadBalance 实现负载均衡的组件, 可以实现**服务发现, 服务选择规则, 服务监听**, **RestTemplate, Feign, Zuul 均使用该组件**
 
 * ServerList: 获取所有可用列表
 * IRule: 根据规则获取一个地址
 * ServerListFilter: 过滤掉一部分服务地址
+
+#### Ribbon 轮询规则
+
+RoundRobinRule：轮询
+
+RandomRule：随机
+
+RetryRule：先按照 `RoundRobinRule` 的策略获取服务，如果获取服务失败则在指定时间内会进行重试，获取可用的服务
+
+WeightedResponseTimeRule：对 `RoundRobinRule` 的扩展，响应速度越快的实例选择权重越大，越容易被选择
+
+BestAvailableRule：会过滤掉由于多次访问故障而处于断路器跳闸状态的服务，然后选择一个并发量最小的服务
+
+AvailabilityFilteringRule：先过滤掉故障实例，再选择并发较小的实例
+
+ZoneAvoidanceRule：默认规则，复合判断 server 所在区域的性能和 server 的可用性选择服务器
+
+
 
 ### Feign(面向接口)
 
