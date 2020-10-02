@@ -24,7 +24,7 @@ keywords:
 
 ### 节点之间
 
-在一个或者多个节点直接, 多个绿色小方块组合在一起形成一个ElasticSearch的索引. 
+在一个或者多个节点直接, 多个绿色小方块组合在一起形成一个 ElasticSearch 的索引. 
 
 ![http://www.milky.show/images/elastic/search/search/search_3.png](http://www.milky.show/images/elastic/search/search/search_3.png)
 
@@ -36,11 +36,11 @@ keywords:
 
 ### Shard＝Lucene Index
 
-一个ElasticSearch的Shard本质上是一个Lucene Index. 
+一个 ElasticSearch 的 Shard 本质上是一个 Lucene Index. 
 
 ![http://www.milky.show/images/elastic/search/search/search_5.png](http://www.milky.show/images/elastic/search/search/search_5.png)
 
-Lucene是一个Full Text 搜索库(也有很多其他形式的搜索库), ElasticSearch是建立在Lucene之上的. 接下来的故事要说的大部分内容实际上是ElasticSearch如何基于Lucene工作的. 
+Lucene 是一个 Full Text 搜索库(也有很多其他形式的搜索库), ElasticSearch 是建立在 Lucene 之上的. 接下来的故事要说的大部分内容实际上是ElasticSearch 如何基于 Lucene 工作的. 
 
 
 
@@ -69,10 +69,10 @@ Lucene是一个Full Text 搜索库(也有很多其他形式的搜索库), Elasti
 
 Inverted Index主要包括两部分：
 
-1.  一个有序的数据字典Dictionary(包括单词Term和它出现的频率). 
-2.  与单词Term对应的Postings(即存在这个单词的文件). 
+1.  一个有序的数据字典 Dictionary(包括单词Term和它出现的频率). 
+2.  与单词 Term 对应的 Postings(即存在这个单词的文件). 
 
-当我们搜索的时候, 首先将搜索的内容分解, 然后在字典里找到对应Term, 从而查找到与搜索相关的文件内容. 
+当我们搜索的时候, 首先将搜索的内容分解, 然后在字典里找到对应 Term, 从而查找到与搜索相关的文件内容. 
 
 ![http://www.milky.show/images/elastic/search/search/search_9.png](http://www.milky.show/images/elastic/search/search/search_9.png)
 
@@ -82,17 +82,17 @@ Inverted Index主要包括两部分：
 
 #### 自动补全(AutoCompletion-Prefix)
 
-如果想要查找以字母“c”开头的字母, 可以简单的通过二分查找(Binary Search)在Inverted Index表中找到例如“choice”、“coming”这样的词(Term). 
+如果想要查找以字母“c”开头的字母, 可以简单的通过二分查找(Binary Search)在 Inverted Index 表中找到例如“choice”、“coming”这样的词(Term). 
 
 ![http://www.milky.show/images/elastic/search/search/search_11.png](http://www.milky.show/images/elastic/search/search/search_11.png)
 
 #### 昂贵的查找
 
-如果想要查找所有包含“our”字母的单词, 那么系统会扫描整个Inverted Index, 这是非常昂贵的. 
+如果想要查找所有包含“our”字母的单词, 那么系统会扫描整个 Inverted Index, 这是非常昂贵的. 
 
 ![http://www.milky.show/images/elastic/search/search/search_12.png](http://www.milky.show/images/elastic/search/search/search_12.png)
 
-在此种情况下, 如果想要做优化, 那么我们面对的问题是如何生成合适的Term. 
+在此种情况下, 如果想要做优化, 那么我们面对的问题是如何生成合适的 Term. 
 
 #### 问题的转化
 
@@ -102,21 +102,21 @@ Inverted Index主要包括两部分：
 
 -   \* suffix -> xiffus *
 
-    如果我们想以后缀作为搜索条件, 可以为Term做反向处理. 
+    如果我们想以后缀作为搜索条件, 可以为 Term 做反向处理. 
 
 -   (60.6384, 6.5017) -> u4u8gyykk
 
-    对于GEO位置信息, 可以将它转换为GEO Hash. 
+    对于 GEO 位置信息, 可以将它转换为 GEO Hash. 
 
 -   123 -> {1-hundreds, 12-tens, 123}
 
-    对于简单的数字, 可以为它生成多重形式的Term. 
+    对于简单的数字, 可以为它生成多重形式的 Term. 
 
 
 
 #### 解决拼写错误
 
-一个Python库 为单词生成了一个包含错误拼写信息的树形状态机, 解决拼写错误的问题. 
+一个 Python 库为单词生成了一个包含错误拼写信息的树形状态机, 解决拼写错误的问题. 
 
 ![http://www.milky.show/images/elastic/search/search/search_14.png](http://www.milky.show/images/elastic/search/search/search_14.png)
 
@@ -124,7 +124,7 @@ Inverted Index主要包括两部分：
 
 ### Stored Field 字段查找
 
-当我们想要查找包含某个特定标题内容的文件时, Inverted Index就不能很好的解决这个问题, 所以Lucene提供了另外一种数据结构Stored Fields来解决这个问题. 本质上, Stored Fields是一个简单的键值对key-value. 默认情况下, ElasticSearch会存储整个文件的JSON source. 
+当我们想要查找包含某个特定标题内容的文件时, Inverted Index 就不能很好的解决这个问题, 所以 Lucene 提供了另外一种数据结构 Stored Fields 来解决这个问题. 本质上, Stored Fields 是一个简单的键值对 key-value. 默认情况下, ElasticSearch 会存储整个文件的 JSON source. 
 
 ![http://www.milky.show/images/elastic/search/search/search_15.png](http://www.milky.show/images/elastic/search/search/search_15.png)
 
@@ -163,25 +163,25 @@ Lucene的一些特性使得这个过程非常重要：
 
 ## 缓存的故事
 
-当ElasticSearch索引一个文件的时候, 会为文件建立相应的缓存, 并且会定期(每秒)刷新这些数据, 然后这些文件就可以被搜索到. 
+当 ElasticSearch 索引一个文件的时候, 会为文件建立相应的缓存, 并且会定期(每秒)刷新这些数据, 然后这些文件就可以被搜索到. 
 
 ![http://www.milky.show/images/elastic/search/search/search_17.png](http://www.milky.show/images/elastic/search/search/search_17.png)
 
-随着时间的增加, 我们会有很多segments, 
+随着时间的增加, 我们会有很多 segments, 
 
 ![http://www.milky.show/images/elastic/search/search/search_18.png](http://www.milky.show/images/elastic/search/search/search_18.png)
 
-所以ElasticSearch会将这些segment合并, 在这个过程中, segment会最终被删除掉
+所以 ElasticSearch 会将这些 segment 合并, 在这个过程中, segment 会最终被删除掉
 
 ![http://www.milky.show/images/elastic/search/search/search_19.png](http://www.milky.show/images/elastic/search/search/search_19.png)
 
-这就是为什么增加文件可能会使索引所占空间变小, 它会引起merge, 从而可能会有更多的压缩. 
+这就是为什么增加文件可能会使索引所占空间变小, 它会引起 merge, 从而可能会有更多的压缩. 
 
 
 
 ### 举个栗子
 
-有两个segment将会merge
+有两个 segment 将会 merge
 
 ![http://www.milky.show/images/elastic/search/search/search_20.png](http://www.milky.show/images/elastic/search/search/search_20.png)
 
@@ -197,15 +197,15 @@ Lucene的一些特性使得这个过程非常重要：
 
 ## 在 Shard 中搜索
 
-ElasticSearch 从Shard中搜索的过程与Lucene Segment中搜索的过程类似. 
+ElasticSearch 从 Shard 中搜索的过程与 Lucene Segment 中搜索的过程类似. 
 
 ![http://www.milky.show/images/elastic/search/search/search_23.png](http://www.milky.show/images/elastic/search/search/search_23.png)
 
-与在Lucene Segment中搜索不同的是, Shard可能是分布在不同Node上的, 所以在搜索与返回结果时, 所有的信息都会通过网络传输. 
+与在 Lucene Segment 中搜索不同的是, Shard 可能是分布在不同Node上的, 所以在搜索与返回结果时, 所有的信息都会通过网络传输. 
 
 需要注意的是：
 
-1次搜索查找2个shard ＝ 2次分别搜索shard
+1 次搜索查找 2 个shard ＝ 2 次分别搜索 shard
 
 ![http://www.milky.show/images/elastic/search/search/search_24.png](http://www.milky.show/images/elastic/search/search/search_24.png)
 
@@ -223,11 +223,11 @@ ElasticSearch 从Shard中搜索的过程与Lucene Segment中搜索的过程类�
 
 
 
-## 如何Scale
+## 如何 Scale
 
 ![http://www.milky.show/images/elastic/search/search/search_26.png](http://www.milky.show/images/elastic/search/search/search_26.png)
 
-shard不会进行更进一步的拆分, 但是shard可能会被转移到不同节点上
+shard 不会进行更进一步的拆分, 但是shard可能会被转移到不同节点上
 
 ![http://www.milky.show/images/elastic/search/search/search_27.png](http://www.milky.show/images/elastic/search/search/search_27.png)
 
@@ -235,14 +235,14 @@ shard不会进行更进一步的拆分, 但是shard可能会被转移到不同�
 
 
 
-### 节点分配与Shard优化
+### 节点分配与 Shard 优化
 
 -   为更重要的数据索引节点, 分配性能更好的机器
 -   确保每个 shard 都有副本信息 replica
 
 ![http://www.milky.show/images/elastic/search/search/search_28.png](http://www.milky.show/images/elastic/search/search/search_28.png)
 
-### 路由Routing
+### 路由 Routing
 
 每个节点, 每个都存留一份路由表, 所以当请求到任何一个节点时, ElasticSearch 都有能力将请求转发到期望节点的 shard 进一步处理. 
 
