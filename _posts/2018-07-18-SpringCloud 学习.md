@@ -75,7 +75,7 @@ public class SpringcloudSellEurekaApplication {
 }
 ```
 
-SpringCloudEurekaServer既是服务端又是客户端, 启动时会默认查找 defaultZone 注册, 也会注册自己, 采用心跳的方式每隔一段时间注册一次, 可以改变配置不让自己注册
+SpringCloudEurekaServer 既是服务端又是客户端, 启动时会默认查找 defaultZone 注册, 也会注册自己, 采用心跳的方式每隔一段时间注册一次, 可以改变配置不让自己注册
 
 ```yaml
 server:
@@ -171,33 +171,30 @@ Eureka
 #### EurekaServer 配置
 
 ```yaml
-#eureka server刷新readCacheMap的时间, 注意, client读取的是readCacheMap, 这个时间决定了多久会把readWriteCacheMap的缓存更新到readCacheMap上
-#默认30s
+# eureka server 刷新 readCacheMap 的时间, 注意, client 读取的是 readCacheMap, 这个时间决定了多久会把 readWriteCacheMap 的缓存更新到 readCacheMap 上
+# 默认30s
 eureka.server.responseCacheUpdateIntervalMs=3000
-#eureka server缓存readWriteCacheMap失效时间, 这个只有在这个时间过去后缓存才会失效, 失效前不会更新, 过期后从registry重新读取注册服务信息, registry是一个ConcurrentHashMap. 
-#由于启用了evict其实就用不太上改这个配置了
-#默认180s
+# eureka server 缓存 readWriteCacheMap 失效时间, 这个只有在这个时间过去后缓存才会失效, 失效前不会更新, 过期后从 registry 重新读取注册服务信息, registry 是一个 ConcurrentHashMap. 
+# 由于启用了 evict 其实就用不太上改这个配置了
+# 默认 180s
 eureka.server.responseCacheAutoExpirationInSeconds=180
 
-#启用主动失效, 并且每次主动失效检测间隔为3s
-#默认60s
+# 启用主动失效, 并且每次主动失效检测间隔为 3s
+# 默认 60s
 eureka.server.eviction-interval-timer-in-ms=3000
 
-#服务过期时间配置,超过这个时间没有接收到心跳EurekaServer就会将这个实例剔除
-#注意, EurekaServer一定要设置eureka.server.eviction-interval-timer-in-ms否则这个配置无效, 这个配置一般为服务刷新时间配置的三倍
-#默认90s
+# 配置指示eureka服务器在接收到最后一个心跳之后等待的时间，然后才能从列表中删除此实例 (Spring Cloud默认该配置是 90s)
+# 注意, EurekaServer 一定要设置 eureka.server.eviction-interval-timer-in-ms 否则这个配置无效, 这个配置一般为服务刷新时间配置的三倍
+# 默认 90s
 eureka.instance.lease-expiration-duration-in-seconds=15
-#服务刷新时间配置, 每隔这个时间会主动心跳一次
-#默认30s
+# 该配置指示eureka客户端需要向eureka服务器发送心跳的频率  (Spring Cloud默认该配置是 30s)
+# 默认 30s
 eureka.instance.lease-renewal-interval-in-seconds=5
-#eureka client 间隔多久去拉取服务注册信息, 对于 api-gateway 如果要迅速获得服务注册状态, 可以缩小该值, 比如 5 秒
-#默认30s
-eureka.client.registryFetchIntervalSeconds=5
-#eureka客户端ribbon刷新时间
-#默认30s
+# eureka 客户端 ribbon 刷新时间
+# 默认30s
 ribbon.ServerListRefreshInterval=1000
 eureka.instance.preferIpAddress=true
-#关闭自我保护
+# 关闭自我保护
 eureka.server.enable-self-preservation=false
 eureka.client.serviceUrl.defaultZone=http://10.120.242.153:8211/eureka/,http://10.120.242.154:8211/eureka/
 ```
@@ -205,21 +202,21 @@ eureka.client.serviceUrl.defaultZone=http://10.120.242.153:8211/eureka/,http://1
 #### EurekaClient 配置
 
 ```yaml
-#服务过期时间配置,超过这个时间没有接收到心跳EurekaServer就会将这个实例剔除
-#注意, EurekaServer一定要设置eureka.server.eviction-interval-timer-in-ms否则这个配置无效, 这个配置一般为服务刷新时间配置的三倍
-#默认90s
+# 配置指示eureka服务器在接收到最后一个心跳之后等待的时间，然后才能从列表中删除此实例 (Spring Cloud默认该配置是 90s)
+# 注意, EurekaServer 一定要设置 eureka.server.eviction-interval-timer-in-ms 否则这个配置无效, 这个配置一般为服务刷新时间配置的三倍
+# 默认 90s
 eureka.instance.lease-expiration-duration-in-seconds=15
-#服务刷新时间配置, 每隔这个时间会主动心跳一次
-#默认30s
+# 该配置指示eureka客户端需要向eureka服务器发送心跳的频率  (Spring Cloud默认该配置是 30s)
+# 默认 30s
 eureka.instance.lease-renewal-interval-in-seconds=5
-#eureka client刷新本地缓存时间
-#默认30s
+# eureka client 间隔多久去拉取服务注册信息, 对于 api-gateway 如果要迅速获得服务注册状态, 可以缩小该值, 比如 5 秒
+# 默认 30s
 eureka.client.registryFetchIntervalSeconds=5
-#eureka客户端ribbon刷新时间
-#默认30s
+# eureka 客户端 ribbon 刷新时间
+# 默认 30s
 ribbon.ServerListRefreshInterval=1000
 eureka.instance.preferIpAddress=true
-#关闭自我保护
+# 关闭自我保护
 eureka.server.enable-self-preservation=false
 eureka.client.serviceUrl.defaultZone=http://10.120.242.153:8211/eureka/,http://10.120.242.154:8211/eureka/
 ```
