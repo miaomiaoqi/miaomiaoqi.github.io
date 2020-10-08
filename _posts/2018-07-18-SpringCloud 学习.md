@@ -285,7 +285,7 @@ ribbon:
 
 ### SpringCloud 注册中心 Eureka 集群是怎么保持数据一致的
 
-<img src="http://www.milky.show/images/springcloud/springcloud_sell_8.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_8.png" style="zoom:67%;" />
+<img src="http://www.milky.show/images/springcloud/springcloud_sell_8.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_8.png" style="zoom: 50%;" />
 
 服务注册中心不可能是单点的, 一定会有一个集群, 那么集群中的服务注册信息如何在集群中保持一致的呢? 
 
@@ -302,7 +302,7 @@ ribbon:
 
 分布式系统中有一个重要理论: CAP. 
 
-<img src="http://www.milky.show/images/springcloud/springcloud_sell_9.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_9.png" style="zoom:67%;" />
+<img src="http://www.milky.show/images/springcloud/springcloud_sell_9.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_9.png" style="zoom: 50%;" />
 
 该理论提到了分布式系统中的3个特性: 
 
@@ -328,7 +328,7 @@ ZooKeeper 选择了 **C**, 就是尽可能的保证数据一致性, 某些情况
 
 Eureka 则选择了 **A**, 所以 Eureka 具有高可用性, 在任何时候, 服务消费者都能正常获取服务列表, 但不保证数据的强一致性, 消费者可能会拿到过期的服务列表. 
 
-<img src="http://www.milky.show/images/springcloud/springcloud_sell_10.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_10.png" style="zoom:67%;" />
+<img src="http://www.milky.show/images/springcloud/springcloud_sell_10.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_10.png" style="zoom: 50%;" />
 
 >   Eureka 的设计理念: 保留可用及过期的数据总比丢掉可用的数据好. 
 
@@ -360,11 +360,11 @@ Eureka Server 启动后, 会通过 Eureka Client 请求其他 Eureka Server 节�
 
 Eureka Server 每当自己的信息变更后, 例如 Client 向自己发起*注册、续约、注销*请求,  就会把自己的最新信息通知给其他 Eureka Server, 保持数据同步. 
 
-<img src="http://www.milky.show/images/springcloud/springcloud_sell_11.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_11.png" style="zoom:67%;" />
+<img src="http://www.milky.show/images/springcloud/springcloud_sell_11.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_11.png" style="zoom: 50%;" />
 
 如果自己的信息变更是另一个 Eureka Server 同步过来的, 这是再同步回去的话就出现**数据同步死循环**了. 
 
-<img src="http://www.milky.show/images/springcloud/springcloud_sell_12.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_12.png" style="zoom:67%;" />
+<img src="http://www.milky.show/images/springcloud/springcloud_sell_12.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_12.png" style="zoom: 50%;" />
 
 Eureka Server 在执行复制操作的时候, 使用 `HEADER_REPLICATION` 这个 http header 来区分普通应用实例的正常请求, 说明这是一个复制请求, 这样其他 peer 节点收到请求时, 就不会再对其进行复制操作, 从而避免死循环. 
 
@@ -380,7 +380,7 @@ Eureka Server 在执行复制操作的时候, 使用 `HEADER_REPLICATION` 这个
 
 2.  A 的数据比 B 的旧, B 返回 409, 要求 A 同步 B 的数据. 
 
-<img src="http://www.milky.show/images/springcloud/springcloud_sell_13.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_13.png" style="zoom:67%;" />
+<img src="http://www.milky.show/images/springcloud/springcloud_sell_13.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_13.png" style="zoom: 50%;" />
 
 还有一个重要的机制: **hearbeat 心跳**, 即续约操作, 来进行数据的最终修复, 因为节点间的复制可能会出错, 通过心跳就可以发现错误, 进行弥补. 
 
@@ -518,7 +518,7 @@ public interface ProductClient {
 
 ## 分布式统一配置中心 Config
 
-<img src="http://www.milky.show/images/springcloud/springcloud_sell_1.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_1.png" style="zoom:67%;" />
+<img src="http://www.milky.show/images/springcloud/springcloud_sell_1.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_1.png" style="zoom: 50%;" />
 
 * 配置的内容安全与权限
 
@@ -644,7 +644,7 @@ public interface ProductClient {
 
 ## 自动刷新配置 Spring Cloud Bus
 
-<img src="http://www.milky.show/images/springcloud/springcloud_sell_2.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_2.png" style="zoom:67%;" />
+<img src="http://www.milky.show/images/springcloud/springcloud_sell_2.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_2.png" style="zoom: 50%;" />
 
 SpringCloudBus 依赖 mq 发消息实现服务自动更新配置
 
@@ -731,7 +731,7 @@ SpringCloudBus 依赖 mq 发消息实现服务自动更新配置
 
 * **目前为止我们实现了手动的自动刷新, 接下来要配置 git 服务器的 webhooks 实现更改配置后自动 push**
 
-    ![http://www.milky.show/images/springcloud/springcloud_sell_5.png](http://www.milky.show/images/springcloud/springcloud_sell_5.png)
+    <img src="http://www.milky.show/images/springcloud/springcloud_sell_5.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_5.png" style="zoom: 50%;" />
 
     **我使用的是 git 所以需要配置外网域名进行 push, 生产环境我们可以搭建 gitlab 在内网中使用更安全**
 
@@ -1110,10 +1110,9 @@ public class CorsConfig {
     // @DefaultProperties(defaultFallback = "defaultFallback")
     public class HystrixController {
     
-    		// @HystrixCommand 配合 @DefaultProperties 会触发默认降级方法
-        @HystrixCommand(fallbackMethod = "fallback", commandProperties = 
-    				@HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", 
-    						value = "3000")) // 会指定特殊的降级方法, 优先级高于默认降级, 默认超时 1s, 这个配置会改为 3s
+        // @HystrixCommand 配合 @DefaultProperties 会触发默认降级方法
+        @HystrixCommand(fallbackMethod = "fallback", 
+    		commandProperties = @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "3000")) // 会指定特殊的降级方法, 优先级高于默认降级, 默认超时 1s, 这个配置会改为 3s
         @GetMapping("/getProductInfoList")
         public String getProductInfoList() {
             RestTemplate restTemplate = new RestTemplate();
@@ -1133,7 +1132,7 @@ public class CorsConfig {
     
     }
     ```
-
+    
 * 关闭 product 服务, 访问 http://localhost:9926/getProductInfoList, 页面返回太拥挤了, 请稍后再试~
 
 * 也可以采用配置文件的方式进行配置, 但是方法上一定要配置 @HystrixCommand 注解
@@ -1249,7 +1248,7 @@ feign 整合 hystrix 进行降级, feign 已经自动依赖了 hystrix 包
 
 当某个服务发生降级数量达到一定的百分比, 那么正常的逻辑也会直接触发降级, 将整个服务熔断, 一定时间后再恢复访问, 在 SpringCloud 中的熔断就是配置 4 个属性
 
-<img src="http://www.milky.show/images/springcloud/springcloud_sell_7.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_7.png" style="zoom:67%;" />
+<img src="http://www.milky.show/images/springcloud/springcloud_sell_7.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_7.png" style="zoom: 50%;" />
 
 **Closed:** 默认熔断器是关闭的, 当失败次数达到一定阈值, 会变为打开状态
 
