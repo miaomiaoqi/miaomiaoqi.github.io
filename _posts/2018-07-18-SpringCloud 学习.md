@@ -744,7 +744,7 @@ amqp 定义了一系列消息接口, 典型的实现是 rabbitmq, springcloud �
 ```xml
 <dependencies>
     <dependency>
-		<groupId>org.springframework.boot</groupId>
+        <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-amqp</artifactId>
     </dependency>
 </dependencies>
