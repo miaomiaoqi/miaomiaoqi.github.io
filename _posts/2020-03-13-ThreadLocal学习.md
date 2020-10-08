@@ -14,11 +14,11 @@ keywords:
 
 ThreadLocal 类提供了线程局部 (thread-local) 变量. 这些变量与普通变量不同, 每个线程都可以通过其 get 或 set方法来**访问自己的独立初始化的变量副本**. ThreadLocal 实例通常是类中的 private static 字段, 它们希望将状态与某一个线程 (例如, 用户 ID 或事务 ID) 相关联. 
 
-ThreadLocal 顾名思义是线程私有的局部变量存储容器, 可以理解成每个线程都有自己专属的存储容器, 它用来存储线程私有变量, 其实它只是一个外壳, 内部真正存取是一个 Map, 后面会仔细讲解. 每个线程可以通过 `set()` 和 `get()` 存取变量, 多线程间无法访问各自的局部变量, 相当于在每个线程间建立了一个隔板. 只要线程处于活动状态, 它所对应的 ThreadLocal 实例就是可访问的, 线程被终止后, 它的所有实例将被垃圾收集. 总之记住一句话: **ThreadLocal 存储的变量属于当前线程**. 
+ThreadLocal 顾名思义是线程私有的局部变量存储容器, 可以理解成每个线程都有自己专属的存储容器, 它用来存储线程私有变量, 其实它只是一个外壳, 内部真正存取是一个 Map, 后面会仔细讲解. 每个线程可以通过 `set()` 和 `get()` 存取变量, 多线程间无法访问各自的局部变量, 相当于在每个线程间建立了一个隔板. 只要线程处于活动状态, 它所对应的 ThreadLocal 实例就是可访问的, 线程被终止后, 它的所有实例将被垃圾收集. 总之记住一句话:**ThreadLocal 存储的变量属于当前线程**. 
 
 ## 整体认识
 
-![http://www.milky.show/images/java/threadlocal/th_1.png](http://www.milky.show/images/java/threadlocal/th_1.png)
+<img src="http://www.milky.show/images/java/threadlocal/th_1.png" alt="http://www.milky.show/images/java/threadlocal/th_1.png" style="zoom:67%;" />
 
 ThreadLocal 中的嵌套内部类 ThreadLocalMap, 这个类本质上是一个 map, 和 HashMap 之类的实现相似, 依然是 key-value 的形式, 其中有一个内部类 Entry, 其中 key 可以看做是 ThreadLocal 实例, **但是其本质是持有 ThreadLocal 实例的弱引用**
 
@@ -639,7 +639,7 @@ remove() -> ThreadLocalMap.remove(this) -> expungeStaleentries()
 
 
 
-### 手动释放 ThreadLocal 遗留存储?你怎么去设计/实现？
+### 手动释放 ThreadLocal 遗留存储?你怎么去设计/实现? 
 
 这里主要是强化一下手动 remove 的思想和必要性, 设计思想与连接池类似. 
 
@@ -657,9 +657,9 @@ remove() -> ThreadLocalMap.remove(this) -> expungeStaleentries()
 
 一并考察了你的 gc 基础. 
 
-事实上, 当 currentThread 执行结束后, threadLocalMap 变得不可达从而被回收, Entry 等也就都被回收了, 但这个环境就要求不对Thread 进行复用, 但是我们项目中经常会复用线程来提高性能, 所以 currentThread 一般不会处于终止状态. 
+事实上, 当 currentThread 执行结束后, threadLocalMap 变得不可达从而被回收, Entry 等也就都被回收了, 但这个环境就要求不对 Thread 进行复用, 但是我们项目中经常会复用线程来提高性能, 所以 currentThread 一般不会处于终止状态. 
 
-在 web 项目中, 我们使用 tomcat 容器, 一般会开启一个线程池, 线程的释放会归还到线程池中并不会真正释放, 如果在web项目中调用 ThreadLocal 的 set 方法 将一个对象放入Thread中的成员变量threadLocals(ThreadLocalMap) 中, 那么这个对象(ThreadLocal)是永远不会被回收的, 因为这个对象永远都被Thread中的成员变量threadLocals引用着. 
+在 web 项目中, 我们使用 tomcat 容器, 一般会开启一个线程池, 线程的释放会归还到线程池中并不会真正释放, 如果在 web 项目中调用 ThreadLocal 的 set 方法 将一个对象放入 Thread 中的成员变量 threadLocals(ThreadLocalMap) 中, 那么这个对象(ThreadLocal)是永远不会被回收的, 因为这个对象永远都被Thread 中的成员变量 threadLocals 引用着. 
 
 如果想让垃圾收集器回收它, 有两种方法
 
@@ -671,7 +671,7 @@ remove() -> ThreadLocalMap.remove(this) -> expungeStaleentries()
 
 ### **Thread 和 ThreadLocal 有什么联系呢**
 
-Thread 和 ThreadLocal是绑定的, ThreadLocal 依赖于 Thread 去执行, Thread 将需要隔离的数据存放到 ThreadLocal (准确的讲是 ThreadLocalMap)中, 来实现多线程处理. 
+Thread 和 ThreadLocal 是绑定的, ThreadLocal 依赖于 Thread 去执行, Thread 将需要隔离的数据存放到 ThreadLocal (准确的讲是 ThreadLocalMap)中, 来实现多线程处理. 
 
 
 
@@ -679,18 +679,162 @@ Thread 和 ThreadLocal是绑定的, ThreadLocal 依赖于 Thread 去执行, Thre
 
 ThreadLocal 天生为解决相同变量的访问冲突问题, 所以这个对于 spring 的默认单例 bean 的多线程访问是一个完美的解决方案. spring 也确实是用了 ThreadLocal 来处理多线程下相同变量并发的线程安全问题. 
 
-spring 如何保证数据库事务在同一个连接下执行的？
+spring 如何保证数据库事务在同一个连接下执行的? 
 
-要想实现 jdbc 事务, 就必须是在同一个连接对象中操作, 多个连接下事务就会不可控, 需要借助分布式事务完成. 那 spring 如何保证数据库事务在同一个连接下执行的呢？
+要想实现 jdbc 事务, 就必须是在同一个连接对象中操作, 多个连接下事务就会不可控, 需要借助分布式事务完成. 那 spring 如何保证数据库事务在同一个连接下执行的呢? 
 
 DataSourceTransactionManager 是 spring 的数据源事务管理器, 它会在你调用 getConnection() 的时候从数据库连接池中获取一个 connection, 然后将其与 ThreadLocal 绑定, 事务完成后解除绑定. 这样就保证了事务在同一连接下完成. 
 
 
 
-## ThreadLocal应用场景
+## ThreadLocal 应用场景
 
 处理较为复杂的业务时, 使用 ThreadLocal 代替参数的显示传递. 
 
-ThreadLocal 可以用来做数据库连接池保存 Connection 对象, 这样就可以让线程内多次获取到的连接是同一个了 (Spring 中的DataSource 就是使用的 ThreadLocal) . 
+ThreadLocal 可以用来做数据库连接池保存 Connection 对象, 这样就可以让线程内多次获取到的连接是同一个了 (Spring 中的 DataSource 就是使用的 ThreadLocal) . 
 
 管理 Session 会话, 将 Session 保存在 ThreadLocal 中, 使线程处理多次处理会话时始终是一个 Session. 
+
+
+
+## Threadlocal 跨线程传递解决方案
+
+**ThreadLocal 适用于每个线程需要自己独立的实例且该实例需要在多个方法中被使用, 也即变量在线程间隔离而在方法或类间共享的场景. 简单易懂的就是. 每个线程有自己的数据副本, 当线程结束后可以独立回收. **
+
+**通常使用场景**
+
+**比如 spring mvc 收到请求. 拦截器将用户 id 等数据放到 threadlocal 当中. 在当前线程就可以直接拿到数据**
+
+**具体例子:**
+
+**有些同学会说出开源项目中有些地方会用到:**
+
+**比如这种, 比如 mysql 读写分离. 主写读从过程中, 类似于 shardingsphere 的中间件. 就通过 threadlocal 来实现某一次读请求路由到主库. 通过 threadlocal 设置标识即可**
+
+<img src="http://www.milky.show/images/java/threadlocal/th_2.png" alt="http://www.milky.show/images/java/threadlocal/th_2.png" style="zoom:67%;" />
+
+如果我启动另外一个线程. 那么在主线程设置的 threadlocal 值能被子线程拿到吗?
+
+如果拿不到, 怎么去解决这个问题. 有的同学一定会想这种场景比较少. 顶多就是面试官找茬罢了
+
+其实不然. 这种场景非常普遍. 举一个例子: 
+
+现在微服务基本上属于各个大厂小厂的标配. 有一个问题. 全链路如何来做监控. 如果用过 spring cloud 的同学一定会说. zipkin, 有的可能也会说 cat, pinpoint, skywalking 等等, 
+
+暂且不讨论这些全链路组件的优劣. 在全链路组件落地的过程中, threadlocal 是一个相当关键的步骤. 拿 zipkin 的实现来说: 
+
+<img src="http://www.milky.show/images/java/threadlocal/th_3.png" alt="http://www.milky.show/images/java/threadlocal/th_3.png" style="zoom:67%;" />
+
+核心的数据传递都通过 threadlocal 来实现
+
+那么回到我刚才的问题. threadlocal 跨线程是否能够传递呢? 那么我们做一个实验: 
+
+相关代码. 我们在父线程设置了一个threadlocal. 另外启动一个线程去获取
+
+<img src="http://www.milky.show/images/java/threadlocal/th_4.png" alt="http://www.milky.show/images/java/threadlocal/th_4.png" style="zoom:67%;" />
+
+运行结果:
+
+<img src="http://www.milky.show/images/java/threadlocal/th_5.png" alt="http://www.milky.show/images/java/threadlocal/th_5.png" style="zoom:67%;" />
+
+结论: 拿不到数据. 获取的是个 null
+
+那我们应该怎么去解决这个问题: 
+
+在 java8 中提供了一个这个类(InheritableThreadLocal): 
+
+<img src="http://www.milky.show/images/java/threadlocal/th_6.png" alt="http://www.milky.show/images/java/threadlocal/th_6.png" style="zoom:67%;" />
+
+从字面意思来看: 可以实现父线程到子线程的共享, 那么我们实验一下
+
+将实现换成了 InheritableThreadLocal
+
+<img src="http://www.milky.show/images/java/threadlocal/th_7.png" alt="http://www.milky.show/images/java/threadlocal/th_7.png" style="zoom:67%;" />
+
+看一下效果 (果然解决了问题): 
+
+<img src="http://www.milky.show/images/java/threadlocal/th_8.png" alt="http://www.milky.show/images/java/threadlocal/th_8.png" style="zoom:67%;" />
+
+### InheritableThreadLocal 原理
+
+看一下目录结构: 
+
+<img src="http://www.milky.show/images/java/threadlocal/th_9.png" alt="http://www.milky.show/images/java/threadlocal/th_9.png" style="zoom:67%;" />
+
+复写了父类 3 个方法
+
+当主线程中对该变量进行 set 操作的时候, 和 ThreadLocal 一样会初始化一个 ThreadLocalMap 对实际的变量值进行存储, 以 ThreadLocal 为 key, 值为 value, 如果有多个 ThreadLocal 变量也都是存储在这个 Map 中. 该 Map 使用的是 HashMap 的原理进行数据的存储, 但是和 ThreadLocal 有一点差别, 因为其覆写了 createMap 的方法. 
+
+在 Thread 类当中, 可以看出 Thread 类维护了两个成员变量, ThreadLocal 以及 InheritableThreadLocal, 数据类型都是 ThreadLocalMap. 这也就解释了为什么这个变量是线程私有的. 但是如果要知道为什么父子线程的变量传递, 那就继续看一下源码. 当我们在主线程中开一个新的子线程的时候, 开始会 new 一个新的 Thread
+
+<img src="http://www.milky.show/images/java/threadlocal/th_10.png" alt="http://www.milky.show/images/java/threadlocal/th_10.png" style="zoom:67%;" />
+
+在 thread 构造函数中, new 一个 thread 方法
+
+<img src="http://www.milky.show/images/java/threadlocal/th_11.png" alt="http://www.milky.show/images/java/threadlocal/th_11.png" style="zoom:67%;" />
+
+可以看到, 最后会调用 ThreadLocal 的 createInheritedMap 方法, 而该方法会新建一个 ThreadLocalMap, 看一下构造函数的内容: 
+
+<img src="http://www.milky.show/images/java/threadlocal/th_12.png" alt="http://www.milky.show/images/java/threadlocal/th_12.png" style="zoom:67%;" />
+
+parentMap 就是父线程的 ThreadLocalMap, 这个构造函数的意思大概就是将父线程的 ThreadLocalMap 复制到自己的 ThreadLocalMap 里面来, 这样我们就可以使用 InheritableThreadLocal 访问到父线程中的变量了
+
+但是这个就能解决问题了吗. 并不是~
+
+下个小结我会继续讲解 InheritableThreadLocal 在多线程调用过程中还存在哪些坑. 如何解决
+
+
+
+### InheritableThreadLocal 的局限性
+
+**看一个例子**
+
+<img src="http://www.milky.show/images/java/threadlocal/th_13.png" alt="http://www.milky.show/images/java/threadlocal/th_13.png" style="zoom:67%;" />
+
+new 了一个线程池大小为1的线程池. 在第一次执行前, 设置了一个 wzAAA, 在子线程执行获取, 然后 sleep(2000) 以后, 设置了一个另外的值. 再次获取结果
+
+看一下运行结果:
+
+<img src="http://www.milky.show/images/java/threadlocal/th_14.png" alt="http://www.milky.show/images/java/threadlocal/th_14.png" style="zoom:67%;" />
+
+两次执行结果居然一样. . 那么显然不是我们想要的结果. 问题出在哪里? 
+
+原因是我们使用了固定为 1 的线程池, 线程池中是缓存使用过的线程, 当线程被重复调用的时候并没有再重新初始化 init() 线程, 而是直接使用已经创建过的线程, 所以这里的值并不会被再次操作. 
+
+那么如何解决这个问题: 
+
+阿里巴巴有个开源项目: 
+
+[https://github.com/alibaba/transmittable-thread-local](https://github.com/alibaba/transmittable-thread-local)
+
+让我们看一下简介: 
+
+<img src="http://www.milky.show/images/java/threadlocal/th_15.png" alt="http://www.milky.show/images/java/threadlocal/th_15.png" style="zoom:67%;" />
+
+我们按照相关 wiki 进行改造
+
+<img src="http://www.milky.show/images/java/threadlocal/th_16.png" alt="http://www.milky.show/images/java/threadlocal/th_16.png" style="zoom:67%;" />
+
+相关结果正确: 
+
+<img src="http://www.milky.show/images/java/threadlocal/th_17.png" alt="http://www.milky.show/images/java/threadlocal/th_17.png" style="zoom:67%;" />
+
+相关原理简介: 
+
+[https://github.com/alibaba/transmittable-thread-local/blob/master/docs/developer-guide.md](https://links.jianshu.com/go?to=https%3A%2F%2Fgithub.com%2Falibaba%2Ftransmittable-thread-local%2Fblob%2Fmaster%2Fdocs%2Fdeveloper-guide.md)
+
+其实在很多开源项目中, 尤其是全链路传递实现, 也有类似的实现: 
+
+比如 sleuth:
+
+<img src="http://www.milky.show/images/java/threadlocal/th_18.png" alt="http://www.milky.show/images/java/threadlocal/th_18.png" style="zoom:67%;" />
+
+在跨线程调用中. 也是通过覆写 runnable 来实现来防止链路丢失
+
+
+
+## 参考
+
+[https://www.jianshu.com/p/7a7a4b05a03c](https://www.jianshu.com/p/7a7a4b05a03c)
+
+[https://www.jianshu.com/p/25857f3bf960](https://www.jianshu.com/p/25857f3bf960)
