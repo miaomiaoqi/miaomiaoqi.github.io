@@ -1045,8 +1045,9 @@ public class AddResponseHeaderFilter extends ZuulFilter {
 
 ### 跨域
 
-* 在被调用的类或方法上增加 @CrossOrigin 注解
-* 在 Zuul 里增加 CorsFilter 过滤器
+在被调用的类或方法上增加 @CrossOrigin 注解
+
+在 Zuul 里增加 CorsFilter 过滤器
 
 ```java
 @Configuration
