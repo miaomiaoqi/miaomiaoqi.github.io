@@ -739,28 +739,28 @@ SpringCloudBus 依赖 mq 发消息实现服务自动更新配置
 
 amqp 定义了一系列消息接口, 典型的实现是 rabbitmq, springcloud 默认使用的实现就是 rabbitmq
 
-* 加入 amqp 依赖
+加入 amqp 依赖
 
-    ```xml
-    <dependencies>
-    		<dependency>
-        		<groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-amqp</artifactId>
-        </dependency>
-    </dependencies>
-    ```
+```xml
+<dependencies>
+    <dependency>
+		<groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-amqp</artifactId>
+    </dependency>
+</dependencies>
+```
 
-* 修改 git 中的配置文件
+修改 git 中的配置文件
 
-    ```yaml
-    spring:
-      rabbitmq:
-        addresses: 127.0.0.1:6672
-        username: guest
-        password: guest
-        virtual-host: /springcloud-sell
-        connection-timeout: 15000
-    ```
+```yaml
+spring:
+  rabbitmq:
+    addresses: 127.0.0.1:6672
+    username: guest
+    password: guest
+    virtual-host: /springcloud-sell
+    connection-timeout: 15000
+```
 
 
 
@@ -775,64 +775,64 @@ amqp 定义了一系列消息接口, 典型的实现是 rabbitmq, springcloud �
 
 <img src="http://www.milky.show/images/springcloud/springcloud_sell_6.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_6.png" style="zoom:67%;" />
 
-* 加入 Zuul 依赖
+加入 Zuul 依赖
 
-    ```xml
-    <dependency>
-    	<groupId>org.springframework.cloud</groupId>
-    	<artifactId>spring-cloud-starter-netflix-zuul</artifactId>
-    </dependency>
-    ```
+```xml
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-netflix-zuul</artifactId>
+</dependency>
+```
 
-* 启动类加入 @EnableZuulProxy 注解
+启动类加入 @EnableZuulProxy 注解
 
-    ```java
-    @SpringBootApplication
-    @EnableZuulProxy
-    public class SpringcloudSellGatewayApplication {
-    
-        public static void main(String[] args) {
-            SpringApplication.run(SpringcloudSellGatewayApplication.class, args);
-        }
-    
+```java
+@SpringBootApplication
+@EnableZuulProxy
+public class SpringcloudSellGatewayApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(SpringcloudSellGatewayApplication.class, args);
     }
-    ```
 
-* 修改 git 中的配置文件
+}
+```
 
-    ```yaml
-    eureka:
-      client:
-        service-url:
-          defaultZone: http://eureka9901:9901/eureka/,http://eureka9902:9902/eureka/,http://eureka9903:9903/eureka/
-        register-with-eureka: true
-        fetch-registry: true
-    server:
-      port: 9946
-    spring:
-      application:
-        name: springcloud-sell-gateway
-    env: dev33
-    ```
+修改 git 中的配置文件
 
-* 修改项目中 bootstrap.yml 文件
+```yaml
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka9901:9901/eureka/,http://eureka9902:9902/eureka/,http://eureka9903:9903/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+server:
+  port: 9946
+spring:
+  application:
+    name: springcloud-sell-gateway
+env: dev33
+```
 
-    ```yaml
-    spring:
-      application:
-        name: springcloud-sell-gateway
-      cloud:
-        config:
-          profile: dev # 指定环境
-          uri: http://localhost:9936 # config server地址
-          label: master # git 分支
-    ```
+修改项目中 bootstrap.yml 文件
 
-* 启动项目, 通过 zuul 服务访问 product 服务, 这里是默认路由
+```yaml
+spring:
+  application:
+    name: springcloud-sell-gateway
+  cloud:
+    config:
+      profile: dev # 指定环境
+      uri: http://localhost:9936 # config server地址
+      label: master # git 分支
+```
 
-    http://localhost:9946/springcloud-sell-product/product/list
+启动项目, 通过 zuul 服务访问 product 服务, 这里是默认路由
 
-    springcloud-sell-product 就是 product 服务在 eureka 中的服务 id, gateway-zuul 会默认配置
+http://localhost:9946/springcloud-sell-product/product/list
+
+springcloud-sell-product 就是 product 服务在 eureka 中的服务 id, gateway-zuul 会默认配置
 
 ### 自定义路由
 
@@ -896,11 +896,13 @@ private Set<String> sensitiveHeaders = new LinkedHashSet(Arrays.asList("Cookie",
 
 ### 过滤器
 
-- 前置(Pre): 限流, 鉴权, 参数校验调整
-- 路由(Route)
-- 后置(Post): 统计, 日志, 跨域
+前置(Pre): 限流, 鉴权, 参数校验调整
 
-- 错误(Error)
+路由(Route)
+
+后置(Post): 统计, 日志, 跨域
+
+错误(Error)
 
 ### 鉴权
 
@@ -1076,171 +1078,171 @@ public class CorsConfig {
 
 **优先核心服务可用, 非核心服务不可用或若可用**, 通过 HystrixCommand 注解指定, fallbackMethod(回退函数)中具体实现降级逻辑
 
-* 加入 hystrix 依赖
+加入 hystrix 依赖
 
-    ```xml
-    <dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-starter-hystrix</artifactId>
-        <version>LATEST</version>
-    </dependency>
-    ```
+```xml
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-hystrix</artifactId>
+    <version>LATEST</version>
+</dependency>
+```
 
-* 加入注解
+加入注解
 
-    ```java
-    @EnableFeignClients
-    // @SpringBootApplication
-    // @EnableDiscoveryClient 开启 eureka
-    // @EnableCircuitBreaker 开启 hystrix
-    @SpringCloudApplication // 包含上边 3 个注解
-    public class SpringcloudSellOrderApplication {
-    
-        public static void main(String[] args) {
-            SpringApplication.run(SpringcloudSellOrderApplication.class, args);
-        }
-    
+```java
+@EnableFeignClients
+// @SpringBootApplication
+// @EnableDiscoveryClient 开启 eureka
+// @EnableCircuitBreaker 开启 hystrix
+@SpringCloudApplication // 包含上边 3 个注解
+public class SpringcloudSellOrderApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(SpringcloudSellOrderApplication.class, args);
     }
-    ```
 
-* 请求方法加入 @HysttixCommand 注解
+}
+```
 
-    ```java
-    @RestController
-    // @DefaultProperties(defaultFallback = "defaultFallback")
-    public class HystrixController {
-    
-        // @HystrixCommand 配合 @DefaultProperties 会触发默认降级方法
-        @HystrixCommand(fallbackMethod = "fallback", 
-    		commandProperties = @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "3000")) // 会指定特殊的降级方法, 优先级高于默认降级, 默认超时 1s, 这个配置会改为 3s
-        @GetMapping("/getProductInfoList")
-        public String getProductInfoList() {
-            RestTemplate restTemplate = new RestTemplate();
-            return restTemplate.postForObject("http://localhost:9916/product/listForOrder",
-                    Arrays.asList("157875196366160022"),
-                    String.class);
-            // throw new RuntimeException("发送异常了"); 抛异常就会触发降级
-        }
-    
-        private String fallback() {
-            return "太拥挤了, 请稍后再试~";
-        }
-    
-        private String defaultFallback() {
-            return "默认提示: 太拥挤了, 请稍后再试~";
-        }
-    
+请求方法加入 @HysttixCommand 注解
+
+```java
+@RestController
+// @DefaultProperties(defaultFallback = "defaultFallback")
+public class HystrixController {
+
+    // @HystrixCommand 配合 @DefaultProperties 会触发默认降级方法
+    @HystrixCommand(fallbackMethod = "fallback", 
+		commandProperties = @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "3000")) // 会指定特殊的降级方法, 优先级高于默认降级, 默认超时 1s, 这个配置会改为 3s
+    @GetMapping("/getProductInfoList")
+    public String getProductInfoList() {
+        RestTemplate restTemplate = new RestTemplate();
+        return restTemplate.postForObject("http://localhost:9916/product/listForOrder",
+                Arrays.asList("157875196366160022"),
+                String.class);
+        // throw new RuntimeException("发送异常了"); 抛异常就会触发降级
     }
-    ```
-    
-* 关闭 product 服务, 访问 http://localhost:9926/getProductInfoList, 页面返回太拥挤了, 请稍后再试~
 
-* 也可以采用配置文件的方式进行配置, 但是方法上一定要配置 @HystrixCommand 注解
+    private String fallback() {
+        return "太拥挤了, 请稍后再试~";
+    }
 
-    ```yaml
-    hystrix:
-      command:
-        default:
-          execution:
-            isolation:
-              thread:
-                timeoutInMilliseconds: 1000
-        getProductInfoList: # 单独为某一方法设置超时时间
-          execution:
-            isolation:
-              thread:
-                timeoutInMilliseconds: 3000
-    ```
+    private String defaultFallback() {
+        return "默认提示: 太拥挤了, 请稍后再试~";
+    }
+
+}
+```
+
+关闭 product 服务, 访问 http://localhost:9926/getProductInfoList, 页面返回太拥挤了, 请稍后再试~
+
+也可以采用配置文件的方式进行配置, 但是方法上一定要配置 @HystrixCommand 注解
+
+```yaml
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 1000
+    getProductInfoList: # 单独为某一方法设置超时时间
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 3000
+```
 
 #### Feign-Hystrix
 
 feign 整合 hystrix 进行降级, feign 已经自动依赖了 hystrix 包
 
-* 配置 feign 的配置文件
+配置 feign 的配置文件
 
-    ```yaml
-    feign:
-      hystrix:
-        enabled: true
-    ```
+```yaml
+feign:
+  hystrix:
+    enabled: true
+```
 
-* 修改 feign 接口
+修改 feign 接口
 
-    ```java
-    @FeignClient(name = "SPRINGCLOUD-SELL-PRODUCT", fallback = ProductClient.ProductClientFallback.class)
-    public interface ProductClient {
-    
-        @PostMapping("/product/listForOrder")
-        List<ProductInfoOutput> listForOrder(List<String> productIdList);
-    
-        @PostMapping("/product/decreaseStock")
-        void decreaseStock(@RequestBody List<DecreaseStockInput> cartDTOList);
-    
-        @Component
-        class ProductClientFallback implements ProductClient {
-    
-            @Override
-            public List<ProductInfoOutput> listForOrder(List<String> productIdList) {
-                return null;
-            }
-    
-            @Override
-            public void decreaseStock(List<DecreaseStockInput> cartDTOList) {
-    
-            }
+```java
+@FeignClient(name = "SPRINGCLOUD-SELL-PRODUCT", fallback = ProductClient.ProductClientFallback.class)
+public interface ProductClient {
+
+    @PostMapping("/product/listForOrder")
+    List<ProductInfoOutput> listForOrder(List<String> productIdList);
+
+    @PostMapping("/product/decreaseStock")
+    void decreaseStock(@RequestBody List<DecreaseStockInput> cartDTOList);
+
+    @Component
+    class ProductClientFallback implements ProductClient {
+
+        @Override
+        public List<ProductInfoOutput> listForOrder(List<String> productIdList) {
+            return null;
         }
-    
+
+        @Override
+        public void decreaseStock(List<DecreaseStockInput> cartDTOList) {
+
+        }
     }
-    ```
+
+}
+```
 
 #### 可视化 hystrix 工具 Hystrix-Dashboard
 
-* 加入依赖
+加入依赖
 
-    ```xml
-    <dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-starter-hystrix-dashboard</artifactId>
-        <version>LATEST</version>
-    </dependency>
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-actuator</artifactId>
-    </dependency>
-    ```
+```xml
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-hystrix-dashboard</artifactId>
+    <version>LATEST</version>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+```
 
-* 启动类加入注解
+启动类加入注解
 
-    ```java
-    @EnableFeignClients
-    // @SpringBootApplication
-    // @EnableDiscoveryClient 开启 eureka
-    // @EnableCircuitBreaker 开启 hystrix
-    @EnableHystrixDashboard
-    @SpringCloudApplication
-    public class SpringcloudSellOrderApplication {
-    
-        public static void main(String[] args) {
-            SpringApplication.run(SpringcloudSellOrderApplication.class, args);
-        }
-    
+```java
+@EnableFeignClients
+// @SpringBootApplication
+// @EnableDiscoveryClient 开启 eureka
+// @EnableCircuitBreaker 开启 hystrix
+@EnableHystrixDashboard
+@SpringCloudApplication
+public class SpringcloudSellOrderApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(SpringcloudSellOrderApplication.class, args);
     }
-    ```
 
-* 配置文件配置去除访问前缀
+}
+```
 
-    ```yaml
-    management:
-      endpoints:
-        web:
-          exposure:
-            include: "*"
-          base-path: /
-    ```
+配置文件配置去除访问前缀
 
-* 访问图形化界面
+```yaml
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+      base-path: /
+```
 
-    http://localhost:9926/hystrix 填入 http://localhost:9926/hystrix.stream
+访问图形化界面
+
+http://localhost:9926/hystrix 填入 http://localhost:9926/hystrix.stream
 
 
 
