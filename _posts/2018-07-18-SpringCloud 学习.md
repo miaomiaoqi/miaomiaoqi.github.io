@@ -50,7 +50,7 @@ Eureka Client 是一个 java 客户端, 用于简化与 Eureka Server 的交互,
 
 
 
-服务启动后向Eureka注册, ***\*Eureka Server会将注册信息向其他Eureka Server进行同步, 当服务消费者要调用服务提供者, 则向服务注册中心获取服务提供者地址, 然后会将服务提供者地址缓存在本地, 下次再调用时, 则直接从本地缓存中取, 完成一次调用. \****
+服务启动后向Eureka注册, ***\*Eureka Server会将注册信息向其他Eureka Server进行同步, 当服务消费者要调用服务提供者, 则向服务注册中心获取服务提供者地址, 然后会将服务提供者地址缓存在本地, 下次再调用时, 则直接从本地缓存中取, 完成一次调用\****
 
 当服务注册中心Eureka Server检测到服务提供者因为宕机、网络原因不可用时, 则在服务注册中心将服务置为`DOWN`状态, 并把当前服务提供者状态向订阅者发布, 订阅过的服务消费者更新本地缓存. 
 
@@ -484,8 +484,8 @@ ZoneAvoidanceRule: 默认规则, 复合判断 server 所在区域的性能和 se
 
 ```xml
 <dependency>
-	<groupId>org.springframework.cloud</groupId>
-	<artifactId>spring-cloud-starter-feign</artifactId>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-feign</artifactId>
 </dependency>
 ```
 
