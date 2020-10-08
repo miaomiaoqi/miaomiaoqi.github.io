@@ -54,7 +54,7 @@ Eureka Client 是一个 java 客户端, 用于简化与 Eureka Server 的交互,
 
 当服务注册中心Eureka Server检测到服务提供者因为宕机、网络原因不可用时, 则在服务注册中心将服务置为`DOWN`状态, 并把当前服务提供者状态向订阅者发布, 订阅过的服务消费者更新本地缓存. 
 
-**服务提供者(节点)在启动后, 周期性(默认30秒)向Eureka Server发送心跳, 以证明当前服务是可用状态. Eureka Server在一定的时间(默认90秒)未收到客户端的心跳, 则认为服务宕机, 注销该实例. **
+**服务提供者(节点)在启动后, 周期性(默认30秒)向Eureka Server发送心跳, 以证明当前服务是可用状态. Eureka Server在一定的时间(默认90秒)未收到客户端的心跳, 则认为服务宕机, 注销该实例**
 
 
 
@@ -1429,7 +1429,7 @@ public class GatewayFallback implements FallbackProvider {
 
 由上可知, Spring Cloud 的第一个版本 "Angel" 就不觉得奇怪了, 接着 "Brixton" 就是第二个版本. 当一个项目到达发布临界点或者解决了一个严重的 BUG 后就会发布一个 "Service Release" 版本,  简称 SR(X) 版本, x 代表一个递增数字. 
 
-**由此我们可以得出 "Finchley M9" 就是目前最新的开发版本, "Edgware SR3" 是最新稳定版本. **
+**由此我们可以得出 "Finchley M9" 就是目前最新的开发版本, "Edgware SR3" 是最新稳定版本**
 
 | Release Train | Boot Version |
 | :------------ | :----------- |
