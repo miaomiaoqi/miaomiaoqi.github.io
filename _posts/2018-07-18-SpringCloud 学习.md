@@ -1073,9 +1073,9 @@ public class CorsConfig {
 
 ## Spring Cloud Hystrix
 
-Hystrix，中文含义是豪猪，因其背上长满棘刺，从而拥有了自我保护的能力。本文所说的Hystrix是Netflix开源的一款容错框架，同样具有自我保护能力。为了实现容错和自我保护，下面我们看看Hystrix如何设计和实现的。
+Hystrix, 中文含义是豪猪, 因其背上长满棘刺, 从而拥有了自我保护的能力. 本文所说的Hystrix是Netflix开源的一款容错框架, 同样具有自我保护能力. 为了实现容错和自我保护, 下面我们看看Hystrix如何设计和实现的. 
 
-Hystrix设计目标：
+Hystrix设计目标: 
 
 -   对来自依赖的延迟和故障进行防护和控制——这些依赖通常都是通过网络访问的
 -   阻止故障的连锁反应
@@ -1083,57 +1083,467 @@ Hystrix设计目标：
 -   回退并优雅降级
 -   提供近实时的监控与告警
 
-Hystrix遵循的设计原则：
+Hystrix遵循的设计原则: 
 
--   防止任何单独的依赖耗尽资源（线程）
--   过载立即切断并快速失败，防止排队
+-   防止任何单独的依赖耗尽资源(线程)
+-   过载立即切断并快速失败, 防止排队
 -   尽可能提供回退以保护用户免受故障
--   使用隔离技术（例如隔板，泳道和断路器模式）来限制任何一个依赖的影响
--   通过近实时的指标，监控和告警，确保故障被及时发现
--   通过动态修改配置属性，确保故障及时恢复
--   防止整个依赖客户端执行失败，而不仅仅是网络通信
+-   使用隔离技术(例如隔板, 泳道和断路器模式)来限制任何一个依赖的影响
+-   通过近实时的指标, 监控和告警, 确保故障被及时发现
+-   通过动态修改配置属性, 确保故障及时恢复
+-   防止整个依赖客户端执行失败, 而不仅仅是网络通信
 
 Hystrix如何实现这些设计目标？
 
--   包裹请求：使用命令模式将所有对外部服务（或依赖关系）的调用包装在HystrixCommand或HystrixObservableCommand对象中，并将该对象放在单独的线程中执行；
--   资源隔离：Hystrix为每个依赖都维护了⼀个⼩型的线程池(舱壁模式)（或者信号量）。如果该线程池已满， 发往该依赖的请求就被⽴即拒绝，⽽不是排队等待，从⽽加速失败判定
--   跳闸机制：服务错误百分比超过了阈值，熔断器开关自动打开，一段时间内停止对该服务的所有请求。
--   回退机制：当请求失败、超时、被拒绝，或当断路器打开时，执⾏降级逻辑。降级逻辑由开发⼈员⾃⾏提供，例如返回⼀个缺省值
--   监控：Hystrix可以近乎实时地监控运⾏指标和配置的变化，例如成功、失败、超时、以及被拒绝的请求等
+-   包裹请求: 使用命令模式将所有对外部服务(或依赖关系)的调用包装在HystrixCommand或HystrixObservableCommand对象中, 并将该对象放在单独的线程中执行；
+-   资源隔离: Hystrix为每个依赖都维护了⼀个⼩型的线程池(舱壁模式)(或者信号量). 如果该线程池已满,  发往该依赖的请求就被⽴即拒绝, ⽽不是排队等待, 从⽽加速失败判定
+-   跳闸机制: 服务错误百分比超过了阈值, 熔断器开关自动打开, 一段时间内停止对该服务的所有请求. 
+-   回退机制: 当请求失败、超时、被拒绝, 或当断路器打开时, 执⾏降级逻辑. 降级逻辑由开发⼈员⾃⾏提供, 例如返回⼀个缺省值
+-   监控: Hystrix可以近乎实时地监控运⾏指标和配置的变化, 例如成功、失败、超时、以及被拒绝的请求等
 
-Hystrix整个工作流如下：
 
-1.  构造一个 HystrixCommand或HystrixObservableCommand对象，用于封装请求，并在构造方法配置请求被执行需要的参数；
-2.  执行命令，Hystrix提供了4种执行命令的方法，后面详述；
-3.  判断是否使用缓存响应请求，若启用了缓存，且缓存可用，直接使用缓存响应请求。Hystrix支持请求缓存，但需要用户自定义启动；
-4.  判断熔断器是否打开，如果打开，跳到第8步；
-5.  判断线程池/队列/信号量是否已满，已满则跳到第8步；
-6.  执行HystrixObservableCommand.construct()或HystrixCommand.run()，如果执行失败或者超时，跳到第8步；否则，跳到第9步；
-7.  统计熔断器监控指标；
-8.  走Fallback备用逻辑
-9.  返回请求响应
 
-第5步线程池/队列/信号量已满时，还会执行第7步逻辑，更新熔断器统计信息，而第6步无论成功与否，都会更新熔断器统计信息。
+### Hystrix 处理流程
+
+#### Hystrix 整个工作流
+
+构造一个 HystrixCommand 或 HystrixObservableCommand 对象, 用于封装请求, 并在构造方法配置请求被执行需要的参数；
+
+1.  执行命令, Hystrix提供了4种执行命令的方法, 后面详述；
+2.  判断是否使用缓存响应请求, 若启用了缓存, 且缓存可用, 直接使用缓存响应请求. Hystrix支持请求缓存, 但需要用户自定义启动；
+3.  判断熔断器是否打开, 如果打开, 跳到第8步；
+4.  判断线程池/队列/信号量是否已满, 已满则跳到第8步；
+5.  执行HystrixObservableCommand.construct()或HystrixCommand.run(), 如果执行失败或者超时, 跳到第8步；否则, 跳到第9步；
+6.  统计熔断器监控指标；
+7.  走Fallback备用逻辑
+8.  返回请求响应
+
+第 5 步线程池/队列/信号量已满时, 还会执行第 7 步逻辑, 更新熔断器统计信息, 而第 6 步无论成功与否, 都会更新熔断器统计信息. 
+
+
+
+#### 执行命令的几种方法
+
+Hystrix提供了4种执行命令的方法, execute()和queue()适用于 HystrixCommand 对象, 而observer()和toObservable()适用于 HystrixObservableCommand对象. 
+
+1.  execute()
+
+    以同步阻塞方法执行run(), 只支持接收一个值对象.  Hystrix会从线程池中取一个线程来执行run(), 并等待返回值. 
+
+2.  queue()
+
+    以异步非阻塞方法执行run(), 只支持接收一个值对象. 调用queue()就直接返回一个Future对象. 可通过Future.get()拿到run()的返回结果, 但 Future.get() 是阻塞执行的. 若执行成功,  Future.get() 返回单个返回值. 当执行失败时, 如果没有重写fallback,  Future.get() 抛出异常. 
+
+3.  observe()
+
+    事件注册前执行run()/construct(), 支持接收多个值对象, 取决于发射源. 调用observe()会返回一个hot Observable, 也就是说, 调用 observe()自动触发执行run()/construct(), 无论是否存在订阅者. 
+
+    如果继承的是HystrixCommand, hystrix会从线程池中取一个线程以非阻塞方式执行run()；如果继承的是HystrixObservableCommand, 将以调用线程阻塞执行construct(). 
+
+    **observe()使用方法: **
+
+    1.  调用 observe()会返回一个Observable对象
+    2.  调用这个 Observable对象的subscribe()方法完成事件注册, 从而获取结果
+
+4.  toObservable()
+
+    事件注册后执行run()/construct(), 支持接收多个值对象, 取决于发射源. 调用 toObservable() 会返回一个cold Observable, 也就是说, 调用 toObservable() 不会立即触发执行run()/construct(), 必须有订阅者订阅 Observable 时才会执行. 
+
+    如果继承的是 HystrixComman, hystrix会从线程池中取一个线程以非阻塞方式执行run(), 调用线程不必等待run()；如果继承的是 HystrixObservableCommand , 将以调用线程堵塞执行construct(), 调用线程需等待construct()执行完才能继续往下走. 
+
+    **toObservable()使用方法: **
+
+    1.  调用observe()会返回一个Observable对象
+    2.  调用这个 Observable对象的subscribe()方法完成事件注册, 从而获取结果
+
+    需注意的是,  HystrixCommand也支持 toObservable()和observe(),  但是即使将 HystrixCommand 转换成Observable, 它也只能发射一个值对象. 只有 HystrixObservableCommand才支持发射多个值对象. 
+
+#### 几种方法的关系
+
+<img src="http://www.milky.show/images/springcloud/springcloud_sell_14.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_14.png" style="zoom: 50%;" />
+
+-   execute()实际是调用了queue().get()
+-   queue()实际调用了toObservable().toBlocking().toFuture()
+-   observe()实际调用toObservable()获得一个cold Observable, 再创建一个ReplaySubject对象订阅Observable, 将源Observable转化为hot Observable. 因此调用observe()会自动触发执行run()/construct(). 
+
+Hystrix 总是以Observable的形式作为相应返回, 不同执行命令的方法只是进行了相应的转换. 
 
 
 
 ### 依赖隔离
 
-线程池隔离, Hystrix 自动实现了依赖隔离
+资源隔离主要指对线程的隔离.  Hystrix提供了两种线程隔离的方式: 线程池和信号量. 
 
 #### 线程池隔离
 
-所谓线程池隔离，就是每个过来的请求，系统会单独将这个请求的执行放在一个线程或线程池里，这个根据自己的需求进行配置，以后，相同的请求不管有多少打进来，都会在指定数量的线程池内进行，因此不会出现诸如线程资源耗尽的情况，这种隔离方式在某些场景下是非常有用的，下面来看具体的代码，
+所谓线程池隔离, 就是每个过来的请求, 系统会单独将这个请求的执行放在一个线程或线程池里, 这个根据自己的需求进行配置, 以后, 相同的请求不管有多少打进来, 都会在指定数量的线程池内进行, 因此不会出现诸如线程资源耗尽的情况, 这种隔离方式在某些场景下是非常有用的, 下面来看具体的代码
+
+Hystrix还通过命令模式对发送请求的对象和执行请求的对象进行解耦, 将不同类型的业务请求封装为对应的命令请求. 如订单服务查询商品, 查询商品请求->商品command；商品服务查询库存, 查询库存请求->库存command. 并且为每个类型的command配置一个线程池, 当第一次创建command时, 根据配置创建一个线程池, 并放入ConcurrentHashMap, 如商品command: 
+
+```java
+final static ConcurrentHashMap<String, HystrixThreadPool> threadPools = new ConcurrentHashMap<String, HystrixThreadPool>();...if (!threadPools.containsKey(key)) {    threadPools.put(key, new HystrixThreadPoolDefault(threadPoolKey, propertiesBuilder));}
+```
+
+后续查询商品的请求创建command时, 将会重用已创建的线程池. 线程池隔离之后的服务依赖关系: 
+
+<img src="http://www.milky.show/images/springcloud/springcloud_sell_15.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_15.png" style="zoom: 50%;" />
+
+通过发送请求线程与执行请求的线程分离, 可有效防止发生级联故障. 当线程池或请求队列饱和时, Hystrix将拒绝服务, 使得请求线程可以快速失败, 从而避免依赖问题扩散. 
+
+**线程池隔离优点: **
+
+-   保护应用程序以免受来自依赖故障的影响, 指定依赖线程池饱和不会影响应用程序的其余部分. 
+-   当引入新客户端lib时, 即使发生问题, 也是在lib中, 并不会影响其他内容. 
+-   当依赖从故障恢复正常时, 应用程序会立即恢复正常的性能. 
+-   当应用程序一些配置参数错误时, 线程池的运行状况会很快检测到这一点(通过增加错误、延迟、超时、拒绝等), 同时可以通过动态属性进行实时纠正错误的参数配置. 
+-   如果服务的性能有变化, 需要实时调整, 比如增加或减少超时时间, 更改重试次数, 可以通过线程池指标状态属性修改, 而且不会影响到其它调用请求. 
+-   除了隔离优势外,  Hystrix 拥有专门的线程可提供内置的并发功能, 使得可以在同步调用之上构建异步门面(外观模式), 为异步编程提供了支持( Hystrix 引入了R小Java异步框架). 
+
+**注意: **尽管线程池提供了线程隔离, 我们的客户端底层代码也必须要有超时设置或响应线程中断, 不能无限制的阻塞以致线程池一直饱和. 
+
+**缺点: **
+
+*   线程池的主要缺点是增加了计算开销. 每个命令的执行都在单独的线程完成, 增加了排队、调度和上下文切换的开销. 因此, 要使用 Hystrix , 就必须接受它带来的开销, 以换取它所提供的的好处. 
+
+*   通常情况下, 线程池引入的开销足够小, 不会有重大的成本和性能影响. 但对于一些访问延迟极低的服务, 如只依赖内存缓存, 线程池引入的开销就比较明显了, 这时候使用线程池隔离技术就不合适了, 我们需要考虑更轻量级的方式, 如信号量隔离. 
+
+
 
 #### 信号量隔离
 
-信号量的资源隔离只是起到一个开关的作用，比如，服务 A 的信号量大小为 10，那么就是说它同时只允许有 10 个 tomcat 线程来访问服务 A，其它的请求都会被拒绝，从而达到资源隔离和限流保护的作用，下面直接上代码，基本配置和上述两种相似，就是注解不同，
+上面提到了线程池隔离的缺点, 当依赖延迟极低的服务时, 线程池隔离技术引入的开销超过了它所带来的好处. 这时候可以使用信号量隔离技术来代替, 通过设置信号量来限制对任何给定依赖的并发调用量. 下图说明了线程池隔离和信号量隔离的主要区别: 
+
+信号量的资源隔离只是起到一个开关的作用, 比如, 服务 A 的信号量大小为 10, 那么就是说它同时只允许有 10 个 tomcat 线程来访问服务 A, 其它的请求都会被拒绝, 从而达到资源隔离和限流保护的作用.
+
+<img src="http://www.milky.show/images/springcloud/springcloud_sell_16.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_16.png" style="zoom: 50%;" />
+
+使用线程池时, 发送请求的线程和执行依赖服务的线程不是同一个, 而使用信号量时, 发送请求的线程和执行依赖服务的线程时同一个,  都是发起请求的线程. 
+
+由于Hystrix默认使用线程池做线程隔离，使用信号量隔离需要显示地将属性execution.isolation.strategy设置为ExecutionIsolationStrategy.SEMAPHORE，同时配置信号量个数，默认为10。客户端需向依赖服务发起请求时，首先要获取一个信号量才能真正发起调用，由于信号量的数量有限，当并发请求量超过信号量个数时，后续的请求都会直接拒绝，进入fallback流程。
+
+信号量隔离主要是通过控制并发请求量，防止请求线程大面积阻塞，从而达到限流和防止雪崩的目的。
+
+#### 线程隔离总结
+
+线程池和信号量都可以做线程隔离, 但各有各的优缺点和支持的场景, 对比如下: 
+
+线程切换支持异步支持超时支持熔断限流开销信号量否否否是是小线程池是是是是是大
+
+线程池和信号量都支持熔断和限流. 相比线程池, 信号量不需要线程切换, 因此避免了不必要的开销. 但是信号量不支持异步, 也不支持超时, 也就是说当所请求的服务不可用时, 信号量会控制超过限制的请求立即返回, 但是已经持有信号量的线程只能等待服务响应或从超时中返回, 即可能出现长时间等待. 线程池模式下, 当超过指定时间未响应的服务,  Hystrix会通过响应中断的方式通知线程立即结束并返回. 
+
+线程池和信号量都可以做线程隔离, 但各有各的优缺点和支持的场景, 对比如下: 
+
+|        | 线程切换 | 支持异步 | 支持超时 | 支持熔断 | 限流 | 开销 |
+| ------ | -------- | -------- | -------- | -------- | ---- | ---- |
+| 信号量 | 否       | 否       | 否       | 是       | 是   | 小   |
+| 线程池 | 是       | 是       | 是       | 是       | 是   | 大   |
+
+线程池和信号量都支持熔断和限流。相比线程池, 信号量不需要线程切换, 因此避免了不必要的开销。但是信号量不支持异步, 也不支持超时, 也就是说当所请求的服务不可用时, 信号量会控制超过限制的请求立即返回, 但是已经持有信号量的线程只能等待服务响应或从超时中返回, 即可能出现长时间等待。线程池模式下, 当超过指定时间未响应的服务, Hystrix会通过响应中断的方式通知线程立即结束并返回。
 
 
 
 ### 服务降级
 
 **优先核心服务可用, 非核心服务不可用或若可用**, 通过 HystrixCommand 注解指定, fallbackMethod(回退函数)中具体实现降级逻辑
+
+降级, 通常指事务高峰期, 为了保证核心服务正常运行, 需要停掉一些不太重要的业务, 或者某些服务不可用时, 执行备用逻辑从故障服务中快速失败或快速返回, 以保障主体业务不受影响.  Hystrix提供的降级主要是为了容错, 保证当前服务不受依赖服务故障的影响, 从而提高服务的健壮性. 要支持回退或降级处理, 可以重写 HystrixCommand的getFallBack方法或HystrixObservableCommand的resumeWithFallback方法. 
+
+
+
+#### Hystrix 在以下几种情况下会走降级逻辑
+
+执行construct()或run()抛出异常
+
+熔断器打开导致命令短路
+
+命令的线程池和队列或信号量的容量超额, 命令被拒绝
+
+命令执行超时
+
+#### 降级回退方式
+
+1.  Fail Fast 快速失败
+
+    快速失败是最普通的命令执行方法, 命令没有重写降级逻辑.  如果命令执行发生任何类型的故障, 它将直接抛出异常. 
+
+2.  Fail Fast 无声失败
+
+    指在降级方法中通过返回 null, 空 Map, 空 List 或其他类似的响应来完成. 
+
+    ```java
+    @Override
+    protected Integer getFallback() {
+       return null;
+    }
+     
+    @Override
+    protected List<Integer> getFallback() {
+       return Collections.emptyList();
+    }
+     
+    @Override
+    protected Observable<Integer> resumeWithFallback() {
+       return Observable.empty();
+    }
+    ```
+
+3.  FallBack: Static
+
+    指在降级方法中返回静态默认值. 这不会导致服务以“无声失败”的方式被删除, 而是导致默认行为发生. 如: 应用根据命令执行返回 true / false 执行相应逻辑, 但命令执行失败, 则默认为 true. 
+
+    ```java
+    @Override
+    protected Boolean getFallback() {
+        return true;
+    }
+    @Override
+    protected Observable<Boolean> resumeWithFallback() {
+        return Observable.just( true );
+    }
+    ```
+
+4.  FallBack: Stubbed
+
+    当命令返回一个包含多个字段的复合对象时, 适合以 Stubbed 的方式回退. 
+
+    ```java
+    @Override
+    protected MissionInfo getFallback() {
+       return new MissionInfo("missionName","error");
+    }
+    ```
+
+5.  FallBack: Cache via Network
+
+    有时, 如果调用依赖服务失败, 可以从缓存服务(如redis)中查询旧数据版本. 由于又会发起远程调用, 所以建议重新封装一个 Command, 使用不同的ThreadPoolKey, 与主线程池进行隔离. 
+
+    ```java
+    @Override
+    protected Integer getFallback() {
+       return new RedisServiceCommand(redisService).execute();
+    }
+    ```
+
+6.  Primary+Secondary with FallBack
+
+    有时系统具有两种行为- 主要和次要, 或主要和故障转移. 主要和次要逻辑涉及到不同的网络调用和业务逻辑, 所以需要将主次逻辑封装在不同的Command 中, 使用线程池进行隔离. 为了实现主从逻辑切换, 可以将主次 command 封装在外观 HystrixCommand 的 run 方法中, 并结合配置中心设置的开关切换主从逻辑. 由于主次逻辑都是经过线程池隔离的 HystrixCommand, 因此外观 HystrixCommand 可以使用信号量隔离, 而没有必要使用线程池隔离引入不必要的开销. 原理图如下: 
+
+<img src="http://www.milky.show/images/springcloud/springcloud_sell_18.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_18.png" style="zoom: 50%;" />
+
+主次模型的使用场景还是很多的. 如当系统升级新功能时, 如果新版本的功能出现问题, 通过开关控制降级调用旧版本的功能. 
+
+```java
+public class CommandFacadeWithPrimarySecondary extends HystrixCommand<String> {
+ 
+    private final static DynamicBooleanProperty usePrimary = DynamicPropertyFactory.getInstance().getBooleanProperty("primarySecondary.usePrimary", true);
+ 
+    private final int id;
+ 
+    public CommandFacadeWithPrimarySecondary(int id) {
+        super(Setter
+                .withGroupKey(HystrixCommandGroupKey.Factory.asKey("SystemX"))
+                .andCommandKey(HystrixCommandKey.Factory.asKey("PrimarySecondaryCommand"))
+                .andCommandPropertiesDefaults(
+                        // 由于主次command已经使用线程池隔离，Facade Command使用信号量隔离即可
+                        HystrixCommandProperties.Setter()
+                                .withExecutionIsolationStrategy(ExecutionIsolationStrategy.SEMAPHORE)));
+        this.id = id;
+    }
+ 
+    @Override
+    protected String run() {
+        if (usePrimary.get()) {
+            return new PrimaryCommand(id).execute();
+        } else {
+            return new SecondaryCommand(id).execute();
+        }
+    }
+ 
+    @Override
+    protected String getFallback() {
+        return "static-fallback-" + id;
+    }
+ 
+    @Override
+    protected String getCacheKey() {
+        return String.valueOf(id);
+    }
+ 
+    private static class PrimaryCommand extends HystrixCommand<String> {
+ 
+        private final int id;
+ 
+        private PrimaryCommand(int id) {
+            super(Setter
+                    .withGroupKey(HystrixCommandGroupKey.Factory.asKey("SystemX"))
+                    .andCommandKey(HystrixCommandKey.Factory.asKey("PrimaryCommand"))
+                    .andThreadPoolKey(HystrixThreadPoolKey.Factory.asKey("PrimaryCommand"))
+                    .andCommandPropertiesDefaults(                          HystrixCommandProperties.Setter().withExecutionTimeoutInMilliseconds(600)));
+            this.id = id;
+        }
+ 
+        @Override
+        protected String run() {
+            return "responseFromPrimary-" + id;
+        }
+ 
+    }
+ 
+    private static class SecondaryCommand extends HystrixCommand<String> {
+ 
+        private final int id;
+ 
+        private SecondaryCommand(int id) {
+            super(Setter
+                    .withGroupKey(HystrixCommandGroupKey.Factory.asKey("SystemX"))
+                    .andCommandKey(HystrixCommandKey.Factory.asKey("SecondaryCommand"))
+                    .andThreadPoolKey(HystrixThreadPoolKey.Factory.asKey("SecondaryCommand"))
+                    .andCommandPropertiesDefaults(  HystrixCommandProperties.Setter().withExecutionTimeoutInMilliseconds(100)));
+            this.id = id;
+        }
+ 
+        @Override
+        protected String run() {
+            return "responseFromSecondary-" + id;
+        }
+ 
+    }
+ 
+    public static class UnitTest {
+ 
+        @Test
+        public void testPrimary() {
+            HystrixRequestContext context = HystrixRequestContext.initializeContext();
+            try {
+                ConfigurationManager.getConfigInstance().setProperty("primarySecondary.usePrimary", true);
+                assertEquals("responseFromPrimary-20", new CommandFacadeWithPrimarySecondary(20).execute());
+            } finally {
+                context.shutdown();
+                ConfigurationManager.getConfigInstance().clear();
+            }
+        }
+ 
+        @Test
+        public void testSecondary() {
+            HystrixRequestContext context = HystrixRequestContext.initializeContext();
+            try {
+                ConfigurationManager.getConfigInstance().setProperty("primarySecondary.usePrimary", false);
+                assertEquals("responseFromSecondary-20", new CommandFacadeWithPrimarySecondary(20).execute());
+            } finally {
+                context.shutdown();
+                ConfigurationManager.getConfigInstance().clear();
+            }
+        }
+    }
+}
+```
+
+通常情况下, 建议重写 getFallBack 或 resumeWithFallback 提供自己的备用逻辑, 但不建议在回退逻辑中执行任何可能失败的操作. 
+
+
+
+### 服务熔断
+
+现实生活中, 可能大家都有注意到家庭电路中通常会安装一个保险盒, 当负载过载时, 保险盒中的保险丝会自动熔断, 以保护电路及家里的各种电器, 这就是熔断器的一个常见例子. Hystrix中的熔断器(Circuit Breaker)也是起类似作用, Hystrix在运行过程中会向每个commandKey对应的熔断器报告成功、失败、超时和拒绝的状态, 熔断器维护并统计这些数据, 并根据这些统计信息来决策熔断开关是否打开. 如果打开, 熔断后续请求, 快速返回. 隔一段时间(默认是5s)之后熔断器尝试半开, 放入一部分流量请求进来, 相当于对依赖服务进行一次健康检查, 如果请求成功, 熔断器关闭. 
+
+熔断器配置, Circuit Breaker主要包括如下6个参数: 
+
+1.  circuitBreaker.enabled
+
+    是否启用熔断器, 默认是TRUE. 
+
+2.  circuitBreaker.forceOpen
+
+    熔断器强制打开, 始终保持打开状态, 不关注熔断开关的实际状态. 默认值FLASE. 
+
+3.  circuitBreaker.forceClosed
+
+    熔断器强制关闭, 始终保持关闭状态, 不关注熔断开关的实际状态. 默认值FLASE. 
+
+4.  circuitBreaker.errorThresholdPercentage
+
+    错误率, 默认值50%, 例如一段时间(10s)内有100个请求, 其中有54个超时或者异常, 那么这段时间内的错误率是54%, 大于了默认值50%, 这种情况下会触发熔断器打开. 
+
+5.  circuitBreaker.requestVolumeThreshold
+
+    默认值20. 含义是一段时间内至少有20个请求才进行errorThresholdPercentage计算. 比如一段时间了有19个请求, 且这些请求全部失败了, 错误率是100%, 但熔断器不会打开, 总请求数不满足20. 
+
+6.  circuitBreaker.sleepWindowInMilliseconds
+
+    半开状态试探睡眠时间, 默认值5000ms. 如: 当熔断器开启5000ms之后, 会尝试放过去一部分流量进行试探, 确定依赖服务是否恢复. 
+
+
+
+#### 熔断器工作原理
+
+下图展示了 HystrixCircuitBreaker 的工作原理
+
+<img src="http://www.milky.show/images/springcloud/springcloud_sell_17.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_17.png" style="zoom: 50%;" />
+
+**熔断器工作的详细过程如下: **
+
+**第一步, 调用 allowRequest() 判断是否允许将请求提交到线程池**
+
+1.  允许熔断器强制打开,  circuitBreaker.forceOpen为true, 不允许放行, 返回. 
+2.  如果熔断器强制关闭,  circuitBreaker.forceOpen为true, 允许放行.  此外不必关注熔断器实际状态, 也就是说熔断器仍然会维护统计数据和开关状态, 只是不生效而已. 
+
+**第二步, 调用 isOpen() 判断熔断器开关是否打开**
+
+1.  如果熔断器开关打开, 进入第三步, 否则继续；
+2.  如果一个周期内总的请求数小于circuitBreaker.requestVolumeThreshold的值, 允许请求放行, 否则继续；
+3.  如果一个周期内错误率小于circuitBreaker.errorThresholdPercentage的值, 允许请求放行. 否则, 打开熔断器开关, 进入第三步. 
+
+**第三步,  调用 allowSingleTest() 判断是否允许单个请求通行, 检查依赖服务是否恢复**
+
+如果熔断器打开, 且距离熔断器打开的时间或上一次试探请求放行的时间超过
+ circuitBreaker.sleepWindowInMilliseconds的值时, 熔断器器进入半开状态, 允许放行一个试探请求；否则, 不允许放行. 
+
+此外, 为了提供决策依据, 每个熔断默认维护了 10 个 bucket, 每秒一个bucket, 当心的 bucket 被创建时, 最旧的bucket会被抛弃. 其中每个bucket维护了请求、失败、超时、拒绝的计数器, Hystrix 负责收集并统计这些计数器. 
+
+
+
+
+
+当某个服务发生降级数量达到一定的百分比, 那么正常的逻辑也会直接触发降级, 将整个服务熔断, 一定时间后再恢复访问, 在 SpringCloud 中的熔断就是配置 4 个属性
+
+<img src="http://www.milky.show/images/springcloud/springcloud_sell_7.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_7.png" style="zoom: 50%;" />
+
+**Closed:** 默认熔断器是关闭的, 当失败次数达到一定阈值, 会变为打开状态
+
+**Open:** 此时所有的请求都会触发降级, 一定时间后, 会变为半打开状态
+
+**Half Open:** 此时会释放一定的请求, 当请求成功达到一定比例, 会恢复为 Closed 状态
+
+```java
+// 熔断
+@HystrixCommand(commandProperties = {
+        @HystrixProperty(name = "circuitBreaker.enabled", value = "true"), // 设置熔断
+        @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "10"), // 默认值20.意思是至少有20个请求才进行 errorThresholdPercentage 错误百分比计算. 
+        @HystrixProperty(name = "circuitBreaker.sleepWindowInMilliseconds", value = "10000"), // 半开试探休眠时间, 默认值5000ms. 当熔断器开启一段时间之后比如5000ms, 会尝试放过去一部分流量进行试探, 确定依赖服务是否恢复. 
+        @HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value = "60") // 设定错误百分比, 默认值50%, 例如一段时间(10s)内有100个请求, 其中有55个超时或者异常返回了, 那么这段时间内的错误百分比是55%, 大于了默认值50%, 这种情况下触发熔断器-打开.  
+})
+@GetMapping("/getProductInfoList")
+public String getProductInfoList(@RequestParam("number") Integer number) {
+    if (number % 2 == 0) {
+        return "success";
+    }
+    RestTemplate restTemplate = new RestTemplate();
+    return restTemplate.postForObject("http://localhost:9916/product/listForOrder",
+            Arrays.asList("157875196366160022"),
+            String.class);
+    // throw new RuntimeException("发送异常了"); 抛异常就会触发降级
+}
+```
+
+http://localhost:9926/getProductInfoList?number=1 会触发降级
+
+http://localhost:9926/getProductInfoList?number=2 会正常访问
+
+**当降级请求达到 60%的比例后, 正常访问的接口, 也会直接降级整个服务熔断 , 10s 后恢复一定量访问**
+
+
+
+### 使用配置
 
 加入 hystrix 依赖
 
@@ -1171,7 +1581,7 @@ public class HystrixController {
 
     // @HystrixCommand 配合 @DefaultProperties 会触发默认降级方法
     @HystrixCommand(fallbackMethod = "fallback", 
-		commandProperties = @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "3000")) // 会指定特殊的降级方法, 优先级高于默认降级, 默认超时 1s, 这个配置会改为 3s
+		commandProperties = @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "3000"))     // 会指定特殊的降级方法, 优先级高于默认降级, 默认超时 1s, 这个配置会改为 3s
     @GetMapping("/getProductInfoList")
     public String getProductInfoList() {
         RestTemplate restTemplate = new RestTemplate();
@@ -1211,6 +1621,8 @@ hystrix:
             timeoutInMilliseconds: 3000
 ```
 
+
+
 #### Feign-Hystrix
 
 feign 整合 hystrix 进行降级, feign 已经自动依赖了 hystrix 包
@@ -1248,9 +1660,11 @@ public interface ProductClient {
 
         }
     }
-
+    
 }
 ```
+
+
 
 #### 可视化 hystrix 工具 Hystrix-Dashboard
 
@@ -1303,46 +1717,9 @@ http://localhost:9926/hystrix 填入 http://localhost:9926/hystrix.stream
 
 
 
-### 服务熔断
 
-当某个服务发生降级数量达到一定的百分比, 那么正常的逻辑也会直接触发降级, 将整个服务熔断, 一定时间后再恢复访问, 在 SpringCloud 中的熔断就是配置 4 个属性
 
-<img src="http://www.milky.show/images/springcloud/springcloud_sell_7.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_7.png" style="zoom: 50%;" />
-
-**Closed:** 默认熔断器是关闭的, 当失败次数达到一定阈值, 会变为打开状态
-
-**Open:** 此时所有的请求都会触发降级, 一定时间后, 会变为半打开状态
-
-**Half Open:** 此时会释放一定的请求, 当请求成功达到一定比例, 会恢复为 Closed 状态
-
-```java
-// 熔断
-@HystrixCommand(commandProperties = {
-        @HystrixProperty(name = "circuitBreaker.enabled", value = "true"), // 设置熔断
-        @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "10"), // 默认值20.意思是至少有20个请求才进行 errorThresholdPercentage 错误百分比计算. 
-        @HystrixProperty(name = "circuitBreaker.sleepWindowInMilliseconds", value = "10000"), // 半开试探休眠时间, 默认值5000ms. 当熔断器开启一段时间之后比如5000ms, 会尝试放过去一部分流量进行试探, 确定依赖服务是否恢复. 
-        @HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value = "60") // 设定错误百分比, 默认值50%, 例如一段时间(10s)内有100个请求, 其中有55个超时或者异常返回了, 那么这段时间内的错误百分比是55%, 大于了默认值50%, 这种情况下触发熔断器-打开.  
-})
-@GetMapping("/getProductInfoList")
-public String getProductInfoList(@RequestParam("number") Integer number) {
-    if (number % 2 == 0) {
-        return "success";
-    }
-    RestTemplate restTemplate = new RestTemplate();
-    return restTemplate.postForObject("http://localhost:9916/product/listForOrder",
-            Arrays.asList("157875196366160022"),
-            String.class);
-    // throw new RuntimeException("发送异常了"); 抛异常就会触发降级
-}
-```
-
-http://localhost:9926/getProductInfoList?number=1 会触发降级
-
-http://localhost:9926/getProductInfoList?number=2 会正常访问
-
-**当降级请求达到 60%的比例后, 正常访问的接口, 也会直接降级整个服务熔断 , 10s 后恢复一定量访问**
-
-### Zuul超时设置(降级)
+### Zuul 超时设置(降级)
 
 Zuul 使用 ribbon 负载均衡组件, 所以 zuul 的超时配置时配置 ribbon 的超时时间, 同时也可以指定 hystrix 超时配置, 两者可以同时存在, 哪个时间小就先触发哪个
 
