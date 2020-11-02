@@ -48,7 +48,8 @@ Zookeeper 所提供的服务涵盖: 主从协调、服务器节点动态上下�
     # do not use /tmp for storage, /tmp here is just
     # example sakes.
     # 数据目录
-    dataDir=/Users/miaoqi/Documents/zookeeper-3.4.6/data
+    dataDir=/Users/miaoqi/Documents/zookeeper-3.4.6/data/
+    dataLogDir=/Users/miaoqi/Documents/zookeeper-3.4.6/dataLog/
     # the port at which the clients will connect
     # 客户端端口
     clientPort=2181
@@ -191,7 +192,7 @@ Znode分为四种类型:
     [aa0000000000, aa0000000002, bb0000000001]
     ```
 
-    -s和-e结合使用就是临时顺序节点
+    -s 和 -e 结合使用就是临时顺序节点
 
 * get path [watch]
 
