@@ -9,28 +9,28 @@ keywords:
 * content
 {:toc}
 
-# 简介
+## 简介
 
-Zookeeper是一个**分布式协调服务**；就是为用户的分布式应用程序提供协调服务
+Zookeeper 是一个**分布式协调服务**; 就是为用户的分布式应用程序提供协调服务
 
-Zookeeper是为别的分布式程序服务的
+Zookeeper 是为别的分布式程序服务的
 
-Zookeeper本身就是一个分布式程序（只要有半数以上节点存活，zk就能正常服务）
+Zookeeper 本身就是一个分布式程序(只要有半数以上节点存活, zk就能正常服务)
 
-Zookeeper所提供的服务涵盖：主从协调、服务器节点动态上下线、统一配置管理、分布式共享锁、统一名称服务……
+Zookeeper 所提供的服务涵盖: 主从协调、服务器节点动态上下线、统一配置管理、分布式共享锁、统一名称服务……
 
-虽然说可以提供各种服务，但是zookeeper在底层其实只提供了两个功能
+虽然说可以提供各种服务, 但是 zookeeper 在底层其实只提供了两个功能
 
-1. 管理(存储，读取)用户程序提交的数据
+1. 管理(存储, 读取)用户程序提交的数据
 2. 为用户程序提供数据节点监听服务
 
-# 安装
+## 安装
 
-## 单机版安装
+### 单机版安装
 
-1. 创建data目录存放ZooKeeper数据
+1. 创建 data 目录存放 ZooKeeper 数据
 
-1. conf下编写zoo.cfg指定data目录
+1. conf 下编写 zoo.cfg 指定 data 目录
 
         # The number of milliseconds of each tick
         # 心跳周期毫秒
@@ -66,9 +66,9 @@ Zookeeper所提供的服务涵盖：主从协调、服务器节点动态上下�
         # Set to "0" to disable auto purge feature
         #autopurge.purgeInterval=1
 
-## 集群安装
+### 集群安装
 
-1. 修改每一个zookeeper的配置文件
+1. 修改每一个 zookeeper 的配置文件
 
         # 2881 是leader和follower通信的端口 默认是2888
         # 3881 是投票的端口 默认是3888
@@ -76,11 +76,11 @@ Zookeeper所提供的服务涵盖：主从协调、服务器节点动态上下�
         server.2=127.0.0.1:2882:3882
         server.3=127.0.0.1:2883:3883
 
-1. 到数据目录下创建文件myid, 文件内容就是myid的值
+1. 到数据目录下创建文件 myid, 文件内容就是 myid 的值
 
 1. 分别启动三台机器, 使用status查看状态
 
-# 服务端命令
+## 服务端命令
 
 启动
 
@@ -100,36 +100,36 @@ zkServer.sh status
 zkCli.sh [-server host:port]
 ```
 
-# Zookeeper的数据模型
+## Zookeeper 的数据模型
 
-1. 层次化的目录结构, 命名符合常规文件系统规范, 它很像数据结构当中的树，也很像文件系统的目录
-1. 每个节点在Zookeeper中叫做**Znode**, 并且其有一个唯一的路径标识
-1. 节点Znode可以包含数据和子节点
+1. 层次化的目录结构, 命名符合常规文件系统规范, 它很像数据结构当中的树, 也很像文件系统的目录
+1. 每个节点在 Zookeeper 中叫做 **Znode**, 并且其有一个唯一的路径标识
+1. 节点 Znode 可以包含数据和子节点
 1. 客户端应用可以在节点上设置监视器
 
-![http://www.milky.show/images/bigdata/zookeeper/1.png](http://www.milky.show/images/bigdata/zookeeper/1.png)
+<img src="http://www.milky.show/images/bigdata/zookeeper/1.png" alt="http://www.milky.show/images/bigdata/zookeeper/1.png" style="zoom:50%;" />
 
-## Znode
+### Znode
 
 Znode 包含了数据, 子节点引用, 访问权限等等
 
-![http://www.milky.show/images/bigdata/zookeeper/2.png](http://www.milky.show/images/bigdata/zookeeper/2.png)
+<img src="http://www.milky.show/images/bigdata/zookeeper/2.png" alt="http://www.milky.show/images/bigdata/zookeeper/2.png" style="zoom:50%;" />
 
-**data:** Znode存储的数据信息。
+**data:** Znode存储的数据信息. 
 
-**ACL:** 记录Znode的访问权限，即哪些人或哪些IP可以访问本节点。
+**ACL:** 记录Znode的访问权限, 即哪些人或哪些IP可以访问本节点. 
 
-**stat:** 包含Znode的各种元数据，比如事务ID、版本号、时间戳、大小等等。
+**stat:** 包含Znode的各种元数据, 比如事务ID、版本号、时间戳、大小等等. 
 
-**child:** 当前节点的子节点引用，类似于二叉树的左孩子右孩子。
+**child:** 当前节点的子节点引用, 类似于二叉树的左孩子右孩子. 
 
 
 
-这里需要注意一点，Zookeeper是为读多写少的场景所设计。Znode并不是用来存储大规模业务数据，而是用于存储少量的状态和配置信息，**每个节点的数据最大不能超过1MB**。
+这里需要注意一点, Zookeeper是为读多写少的场景所设计. Znode并不是用来存储大规模业务数据, 而是用于存储少量的状态和配置信息, **每个节点的数据最大不能超过1MB**. 
 
-# 节点类型
+## 节点类型
 
-Znode分为四种类型：
+Znode分为四种类型: 
 
 * 持久节点(PERSISTENT)默认
 
@@ -141,43 +141,51 @@ Znode分为四种类型：
 
 * 临时节点(EPHEMERAL)
 
-    和持久节点相反, 当创建节点的客户端与zookeeper断开连接后, 临时节点会被删除：
+    和持久节点相反, 当创建节点的客户端与zookeeper断开连接后, 临时节点会被删除: 
 
 * 临时顺序节点(EPHEMERAL_SEQUENTIAL)
 
     顾名思义, 临时顺序节点结合和临时节点和顺序节点的特点: 在创建节点时, Zookeeper根据创建的时间顺序给该节点名称进行编号, 当创建节点的客户端与zookeeper断开连接后, 临时节点会被删除
 
 
-# 客户端命令
+## 客户端命令
 
 * ls path [watch]
 
     查看节点下的子节点
 
-        ls /
+    ```bash
+    ls /
+    ```
 
 * create [-s] [-e] path data acl
 
     在某个节点下创建节点, 默认是持久节点
 
-        create /app1 "This is app1 server parent"
-        
-        create /app1/server01 "192.168.1.1,100"
+    ```bash
+    create /app1 "This is app1 server parent"
+    
+    create /app1/server01 "192.168.1.1,100"
+    ```
 
-    -e是短暂节点, 客户端断开连接节点销毁
+    -e 是短暂节点, 客户端断开连接节点销毁
 
-        create -e /app-e "aaaa"
+    ```bash
+    create -e /app-e "aaaa"
+    ```
 
-    -s是顺序节点, 会自动给节点加上序号
+    -s 是顺序节点, 会自动给节点加上序号
 
-        [zk: 127.0.0.1:2220(CONNECTED) 5] create -s /test/aa 999
-        Created /test/aa0000000000
-        [zk: 127.0.0.1:2220(CONNECTED) 6] create -s /test/bb 999
-        Created /test/bb0000000001
-        [zk: 127.0.0.1:2220(CONNECTED) 7] create -s /test/aa 999
-        Created /test/aa0000000002
-        [zk: 127.0.0.1:2220(CONNECTED) 8] ls /test
-        [aa0000000000, aa0000000002, bb0000000001]
+    ```bash
+    [zk: 127.0.0.1:2220(CONNECTED) 5] create -s /test/aa 999
+    Created /test/aa0000000000
+    [zk: 127.0.0.1:2220(CONNECTED) 6] create -s /test/bb 999
+    Created /test/bb0000000001
+    [zk: 127.0.0.1:2220(CONNECTED) 7] create -s /test/aa 999
+    Created /test/aa0000000002
+    [zk: 127.0.0.1:2220(CONNECTED) 8] ls /test
+    [aa0000000000, aa0000000002, bb0000000001]
+    ```
 
     -s和-e结合使用就是临时顺序节点
 
@@ -185,17 +193,23 @@ Znode分为四种类型：
 
     获取节点内容
 
-        get /app1/server01
+    ```bash
+    get /app1/server01
+    ```
 
-    开启watch功能
+    开启 watch 功能
 
-        get /app1 watch
+    ```bash
+    get /app1 watch
+    ```
 
     当其他机器修改/app1节点的内容时, 监听会收到通知, 但是只能监听一次, 监听器也分类型
 
-        WATCHER::
-        
-        WatchedEvent state:SyncConnected type:NodeDataChanged path:/app1
+    ```bash
+    WATCHER::
+    
+    WatchedEvent state:SyncConnected type:NodeDataChanged path:/app1
+    ```
 
 * quit
 
@@ -233,73 +247,73 @@ Znode分为四种类型：
 
     获取节点下的所有子节点
 
-这其中，exists，getData，getChildren属于读操作。Zookeeper客户端在请求读操作的时候，可以选择是否设置**Watch**。
+这其中, exists, getData, getChildren属于读操作. Zookeeper客户端在请求读操作的时候, 可以选择是否设置**Watch**. 
 
-我们可以理解成是注册在特定Znode上的触发器。当这个Znode发生改变，也就是调用了create，delete，setData方法的时候，将会触发Znode上注册的对应事件，请求Watch的客户端会接收到**异步通知**。
+我们可以理解成是注册在特定Znode上的触发器. 当这个Znode发生改变, 也就是调用了create, delete, setData方法的时候, 将会触发Znode上注册的对应事件, 请求Watch的客户端会接收到**异步通知**. 
 
-# Zookeeper监听器原理(Watch)
+## Zookeeper 监听器原理(Watch)
 
 当客户端设置Watch时, 会开启两个线程, 一个线程负责监听器, 一个线程负责和Zookeeper服务端通信告诉服务端监听线程的端口, 当服务端变化时, 服务端主动调用客户端监听器端口, 监听器调用zkClient的watch方法实现监听器, 原理是各种rpc调用
 
-1. 客户端调用getData方法，watch参数是true。服务端接到请求，返回节点数据，并且在对应的哈希表里插入被Watch的Znode路径，以及Watcher列表。
+1. 客户端调用getData方法, watch参数是true. 服务端接到请求, 返回节点数据, 并且在对应的哈希表里插入被Watch的Znode路径, 以及Watcher列表. 
 
-    ![http://www.milky.show/images/bigdata/zookeeper/3.png](http://www.milky.show/images/bigdata/zookeeper/3.png)
+    <img src="http://www.milky.show/images/bigdata/zookeeper/3.png" alt="http://www.milky.show/images/bigdata/zookeeper/3.png" style="zoom: 50%;" />
 
-2. 当被Watch的Znode已删除，服务端会查找哈希表，找到该Znode对应的所有Watcher，异步通知客户端，并且删除哈希表中对应的Key-Value。
+2. 当被Watch的Znode已删除, 服务端会查找哈希表, 找到该Znode对应的所有Watcher, 异步通知客户端, 并且删除哈希表中对应的Key-Value. 
 
-    ![http://www.milky.show/images/bigdata/zookeeper/4.png](http://www.milky.show/images/bigdata/zookeeper/4.png)
+    <img src="http://www.milky.show/images/bigdata/zookeeper/4.png" alt="http://www.milky.show/images/bigdata/zookeeper/4.png" style="zoom:50%;" />
 
-# Zookeeper的一致性
+## Zookeeper 的一致性
 
 Zookepper身为分布式系统协调服务, 如果自身挂掉了怎么办呢? 为了防止单机挂掉的情况, Zookeeper 维护了一个集群
 
-![http://www.milky.show/images/bigdata/zookeeper/5.png](http://www.milky.show/images/bigdata/zookeeper/5.png)
+<img src="http://www.milky.show/images/bigdata/zookeeper/5.png" alt="http://www.milky.show/images/bigdata/zookeeper/5.png" style="zoom: 50%;" />
 
 Zookeeper Service集群是一主多从结构
 
-1. 在更新数据时，首先更新到主节点（这里的节点是指服务器，不是Znode），再同步到从节点
+1. 在更新数据时, 首先更新到主节点(这里的节点是指服务器, 不是Znode), 再同步到从节点
 
-2. 在读取数据时，直接读取任意从节点。
+2. 在读取数据时, 直接读取任意从节点. 
 
-为了保证主从节点的数据一致性，Zookeeper采用了**ZAB协议**，这种协议非常类似于一致性算法**Paxos**和**Raft**。
+为了保证主从节点的数据一致性, Zookeeper采用了**ZAB协议**, 这种协议非常类似于一致性算法**Paxos**和**Raft**. 
 
-# Zookeeper分布式锁
+## Zookeeper 分布式锁
 
 1. 获取锁
 
-    首先，在Zookeeper当中创建一个持久节点ParentLock。当第一个客户端想要获得锁时，需要在ParentLock这个节点下面创建一个临时顺序节点 Lock1. 
+    首先, 在Zookeeper当中创建一个持久节点ParentLock. 当第一个客户端想要获得锁时, 需要在ParentLock这个节点下面创建一个临时顺序节点 Lock1. 
 
-    之后，Client1查找ParentLock下面所有的临时顺序节点并排序，判断自己所创建的节点Lock1是不是顺序最靠前的一个。如果是第一个节点，则成功获得锁。
+    之后, Client1查找ParentLock下面所有的临时顺序节点并排序, 判断自己所创建的节点Lock1是不是顺序最靠前的一个. 如果是第一个节点, 则成功获得锁. 
 
-    这时候，如果再有一个客户端 Client2 前来获取锁，则在ParentLock下载再创建一个临时顺序节点Lock2。
+    这时候, 如果再有一个客户端 Client2 前来获取锁, 则在ParentLock下载再创建一个临时顺序节点Lock2. 
 
-    Client2查找ParentLock下面所有的临时顺序节点并排序，判断自己所创建的节点Lock2是不是顺序最靠前的一个，结果发现节点Lock2并不是最小的。
+    Client2查找ParentLock下面所有的临时顺序节点并排序, 判断自己所创建的节点Lock2是不是顺序最靠前的一个, 结果发现节点Lock2并不是最小的. 
 
-    于是，Client2向排序仅比它靠前的节点Lock1注册Watcher，用于监听Lock1节点是否存在。这意味着Client2抢锁失败，进入了等待状态。
+    于是, Client2向排序仅比它靠前的节点Lock1注册Watcher, 用于监听Lock1节点是否存在. 这意味着Client2抢锁失败, 进入了等待状态. 
 
-    这时候，如果又有一个客户端Client3前来获取锁，则在ParentLock下载再创建一个临时顺序节点Lock3。
+    这时候, 如果又有一个客户端Client3前来获取锁, 则在ParentLock下载再创建一个临时顺序节点Lock3. 
 
-    Client3查找ParentLock下面所有的临时顺序节点并排序，判断自己所创建的节点Lock3是不是顺序最靠前的一个，结果同样发现节点Lock3并不是最小的。
+    Client3查找ParentLock下面所有的临时顺序节点并排序, 判断自己所创建的节点Lock3是不是顺序最靠前的一个, 结果同样发现节点Lock3并不是最小的. 
 
-    于是，Client3向排序仅比它靠前的节点Lock2注册Watcher，用于监听Lock2节点是否存在。这意味着Client3同样抢锁失败，进入了等待状态。
+    于是, Client3向排序仅比它靠前的节点Lock2注册Watcher, 用于监听Lock2节点是否存在. 这意味着Client3同样抢锁失败, 进入了等待状态. 
 
-    这样一来，Client1得到了锁，Client2监听了Lock1，Client3监听了Lock2。这恰恰形成了一个等待队列，很像是Java当中ReentrantLock所依赖的AQS（AbstractQueuedSynchronizer）。
+    这样一来, Client1得到了锁, Client2监听了Lock1, Client3监听了Lock2. 这恰恰形成了一个等待队列, 很像是Java当中ReentrantLock所依赖的AQS(AbstractQueuedSynchronizer). 
 
 2. 释放锁
 
-    释放锁分为两种情况：
+    释放锁分为两种情况: 
 
-    1. 任务完成，客户端显示释放
+    1. 任务完成, 客户端显示释放
     
-        当任务完成时，Client1会显示调用删除节点Lock1的指令。
+        当任务完成时, Client1会显示调用删除节点Lock1的指令. 
 
-    2. 任务执行过程中，客户端崩溃
+    2. 任务执行过程中, 客户端崩溃
 
-        获得锁的Client1在任务执行过程中，如果Duang的一声崩溃，则会断开与Zookeeper服务端的链接。根据临时节点的特性，相关联的节点Lock1会随之自动删除。
+        获得锁的Client1在任务执行过程中, 如果Duang的一声崩溃, 则会断开与Zookeeper服务端的链接. 根据临时节点的特性, 相关联的节点Lock1会随之自动删除. 
 
-    由于Client2一直监听着Lock1的存在状态，当Lock1节点被删除，Client2会立刻收到通知。这时候Client2会再次查询ParentLock下面的所有节点，确认自己创建的节点Lock2是不是目前最小的节点。如果是最小，则Client2顺理成章获得了锁。
+    由于Client2一直监听着Lock1的存在状态, 当Lock1节点被删除, Client2会立刻收到通知. 这时候Client2会再次查询ParentLock下面的所有节点, 确认自己创建的节点Lock2是不是目前最小的节点. 如果是最小, 则Client2顺理成章获得了锁. 
 
-    同理，如果Client2也因为任务完成或者节点崩溃而删除了节点Lock2，那么Client3就会接到通知。
+    同理, 如果Client2也因为任务完成或者节点崩溃而删除了节点Lock2, 那么Client3就会接到通知. 
 
 3. Zookeeper与Redis分布式锁比较
 
