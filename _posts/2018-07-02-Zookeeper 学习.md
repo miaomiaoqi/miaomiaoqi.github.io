@@ -32,49 +32,53 @@ Zookeeper 所提供的服务涵盖: 主从协调、服务器节点动态上下�
 
 1. conf 下编写 zoo.cfg 指定 data 目录
 
-        # The number of milliseconds of each tick
-        # 心跳周期毫秒
-        tickTime=2000
-        # The number of ticks that the initial
-        # synchronization phase can take
-        # 初始化心跳个数
-        initLimit=10
-        # The number of ticks that can pass between
-        # sending a request and getting an acknowledgement
-        # 发送请求到响应的心跳个数
-        syncLimit=5
-        # the directory where the snapshot is stored.
-        # do not use /tmp for storage, /tmp here is just
-        # example sakes.
-        # 数据目录
-        dataDir=/Users/miaoqi/Documents/zookeeper-3.4.6/data
-        # the port at which the clients will connect
-        # 客户端端口
-        clientPort=2181
-        # the maximum number of client connections.
-        # increase this if you need to handle more clients
-        #maxClientCnxns=60
-        #
-        # Be sure to read the maintenance section of the
-        # administrator guide before turning on autopurge.
-        #
-        # http://zookeeper.apache.org/doc/current/zookeeperAdmin.html#sc_maintenance
-        #
-        # The number of snapshots to retain in dataDir
-        #autopurge.snapRetainCount=3
-        # Purge task interval in hours
-        # Set to "0" to disable auto purge feature
-        #autopurge.purgeInterval=1
+    ```bash
+    # The number of milliseconds of each tick
+    # 心跳周期毫秒
+    tickTime=2000
+    # The number of ticks that the initial
+    # synchronization phase can take
+    # 初始化心跳个数
+    initLimit=10
+    # The number of ticks that can pass between
+    # sending a request and getting an acknowledgement
+    # 发送请求到响应的心跳个数
+    syncLimit=5
+    # the directory where the snapshot is stored.
+    # do not use /tmp for storage, /tmp here is just
+    # example sakes.
+    # 数据目录
+    dataDir=/Users/miaoqi/Documents/zookeeper-3.4.6/data
+    # the port at which the clients will connect
+    # 客户端端口
+    clientPort=2181
+    # the maximum number of client connections.
+    # increase this if you need to handle more clients
+    #maxClientCnxns=60
+    #
+    # Be sure to read the maintenance section of the
+    # administrator guide before turning on autopurge.
+    #
+    # http://zookeeper.apache.org/doc/current/zookeeperAdmin.html#sc_maintenance
+    #
+    # The number of snapshots to retain in dataDir
+    #autopurge.snapRetainCount=3
+    # Purge task interval in hours
+    # Set to "0" to disable auto purge feature
+    #autopurge.purgeInterval=1
+    ```
 
 ### 集群安装
 
 1. 修改每一个 zookeeper 的配置文件
 
-        # 2881 是leader和follower通信的端口 默认是2888
-        # 3881 是投票的端口 默认是3888
-        server.1=127.0.0.1:2881:3881
-        server.2=127.0.0.1:2882:3882
-        server.3=127.0.0.1:2883:3883
+    ```bash
+    # 2881 是leader和follower通信的端口 默认是2888
+    # 3881 是投票的端口 默认是3888
+    server.1=127.0.0.1:2881:3881
+    server.2=127.0.0.1:2882:3882
+    server.3=127.0.0.1:2883:3883
+    ```
 
 1. 到数据目录下创建文件 myid, 文件内容就是 myid 的值
 
@@ -84,19 +88,19 @@ Zookeeper 所提供的服务涵盖: 主从协调、服务器节点动态上下�
 
 启动
 
-```
+```bash
 zkServer.sh start
 ```
 
 状态
 
-```
+```bash
 zkServer.sh status
 ```
 
 客户端连接
 
-```
+```bash
 zkCli.sh [-server host:port]
 ```
 
@@ -219,7 +223,9 @@ Znode分为四种类型:
 
     更新节点内容
 
-        set /app1 "xxx"
+    ```bash
+    set /app1 "xxx"
+    ```
 
     会同步到其他机器上, 如果节点过多, 会有短暂延迟
 
@@ -227,7 +233,7 @@ Znode分为四种类型:
 
     删除节点
 
-    ```
+    ```bash
     delete /app1
     ```
 
