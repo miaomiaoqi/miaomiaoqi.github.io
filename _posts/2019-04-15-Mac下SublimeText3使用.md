@@ -16,8 +16,8 @@ keywords:
 
 ```
 {
-    "font_face": "Courier New", 
-    "font_size": 15, // 设置字体大小, 我比较喜欢大一点的字体
+    "font_face": "JetBrains Mono", 
+    "font_size": 13, // 设置字体大小, 我比较喜欢大一点的字体
     "ignored_packages":  // 设置忽略文件类型, 第二个是默认忽略的, 第一个markdown文件我使用另一种文件打开,
     [
         "Markdown",
@@ -34,7 +34,7 @@ keywords:
 
 ## 安装包管理工具
 
-使用快捷键 **control + `** 或者菜单栏选择`View > Show Console`, 输入如下代码
+使用快捷键 control + `` 或者菜单栏选择`View > Show Console, 输入如下代码
 
 ```
 import urllib.request,os,hashlib; h = '7183a2d3e96f11eeadd761d777e62404' + 'e330c659d4bb41d3bdf022e94cab3cd0'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)
