@@ -138,7 +138,7 @@ keywords:
     }
     ```
 
-    可以看到上面配置类中, AutowiringSpringBeanJobFactory我们继承了SpringBeanJobFactory类, 并且通过实现ApplicationContextAware接口获取ApplicationContext设置方法, 通过外部实例化时设置ApplicationContext实例对象, 在createJobInstance方法内, 我们采用AutowireCapableBeanFactory来托管SpringBeanJobFactory类中createJobInstance方法返回的定时任务实例, **这样我们就可以在定时任务类内使用Spring Ioc相关的注解进行注入业务逻辑实例了. **
+    可以看到上面配置类中, AutowiringSpringBeanJobFactory我们继承了SpringBeanJobFactory类, 并且通过实现ApplicationContextAware接口获取ApplicationContext设置方法, 通过外部实例化时设置ApplicationContext实例对象, 在createJobInstance方法内, 我们采用AutowireCapableBeanFactory来托管SpringBeanJobFactory类中createJobInstance方法返回的定时任务实例, **这样我们就可以在定时任务类内使用Spring Ioc相关的注解进行注入业务逻辑实例了.**
 
 - **QuartzPropertiesConfig**
 
@@ -509,13 +509,13 @@ public class StartAtScheduler implements ApplicationRunner {
 
 在上面方法中我们定义的`StartAtJob`实例只运行一次, 在项目启动完成后延迟1分钟进行调用任务主体逻辑. 
 
-**其中任务的名称以及任务的分组是为了区分任务做的限制, 在同一个分组下如果加入同样名称的任务, 则会提示任务已经存在, 添加失败的提示. **
+**其中任务的名称以及任务的分组是为了区分任务做的限制, 在同一个分组下如果加入同样名称的任务, 则会提示任务已经存在, 添加失败的提示.**
 
 我们通过`JobDetail`来构建一个任务实例, 设置`CronJob`类作为任务运行目标对象, 当任务被触发时就会执行`CronJob`内的`executeInternal`方法. 
 
 一个任务需要设置对应的触发器, 触发器也分为很多种, 该任务中我们并没有采用`cron`表达式来设置触发器, 而是调用`startAt`方法设置任务开始执行时间. 
 
-**最后将任务以及任务的触发器共同交付给任务调度器, 这样就完成了一个任务的设置. **
+**最后将任务以及任务的触发器共同交付给任务调度器, 这样就完成了一个任务的设置.**
 
 #### 设置cron表达式定时任务调度器
 
@@ -772,7 +772,7 @@ public class CronJob extends QuartzJobBean {
 
 通过日志我们可以看到, 日志的信息变成了second, 说明我们的任务自动漂移成功了, 项目二完成了自动接管项目一的任务, 而这个过程肯定有一段时间间隔, 而这个间隔可以修改配置文件中的clusterCheckinInterval进行调节
 
-**如果两个节点同时启动, 哪个节点先把节点信息注册到数据库就获得了优先执行权. **
+**如果两个节点同时启动, 哪个节点先把节点信息注册到数据库就获得了优先执行权.**
 
 
 
@@ -817,7 +817,7 @@ Quartz任务调度的核心元素为：Scheduler——任务调度器、Trigger�
 
 #### Job
 
-用于表示被调度的任务. 主要有两种类型的job：无状态的（stateless）和有状态的（stateful）. 对于同一个trigger来说, 有状态的job不能被并行执行, 只有上一次触发的任务被执行完之后, 才能触发下一次执行. Job主要有两种属性：volatility和durability, 其中volatility表示任务是否被持久化到数据库存储, 而durability表示在没有trigger关联的时候任务是否被保留. 两者都是在值为true的时候任务被持久化或保留. **一个job可以被多个trigger关联, 但是一个trigger只能关联一个job**. 
+用于表示被调度的任务. 主要有两种类型的job：无状态的（stateless）和有状态的（stateful）. 对于同一个trigger来说, 有状态的job不能被并行执行, 只有上一次触发的任务被执行完之后, 才能触发下一次执行. Job主要有两种属性：volatility和durability, 其中volatility表示任务是否被持久化到数据库存储, 而durability表示在没有trigger关联的时候任务是否被保留. 两者都是在值为true的时候任务被持久化或保留.**一个job可以被多个trigger关联, 但是一个trigger只能关联一个job**. 
 
 #### Scheduler
 
@@ -833,13 +833,13 @@ Quartz任务调度的核心元素为：Scheduler——任务调度器、Trigger�
 
 <img src="http://www.milky.show/images/distributed/quartz/quartz_2.png" alt="http://www.milky.show/images/distributed/quartz/quartz_2.png" style="zoom:50%;" />
 
-Scheduler调度线程主要有两个：执行常规调度的线程, 和执行misfiredtrigger的线程. **常规调度线程轮询存储的所有trigger, 如果有需要触发的trigger, 即到达了下一次触发的时间, 则从任务执行线程池获取一个空闲线程, 执行与该trigger关联的任务. Misfire线程是扫描所有的trigger, 查看是否有misfiredtrigger, 如果有的话根据misfire的策略分别处理**(**fire now** OR **wait for the next fire**). **处理misfire job的线程MisfireHandler：轮训所有misfire的trigger, 原理就是从数据库中查询所有下次触发时间小于当前时间的trigger, 按照每个trigger设定的misfire策略处理这些trigger. **
+Scheduler调度线程主要有两个：执行常规调度的线程, 和执行misfiredtrigger的线程.**常规调度线程轮询存储的所有trigger, 如果有需要触发的trigger, 即到达了下一次触发的时间, 则从任务执行线程池获取一个空闲线程, 执行与该trigger关联的任务. Misfire线程是扫描所有的trigger, 查看是否有misfiredtrigger, 如果有的话根据misfire的策略分别处理**(**fire now** OR **wait for the next fire**).**处理misfire job的线程MisfireHandler：轮训所有misfire的trigger, 原理就是从数据库中查询所有下次触发时间小于当前时间的trigger, 按照每个trigger设定的misfire策略处理这些trigger.**
 
 
 
 ### QuartzJob数据存储
 
-Quartz中的trigger和job需要存储下来才能被使用. Quartz中有两种存储方式：RAMJobStore,JobStoreSupport, 其中RAMJobStore是将trigger和job存储在内存中, 而JobStoreSupport是基于jdbc将trigger和job存储到数据库中. **RAMJobStore的存取速度非常快, 但是由于其在系统被停止后所有的数据都会丢失, 所以在集群应用中, 必须使用JobStoreSupport. **
+Quartz中的trigger和job需要存储下来才能被使用. Quartz中有两种存储方式：RAMJobStore,JobStoreSupport, 其中RAMJobStore是将trigger和job存储在内存中, 而JobStoreSupport是基于jdbc将trigger和job存储到数据库中.**RAMJobStore的存取速度非常快, 但是由于其在系统被停止后所有的数据都会丢失, 所以在集群应用中, 必须使用JobStoreSupport.**
 
 
 
