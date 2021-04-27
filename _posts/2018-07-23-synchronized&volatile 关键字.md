@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "volatile 关键字"
+title: "synchronized&volatile 关键字"
 categories: [Java]
 description:
 keywords:
