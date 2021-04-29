@@ -479,3 +479,4 @@ PS：ReentrantLock底层实现依赖于特殊的CPU指令，比如发送lock指�
 ### 锁升级流程图
 
 <img src="http://www.milky.show/images/java/synchronized/syn_7.png" alt="http://www.milky.show/images/java/synchronized/syn_7.png" />
+
