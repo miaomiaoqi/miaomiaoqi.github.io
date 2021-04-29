@@ -12,7 +12,7 @@ keywords:
 
 ## ElasticSearch
 
-ElasticSearch是一个基于Lucene的搜索服务器。它提供了一个分布式多用户能力的全文搜索引擎，基于RESTfulweb接口。ElasticSearch是用Java开发的，并作为Apache许可条款下的开放源码发布，是当前流行的企业级搜索引擎。设计用于云计算中，能够达到实时搜索，稳定，可靠，快速，安装使用方便。构建在全文检索开源软件Lucene之上的Elasticsearch，不仅能对海量规模的数据完成分布式索引与检索，还能提供数据聚合分析。据国际权威的数据库产品评测机构DBEngines的统计，在2016年1月，Elasticsearch已超过Solr等，成为排名第一的搜索引擎类应用
+ElasticSearch是一个基于Lucene的搜索服务器. 它提供了一个分布式多用户能力的全文搜索引擎, 基于RESTfulweb接口. ElasticSearch是用Java开发的, 并作为Apache许可条款下的开放源码发布, 是当前流行的企业级搜索引擎. 设计用于云计算中, 能够达到实时搜索, 稳定, 可靠, 快速, 安装使用方便. 构建在全文检索开源软件Lucene之上的Elasticsearch, 不仅能对海量规模的数据完成分布式索引与检索, 还能提供数据聚合分析. 据国际权威的数据库产品评测机构DBEngines的统计, 在2016年1月, Elasticsearch已超过Solr等, 成为排名第一的搜索引擎类应用
 
 https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html
 
@@ -69,7 +69,7 @@ elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/
 
 ### 安装 Kibana
 
-Kibana 是一个针对 Elasticsearch 的开源分析及可视化平台，使用Kibana可以查询、查看并与存储在ES索引的数据进行交互操作，使用Kibana能执行高级的数据分析，并能以图表、表格和地图的形式查看数据
+Kibana 是一个针对 Elasticsearch 的开源分析及可视化平台, 使用Kibana可以查询、查看并与存储在ES索引的数据进行交互操作, 使用Kibana能执行高级的数据分析, 并能以图表、表格和地图的形式查看数据
 
 我的是 mac, 使用命令 `brew install kibana` 可以一键安装, 安装后的目录在 `/usr/local/Cellar/kibana/6.8.1` 配置文件目录为`/usr/local/etc/kibana`
 
@@ -111,19 +111,19 @@ elasticsearch -Ecluster.name=miaoqi_cluster -Epath.data=miaoqi_cluster_node2 -En
 
 ### 术语介绍
 
-**Index:** 类似于mysql数据库中的 database
+**Index:** 类似于 mysql 数据库中的 database
 
-**Type:** 类似于mysql数据库中的 table 表，es 中可以在 Index 中建立 type（table），通过 mapping 进行映射, 6.0 以后一个 Index 下只允许创建一个 Type。
+**Type:** 类似于 mysql 数据库中的 table 表, es 中可以在 Index 中建立 type(table), 通过 mapping 进行映射, 6.0 以后一个 Index 下只允许创建一个 Type. 
 
-**Document:** 由于 es 存储的数据是文档型的，一条数据对应一篇文档即相当于 mysql 数据库中的一行数据 row，一个文档中可以有多个字段也就是 mysql 数据库一行可以有多列。
+**Document:** 由于 es 存储的数据是文档型的, 一条数据对应一篇文档即相当于 mysql 数据库中的一行数据 row, 一个文档中可以有多个字段也就是 mysql 数据库一行可以有多列. 
 
-**Field:** es中一个文档中对应的多个列与 mysql 数据库中每一列对应
+**Field:** es 中一个文档中对应的多个列与 mysql 数据库中每一列对应
 
-**Mapping:** 可以理解为 mysql 或者 solr 中对应的 schema，只不过有些时候 es 中的 mapping 增加了动态识别功能，感觉很强大的样子，其实实际生产环境上不建议使用，最好还是开始制定好了对应的 schema 为主。
+**Mapping:** 可以理解为 mysql 或者 solr 中对应的 schema, 只不过有些时候 es 中的 mapping 增加了动态识别功能, 感觉很强大的样子, 其实实际生产环境上不建议使用, 最好还是开始制定好了对应的 schema 为主. 
 
-**Indexed:** 就是名义上的建立索引。mysql 中一般会对经常使用的列增加相应的索引用于提高查询速度，而在 es 中默认都是会加上索引的，除非你特殊制定不建立索引只是进行存储用于展示，这个需要看你具体的需求和业务进行设定了。
+**Indexed:** 就是名义上的建立索引. mysql 中一般会对经常使用的列增加相应的索引用于提高查询速度, 而在 es 中默认都是会加上索引的, 除非你特殊制定不建立索引只是进行存储用于展示, 这个需要看你具体的需求和业务进行设定了. 
 
-**Query DSL:** 类似于 mysql 的 sql 语句，只不过在 es 中是使用的 json 格式的查询语句，专业术语就叫：QueryDSL
+**Query DSL:** 类似于 mysql 的 sql 语句, 只不过在 es 中是使用的 json 格式的查询语句, 专业术语就叫:QueryDSL
 
 GET/PUT/POST/DELETE: 分别类似与mysql中的select/update/delete......
 
@@ -131,11 +131,11 @@ GET/PUT/POST/DELETE: 分别类似与mysql中的select/update/delete......
 
 ### 版本控制
 
-ElasticSearch 采用了乐观锁来保证数据的一致性，也就是说，当用户对 document 进行操作时，并不需要对该 document 作加锁和解锁的操作，只需要指定要操作的版本即可。当版本号一致时，ElasticSearch 会允许该操作顺利执行，而当版本号存在冲突时，ElasticSearch 会提示冲突并抛出异常（VersionConflictEngineException异常）。
+ElasticSearch 采用了乐观锁来保证数据的一致性, 也就是说, 当用户对 document 进行操作时, 并不需要对该 document 作加锁和解锁的操作, 只需要指定要操作的版本即可. 当版本号一致时, ElasticSearch 会允许该操作顺利执行, 而当版本号存在冲突时, ElasticSearch 会提示冲突并抛出异常(VersionConflictEngineException异常). 
 
-ElasticSearch 的版本号的取值范围为 1 到 2^63-1。
+ElasticSearch 的版本号的取值范围为 1 到 2^63-1. 
 
-内部版本控制：使用的是 `_version`
+内部版本控制:使用的是 `_version`
 
 ```json
 PUT /lib/user/4?version=3
@@ -145,25 +145,25 @@ PUT /lib/user/4?version=3
 如果 version 和文档中的版本号不一致会抛出异常
 ```
 
-外部版本控制: elasticsearch 在处理外部版本号时会与对内部版本号的处理有些不同。它不再是检查 `_version` 是否与请求中指定的数值相同, 而是检查当前的 `_version` 是否比指定的数值小。如果请求成功，那么外部的版本号就会被存储到文档中的 `_version` 中。
+外部版本控制: elasticsearch 在处理外部版本号时会与对内部版本号的处理有些不同. 它不再是检查 `_version` 是否与请求中指定的数值相同, 而是检查当前的 `_version` 是否比指定的数值小. 如果请求成功, 那么外部的版本号就会被存储到文档中的 `_version` 中. 
 
 为了保持 `_version` 与外部版本控制的数据一致
-使用version_type=external
+使用 version_type=external
 
 
 
-## ElasticSearch倒排索引
+## ElasticSearch 倒排索引
 
-Elasticsearch 使用一种称为 倒排索引 的结构，它适用于快速的全文搜索。一个倒排索引由文档中所有不重复词的列表构成，对于其中每个词，有一个包含它的文档列表。
+Elasticsearch 使用一种称为 倒排索引 的结构, 它适用于快速的全文搜索. 一个倒排索引由文档中所有不重复词的列表构成, 对于其中每个词, 有一个包含它的文档列表. 
 
-假设文档集合包含五个文档，每个文档内容如图所示，在图中最左端一栏是每个文档对应的文档编号。我们的任务就是对这个文档集合建立倒排索引。
+假设文档集合包含五个文档, 每个文档内容如图所示, 在图中最左端一栏是每个文档对应的文档编号. 我们的任务就是对这个文档集合建立倒排索引. 
 <img src="http://www.milky.show/images/elastic/search/es_2.png" alt="http://www.milky.show/images/elastic/search/es_2.png" style="zoom: 67%;" />
 
-(2):中文和英文等语言不同，单词之间没有明确分隔符号，所以首先要用分词系统将文档自动切分成单词序列。这样每个文档就转换为由单词序列构成的数据流，为了系统后续处理方便，需要对每个不同的单词赋予唯一的单词编号，同时记录下哪些文档包含这个单词，在如此处理结束后，我们可以得到最简单的倒排索引
+(2):中文和英文等语言不同, 单词之间没有明确分隔符号, 所以首先要用分词系统将文档自动切分成单词序列. 这样每个文档就转换为由单词序列构成的数据流, 为了系统后续处理方便, 需要对每个不同的单词赋予唯一的单词编号, 同时记录下哪些文档包含这个单词, 在如此处理结束后, 我们可以得到最简单的倒排索引
 <img src="http://www.milky.show/images/elastic/search/es_3.png" alt="http://www.milky.show/images/elastic/search/es_3.png" style="zoom:67%;" />
-“单词ID”一栏记录了每个单词的单词编号，第二栏是对应的单词，第三栏即每个单词对应的倒排列表
+“单词ID”一栏记录了每个单词的单词编号, 第二栏是对应的单词, 第三栏即每个单词对应的倒排列表
 
-(3):索引系统还可以记录除此之外的更多信息,下图还记载了单词频率信息（TF）即这个单词在某个文档中的出现次数，之所以要记录这个信息，是因为词频信息在搜索结果排序时，计算查询和文档相似度是很重要的一个计算因子，所以将其记录在倒排列表中，以方便后续排序时进行分值计算。
+(3):索引系统还可以记录除此之外的更多信息,下图还记载了单词频率信息(TF)即这个单词在某个文档中的出现次数, 之所以要记录这个信息, 是因为词频信息在搜索结果排序时, 计算查询和文档相似度是很重要的一个计算因子, 所以将其记录在倒排列表中, 以方便后续排序时进行分值计算. 
 
 <img src="http://www.milky.show/images/elastic/search/es_4.png" alt="http://www.milky.show/images/elastic/search/es_4.png" style="zoom:67%;" />
 
@@ -171,7 +171,7 @@ Elasticsearch 使用一种称为 倒排索引 的结构，它适用于快速的�
 
 (1,<11>,1),(2,<7>,1),(3,<3,9>,2)
 
-有了这个索引系统，搜索引擎可以很方便地响应用户的查询，比如用户输入查询词“Facebook”，搜索系统查找倒排索引，从中可以读出包含这个单词的文档，这些文档就是提供给用户的搜索结果，而利用单词频率信息、文档频率信息即可以对这些候选搜索结果进行排序，计算文档和查询的相似性，按照相似性得分由高到低排序输出，此即为搜索系统的部分内部流程。
+有了这个索引系统, 搜索引擎可以很方便地响应用户的查询, 比如用户输入查询词“Facebook”, 搜索系统查找倒排索引, 从中可以读出包含这个单词的文档, 这些文档就是提供给用户的搜索结果, 而利用单词频率信息、文档频率信息即可以对这些候选搜索结果进行排序, 计算文档和查询的相似性, 按照相似性得分由高到低排序输出, 此即为搜索系统的部分内部流程. 
 
 ### 倒排索引原理
 
@@ -179,7 +179,7 @@ Elasticsearch 使用一种称为 倒排索引 的结构，它适用于快速的�
 
 2.Quick brown foxes leap over lazy dogs in summer
 
-倒排索引：
+倒排索引:
 
 |  Term  | Doc_1 | Doc_2 |
 | :----: | :---: | :---: |
@@ -199,7 +199,7 @@ Elasticsearch 使用一种称为 倒排索引 的结构，它适用于快速的�
 | summer |       |   X   |
 |  The   |   X   |       |
 
-**搜索含有 quick 或者 brown 的文档：**
+**搜索含有 quick 或者 brown 的文档:**
 
 | Term  | Doc_1 | Doc_2 |
 | ----- | ----- | ----- |
@@ -210,22 +210,22 @@ Elasticsearch 使用一种称为 倒排索引 的结构，它适用于快速的�
 
 Total   |   2   |  1  |
 
-计算相关度分数时，文档1的匹配度高，分数会比文档2高
+计算相关度分数时, 文档1的匹配度高, 分数会比文档2高
 
 
 
-**问题：**
+**问题:**
 
-Quick 和 quick 以独立的词条出现，然而用户可能认为它们是相同的词。
+Quick 和 quick 以独立的词条出现, 然而用户可能认为它们是相同的词. 
 
-fox 和 foxes 非常相似, 就像 dog 和 dogs ；他们有相同的词根。
+fox 和 foxes 非常相似, 就像 dog 和 dogs ；他们有相同的词根. 
 
-jumped 和 leap, 尽管没有相同的词根，但他们的意思很相近。他们是同义词。
+jumped 和 leap, 尽管没有相同的词根, 但他们的意思很相近. 他们是同义词. 
 
 搜索含有 Quick fox的文档是搜索不到的, 因为是区分大小写的
 
-**ES使用标准化规则(normalization)解决上述问题：**
-建立倒排索引的时候，会对拆分出的各个单词进行相应的处理，以提升后面搜索的时候能够搜索到相关联的文档的概率
+**ES使用标准化规则(normalization)解决上述问题:**
+建立倒排索引的时候, 会对拆分出的各个单词进行相应的处理, 以提升后面搜索的时候能够搜索到相关联的文档的概率
 
 |  Term  | Doc_1 | Doc_2 |
 | :----: | :---: | :---: |
@@ -244,28 +244,28 @@ jumped 和 leap, 尽管没有相同的词根，但他们的意思很相近。他
 
 ## 分词和分词器
 
-分词：从一串文本中切分出一个一个的词条，并对每个词条进行**标准化**
+分词:从一串文本中切分出一个一个的词条, 并对每个词条进行**标准化**
 
-分词器包括三部分：
+分词器包括三部分:
 
-**character filter：针对原始文本的预处理，过滤掉HTML标签，特殊符号转换等**
+**character filter: 针对原始文本的预处理, 过滤掉HTML标签, 特殊符号转换等**
 
-**tokenizer：将原始文本按照一定规则切分为单词**
+**tokenizer: 将原始文本按照一定规则切分为单词**
 
-**token filter：标准化, 针对 tokenizer 处理的单词进行再加工, 比如转小写, 删除或新增等处理**
+**token filter: 标准化, 针对 tokenizer 处理的单词进行再加工, 比如转小写, 删除或新增等处理**
 
 ### 内置分词器
 
-**standard 分词器**：(默认的)他会将词汇单元转换成小写形式，并去除停用词和标点符号，支持中文采用的方法为单字切分
+**standard 分词器**: (默认的)他会将词汇单元转换成小写形式, 并去除停用词和标点符号, 支持中文采用的方法为单字切分
 
 <img src="http://www.milky.show/images/elastic/search/es_8.png" alt="http://www.milky.show/images/elastic/search/es_8.png" style="zoom:67%;" />
 
-**simple 分词器**：首先会通过非字母字符来分割文本信息，然后将词汇单元统一为小写形式。该分析器会去掉数字类型的字符。
+**simple 分词器**:首先会通过非字母字符来分割文本信息, 然后将词汇单元统一为小写形式. 该分析器会去掉数字类型的字符. 
 
 <img src="http://www.milky.show/images/elastic/search/es_9.png" alt="http://www.milky.show/images/elastic/search/es_9.png" style="zoom:67%;" />
 
-**Whitespace** 分词器：仅仅是去除空格，对字符没有lowcase化,不支持中文；
-并且不对生成的词汇单元进行其他的标准化处理。
+**Whitespace** 分词器:仅仅是去除空格, 对字符没有lowcase化,不支持中文；
+并且不对生成的词汇单元进行其他的标准化处理. 
 
 <img src="http://www.milky.show/images/elastic/search/es_10.png" alt="http://www.milky.show/images/elastic/search/es_10.png" style="zoom:67%;" />
 
@@ -281,7 +281,7 @@ jumped 和 leap, 尽管没有相同的词根，但他们的意思很相近。他
 
 <img src="http://www.milky.show/images/elastic/search/es_13.png" alt="http://www.milky.show/images/elastic/search/es_13.png" style="zoom:67%;" />
 
-**language 分词器**：特定语言的分词器，不支持中文
+**language 分词器**:特定语言的分词器, 不支持中文
 
 
 
@@ -539,11 +539,11 @@ GET /myindex/_mapping
 }
 ```
 
-**es会自动创建 index，type，以及 type 对应的 mapping, 因为是 es 自动创建的所以叫做动态映射(dynamic mapping)**
+**es会自动创建 index, type, 以及 type 对应的 mapping, 因为是 es 自动创建的所以叫做动态映射(dynamic mapping)**
 
 **mapping 定义了 type 中的每个字段的数据类型以及这些字段如何分词等相关属性**
 
-创建索引的时候**,可以预先定义字段的类型以及相关属性**，这样就能够把日期字段处理成日期，把数字字段处理成数字，把字符串字段处理字符串值等
+创建索引的时候**,可以预先定义字段的类型以及相关属性**, 这样就能够把日期字段处理成日期, 把数字字段处理成数字, 把字符串字段处理字符串值等
 
 
 
@@ -592,17 +592,17 @@ PUT /lib2
 
 **允许新增字段类型**
 
-**当 ES 在文档中碰到一个以前没见过的字段时，它会利用动态映射来决定该字段的类型，并自动地对该字段添加映射。**
+**当 ES 在文档中碰到一个以前没见过的字段时, 它会利用动态映射来决定该字段的类型, 并自动地对该字段添加映射. **
 
-**可以通过 dynamic 设置来控制这一行为，它能够接受以下的选项：**
+**可以通过 dynamic 设置来控制这一行为, 它能够接受以下的选项:**
 
 ```json
-true：默认值。允许自动新增字段, 所以我们添加文档时候 es 可以自动建立 mapping
-false：不允许自动新增字段, 但是文档可以正常写入, 但无法对字段进行查询等操作
-strict：如果碰到陌生字段，抛出异常, 不能写入
+true:默认值. 允许自动新增字段, 所以我们添加文档时候 es 可以自动建立 mapping
+false:不允许自动新增字段, 但是文档可以正常写入, 但无法对字段进行查询等操作
+strict:如果碰到陌生字段, 抛出异常, 不能写入
 ```
 
-**dynamic 设置可以适用在根对象上或者 object 类型的任意字段上。**
+**dynamic 设置可以适用在根对象上或者 object 类型的任意字段上. **
 
 ```json
 PUT /my_index
@@ -724,11 +724,11 @@ GET /myindex/article/_search?q=content:html
 GET /myindex/article/_search?q=html,document
 ```
 
-**copy_to 字段是把其它字段中的值，以空格为分隔符组成一个大字符串，然后被分析和索引，但是不存储，也就是说它能被查询，但不能被取回显示, 可以提高性能。**
+**copy_to 字段是把其它字段中的值, 以空格为分隔符组成一个大字符串, 然后被分析和索引, 但是不存储, 也就是说它能被查询, 但不能被取回显示, 可以提高性能. **
 
-**注意: copy_to 指向的字段字段类型要为：text**
+**注意: copy_to 指向的字段字段类型要为: text**
 
-当没有指定 field 时，就会从 copy_to 字段中查询, 如果要使用 copy_to 字段, 需要自己创建 mapping
+当没有指定 field 时, 就会从 copy_to 字段中查询, 如果要使用 copy_to 字段, 需要自己创建 mapping
 
 ```json
 DELETE /myindex
@@ -798,78 +798,78 @@ index_options 用于控制倒排索引记录的内容, 有如下 4 中配置
 
 **freqs(文档号+词频):** 记录 doc id 和 term frequencies
 
-**positions(文档号+词频+位置，通常用来距离查询):** 记录 doc id, term frequencies 和 term position
+**positions(文档号+词频+位置, 通常用来距离查询):** 记录 doc id, term frequencies 和 term position
 
-**offsets(文档号+词频+位置+偏移量，通常被使用在高亮字段):** 记录 doc id, term frequencies, term position 和 character offsets
+**offsets(文档号+词频+位置+偏移量, 通常被使用在高亮字段):** 记录 doc id, term frequencies, term position 和 character offsets
 
-分词字段(text)默认是positions，其他的默认是docs, 记录内容越多, 占用空间越多
+分词字段(text)默认是positions, 其他的默认是docs, 记录内容越多, 占用空间越多
 
 
 
 #### null_value 属性
 
-当字段遇到 null 值时的处理策略, 默认为 null, 即空值, 此时 es 会忽略该值. 可以通过设定该值设定字段的默认值, 只有string可以使用，分词字段的null值也会被分词
+当字段遇到 null 值时的处理策略, 默认为 null, 即空值, 此时 es 会忽略该值. 可以通过设定该值设定字段的默认值, 只有string可以使用, 分词字段的null值也会被分词
 
 
 
 #### 其他属性
 
-`"store": false` // 是否单独设置此字段的是否存储而从 _source 字段中分离，默认是 false，只能搜索，不能获取值
+`"store": false` // 是否单独设置此字段的是否存储而从 _source 字段中分离, 默认是 false, 只能搜索, 不能获取值
 
 `"analyzer":"ik"` // 指定分词器,默认分词器为 standard analyzer
 
-`"boost":1.23` // 字段级别的分数加权，默认值是1.0
+`"boost":1.23` // 字段级别的分数加权, 默认值是1.0
 
-`"doc_values":false` // 对 not_analyzed 字段，默认都是开启，分词字段不能使用，对排序和聚合能提升较大性能，节约内存
+`"doc_values":false` // 对 not_analyzed 字段, 默认都是开启, 分词字段不能使用, 对排序和聚合能提升较大性能, 节约内存
 
-`"fielddata":{"format":"disabled"}` // 针对分词字段，参与排序或聚合时能提高性能，不分词字段统一建议使用 doc_value
+`"fielddata":{"format":"disabled"}` // 针对分词字段, 参与排序或聚合时能提高性能, 不分词字段统一建议使用 doc_value
 
-`"fields":{"xxxxx":{"type":"text","index":"not_analyzed"}}` // 可以对一个字段提供多种索引模式，同一个字段的值，一个分词，一个不分词
+`"fields":{"xxxxx":{"type":"text","index":"not_analyzed"}}` // 可以对一个字段提供多种索引模式, 同一个字段的值, 一个分词, 一个不分词
 
-`"ignore_above":100` // 超过 100 个字符的文本，将会被忽略，不被索引
+`"ignore_above":100` // 超过 100 个字符的文本, 将会被忽略, 不被索引
 
-`"include_in_all":ture` // 设置是否此字段包含在 _all 字段中，默认是 true，除非 index 设置成 no选项
+`"include_in_all":ture` // 设置是否此字段包含在 _all 字段中, 默认是 true, 除非 index 设置成 no选项
 
-`"norms":{"enable":true,"loading":"lazy"}` // 分词字段默认配置，不分词字段：默认{"enable":false}，存储长度因子和索引时 boost，建议对需要参与评分字段使用 ，会额外增加内存消耗量
+`"norms":{"enable":true,"loading":"lazy"}` // 分词字段默认配置, 不分词字段:默认{"enable":false}, 存储长度因子和索引时 boost, 建议对需要参与评分字段使用 , 会额外增加内存消耗量
 
-`"position_increament_gap":0` // 影响距离查询或近似查询，可以设置在多值字段的数据上火分词字段上，查询时可指定 slop间隔，默认值是100
+`"position_increament_gap":0` // 影响距离查询或近似查询, 可以设置在多值字段的数据上火分词字段上, 查询时可指定 slop间隔, 默认值是100
 
-`"search_analyzer":"ik"` // 设置搜索时的分词器，默认跟 ananlyzer 是一致的，比如 index 时用 standard+ngram，搜索时用 standard 用来完成自动提示功能
+`"search_analyzer":"ik"` // 设置搜索时的分词器, 默认跟 ananlyzer 是一致的, 比如 index 时用 standard+ngram, 搜索时用 standard 用来完成自动提示功能
 
-`"similarity":"BM25"` // 默认是 TF/IDF 算法，指定一个字段评分策略，仅仅对字符串型和分词类型有效
+`"similarity":"BM25"` // 默认是 TF/IDF 算法, 指定一个字段评分策略, 仅仅对字符串型和分词类型有效
 
-`"term_vector":"no"` // 默认不存储向量信息，支持参数 yes（term存储），with_positions（term+位置）,with_offsets（term+偏移量), with_positions_offsets(term+位置+偏移量) 对快速高亮fast vector highlighter能提升性能，但开启又会加大索引体积，不适合大数据量用
+`"term_vector":"no"` // 默认不存储向量信息, 支持参数 yes(term存储), with_positions(term+位置),with_offsets(term+偏移量), with_positions_offsets(term+位置+偏移量) 对快速高亮fast vector highlighter能提升性能, 但开启又会加大索引体积, 不适合大数据量用
 
 https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-params.html
 
 ### 支持的数据类型
 
-1. 核心数据类型（Core datatypes）
+1. 核心数据类型(Core datatypes)
 
     ```yaml
-    字符型：string, 包括 text 和 keyword
+    字符型:string, 包括 text 和 keyword
     
-    text: 类型被用来索引长文本，在建立索引前默认会将这些文本进行分词，转化为词的组合，建立索引。允许es来检索这些词语。text类型不能用来排序和聚合。
+    text: 类型被用来索引长文本, 在建立索引前默认会将这些文本进行分词, 转化为词的组合, 建立索引. 允许es来检索这些词语. text类型不能用来排序和聚合. 
     
-    Keyword: 类型不进行分词, 会进行索引, 可以被用来检索过滤、排序和聚合。keyword 类型字段只能用本身来进行检索
+    Keyword: 类型不进行分词, 会进行索引, 可以被用来检索过滤、排序和聚合. keyword 类型字段只能用本身来进行检索
     
-    数字型：long, integer, short, byte, double, float, half_float, scaled_float 默认会建倒排索引, 但是没有分词, 所以只能精确匹配
-    日期型：date 默认会建倒排索引, 但是没有分词, 所以只能精确匹配
-    布尔型：boolean
-    二进制型：binary
+    数字型:long, integer, short, byte, double, float, half_float, scaled_float 默认会建倒排索引, 但是没有分词, 所以只能精确匹配
+    日期型:date 默认会建倒排索引, 但是没有分词, 所以只能精确匹配
+    布尔型:boolean
+    二进制型:binary
     范围类型: integer_range, float_range, long_range, double_range, date_range
     ```
 
-2. 复杂数据类型（Complex datatypes）
+2. 复杂数据类型(Complex datatypes)
 
     ```yaml
-    数组类型（Array datatype）：数组类型不需要专门指定数组元素的type，例如：
+    数组类型(Array datatype):数组类型不需要专门指定数组元素的type, 例如:
         字符型数组: ["one", "two"]
-        整型数组：[1, 2]
-        数组型数组：[1, [2, 3]] 等价于[1, 2, 3]
-        对象数组：[{"name": "Mary", "age": 12}, {"name": "John", "age": 10}]
-    对象类型（Object datatype）：_object_ 用于单个JSON对象；
-    嵌套类型（Nested datatype）：_nested_ 用于JSON数组
+        整型数组:[1, 2]
+        数组型数组:[1, [2, 3]] 等价于[1, 2, 3]
+        对象数组:[{"name": "Mary", "age": 12}, {"name": "John", "age": 10}]
+    对象类型(Object datatype):_object_ 用于单个JSON对象；
+    嵌套类型(Nested datatype):_nested_ 用于JSON数组
     ```
 
     对象类型:
@@ -915,23 +915,23 @@ https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-params.h
 
     
 
-3. 地理位置类型（Geo datatypes）
+3. 地理位置类型(Geo datatypes)
 
     ```yaml
-    地理坐标类型（Geo-point datatype）：_geo_point_ 用于经纬度坐标；
-    地理形状类型（Geo-Shape datatype): _geo_shape_ 用于类似于多边形的复杂形状；
+    地理坐标类型(Geo-point datatype):_geo_point_ 用于经纬度坐标；
+    地理形状类型(Geo-Shape datatype): _geo_shape_ 用于类似于多边形的复杂形状；
     ```
 
-4. 特定类型（Specialised datatypes）
+4. 特定类型(Specialised datatypes)
 
     ```yaml
-    IPv4 类型（IPv4 datatype）：_ ip _ 用于IPv4 地址；
-    Completion 类型（Completion datatype）：_ completion _提供自动补全建议；
-    Token count 类型（Token count datatype）：_ token_count _ 用于统计做了标记的字段的index数目，该值会一直增加，不会因为过滤条件而减少。
+    IPv4 类型(IPv4 datatype):_ ip _ 用于IPv4 地址；
+    Completion 类型(Completion datatype):_ completion _提供自动补全建议；
+    Token count 类型(Token count datatype):_ token_count _ 用于统计做了标记的字段的index数目, 该值会一直增加, 不会因为过滤条件而减少. 
     mapper-murmur3
-    类型：通过插件，可以通过 _ murmur3 _ 来计算 index 的 hash 值；
-    附加类型（Attachment datatype）：采用 mapper-attachments
-    插件，可支持_ attachments _ 索引，例如 Microsoft Office 格式，Open Document 格式，ePub, HTML 等。
+    类型:通过插件, 可以通过 _ murmur3 _ 来计算 index 的 hash 值；
+    附加类型(Attachment datatype):采用 mapper-attachments
+    插件, 可支持_ attachments _ 索引, 例如 Microsoft Office 格式, Open Document 格式, ePub, HTML 等. 
     ```
 
 
@@ -1505,15 +1505,15 @@ DELETE /lib/user/1
 
 ### 使用 Multi Get API 批量获取文档
 
-使用es提供的Multi Get API：
+使用 es 提供的 Multi Get API:
 
-使用Multi Get API可以通过索引名, 类型名, 文档id一次得到一个文档集合，**文档可以来自同一个索引库，也可以来自不同索引库**
+使用 Multi Get API 可以通过索引名, 类型名, 文档id一次得到一个文档集合, **文档可以来自同一个索引库, 也可以来自不同索引库**
 
 **使用 curl 的方式**
 
 ```bash
 curl 'http://localhost:9200/_mget' -d '{
-  "docs"：[
+  "docs":[
     {
       "_index": "lib",
       "_type": "user",
@@ -1552,7 +1552,7 @@ GET /_mget
   ]
 }
 
-可以指定具体的字段：
+可以指定具体的字段:
 
 GET /_mget
 {
@@ -1600,9 +1600,9 @@ GET /lib/user/_mget
 }
 ```
 
-### 使用Bulk API实现批量操作
+### 使用 Bulk API 实现批量操作
 
-**bulk的格式**
+**bulk 的格式**
 
 ```json
 {action:{metadata}}\n
@@ -1614,12 +1614,12 @@ action:(行为)
   index: 创建新文档或替换已有文档
   delete: 删除一个文档
 
-metadata：_index,_type,_id
+metadata:_index,_type,_id
 
 create 和 index 的区别
-  如果数据存在，使用 create 操作失败，会提示文档已经存在，使用index则可以成功执行。
+  如果数据存在, 使用 create 操作失败, 会提示文档已经存在, 使用index则可以成功执行. 
 
-示例：
+示例:
 {"delete":{"_index":"lib","_type":"user","_id":"1"}}
 ```
 
@@ -1669,9 +1669,8 @@ POST /lib2/books/_bulk
 
 bulk一次最大处理多少数据量:
 
-　　bulk会把将要处理的数据载入内存中，所以数据量是有限制的，最佳的数据量不是一个确定的数值，它取决于你的硬件，你的文档大小以及复杂性，你的索引以及搜索的负载。
-
-　　一般建议是1000-5000个文档，大小建议是5-15MB，默认不能超过100M，可以在 es 的配置文件（即$ES_HOME下的config下的elasticsearch.yml）中。
+* bulk会把将要处理的数据载入内存中, 所以数据量是有限制的, 最佳的数据量不是一个确定的数值, 它取决于你的硬件, 你的文档大小以及复杂性, 你的索引以及搜索的负载. 
+* 一般建议是1000-5000个文档, 大小建议是5-15MB, 默认不能超过100M, 可以在 es 的配置文件(即$ES_HOME下的config下的elasticsearch.yml)中. 
 
 ## ElasticSearch查询
 
@@ -1876,8 +1875,6 @@ GET /test_search_index/_search?q=birth:(>1980 AND <1999)
 
 
 
-
-
 ### 基本查询(Query查询)(英文)
 
 #### 数据准备
@@ -1998,7 +1995,7 @@ GET /lib3/user/_search?q=interests:changge&sort=age:desc
 
 #### term查询和terms查询
 
-term query 会去倒排索引中寻找确切的 term，**它并不知道分词器的存在即搜索词不进行分词**。这种查询适合 keyword 、numeric、date。
+term query 会去倒排索引中寻找确切的 term, **它并不知道分词器的存在即搜索词不进行分词**. 这种查询适合 keyword 、numeric、date. 
 
 term: 查询某个字段里含有某个关键词的文档
 
@@ -2031,8 +2028,8 @@ GET /lib3/user/_search
 
 #### 控制查询返回的数量
 
-from：从哪一个文档开始
-size：需要的个数
+from: 从哪一个文档开始
+size: 需要的个数
 
 ```json
 GET /lib3/user/_search
@@ -2067,9 +2064,9 @@ GET /lib3/user/_search
 }
 ```
 
-#### match查询
+#### match 查询
 
-**match query知道分词器的存在，会对搜索词进行分词操作，然后再查询**
+**match query 知道分词器的存在, 会对搜索词进行分词操作, 然后再查询**
 
 ```json
 GET /lib3/user/_search
@@ -2091,7 +2088,7 @@ GET /lib3/user/_search
 }
 ```
 
-**match_all:查询所有文档**
+**match_all: 查询所有文档**
 
 ```json
 GET /lib3/user/_search
@@ -2103,7 +2100,7 @@ GET /lib3/user/_search
 }
 ```
 
-**multi_match:可以指定多个字段进行查询, term 和 match 只能指定一个字段**
+**multi_match: 可以指定多个字段进行查询, term 和 match 只能指定一个字段**
 
 ```json
 GET /lib3/user/_search
@@ -2120,16 +2117,16 @@ GET /lib3/user/_search
 }
 ```
 
-**match_phrase:短语匹配查询**
+**match_phrase: 短语匹配查询**
 
-ElasticSearch引擎首先分析（analyze）查询字符串，从分析后的文本中构建短语查询，这意味着必须匹配短语中的所有分词，并且保证各个分词的相对位置不变：
+ElasticSearch 引擎首先分析(analyze)查询字符串, 从分析后的文本中构建短语查询, 这意味着必须匹配短语中的所有分词, 并且保证各个分词的相对位置不变:
 
 ```json
 GET lib3/user/_search
 {
   "query": {
     "match_phrase": {
-      "interests": "duanlian，shuoxiangsheng"
+      "interests": "duanlian, shuoxiangsheng"
     }
   }
 }
@@ -2207,7 +2204,7 @@ GET /lib3/user/_search
 
 #### 排序
 
-使用sort实现排序: desc:降序，asc升序
+使用 sort 实现排序: desc:降序, asc升序
 
 ```json
 GET /lib3/user/_search
@@ -2258,9 +2255,9 @@ GET /lib3/user/_search
 
 #### 范围查询
 
-range:实现范围查询, 主要针对数值和日期类型
+range: 实现范围查询, 主要针对数值和日期类型
 
-参数：gt, gte, lt, lte
+参数: gt, gte, lt, lte
 
 ```json
 GET /lib3/user/_search
@@ -2289,7 +2286,7 @@ GET /lib3/user/_search
 
 #### wildcard查询
 
-允许使用通配符* 和 ?来进行查询
+允许使用通配符 * 和 ? 来进行查询
 
 \* 代表0个或多个字符
 
@@ -2317,17 +2314,17 @@ GET /lib3/user/_search
 
 
 
-#### fuzzy实现模糊查询
+#### fuzzy 实现模糊查询
 
-value：查询的关键字
+value: 查询的关键字
 
-boost：查询的权值，默认值是1.0
+boost: 查询的权值, 默认值是1.0
 
-min_similarity:设置匹配的最小相似度，默认值为0.5，对于字符串，取值为0-1(包括0和1);对于数值，取值可能大于1;对于日期型取值为1d,1m等，1d就代表1天
+min_similarity: 设置匹配的最小相似度, 默认值为0.5, 对于字符串, 取值为0-1(包括0和1);对于数值, 取值可能大于1;对于日期型取值为1d,1m等, 1d就代表1天
 
-prefix_length:指明区分词项的共同前缀长度，默认是0
+prefix_length: 指明区分词项的共同前缀长度, 默认是0
 
-max_expansions:查询中的词项可以扩展的数目，默认可以无限大
+max_expansions: 查询中的词项可以扩展的数目, 默认可以无限大
 
 ```json
 GET /lib3/user/_search
@@ -2463,7 +2460,7 @@ PUT /lib3/user/5
 
 #### term查询和terms查询
 
-term query会去倒排索引中寻找确切的term，**它并不知道分词器的存在即搜索词不进行分词**。这种查询适合keyword 、numeric、date。
+term query会去倒排索引中寻找确切的term, **它并不知道分词器的存在即搜索词不进行分词**. 这种查询适合keyword 、numeric、date. 
 
 term:查询某个字段里含有某个关键词的文档
 
@@ -2493,8 +2490,8 @@ GET /lib3/user/_search
 
 #### 控制查询返回的数量
 
-from：从哪一个文档开始
-size：需要的个数
+from:从哪一个文档开始
+size:需要的个数
 
 ```json
 GET /lib3/user/_search
@@ -2525,7 +2522,7 @@ GET /lib3/user/_search
 
 #### match查询
 
-**match query知道分词器的存在，会对搜索词进行分词操作，然后再查询**
+**match query知道分词器的存在, 会对搜索词进行分词操作, 然后再查询**
 
 ```json
 GET /lib3/user/_search
@@ -2578,7 +2575,7 @@ GET /lib3/user/_search
 
 **match_phrase:短语匹配查询**
 
-ElasticSearch引擎首先分析（analyze）查询字符串，从分析后的文本中构建短语查询，这意味着必须匹配短语中的所有分词，并且保证各个分词的相对位置不变：
+ElasticSearch引擎首先分析(analyze)查询字符串, 从分析后的文本中构建短语查询, 这意味着必须匹配短语中的所有分词, 并且保证各个分词的相对位置不变:
 
 ```json
 GET lib3/user/_search
@@ -2651,7 +2648,7 @@ GET /lib3/user/_search
 
 #### 排序
 
-使用sort实现排序: desc:降序，asc升序
+使用sort实现排序: desc:降序, asc升序
 
 ```json
 GET /lib3/user/_search
@@ -2702,13 +2699,13 @@ GET /lib3/user/_search
 
 #### 范围查询
 
-range:实现范围查询
+range: 实现范围查询
 
-参数：from,to,include_lower,include_upper,boost
+参数: from,to,include_lower,include_upper,boost
 
-include_lower:是否包含范围的左边界，默认是true
+include_lower: 是否包含范围的左边界, 默认是true
 
-include_upper:是否包含范围的右边界，默认是true
+include_upper: 是否包含范围的右边界, 默认是true
 
 ```json
 GET /lib3/user/_search
@@ -2738,9 +2735,9 @@ GET /lib3/user/_search
 }
 ```
 
-#### wildcard查询
+#### wildcard 查询
 
-允许使用通配符* 和 ?来进行查询
+允许使用通配符 * 和 ? 来进行查询
 
 \* 代表0个或多个字符
 
@@ -2768,17 +2765,17 @@ GET /lib3/user/_search
 
 
 
-#### fuzzy实现模糊查询
+#### fuzzy 实现模糊查询
 
-value：查询的关键字
+value: 查询的关键字
 
-boost：查询的权值，默认值是1.0
+boost: 查询的权值, 默认值是1.0
 
-min_similarity:设置匹配的最小相似度，默认值为0.5，对于字符串，取值为0-1(包括0和1);对于数值，取值可能大于1;对于日期型取值为1d,1m等，1d就代表1天
+min_similarity: 设置匹配的最小相似度, 默认值为0.5, 对于字符串, 取值为0-1(包括0和1);对于数值, 取值可能大于1;对于日期型取值为1d,1m等, 1d就代表1天
 
-prefix_length:指明区分词项的共同前缀长度，默认是0
+prefix_length: 指明区分词项的共同前缀长度, 默认是0
 
-max_expansions:查询中的词项可以扩展的数目，默认可以无限大
+max_expansions: 查询中的词项可以扩展的数目, 默认可以无限大
 
 ```json
 GET /lib3/user/_search
@@ -2825,13 +2822,9 @@ GET /lib3/user/_search
 
 
 
+### Filter 查询
 
-
-
-
-### Filter查询
-
-filter是不计算相关性的，同时可以cache。因此，filter速度要快于query。
+filter 是不计算相关性的, 同时可以 cache. 因此, filter 速度要快于 query. 
 
 ```json
 POST /lib4/items/_bulk
@@ -2878,13 +2871,13 @@ GET /lib4/items/_search
 }
 ```
 
-查看分词器分析的结果：
+查看分词器分析的结果
 
 ```
 GET /lib4/_mapping
 ```
 
-不希望商品 itemID 字段被分词，则重新创建映射
+不希望商品 itemID 字段被分词, 则重新创建映射
 
 ```
 DELETE lib4
@@ -2912,7 +2905,7 @@ PUT /lib4
 
 可以实现组合过滤查询
 
-格式：
+格式:
 
 ```json
 {
@@ -2927,7 +2920,7 @@ PUT /lib4
 }
 ```
 
-must:必须满足的条件---and
+must: 必须满足的条件---and
 
 should: 可以满足也可以不满足的条件--or
 
@@ -2960,7 +2953,7 @@ GET /lib4/items/_search
 }
 ```
 
-嵌套使用bool：
+嵌套使用 bool:
 
 ```json
 GET /lib4/items/_search
@@ -3051,10 +3044,10 @@ GET /lib4/items/_search
 
 #### 过滤器缓存
 
-ElasticSearch提供了一种特殊的缓存，即过滤器缓存（filter cache），用来存储过滤器的结果，被缓存的过滤器并不需要消耗过多的内存（因为它们只存储了哪些文档能与过滤器相匹配的相关信息），而且可供后续所有与之相关的查询重复使用，从而极大地提高了查询性能。
+ElasticSearch 提供了一种特殊的缓存, 即过滤器缓存(filter cache), 用来存储过滤器的结果, 被缓存的过滤器并不需要消耗过多的内存(因为它们只存储了哪些文档能与过滤器相匹配的相关信息), 而且可供后续所有与之相关的查询重复使用, 从而极大地提高了查询性能. 
 
-注意：ElasticSearch并不是默认缓存所有过滤器，
-以下过滤器默认不缓存：
+注意: ElasticSearch 并不是默认缓存所有过滤器, 
+以下过滤器默认不缓存:
 
 ```
 numeric_range
@@ -3069,9 +3062,9 @@ or
 not
 ```
 
-exists,missing,range,term,terms默认是开启缓存的
+exists,missing,range,term,terms 默认是开启缓存的
 
-开启方式：在filter查询语句后边加上
+开启方式:在 filter 查询语句后边加上
 "_catch":true
 
 ### 聚合查询
@@ -3209,25 +3202,21 @@ GET /lib3/user/_search
 
 将多个基本查询组合成单一查询的查询
 
-#### 使用bool查询
+#### 使用 bool 查询
 
-接收以下参数：
+接收以下参数:
 
-must：
-    文档 必须匹配这些条件才能被包含进来。 
+must: 文档必须匹配这些条件才能被包含进来.  
 
-must_not：
-    文档 必须不匹配这些条件才能被包含进来。 
+must_not: 文档必须不匹配这些条件才能被包含进来.  
 
-should：
-    如果满足这些语句中的任意语句，将增加 _score，否则，无任何影响。它们主要用于修正每个文档的相关性得分。 
+should: 如果满足这些语句中的任意语句, 将增加 _score, 否则, 无任何影响. 它们主要用于修正每个文档的相关性得分.  
 
-filter：
-    必须 匹配，但它以不评分、过滤模式来进行。这些语句对评分没有贡献，只是根据过滤标准来排除或包含文档。
+filter: 必须 匹配, 但它以不评分、过滤模式来进行. 这些语句对评分没有贡献, 只是根据过滤标准来排除或包含文档. 
 
-相关性得分是如何组合的。每一个子查询都独自地计算文档的相关性得分。一旦他们的得分被计算出来， bool 查询就将这些得分进行合并并且返回一个代表整个布尔操作的得分。
+相关性得分是如何组合的. 每一个子查询都独自地计算文档的相关性得分. 一旦他们的得分被计算出来,  bool 查询就将这些得分进行合并并且返回一个代表整个布尔操作的得分. 
 
-下面的查询用于查找 title 字段匹配 how to make millions 并且不被标识为 spam 的文档。那些被标识为 starred 或在2014之后的文档，将比另外那些文档拥有更高的排名。如果 _两者_ 都满足，那么它排名将更高：
+下面的查询用于查找 title 字段匹配 how to make millions 并且不被标识为 spam 的文档. 那些被标识为 starred 或在 2014 之后的文档, 将比另外那些文档拥有更高的排名. 如果 _两者_ 都满足, 那么它排名将更高:
 
 ```json
 GET /lib3/user/_search
@@ -3263,8 +3252,8 @@ GET /lib3/user/_search
 }
 ```
 
-如果没有 must 语句，那么至少需要能够匹配其中的一条 should 语句。但，如果存在至少一条 must 语句，则对 should 语句的匹配没有要求。 
-如果我们不想因为文档的时间而影响得分，可以用 filter 语句来重写前面的例子：
+如果没有 must 语句, 那么至少需要能够匹配其中的一条 should 语句. 但, 如果存在至少一条 must 语句, 则对 should 语句的匹配没有要求.  
+如果我们不想因为文档的时间而影响得分, 可以用 filter 语句来重写前面的例子:
 
 ```json
 {
@@ -3297,9 +3286,9 @@ GET /lib3/user/_search
 }
 ```
 
-通过将 range 查询移到 filter 语句中，我们将它转成不评分的查询，将不再影响文档的相关性排名。由于它现在是一个不评分的查询，可以使用各种对 filter 查询有效的优化手段来提升性能。
+通过将 range 查询移到 filter 语句中, 我们将它转成不评分的查询, 将不再影响文档的相关性排名. 由于它现在是一个不评分的查询, 可以使用各种对 filter 查询有效的优化手段来提升性能. 
 
-bool 查询本身也可以被用做不评分的查询。简单地将它放置到 filter 语句中并在内部构建布尔逻辑：
+bool 查询本身也可以被用做不评分的查询. 简单地将它放置到 filter 语句中并在内部构建布尔逻辑:
 
 ```json
 {
@@ -3356,7 +3345,7 @@ bool 查询本身也可以被用做不评分的查询。简单地将它放置到
 
 #### constant_score查询
 
-它将一个不变的常量评分应用于所有匹配的文档。它被经常用于你只需要执行一个 filter 而没有其它查询（例如，评分查询）的情况下。
+它将一个不变的常量评分应用于所有匹配的文档. 它被经常用于你只需要执行一个 filter 而没有其它查询(例如, 评分查询)的情况下. 
 
 ```json
 {
@@ -3370,7 +3359,7 @@ bool 查询本身也可以被用做不评分的查询。简单地将它放置到
 }
 ```
 
-term 查询被放置在 constant_score 中，转成不评分的filter。这种方式可以用来取代只有 filter 语句的 bool 查询。 
+term 查询被放置在 constant_score 中, 转成不评分的filter. 这种方式可以用来取代只有 filter 语句的 bool 查询.  
 
 
 
@@ -3461,16 +3450,16 @@ GET _cluster/health
 
 假设集群由 3 个节点组成, node1 所在的机器突然宕机, 此时 node2 和 node3 发现 node1 无法响应超过一段时间后会发起 master 选举, 比如选择 node2 为 master 节点, 此时由于主分片 P0 下线, 集群状态变为 Red
 
-以9个shard，3个节点为例：
+以9个shard, 3个节点为例:
 
 <img src="http://www.milky.show/images/elastic/search/es_5.png" alt="http://www.milky.show/images/elastic/search/es_5.png" style="zoom: 50%;" />
 
-如果 master node 宕机，此时不是所有的 primary shard 都是 Active status，所以此时的集群状态是 red。
+如果 master node 宕机, 此时不是所有的 primary shard 都是 Active status, 所以此时的集群状态是 red. 
 
 1. 容错处理的第一步:是选举一台服务器作为 master
-2. 容错处理的第二步:新选举出的 master 会把挂掉的 primary shard 的某个 replica shard 提升为 primary shard,此时集群的状态为 yellow，因为少了一个 replica shard，并不是所有的 replica shard 都是 active status
+2. 容错处理的第二步:新选举出的 master 会把挂掉的 primary shard 的某个 replica shard 提升为 primary shard,此时集群的状态为 yellow, 因为少了一个 replica shard, 并不是所有的 replica shard 都是 active status
 
-3. 容错处理的第三步：新的 master 为 primary shard 重新分配 replica shard, 集群重新变为 green 状态
+3. 容错处理的第三步:新的 master 为 primary shard 重新分配 replica shard, 集群重新变为 green 状态
 
 
 
@@ -4063,24 +4052,24 @@ GET test_search_index/_search
 }
 ```
 
-**深度分页(deep paging)是一个经典的问题**: 查询的很深，比如一个索引有三个 primary shard，分别存储了 6000 条数据，我们要得到第 100 页的数据(每页 10条)，类似这种情况就叫deep paging
+**深度分页(deep paging)是一个经典的问题**: 查询的很深, 比如一个索引有三个 primary shard, 分别存储了 6000 条数据, 我们要得到第 100 页的数据(每页 10条), 类似这种情况就叫deep paging
 
 如何得到第100页的10条数据？
 
-在每个 shard 中搜索990到999这10条数据，然后用这30条数据排序，排序之后取10条数据就是要搜索的数据，这种做法是错的，因为3个 shard 中的数据的_score分数不一样，可能这某一个 shard 中第一条数据的 _score 分数比另一个 shard 中第1000条都要高，所以在每个shard中搜索990到999这10条数据然后排序的做法是不正确的。
+在每个 shard 中搜索990到999这10条数据, 然后用这30条数据排序, 排序之后取10条数据就是要搜索的数据, 这种做法是错的, 因为3个 shard 中的数据的_score分数不一样, 可能这某一个 shard 中第一条数据的 _score 分数比另一个 shard 中第1000条都要高, 所以在每个shard中搜索990到999这10条数据然后排序的做法是不正确的. 
 
-正确的做法是每个shard把0到999条数据全部搜索出来（按排序顺序），然后全部返回给coordinate node，由coordinate node按_score分数排序后，取出第100页的10条数据，然后返回给客户端。
+正确的做法是每个shard把0到999条数据全部搜索出来(按排序顺序), 然后全部返回给coordinate node, 由coordinate node按_score分数排序后, 取出第100页的10条数据, 然后返回给客户端. 
 
 
 deep paging性能问题
 
-1. 耗费网络带宽，因为搜索过深的话，各 shard 要把数据传送给 coordinate node，这个过程是有大量数据传递的，消耗网络，
+1. 耗费网络带宽, 因为搜索过深的话, 各 shard 要把数据传送给 coordinate node, 这个过程是有大量数据传递的, 消耗网络, 
 
-2. 消耗内存，各 shard 要把数据传送给 coordinate node，这个传递回来的数据，是被 coordinate node 保存在内存中的，这样会大量消耗内存。
+2. 消耗内存, 各 shard 要把数据传送给 coordinate node, 这个传递回来的数据, 是被 coordinate node 保存在内存中的, 这样会大量消耗内存. 
 
-3. 消耗 cpu, coordinate node 要把传回来的数据进行排序，这个排序过程很消耗 cpu
+3. 消耗 cpu, coordinate node 要把传回来的数据进行排序, 这个排序过程很消耗 cpu
 
-**鉴于 deep paging 的性能问题，所以应尽量减少使用分页查询, es 通过 `index.max_result_window` 限定最多搜索 10000 条数据**
+**鉴于 deep paging 的性能问题, 所以应尽量减少使用分页查询, es 通过 `index.max_result_window` 限定最多搜索 10000 条数据**
 
 
 
@@ -4092,11 +4081,11 @@ deep paging性能问题
 * 尽量不要使用复杂的 sort 条件, 使用 _doc 最高效
 * 使用稍显复杂
 
-如果一次性要查出来比如10万条数据，那么性能会很差，此时一般会采取用 scroll 滚动查询，一批一批的查，直到所有数据都查询完为止。
+如果一次性要查出来比如10万条数据, 那么性能会很差, 此时一般会采取用 scroll 滚动查询, 一批一批的查, 直到所有数据都查询完为止. 
 
-1. scoll 搜索会在第一次搜索的时候，保存一个当时的视图快照, 并返回一个快照的 id，之后只会基于该旧的视图快照提供数据搜索，如果这个期间数据变更，是不会让用户看到的
-2. 采用基于 \_doc(不使用_ score)进行排序的方式，性能较高
-3. 每次发送 scroll 请求，我们还需要指定一个scoll参数，指定一个时间窗口，每次搜索请求只要在这个时间窗口内能完成就可以了
+1. scoll 搜索会在第一次搜索的时候, 保存一个当时的视图快照, 并返回一个快照的 id, 之后只会基于该旧的视图快照提供数据搜索, 如果这个期间数据变更, 是不会让用户看到的
+2. 采用基于 \_doc(不使用_ score)进行排序的方式, 性能较高
+3. 每次发送 scroll 请求, 我们还需要指定一个scoll参数, 指定一个时间窗口, 每次搜索请求只要在这个时间窗口内能完成就可以了
 4. 当 hits 为 [] 的时候, 就代表最后一条了
 
 ```json
@@ -5684,57 +5673,57 @@ GET _tasks/_qKI6E8_TDWjXyo_x-bhmw:11996
 
 ### Gateway层
 
-es用来存储索引文件的一个文件系统且它支持很多类型，例如：本地磁盘、共享存储（做snapshot的时候需要用到）、hadoop的hdfs分布式存储、亚马逊的S3。它的主要职责是用来对数据进行长持久化以及整个集群重启之后可以通过gateway重新恢复数据。
+es用来存储索引文件的一个文件系统且它支持很多类型, 例如:本地磁盘、共享存储(做snapshot的时候需要用到)、hadoop的hdfs分布式存储、亚马逊的S3. 它的主要职责是用来对数据进行长持久化以及整个集群重启之后可以通过gateway重新恢复数据. 
 
 ### Distributed Lucene Directory
 
-Gateway上层就是一个lucene的分布式框架，lucene是做检索的，但是它是一个单机的搜索引擎，像这种es分布式搜索引擎系统，虽然底层用lucene，但是需要在每个节点上都运行lucene进行相应的索引、查询以及更新，所以需要做成一个分布式的运行框架来满足业务的需要。
+Gateway上层就是一个lucene的分布式框架, lucene是做检索的, 但是它是一个单机的搜索引擎, 像这种es分布式搜索引擎系统, 虽然底层用lucene, 但是需要在每个节点上都运行lucene进行相应的索引、查询以及更新, 所以需要做成一个分布式的运行框架来满足业务的需要. 
 
 ### 四大模块组件
 
-districted lucene directory之上就是一些es的模块，Index Module是索引模块，就是对数据建立索引也就是通常所说的建立一些倒排索引等；Search Module是搜索模块，就是对数据进行查询搜索；Mapping模块是数据映射与解析模块，就是你的数据的每个字段可以根据你建立的表结构通过mapping进行映射解析，如果你没有建立表结构，es就会根据你的数据类型推测你的数据结构之后自己生成一个mapping，然后都是根据这个mapping进行解析你的数据；River模块在es2.0之后应该是被取消了，它的意思表示是第三方插件，例如可以通过一些自定义的脚本将传统的数据库（mysql）等数据源通过格式化转换后直接同步到es集群里，这个river大部分是自己写的，写出来的东西质量参差不齐，将这些东西集成到es中会引发很多内部bug，严重影响了es的正常应用，所以在es2.0之后考虑将其去掉。
+districted lucene directory之上就是一些es的模块, Index Module是索引模块, 就是对数据建立索引也就是通常所说的建立一些倒排索引等；Search Module是搜索模块, 就是对数据进行查询搜索；Mapping模块是数据映射与解析模块, 就是你的数据的每个字段可以根据你建立的表结构通过mapping进行映射解析, 如果你没有建立表结构, es就会根据你的数据类型推测你的数据结构之后自己生成一个mapping, 然后都是根据这个mapping进行解析你的数据；River模块在es2.0之后应该是被取消了, 它的意思表示是第三方插件, 例如可以通过一些自定义的脚本将传统的数据库(mysql)等数据源通过格式化转换后直接同步到es集群里, 这个river大部分是自己写的, 写出来的东西质量参差不齐, 将这些东西集成到es中会引发很多内部bug, 严重影响了es的正常应用, 所以在es2.0之后考虑将其去掉. 
 
 ### Discovery, Script
 
-es4大模块组件之上有 Discovery模块：es是一个集群包含很多节点，很多节点需要互相发现对方，然后组成一个集群包括选主的，这些es都是用的discovery模块，默认使用的是 Zen，也可是使用EC2；es查询还可以支撑多种script即脚本语言，包括mvel、js、python等等。
+es4大模块组件之上有 Discovery模块:es是一个集群包含很多节点, 很多节点需要互相发现对方, 然后组成一个集群包括选主的, 这些es都是用的discovery模块, 默认使用的是 Zen, 也可是使用EC2；es查询还可以支撑多种script即脚本语言, 包括mvel、js、python等等. 
 
-### Transport协议层
+### Transport 协议层
 
-再上一层就是es的通讯接口Transport，支持的也比较多：Thrift、Memcached以及Http，默认的是http，JMX就是java的一个远程监控管理框架，因为es是通过java实现的。
+再上一层就是 es 的通讯接口 Transport, 支持的也比较多: Thrift、Memcached以及Http, 默认的是http, JMX就是java的一个远程监控管理框架, 因为es是通过java实现的. 
 
-### RESTful接口层
+### RESTful 接口层
 
-最上层就是es暴露给我们的访问接口，官方推荐的方案就是这种Restful接口，直接发送http请求，方便后续使用nginx做代理、分发包括可能后续会做权限的管理，通过http很容易做这方面的管理。如果使用java客户端它是直接调用api，在做负载均衡以及权限管理还是不太好做。
+最上层就是 es 暴露给我们的访问接口, 官方推荐的方案就是这种 Restful 接口, 直接发送 http 请求, 方便后续使用 nginx 做代理、分发包括可能后续会做权限的管理, 通过 http 很容易做这方面的管理. 如果使用 java 客户端它是直接调用 api, 在做负载均衡以及权限管理还是不太好做. 
 
 
 
-## 解析es的分布式架构
+## 解析 es 的分布式架构
 
 ### 分布式架构的透明隐藏特性
 
-**ElasticSearch是一个分布式系统，隐藏了复杂的处理机制**
+**ElasticSearch 是一个分布式系统, 隐藏了复杂的处理机制**
 
-**分片机制：**我们不用关心数据是按照什么机制分片的、最后放入到哪个分片中
+**分片机制: **我们不用关心数据是按照什么机制分片的、最后放入到哪个分片中
 
-**分片的副本：** 每个主分片都可以有副本分片
+**分片的副本:** 每个主分片都可以有副本分片
 
-**集群发现机制(cluster discovery)：**比如当前我们启动了一个es进程，当启动了第二个es进程时，这个进程作为一个node自动就发现了集群，并且加入了进去
+**集群发现机制(cluster discovery):** 比如当前我们启动了一个 es 进程, 当启动了第二个 es 进程时, 这个进程作为一个 node 自动就发现了集群, 并且加入了进去
 
-**shard负载均衡：**比如现在有10shard，集群中有3个节点，es会进行均衡的进行分配，以保持每个节点均衡的负载请求
+**shard负载均衡:** 比如现在有 10 shard, 集群中有 3 个节点, es 会进行均衡的进行分配, 以保持每个节点均衡的负载请求
 
 **扩容机制:**
 
-垂直扩容：购置新的机器，替换已有的机器
+垂直扩容:购置新的机器, 替换已有的机器
 
-水平扩容：直接增加机器
+水平扩容:直接增加机器
 
 **rebalance:**
 
 增加或减少节点时会自动负载均衡 shard
 
-**master节点**
+**master 节点**
 
-主节点的主要职责是和集群操作相关的内容，如创建或删除索引，跟踪哪些节点是群集的一部分，并决定哪些分片分配给相关的节点。稳定的主节点对集群的健康是非常重要的。
+主节点的主要职责是和集群操作相关的内容, 如创建或删除索引, 跟踪哪些节点是群集的一部分, 并决定哪些分片分配给相关的节点. 稳定的主节点对集群的健康是非常重要的. 
 
 **节点对等**
 
@@ -5745,13 +5734,13 @@ es4大模块组件之上有 Discovery模块：es是一个集群包含很多节�
 ### 分片(primary shard)和副本(replica shard)机制
 
 1. index 包含多个 primary shard(主分片), 每个 primary shard 又有与之对应的 replica shard(副分片), ES是分布式搜索引擎, 每个索引有一个或多个分片, 索引的数据被分配到各个分片上, 相当于一桶水用了 N 个杯子装, N 个杯子中的水都是一样多的(rebalance)
-2. 每个 shard 都是一个最小工作单元，**承载部分数据**；每个 shard 都是一个 lucene 实例，有完整的建立索引和处理请求的能力, 因为每个shard 都是一个独立的 lucene 实例, 所以一个分片只能存放 Integer.MAX_VALUE - 128 = 2,147,483,519 个 docs
-3. 增减节点时，shard 会自动在nodes中负载均衡有助于横向扩展, 假如 A 节点有 2 个 shard, 会分一个 shard 给新节点, A 节点只剩下 1 个 shard, 这个过程叫做 (relocation), ES 感知后自动完成
-4. primary shard 和 replica shard，每个 document 肯定只存在于某一个 primary shard 以及其对应的 replica shard 中，不可能存在于多个 primary shard
-5. replica shard 是 primary shard的副本，负责容灾(primary 分片丢失, replica 分片会顶上去成为新的主分片, 同时会根据这个新的主分片创建新的 replica 分片)，以及承担读请求负载提高查询性能(对于一个 query 既可以查主分片也可以查询备份分片, 在合适的范围内多个 replica 性能会更优)
-6. primary shard 的数量在创建索引的时候就固定了除非新建索引否则不能调整主分片数(number_of_shards)，replica shard的数量可以随时修改
-7. primary shard 的默认数量是 5，replica shard 默认是 1，默认有 10 个 shard，5 个 primary shard，5 个 replica shard
-8. **primary shard 不能和自己的 replica shard 放在同一个节点上**（否则节点宕机，primary shard 和副本都丢失，起不到容错的作用），但是可以和其他primary shard的replica shard放在同一个节点上, 如果只有一个节点, 那么 5 个 primary shard会分配在同一台机器上, 5 个 replica 都无法分配 (unassigned), 此时 cluster status 会变成 Yellow
+2. 每个 shard 都是一个最小工作单元, **承载部分数据**；每个 shard 都是一个 lucene 实例, 有完整的建立索引和处理请求的能力, 因为每个shard 都是一个独立的 lucene 实例, 所以一个分片只能存放 Integer.MAX_VALUE - 128 = 2,147,483,519 个 docs
+3. 增减节点时, shard 会自动在nodes中负载均衡有助于横向扩展, 假如 A 节点有 2 个 shard, 会分一个 shard 给新节点, A 节点只剩下 1 个 shard, 这个过程叫做 (relocation), ES 感知后自动完成
+4. primary shard 和 replica shard, 每个 document 肯定只存在于某一个 primary shard 以及其对应的 replica shard 中, 不可能存在于多个 primary shard
+5. replica shard 是 primary shard的副本, 负责容灾(primary 分片丢失, replica 分片会顶上去成为新的主分片, 同时会根据这个新的主分片创建新的 replica 分片), 以及承担读请求负载提高查询性能(对于一个 query 既可以查主分片也可以查询备份分片, 在合适的范围内多个 replica 性能会更优)
+6. primary shard 的数量在创建索引的时候就固定了除非新建索引否则不能调整主分片数(number_of_shards), replica shard的数量可以随时修改
+7. primary shard 的默认数量是 5, replica shard 默认是 1, 默认有 10 个 shard, 5 个 primary shard, 5 个 replica shard
+8. **primary shard 不能和自己的 replica shard 放在同一个节点上**(否则节点宕机, primary shard 和副本都丢失, 起不到容错的作用), 但是可以和其他primary shard的replica shard放在同一个节点上, 如果只有一个节点, 那么 5 个 primary shard会分配在同一台机器上, 5 个 replica 都无法分配 (unassigned), 此时 cluster status 会变成 Yellow
 
 ```
 GET _cat/health # 查询集群的健康状态
@@ -5770,11 +5759,11 @@ PUT /myindex
 }
 ```
 
-这个时候，只会将3个primary shard分配到仅有的一个node上去，另外3个replica shard是无法分配的（一个shard的副本replica，他们两个是不能在同一个节点的）。集群可以正常工作，但是一旦出现节点宕机，数据全部丢失，而且集群不可用，无法接收任何请求。
+这个时候, 只会将3个primary shard分配到仅有的一个node上去, 另外3个replica shard是无法分配的(一个shard的副本replica, 他们两个是不能在同一个节点的). 集群可以正常工作, 但是一旦出现节点宕机, 数据全部丢失, 而且集群不可用, 无法接收任何请求. 
 
 ### 两个节点环境下创建索引分析
 
-将 3 个 primary shard 分配到一个node上去，另外 3 个replica shard分配到另一个节点上
+将 3 个 primary shard 分配到一个node上去, 另外 3 个replica shard分配到另一个节点上
 
 **primary shard 和 replica shard 保持同步, primary 处理写请求同步到 replica 上**
 
@@ -5785,17 +5774,17 @@ PUT /myindex
 
 1. 扩容后 primary shard 和 replica shard 会自动的负载均衡
 
-2. 扩容后每个节点上的 shard 会减少，那么分配给每个 shard 的 CPU，内存，IO资源会更多，性能提高
+2. 扩容后每个节点上的 shard 会减少, 那么分配给每个 shard 的 CPU, 内存, IO资源会更多, 性能提高
 
-3. 扩容的极限，如果有 6 个 shard，扩容的极限就是 6 个节点，每个节点上一个 shard，如果想超出扩容的极限，比如说扩容到9 个节点，那么可以增加 replica shard 的个数
+3. 扩容的极限, 如果有 6 个 shard, 扩容的极限就是 6 个节点, 每个节点上一个 shard, 如果想超出扩容的极限, 比如说扩容到9 个节点, 那么可以增加 replica shard 的个数
 
-4. 6 个shard，3 个节点，最多能承受几个节点所在的服务器宕机？(容错性)
+4. 6 个shard, 3 个节点, 最多能承受几个节点所在的服务器宕机？(容错性)
     任何一台服务器宕机都会丢失部分数据
 
-    为了提高容错性，增加shard的个数：
-    9 个shard，(3 个 primary shard，6 个 replicashard)，这样就能容忍最多两台服务器宕机了
+    为了提高容错性, 增加shard的个数:
+    9 个shard, (3 个 primary shard, 6 个 replicashard), 这样就能容忍最多两台服务器宕机了
 
-**总结：扩容是为了提高系统的吞吐量，同时也要考虑容错性，也就是让尽可能多的服务器宕机还能保证数据不丢失**
+**总结:扩容是为了提高系统的吞吐量, 同时也要考虑容错性, 也就是让尽可能多的服务器宕机还能保证数据不丢失**
 
 
 
@@ -5807,7 +5796,7 @@ PUT /myindex
 
     同一个索引下存放的是相似的文档(文档的field多数是相同的)
 
-    索引名必须是小写的，不能以下划线开头，不能包括逗号
+    索引名必须是小写的, 不能以下划线开头, 不能包括逗号
 
 2. _type:
 
@@ -5815,15 +5804,15 @@ PUT /myindex
 
     ES6 开始一个索引下只能有一个 type
 
-    类型名可以是大写也可以是小写的，不能以下划线开头，不能包括逗号
+    类型名可以是大写也可以是小写的, 不能以下划线开头, 不能包括逗号
 
 3. _id:
 
-    文档的唯一标识，和索引，类型组合在一起唯一标识了一个文档
+    文档的唯一标识, 和索引, 类型组合在一起唯一标识了一个文档
 
-    可以手动指定值，也可以由es来生成这个值
+    可以手动指定值, 也可以由es来生成这个值
 
-### 文档id生成方式
+### 文档 id 生成方式
 
 1. 手动指定
 
@@ -5839,10 +5828,10 @@ PUT /myindex
     POST /index/type
     ```
 
-    es 生成的 id 长度为 20 个字符，使用的是 base64 编码，URL 安全，使用的是 GUID 算法，**分布式下并发生成 id 值时不会冲突**
+    es 生成的 id 长度为 20 个字符, 使用的是 base64 编码, URL 安全, 使用的是 GUID 算法, **分布式下并发生成 id 值时不会冲突**
 
 
-### _source元数据分析
+### _source 元数据分析
 
 其实就是我们在添加文档时 `request body` 中的内容, 默认返回全部 field
 
@@ -5851,7 +5840,7 @@ PUT /myindex
 
 ### 改变文档内容原理解析
 
-替换方式：首先查出原有 document 的数据, 将这条 document 标记为 deleted, 再根据用户数据创建一份新的 document, 用户未提交的数据不会保存
+替换方式:首先查出原有 document 的数据, 将这条 document 标记为 deleted, 再根据用户数据创建一份新的 document, 用户未提交的数据不会保存
 
 ```json
 PUT /lib/user/4
@@ -5864,7 +5853,7 @@ PUT /lib/user/4
 }
 ```
 
-修改方式(partial update)：只修改部分 field 内容, es 接收用的数据, 更新 document 的部分字段, 再将这个 document 标记为 deleted, 再根据更新后的 document 创建一份新的 document
+修改方式(partial update):只修改部分 field 内容, es 接收用的数据, 更新 document 的部分字段, 再将这个 document 标记为 deleted, 再根据更新后的 document 创建一份新的 document
 
 ```json
 POST /lib/user/2/_update
@@ -5875,14 +5864,14 @@ POST /lib/user/2/_update
 }
 ```
 
-删除文档：标记为 deleted，随着数据量的增加，es会选择合适的时间删除掉
+删除文档:标记为 deleted, 随着数据量的增加, es会选择合适的时间删除掉
 
 1. POST 比 PUT 少了一次查询的网络传输, 效率更高一些, POST 全是在 es 内存中完成的
 2. POST 方式发生并发冲突的可能性降低, 因为耗时少
 
-### 基于groovy脚本执行partial update
+### 基于 groovy 脚本执行 partial update
 
-es有内置的脚本支持，可以基于groovy脚本实现复杂的操作
+es 有内置的脚本支持, 可以基于 groovy 脚本实现复杂的操作
 
 1. 修改年龄
 
@@ -5932,7 +5921,7 @@ es有内置的脚本支持，可以基于groovy脚本实现复杂的操作
 
 5. 删除文档
 
-    ```
+    ```bash
     POST /lib/user/4/_update
     {
       "script": {
@@ -5946,7 +5935,7 @@ es有内置的脚本支持，可以基于groovy脚本实现复杂的操作
 
 6. upsert
 
-    ```
+    ```bash
     POST /lib/user/4/_update
     {
       "script": "ctx._source.age += 1",
@@ -5967,46 +5956,46 @@ es有内置的脚本支持，可以基于groovy脚本实现复杂的操作
 
 retry_on_conflict:
 
-```
+```bash
 POST /lib/user/4/_update?retry_on_conflict=3
 ```
 
-重新获取文档数据和版本信息进行更新，不断的尝试更新操作，最多操作的次数就是 retry_on_conflict 的值
+重新获取文档数据和版本信息进行更新, 不断的尝试更新操作, 最多操作的次数就是 retry_on_conflict 的值
 
 
 ### 文档数据路由原理解析
 
-1. 文档路由到分片上：
+1. 文档路由到分片上:
 
-     一个索引由多个分片构成，当添加(删除，修改)一个文档时，es就需要决定这个文档存储在哪个分片上，这个过程就称为数据路由(routing)
+     一个索引由多个分片构成, 当添加(删除, 修改)一个文档时, es就需要决定这个文档存储在哪个分片上, 这个过程就称为数据路由(routing)
 
-2. 路由算法：
+2. 路由算法:
 
-    ```
+    ```bash
     shard=hash(routing) % number_of_pirmary_shards
     ```
 
-    示例：一个索引，3 个 primary shard
+    示例:一个索引, 3 个 primary shard
 
-    2.1 每次增删改查时，都有一个routing值，默认是文档的_id的值
+    2.1 每次增删改查时, 都有一个routing值, 默认是文档的_id的值
 
-    2.2 对这个routing值使用哈希函数进行计算
+    2.2 对这个 routing 值使用哈希函数进行计算
 
     2.3 计算出的值再和主分片个数取余数
 
-    余数肯定在0 - （number_of_pirmary_shards-1）之间，文档就在对应的shard上
+    余数肯定在0 - (number_of_pirmary_shards-1)之间, 文档就在对应的 shard 上
 
-    routing值默认是文档的_id的值，也可以手动指定一个值，手动指定对于负载均衡以及提高批量读取的性能都有帮助
+    routing 值默认是文档的 \_id 的值, 也可以手动指定一个值, 手动指定对于负载均衡以及提高批量读取的性能都有帮助
 
-3. primary shard个数一旦确定就不能修改了, 一旦改变就找不到原来的 document 了
+3. primary shard 个数一旦确定就不能修改了, 一旦改变就找不到原来的 document 了
 
 ### 文档增删改内部原理
 
 <img src="http://www.milky.show/images/elastic/search/es_6.png" alt="http://www.milky.show/images/elastic/search/es_6.png" style="zoom:67%;" />
 
-1. 发送增删改请求时，可以选择任意一个节点，该节点就成了协调节点(coordinating node)
+1. 发送增删改请求时, 可以选择任意一个节点, 该节点就成了协调节点(coordinating node)
 
-2. 协调节点使用路由算法进行路由，然后将请求转到 primary shard 所在节点，该节点处理请求，并把数据同步到它的 replica shard
+2. 协调节点使用路由算法进行路由, 然后将请求转到 primary shard 所在节点, 该节点处理请求, 并把数据同步到它的 replica shard
 
 3. 协调节点对客户端做出响应
 
@@ -6015,36 +6004,36 @@ POST /lib/user/4/_update?retry_on_conflict=3
 
 1. 任何一个增删改操作都可以跟上一个参数 `consistency`
 
-    可以给该参数指定的值：
+    可以给该参数指定的值:
 
     one: (primary shard)只要有一个primary shard是活跃的就可以执行
 
     all: (all shard)所有的primary shard和replica shard都是活跃的才能执行
 
-    quorum: (default) 默认值，大部分shard是活跃的才能执行 （例如共有6个shard，至少有3个shard是活跃的才能执行写操作）
+    quorum: (default) 默认值, 大部分shard是活跃的才能执行 (例如共有6个shard, 至少有3个shard是活跃的才能执行写操作)
 
-2. quorum机制：多数shard都是可用的，
+2. quorum机制:多数shard都是可用的, 
 
     int((primary+number_of_replica)/2)+1
 
-    例如：3个primary shard，1个replica
+    例如:3个primary shard, 1个replica
 
     int((3+1)/2)+1=3
 
     至少3个shard是活跃的
 
-    注意：可能出现shard不能分配齐全的情况
+    注意:可能出现shard不能分配齐全的情况
 
-    比如：1个primary shard,1个replica
+    比如:1个primary shard,1个replica
     int((1+1)/2)+1=2
-    但是如果只有一个节点，因为primary shard和replica shard不能在同一个节点上，所以仍然不能执行写操作
+    但是如果只有一个节点, 因为primary shard和replica shard不能在同一个节点上, 所以仍然不能执行写操作
 
-    再举例：1个primary shard,3个replica,2个节点
+    再举例:1个primary shard,3个replica,2个节点
 
     int((1+3)/2)+1=3
 
-    最后:当活跃的shard的个数没有达到要求时，
-    es默认会等待一分钟，如果在等待的期间活跃的shard的个数没有增加，则显示timeout
+    最后:当活跃的shard的个数没有达到要求时, 
+    es默认会等待一分钟, 如果在等待的期间活跃的shard的个数没有增加, 则显示timeout
 
     ```
     put /index/type/id?timeout=60s
@@ -6054,18 +6043,18 @@ POST /lib/user/4/_update?retry_on_conflict=3
 
 <img src="http://www.milky.show/images/elastic/search/es_7.png" alt="http://www.milky.show/images/elastic/search/es_7.png" style="zoom:67%;" />
 
-1. 查询请求发给任意一个节点，该节点就成了协调节点(coordinating node)，该节点使用路由算法算出文档所在的primary shard
+1. 查询请求发给任意一个节点, 该节点就成了协调节点(coordinating node), 该节点使用路由算法算出文档所在的primary shard
 
-2. 协调节点把请求转发给 primary shard 也可以转发给 replica shard (使用轮询调度算法(Round-Robin Scheduling，把请求平均分配至 primary shard 和 replica shard), 区别于增删改只能转发给 primary shard
+2. 协调节点把请求转发给 primary shard 也可以转发给 replica shard (使用轮询调度算法(Round-Robin Scheduling, 把请求平均分配至 primary shard 和 replica shard), 区别于增删改只能转发给 primary shard
 
-3. 处理请求的节点把结果返回给协调节点，协调节点再返回给应用程序
+3. 处理请求的节点把结果返回给协调节点, 协调节点再返回给应用程序
 
-特殊情况：请求的文档还在建立索引的过程中，primary shard上存在，但replica shard上不存在，但是请求被转发到了replica shard上，这时就会提示找不到文档
+特殊情况:请求的文档还在建立索引的过程中, primary shard上存在, 但replica shard上不存在, 但是请求被转发到了replica shard上, 这时就会提示找不到文档
 
 
-### bulk批量操作的json格式解析
+### bulk 批量操作的 json 格式解析
 
-bulk的格式：
+bulk的格式:
 
 ```
 {action:{metadata}}\n
@@ -6073,9 +6062,9 @@ bulk的格式：
 {requstbody}\n
 ```
 
-为什么不使用如下格式：
+为什么不使用如下格式:
 
-```
+```bash
 [
 	{
 		"action": {},
@@ -6084,23 +6073,23 @@ bulk的格式：
 ]
 ```
 
-这种方式可读性好，但是内部处理就麻烦了：
+这种方式可读性好, 但是内部处理就麻烦了:
 
-1. 将 json 数组解析为 JSONArray 对象，在内存中就需要有一份 json 文本的拷贝，另外还有一个 JSONArray 对象。
+1. 将 json 数组解析为 JSONArray 对象, 在内存中就需要有一份 json 文本的拷贝, 另外还有一个 JSONArray 对象. 
 
-2. 解析 json 数组里的每个 json ，对每个请求中的 document 进行路由
+2. 解析 json 数组里的每个 json , 对每个请求中的 document 进行路由
 
-3. 为路由到同一个 shard 上的多个请求，创建一个请求数组
+3. 为路由到同一个 shard 上的多个请求, 创建一个请求数组
 
 4. 将这个请求数组序列化
 
 5. 将序列化后的请求数组发送到对应的节点上去
 
-耗费更多内存，增加java虚拟机开销, 相比之下 bulk 的格式有如下优势:
+耗费更多内存, 增加java虚拟机开销, 相比之下 bulk 的格式有如下优势:
 
-1. 不用将其转换为json对象，直接按照换行符切割json，内存中不需要json文本的拷贝
+1. 不用将其转换为json对象, 直接按照换行符切割json, 内存中不需要json文本的拷贝
 
-2. 对每两个一组的json，读取meta，进行document路由
+2. 对每两个一组的json, 读取meta, 进行document路由
 
 3. 直接将对应的json发送到node上去
 
@@ -6147,19 +6136,19 @@ GET /lib3/user/_search
 }
 ```
 
-took：查询耗费的时间，单位是毫秒
+took:查询耗费的时间, 单位是毫秒
 
-_shards：共请求了多少个shard
+_shards:共请求了多少个 shard
 
-total：查询出的文档总个数
+total: 查询出的文档总个数
 
-max_score： 本次查询中，相关度分数的最大值，文档和此次查询的匹配度越高，_score的值越大，排位越靠前
+max_score: 本次查询中, 相关度分数的最大值, 文档和此次查询的匹配度越高, _score的值越大, 排位越靠前
 
-hits：默认查询前10个文档
+hits: 默认查询前 10 个文档
 
-timed_out：
+timed_out:
 
-```
+```bash
 GET /lib3/user/_search?timeout=10ms
 {
     "_source": ["address","name"],
@@ -6174,9 +6163,9 @@ GET /lib3/user/_search?timeout=10ms
 
 
 
-### 多index，多type查询模式
+### 多 index, 多 type 查询模式
 
-```
+```bash
 GET _search # 查询所有文档
 
 GET /lib/_search # 查询单个索引
@@ -6194,7 +6183,7 @@ GET /_all/_search # 查询所有索引下的所有文档
 GET /_all/user,items/_search # 查询所有索引下的, user, items 类型的文档
 ```
 
-### 分页查询中的deep paging问题
+### 分页查询中的 deep paging 问题
 
 ```json
 GET /lib3/user/_search
@@ -6216,9 +6205,9 @@ GET /_search?from=0&size=3
 
 ### 字符串排序问题
 
-对一个字符串类型的字段进行排序通常不准确，因为已经被分词成多个词条了
+对一个字符串类型的字段进行排序通常不准确, 因为已经被分词成多个词条了
 
-**解决方式：对字段索引两次，一次索引分词（用于搜索），一次索引不分词(用于排序)**
+**解决方式:对字段索引两次, 一次索引分词(用于搜索), 一次索引不分词(用于排序)**
 
 ```json
 GET /lib3/_search
@@ -6300,27 +6289,27 @@ PUT /lib3
 
 1. **Term Frequency(TF): **词频, 即单词在该文档中出现的次数. **词频越高, 相关度越高**
 
-    搜索内容： hello world
+    搜索内容: hello world
 
-    Hello，I love china.
+    Hello, I love china.
 
     Hello world,how are you!
 
 2. **Document Frequency(DF):** 文档频率, 即单词出现的文档数
 
-3. **Inverse Document Frequency(IDF)：**逆向文档频率, 与文档频率相反, 简单理解为 1/DF. **即单词出现的文档数越少, 相关度越高**
+3. **Inverse Document Frequency(IDF):** 逆向文档频率, 与文档频率相反, 简单理解为 1/DF. **即单词出现的文档数越少, 相关度越高**
 
-    搜索内容：hello world
+    搜索内容:hello world
 
-    hello，what are you doing?
+    hello, what are you doing?
 
     I like the world.
 
-    hello 在索引的所有文档中出现了500次，world出现了100次
+    hello 在索引的所有文档中出现了500次, world出现了100次
 
 4. **Field-length norm:** 字段长度归约, **文档越短, 相关度越高**
 
-    搜索内容：hello world
+    搜索内容:hello world
 
     ```json
     {"title":"hello,what's your name?","content":{"owieurowieuolsdjflk"}}
@@ -6332,11 +6321,9 @@ PUT /lib3
 
 **BM25模型, 5.x 之后的默认模型**
 
+查看分数是如何计算的:
 
-
-查看分数是如何计算的：
-
-```
+```bash
 GET /lib3/user/_search?explain=true
 {
     "query":{
@@ -6347,9 +6334,9 @@ GET /lib3/user/_search?explain=true
 }
 ```
 
-查看一个文档能否匹配上某个查询：
+查看一个文档能否匹配上某个查询:
 
-```
+```bash
 GET /lib3/user/2/_explain
 {
     "query":{
@@ -6366,9 +6353,9 @@ GET /lib3/user/2/_explain
 
 ### Doc Values 解析(正排索引建立)
 
-DocValues其实是Lucene在构建倒排索引时，会额外建立一个有序的正排索引(基于document => field value的映射列表)
+DocValues其实是Lucene在构建倒排索引时, 会额外建立一个有序的正排索引(基于document => field value的映射列表)
 
-```
+```bash
 {"birthday":"1985-11-11",age:23}
 
 {"birthday":"1989-11-11",age:29}
@@ -6380,41 +6367,39 @@ doc1         23         1985-11-11
 doc2         29         1989-11-11
 ```
 
-存储在磁盘上，节省内存 
+存储在磁盘上, 节省内存 
 
-对排序，分组和一些聚合操作能够大大提升性能 
+对排序, 分组和一些聚合操作能够大大提升性能 
 
-**注意：默认对不分词的字段是开启的，对分词字段无效（需要把fielddata设置为true）**
+**注意:默认对不分词的字段是开启的, 对分词字段无效(需要把fielddata设置为true)**
 
-```
+```bash
 PUT /lib3
 {
     "settings":{
-    "number_of_shards" : 3,
-    "number_of_replicas" : 0
+      "number_of_shards" : 3,
+      "number_of_replicas" : 0
     },
-     "mappings":{
+    "mappings":{
       "user":{
         "properties":{
-            "name": {"type":"text"},
-            "address": {"type":"text"},
-            "age": {
-              "type":"integer",
-              "doc_values":false
-            },
-            "interests": {"type":"text"},
-            "birthday": {"type":"date"}
+          "name": {"type":"text"},
+          "address": {"type":"text"},
+          "age": {
+            "type":"integer",
+            "doc_values":false
+          },
+          "interests": {"type":"text"},
+          "birthday": {"type":"date"}
         }
       }
-     }
+    }
 }
 ```
 
 
 
-
-
-### dynamic mapping策略
+### dynamic mapping 策略
 
 **dynamic**:
 
@@ -6462,7 +6447,7 @@ PUT  /lib8/user/1
 }
 ```
 
-**date_detection**: 默认会按照一定格式识别date，比如yyyy-MM-dd
+**date_detection**: 默认会按照一定格式识别date, 比如yyyy-MM-dd
 
 可以手动关闭某个 type 的 date_detection
 
@@ -6538,9 +6523,9 @@ GET my_index/my_type/_search
 
 ### 重建索引
 
-一个 field 的设置是不能修改的，如果要修改一个 field，那么应该重新按照新的 mapping，建立一个 index，然后将数据批量查询出来，重新用 bulk api 写入到 index 中。
+一个 field 的设置是不能修改的, 如果要修改一个 field, 那么应该重新按照新的 mapping, 建立一个 index, 然后将数据批量查询出来, 重新用 bulk api 写入到 index 中. 
 
-批量查询的时候，建议采用 scroll api，并且采用多线程并发的方式来 reindex 数据，每次 scroll 就查询指定日期的一段数据，交给一个线程即可。
+批量查询的时候, 建议采用 scroll api, 并且采用多线程并发的方式来 reindex 数据, 每次 scroll 就查询指定日期的一段数据, 交给一个线程即可. 
 
 ```json
 PUT /index1/type1/4
@@ -6575,14 +6560,14 @@ PUT /index1/type1/_mapping
 }
 ```
 
-1. 创建一个新的索引，把 index1 索引中的数据查询出来导入到新的索引中
-2. 但是应用程序使用的是之前的索引，为了不用重启应用程序，给 index1 这个索引起个别名
+1. 创建一个新的索引, 把 index1 索引中的数据查询出来导入到新的索引中
+2. 但是应用程序使用的是之前的索引, 为了不用重启应用程序, 给 index1 这个索引起个别名
 
 ```
 PUT /index1/_alias/index2
 ```
 
-**创建新的索引，把 content 的类型改为字符串**
+**创建新的索引, 把 content 的类型改为字符串**
 
 ```json
 PUT /newindex
@@ -6620,7 +6605,7 @@ POST /_bulk
 {"content":"1982-12-12"}
 ```
 
-将别名 index2 和新的索引关联，应用程序不用重启
+将别名 index2 和新的索引关联, 应用程序不用重启
 
 ```json
 POST /_aliases
@@ -6639,15 +6624,15 @@ GET index2/type1/_search
 
 ### 索引不可变的原因
 
-倒排索引包括：
+倒排索引包括:
 
-文档的列表，文档的数量，词条在每个文档中出现的次数，出现的位置，每个文档的长度，所有文档的平均长度
+文档的列表, 文档的数量, 词条在每个文档中出现的次数, 出现的位置, 每个文档的长度, 所有文档的平均长度
 
-索引不变的原因：
+索引不变的原因:
 
-不需要锁，提升了并发性能
+不需要锁, 提升了并发性能
 
-可以一直保存在缓存中（filter）
+可以一直保存在缓存中(filter)
 
 节省 cpu 和 io 开销
 
@@ -6657,7 +6642,7 @@ GET index2/type1/_search
 
 ### 在Java应用中实现查询文档
 
-pom中加入ElasticSearch6.2.4的依赖：
+pom中加入ElasticSearch6.2.4的依赖:
 
 ```xml
 <dependencies>
@@ -6689,13 +6674,13 @@ pom中加入ElasticSearch6.2.4的依赖：
 </build>
 ```
 
-### 在Java应用中实现添加文档
+### 在 Java 应用中实现添加文档
 
 ```java
 "{" +
 "\"id\":\"1\"," +
 "\"title\":\"Java设计模式之装饰模式\"," +
-"\"content\":\"在不必改变原类文件和使用继承的情况下，动态地扩展一个对象的功能。\"," +
+"\"content\":\"在不必改变原类文件和使用继承的情况下, 动态地扩展一个对象的功能. \"," +
 "\"postdate\":\"2018-05-20 14:38:00\"," +
 "\"url\":\"csdn.net/79239072\"" +
 "}"
@@ -6706,7 +6691,7 @@ pom中加入ElasticSearch6.2.4的依赖：
                     .startObject()
                     .field("id","3")
                     .field("title","Java设计模式之单例模式")
-                    .field("content","枚举单例模式可以防反射攻击。")
+                    .field("content","枚举单例模式可以防反射攻击. ")
                     .field("postdate","2018-02-03")
                     .field("url","csdn.net/79247746")
                     .endObject();        
@@ -6719,19 +6704,19 @@ IndexResponse response = client.prepareIndex("index1", "blog", null)
 System.out.println(response.status());
 ```
 
-### 在Java应用中实现删除文档
+### 在 Java 应用中实现删除文档
 
 ```java
 DeleteResponse response=client.prepareDelete("index1","blog","SzYJjWMBjSAutsuLRP_P").get();
 
-//删除成功返回OK，否则返回NOT_FOUND
+//删除成功返回OK, 否则返回NOT_FOUND
 
 System.out.println(response.status());
 ```
 
 
 
-### 在Java应用中实现更新文档 
+### 在 Java 应用中实现更新文档 
 
 ```java
 UpdateRequest request=new UpdateRequest();
@@ -6741,11 +6726,11 @@ request.index("index1").type("blog")
        .endObject());
 UpdateResponse response=client.update(request).get();
 
-// 更新成功返回OK，否则返回NOT_FOUND
+// 更新成功返回OK, 否则返回NOT_FOUND
 
 System.out.println(response.status());
 
-upsert方式：
+upsert方式:
 
 IndexRequest request1 =new IndexRequest("index1","blog","3")
                 .source(
@@ -6766,7 +6751,7 @@ IndexRequest request1 =new IndexRequest("index1","blog","3")
         
 UpdateResponse response=client.update(request2).get();
         
-//upsert操作成功返回OK，否则返回NOT_FOUND
+// upsert 操作成功返回OK, 否则返回 NOT_FOUND
 
 System.out.println(response.status());
 ```
@@ -6774,7 +6759,7 @@ System.out.println(response.status());
 
 
 
-### 在Java应用中实现批量操作
+### 在 Java 应用中实现批量操作
 
 ```java
 MultiGetResponse mgResponse = client.prepareMultiGet()
@@ -6789,7 +6774,7 @@ for(MultiGetItemResponse response:mgResponse){
 	            }
 	        }
 	        
-bulk：
+bulk:
 
 BulkRequestBuilder bulkRequest = client.prepareBulk();
 
@@ -6809,7 +6794,7 @@ bulkRequest.add(client.prepareIndex("lib2", "books", "5")
                         .endObject()
                 )
         );
-//批量执行
+// 批量执行
 BulkResponse bulkResponse = bulkRequest.get();
         
 System.out.println(bulkResponse.status());
@@ -6872,7 +6857,7 @@ PUT /_cluster/settings
 
 ### 关于 JVM 内存设定
 
-不要超过 31GB
+不要超过 31 GB
 
 **预留一半内存给操作系统, 用来做文件缓存**
 
