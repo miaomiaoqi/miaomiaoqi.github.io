@@ -1265,67 +1265,11 @@ HashMap 和 ArrayList: 这两个类不是线程安全的, 但是可以用 Collec
 
 ConcurrentHashMap 和 CopyOnWriteArrayList: 取代同步的 HashMap 和同步的 ArrayList(时代巨轮滚滚向前)
 
+
+
 ### ConcurrentHashMap
 
 [https://www.milky.show/2019/12/26/Java-%E9%9B%86%E5%90%88%E7%B1%BB/](https://www.milky.show/2019/12/26/Java-%E9%9B%86%E5%90%88%E7%B1%BB/)
-
-#### Map 简介
-
-HashMap: 根据 hashcode 定位, 允许 key 为 null, 线程不安全
-
-Hashtable: 和 HashMap 功能一样, 但是性能低下, 已淘汰
-
-LinkedHashMap: 是 HashMap 的子类
-
-TreeMap: 实现了 SortedMap 接口, 可以排序
-
-#### 为什么 HashMap 是线程不安全的
-
-同时 put 碰撞导致数据丢失
-
-同时 put 扩容导致数据丢失
-
-HashMap 死循环造成的 CPU100%(JDK1.7 下存在), 因为在多线程情况下 HashMap 扩容造成循环链表
-
-#### 为什么需要 ConcurrentHashMap
-
-#### HashMap 分析
-
-#### JDK1.7 的 ConcurrentHashMap 实现和分析
-
-JDK1.7 中的 ConcurrentHashMap 最外层是多个 Segment, 每个 Segment 的底层数据结构与 HashMap 类似, 仍然是数组和链表组成的拉链法
-
-每个 Segment 独立上 ReentrantLock 锁, 每个 Segnemnt 之间互不影响, 提高了并发效率
-
-ConcurrentHashMap 默认有 16 个 Segments, 所以最多可以同时支持 16 个线程并发写(操作分别分布在不同的 Segment 上). 这个默认值可以在初始化的时候设置为其他值, 但是一旦初始化以后, 是不可以扩容的
-
-#### JDK1.8 的 ConcurrentHashMap 实现和分析
-
-putValue 流程
-
-*   判断 key value 不为空
-*   计算 hash 值
-*   根据对应位置节点的类型来赋值, 或者 helpTransfer, 或者增长链表, 或者给红黑树增加节点
-*   检查满足阈值就"红黑树化"
-*   返回 oldValue
-
-getValue 流程
-
-*   计算 hash 值
-*   找到对应的位置, 根据情况直接取值, 红黑树里取值, 遍历链表取值
-*   返回找到的结果
-
-#### 为什么要将 1.7 改为 1.8 的结构
-
-
-
-红黑树的占用空间比链表大, 所以一开始使用链表, 当链表长度达到 8 时会转为红黑树, 但是达到 8 的概率是千万分之一, 如果达到 8 代表链表出了问题是一种极端情况, 要转为红黑树
-
-
-
-**ConcurrentHashMap 也不是线程安全的?**
-
-ConcurrentHashMap 本身肯定是线程安全的, 但是在组合操作下并不保证线程安全, 作者考虑到这种情况提供了 replace() 方法
 
 
 
