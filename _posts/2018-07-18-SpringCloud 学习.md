@@ -382,7 +382,7 @@ Eureka Server 在执行复制操作的时候, 使用 `HEADER_REPLICATION` 这个
 
 <img src="http://www.milky.show/images/springcloud/springcloud_sell_13.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_13.png" style="zoom: 50%;" />
 
-还有一个重要的机制: **hearbeat 心跳**, 即续约操作, 来进行数据的最终修复, 因为节点间的复制可能会出错, 通过心跳就可以发现错误, 进行弥补. 
+还有一个重要的机制:**hearbeat 心跳**, 即续约操作, 来进行数据的最终修复, 因为节点间的复制可能会出错, 通过心跳就可以发现错误, 进行弥补. 
 
 例如发现某个应用实例数据与某个 server 不一致, 则 server 返回 404, 实例重新注册即可. 
 
@@ -1140,7 +1140,7 @@ Hystrix提供了4种执行命令的方法, execute()和queue()适用于 HystrixC
 
     如果继承的是HystrixCommand, hystrix会从线程池中取一个线程以非阻塞方式执行run()；如果继承的是HystrixObservableCommand, 将以调用线程阻塞执行construct(). 
 
-    **observe()使用方法: **
+    **observe()使用方法:**
 
     1.  调用 observe()会返回一个Observable对象
     2.  调用这个 Observable对象的subscribe()方法完成事件注册, 从而获取结果
@@ -1151,7 +1151,7 @@ Hystrix提供了4种执行命令的方法, execute()和queue()适用于 HystrixC
 
     如果继承的是 HystrixComman, hystrix会从线程池中取一个线程以非阻塞方式执行run(), 调用线程不必等待run()；如果继承的是 HystrixObservableCommand , 将以调用线程堵塞执行construct(), 调用线程需等待construct()执行完才能继续往下走. 
 
-    **toObservable()使用方法: **
+    **toObservable()使用方法:**
 
     1.  调用observe()会返回一个Observable对象
     2.  调用这个 Observable对象的subscribe()方法完成事件注册, 从而获取结果
@@ -1190,7 +1190,7 @@ final static ConcurrentHashMap<String, HystrixThreadPool> threadPools = new Conc
 
 通过发送请求线程与执行请求的线程分离, 可有效防止发生级联故障. 当线程池或请求队列饱和时, Hystrix将拒绝服务, 使得请求线程可以快速失败, 从而避免依赖问题扩散. 
 
-**线程池隔离优点: **
+**线程池隔离优点:**
 
 -   保护应用程序以免受来自依赖故障的影响, 指定依赖线程池饱和不会影响应用程序的其余部分. 
 -   当引入新客户端lib时, 即使发生问题, 也是在lib中, 并不会影响其他内容. 
@@ -1199,9 +1199,9 @@ final static ConcurrentHashMap<String, HystrixThreadPool> threadPools = new Conc
 -   如果服务的性能有变化, 需要实时调整, 比如增加或减少超时时间, 更改重试次数, 可以通过线程池指标状态属性修改, 而且不会影响到其它调用请求. 
 -   除了隔离优势外,  Hystrix 拥有专门的线程可提供内置的并发功能, 使得可以在同步调用之上构建异步门面(外观模式), 为异步编程提供了支持( Hystrix 引入了R小Java异步框架). 
 
-**注意: **尽管线程池提供了线程隔离, 我们的客户端底层代码也必须要有超时设置或响应线程中断, 不能无限制的阻塞以致线程池一直饱和. 
+**注意:**尽管线程池提供了线程隔离, 我们的客户端底层代码也必须要有超时设置或响应线程中断, 不能无限制的阻塞以致线程池一直饱和. 
 
-**缺点: **
+**缺点:**
 
 *   线程池的主要缺点是增加了计算开销. 每个命令的执行都在单独的线程完成, 增加了排队、调度和上下文切换的开销. 因此, 要使用 Hystrix , 就必须接受它带来的开销, 以换取它所提供的的好处. 
 
@@ -1480,7 +1480,7 @@ public class CommandFacadeWithPrimarySecondary extends HystrixCommand<String> {
 
 <img src="http://www.milky.show/images/springcloud/springcloud_sell_17.png" alt="http://www.milky.show/images/springcloud/springcloud_sell_17.png" style="zoom: 50%;" />
 
-**熔断器工作的详细过程如下: **
+**熔断器工作的详细过程如下:**
 
 **第一步, 调用 allowRequest() 判断是否允许将请求提交到线程池**
 

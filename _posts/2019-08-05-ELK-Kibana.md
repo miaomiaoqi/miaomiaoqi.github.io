@@ -36,7 +36,7 @@ mac 上使用 brew 安装的 es 的配置目录位于 `/usr/local/etc/kibana`
 
 **Discover:** 数据搜索查看
 
-**Visualize: **图表只做
+**Visualize:**图表只做
 
 **Dashboard:**仪表盘制作
 
@@ -44,7 +44,7 @@ mac 上使用 brew 安装的 es 的配置目录位于 `/usr/local/etc/kibana`
 
 **DevTools:** 开发者工具
 
-**Management: **配置
+**Management:**配置
 
 
 
