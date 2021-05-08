@@ -309,7 +309,7 @@ cookie 无法跨域
 
 当多个应用要共享 session 时, 除了以上问题, 还会遇到跨域问题, 因为不同的应用可能部署的主机不一样, 需要在各个应用做好 cookie 跨域的处理. 
 
-sessionId 是存储在 cookie 中的, 假如浏览器禁止 cookie 或不支持 cookie 怎么办？一般会把 sessionId 跟在 url 参数后面即重写 url, 所以 session 不一定非得需要靠 cookie 实现
+sessionId 是存储在 cookie 中的, 假如浏览器禁止 cookie 或不支持 cookie 怎么办? 一般会把 sessionId 跟在 url 参数后面即重写 url, 所以 session 不一定非得需要靠 cookie 实现
 
 移动端对 cookie 的支持不是很好, 而 session 需要基于 cookie 实现, 所以移动端常用的是 token
 
@@ -405,7 +405,7 @@ JWT 适合一次性的命令认证, 颁发一个有效期极短的 JWT, 即使�
 
 
 
-### 只要关闭浏览器 , session 真的就消失了？
+### 只要关闭浏览器 , session 真的就消失了? 
 
 不对. 对 session 来说, 除非程序通知服务器删除一个 session, 否则服务器会一直保留, 程序一般都是在用户做 log off 的时候发个指令去删除 session. 
 

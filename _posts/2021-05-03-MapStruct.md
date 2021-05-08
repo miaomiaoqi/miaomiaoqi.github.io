@@ -13,7 +13,7 @@ keywords:
 
 
 
-## MapStruct 是什么？
+## MapStruct 是什么? 
 
 ### JavaBean 的困扰
 
@@ -195,7 +195,7 @@ public void entity2queryParam() {
 
 上面中, 我写了3个步骤来实现了从 `Order` 到 `OrderQueryParam` 的转换. 
 
-那么, 作为一个注解处理器, 通过`MapStruct` 生成的代码具有怎么样的优势呢？
+那么, 作为一个注解处理器, 通过`MapStruct` 生成的代码具有怎么样的优势呢? 
 
 ### 高性能
 
