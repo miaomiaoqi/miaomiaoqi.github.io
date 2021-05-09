@@ -945,7 +945,7 @@ Quartz中的trigger和job需要存储下来才能被使用. Quartz中有两种�
 
 ### 集群原理分析
 
-trigger的状态储存在数据库，Quartz支持分布式，所以如果起了多个quartz服务，会有多个调度线程来抢夺触发同一个trigger。mysql在默认情况下执行select 语句，是不上锁的，那么如果同时有1个以上的调度线程抢到同一个trigger，是否会导致这个trigger重复调度呢？我们来看看，Quartz是如何解决这个问题的。
+trigger的状态储存在数据库，Quartz支持分布式，所以如果起了多个quartz服务，会有多个调度线程来抢夺触发同一个trigger。mysql在默认情况下执行select 语句，是不上锁的，那么如果同时有1个以上的调度线程抢到同一个trigger，是否会导致这个trigger重复调度呢? 我们来看看，Quartz是如何解决这个问题的。
 
 
 
