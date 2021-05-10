@@ -1468,6 +1468,54 @@ synchronized是可重入，非公平锁，因为entryList的线程会先自旋�
 
 
 
+### Object的wait和notify方法原理
+
+wait，notify必须是持有当前对象锁Monitor的线程才能调用 (对象锁代指ObjectMonitor/Monitor，锁对象代指Object)
+
+上面有说到，当在sychronized中锁对象Object调用wait时会加入waitSet队列，WaitSet的元素对象就是ObjectWaiter
+
+```c++
+class ObjectWaiter : public StackObj {
+ public:
+  enum TStates { TS_UNDEF, TS_READY, TS_RUN, TS_WAIT, TS_ENTER, TS_CXQ } ;
+  enum Sorted  { PREPEND, APPEND, SORTED } ;
+  ObjectWaiter * volatile _next;
+  ObjectWaiter * volatile _prev;
+  Thread*       _thread;
+  ParkEvent *   _event;
+  volatile int  _notified ;
+  volatile TStates TState ;
+  Sorted        _Sorted ;           // List placement disposition
+  bool          _active ;           // Contention monitoring is enabled
+ public:
+  ObjectWaiter(Thread* thread);
+  void wait_reenter_begin(ObjectMonitor *mon);
+  void wait_reenter_end(ObjectMonitor *mon);
+};
+```
+
+**调用对象锁的wait()方法时，线程会被封装成ObjectWaiter，最后使用park方法挂起**
+
+```c++
+//objectMonitor.cpp
+void ObjectMonitor::wait(jlong millis, bool interruptible, TRAPS){
+    ...
+    //线程封装成 ObjectWaiter对象
+    ObjectWaiter node(Self);
+    node.TState = ObjectWaiter::TS_WAIT ;
+    ...
+    //一系列判断操作，当线程确实加入WaitSet时，则使用park方法挂起
+    if (node._notified == 0) {
+        if (millis <= 0) {
+            Self->_ParkEvent->park () ;
+        } else {
+            ret = Self->_ParkEvent->park (millis) ;
+        }
+    }
+```
+
+
+
 
 
 
