@@ -1466,6 +1466,54 @@ synchronized是可重入，非公平锁，因为entryList的线程会先自旋�
 
 因为监视器锁(monitor)是依赖于底层的操作系统的`Mutex Lock`来实现的, 而操作系统实现线程之间的切换时需要从`用户态转换到核心态`(具体可看 CXUAN 写的 OS 哦), 这个状态之间的转换需要相对比较长的时间, 时间成本相对较高, 这也是早期的`synchronized`效率低的原因. 庆幸在 Java 6 之后 Java 官方对从 JVM 层面对`synchronized`较大优化最终提升显著, Java 6 之后, 为了减少获得锁和释放锁所带来的性能消耗, 引入了锁升级的概念. 
 
+### Object的wait和notify方法原理
+
+wait，notify必须是持有当前对象锁Monitor的线程才能调用 (对象锁代指ObjectMonitor/Monitor，锁对象代指Object)
+
+上面有说到，当在sychronized中锁对象Object调用wait时会加入waitSet队列，WaitSet的元素对象就是ObjectWaiter
+
+```c++
+class ObjectWaiter : public StackObj {
+ public:
+  enum TStates { TS_UNDEF, TS_READY, TS_RUN, TS_WAIT, TS_ENTER, TS_CXQ } ;
+  enum Sorted  { PREPEND, APPEND, SORTED } ;
+  ObjectWaiter * volatile _next;
+  ObjectWaiter * volatile _prev;
+  Thread*       _thread;
+  ParkEvent *   _event;
+  volatile int  _notified ;
+  volatile TStates TState ;
+  Sorted        _Sorted ;           // List placement disposition
+  bool          _active ;           // Contention monitoring is enabled
+ public:
+  ObjectWaiter(Thread* thread);
+  void wait_reenter_begin(ObjectMonitor *mon);
+  void wait_reenter_end(ObjectMonitor *mon);
+};
+```
+
+**调用对象锁的wait()方法时，线程会被封装成ObjectWaiter，最后使用park方法挂起**
+
+```c++
+//objectMonitor.cpp
+void ObjectMonitor::wait(jlong millis, bool interruptible, TRAPS){
+    ...
+    //线程封装成 ObjectWaiter对象
+    ObjectWaiter node(Self);
+    node.TState = ObjectWaiter::TS_WAIT ;
+    ...
+    //一系列判断操作，当线程确实加入WaitSet时，则使用park方法挂起
+    if (node._notified == 0) {
+        if (millis <= 0) {
+            Self->_ParkEvent->park () ;
+        } else {
+            ret = Self->_ParkEvent->park (millis) ;
+        }
+    }
+```
+
+
+
 **而当对象锁使用notify()时**
 
 如果waitSet为空，则直接返回
