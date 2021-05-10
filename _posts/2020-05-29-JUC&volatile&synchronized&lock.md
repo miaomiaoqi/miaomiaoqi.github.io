@@ -1082,7 +1082,7 @@ public void add(String str1,String str2){
 }
 ```
 
-我们都知道 StringBuffer 是线程安全的, 因为它的关键方法都是被 synchronized 修饰过的, 但我们看上面这段代码, 我们会发现, sb 这个引用只会在 add 方法中使用, 不可能被其它线程引用(因为是局部变量, 栈私有), 因此 sb 是不可能共享的资源, JVM 会自动消除 StringBuffer 对象内部的锁. 
+我们都知道 StringBuffer 是线程安全的, 因为它的关键方法都是被 synchronized 修饰过的, 但我们看上面这段代码, 我们会发现, sb 这个引用只会在 add 方法中使用, 不可能被其它线程引用(因为是局部变量, 栈私有), 因此 sb 是不可能共享的资源, JVM 会自动消除 StringBuffer 对象内部的锁, 开启锁消除需要在JVM参数上设置 `-server -XX:+DoEscapeAnalysis -XX:+EliminateLocks`
 
 
 
@@ -1447,6 +1447,23 @@ monitor 运行图如下:
 
 <img src="http://www.milky.show/images/java/synchronized/syn_5.png" alt="http://www.milky.show/images/java/synchronized/syn_5.png" style="zoom:67%;" />
 
+<img src="http://www.milky.show/images/java/synchronized/syn_21.png" alt="http://www.milky.show/images/java/synchronized/syn_21.png" style="zoom:67%;" />
+
+
+
+- 当多线程访问一段同步代码块时，这些都线程会被被封装成一个个ObjectWatier对象，并被放入 _EntryList列表中，也就是被放到 Entry Set（入口区） 中等待获取锁。
+- 如果该线程获取到了锁（acquire），线程就会成为当前锁的 Owner。
+- 获取到锁的线程可也以通过调用 wait 方法将锁释放（release），然后该线程对象会被放入_WaitSet列表中，进入Wait Set （等待区）进行等待（阻塞BLOCKED）。
+- 当获取到锁的对象调用notify/notifyAll方法唤醒等待区被阻塞的线程时，线程重新竞争锁。如果竞争锁成功，那么线程就进入RUNNABLE状态；如果竞争锁失败，这些线程会重新进入到Entry Set区再重新去竞争锁。
+
+wait方法的使用对应上图的第3步，也就是说，**调用`wait()`、`notify()`/`notifyAll()`方法的对象必须已经获取到锁**。
+
+如何确保调用对象获取到锁呢？使用sychronized关键字呗！**所以说这些方法调用也必须发生在sychronized修饰的同步代码块内**。
+
+
+
+
+
 线程执行完毕将释放持有的owner，owner变量恢复为null，count自减1，以便其他线程进入获取锁
 
 <img src="http://www.milky.show/images/java/synchronized/syn_20.png" alt="http://www.milky.show/images/java/synchronized/syn_20.png" style="zoom:67%;" />
@@ -1466,11 +1483,11 @@ synchronized是可重入，非公平锁，因为entryList的线程会先自旋�
 
 因为监视器锁(monitor)是依赖于底层的操作系统的`Mutex Lock`来实现的, 而操作系统实现线程之间的切换时需要从`用户态转换到核心态`(具体可看 CXUAN 写的 OS 哦), 这个状态之间的转换需要相对比较长的时间, 时间成本相对较高, 这也是早期的`synchronized`效率低的原因. 庆幸在 Java 6 之后 Java 官方对从 JVM 层面对`synchronized`较大优化最终提升显著, Java 6 之后, 为了减少获得锁和释放锁所带来的性能消耗, 引入了锁升级的概念. 
 
-### Object的wait和notify方法原理
+### Object 的 wait 和 notify方 法原理
 
-wait，notify必须是持有当前对象锁Monitor的线程才能调用 (对象锁代指ObjectMonitor/Monitor，锁对象代指Object)
+wait，notify 必须是持有当前对象锁 Monitor 的线程才能调用 (对象锁代指 ObjectMonitor/Monitor，锁对象代指 Object)
 
-上面有说到，当在sychronized中锁对象Object调用wait时会加入waitSet队列，WaitSet的元素对象就是ObjectWaiter
+上面有说到，当在 sychronized 中锁对象 Object 调用 wait 时会加入 waitSet 队列，WaitSet 的元素对象就是 ObjectWaiter
 
 ```c++
 class ObjectWaiter : public StackObj {
@@ -1492,7 +1509,7 @@ class ObjectWaiter : public StackObj {
 };
 ```
 
-**调用对象锁的wait()方法时，线程会被封装成ObjectWaiter，最后使用park方法挂起**
+**调用对象锁的 wait() 方法时，线程会被封装成 ObjectWaiter，最后使用 park 方法挂起**
 
 ```c++
 //objectMonitor.cpp
@@ -1514,11 +1531,11 @@ void ObjectMonitor::wait(jlong millis, bool interruptible, TRAPS){
 
 
 
-**而当对象锁使用notify()时**
+**而当对象锁使用 notify() 时**
 
-如果waitSet为空，则直接返回
+如果 waitSet 为空，则直接返回
 
-waitSet不为空从waitSet获取一个ObjectWaiter，然后根据不同的Policy加入到EntryList或通过`Atomic::cmpxchg_ptr`指令自旋操作加入**cxq队列**或者直接unpark唤醒
+waitSet 不为空从 waitSet 获取一个 ObjectWaiter，然后根据不同的 Policy 加入到 EntryList 或通过`Atomic::cmpxchg_ptr`指令自旋操作加入**cxq 队列**或者直接unpark唤醒
 
 ```c++
 void ObjectMonitor::notify(TRAPS){
@@ -1552,7 +1569,178 @@ void ObjectMonitor::notify(TRAPS){
      }
 ```
 
-Object的notifyAll方法则对应`voidObjectMonitor::notifyAll(TRAPS)`，流程和notify类似。不过会通过for循环取出WaitSet的ObjectWaiter节点，再依次唤醒所有线程
+Object 的 notifyAll 方法则对应`voidObjectMonitor::notifyAll(TRAPS)`，流程和notify类似。不过会通过 for 循环取出 WaitSet 的 ObjectWaiter 节点，再依次唤醒所有线程
+
+
+
+### 等待/通知机制
+
+**什么是等待/通知机制**
+
+等待/通知机制是多个线程间的一种**协作**机制。谈到线程我们经常想到的是线程间的**竞争（race）**，比如去竞争锁。但这并不是故事的全部，线程间也有协作机制。就好比我们在公司中与同事关系，可能存在在晋升时的竞争，但更多时候是一起合作以完成某些任务。
+
+**wait/notify** 就是线程间的一种协作机制。
+
+当一个线程调用wait()/wait(long)方法后，进入WAITING状态或者TIMED_WAITING状态（阻塞），并释放锁与CPU资源。只有其他获取到锁的线程执行完他们的指定代码过后，再通过notify()方法将其唤醒。 如果需要，也可以使用`notifyAll()`来唤醒所有的阻塞线程。
+
+**等待/通知使用方法**
+
+等待/通知机制就是用于解决线程间通信的问题的，使用到的3个方法的含义如下：
+
+1. **wait**：线程不再活动，不再参与调度，**释放**它对锁的拥有权。它还要等着别的线程执行一个**特别的动作**，也即是“**通知（notify）**”在这个对象上等待的线程从WAITING状态中释放出来，重新进入到调度队列（ready queue）中。
+2. **notify**：唤醒一个等待当前对象的锁的线程。唤醒在此对象监视器上等待的单个线程。
+3. **notifyAll**：唤醒在此对象监视器上等待的所有线程。
+
+注意：
+
+哪怕只通知了一个等待的线程，被通知线程也不能立即恢复执行，因为它当初中断的地方是在同步块内，而此刻它已经不持有锁，所以它需要**再次尝试去获取锁**（很可能面临其它线程的竞争），成功后才能在当初调用 wait 方法之后的地方恢复执行。
+
+总结如下：
+
+- 如果能获取锁，线程就从 WAITING/TIMED_WAITING 状态转换为RUNNABLE 状态；
+- 否则，从 Wait Set 区出来，又进入 Entry Set区，线程就从 WAITING 状态又变成 BLOCKED 状态。
+
+
+
+**调用wait和notify方法需要注意的细节**
+
+wait方法与notify方法**必须要由同一个锁对象调用**。因为对应的锁对象可以通过notify唤醒使用同一个锁对象调用的wait方法后的线程。
+
+wait方法与notify方法是属于Object类的方法的。因为锁对象可以是任意对象，而任意对象的所属类都是继承了Object类的。
+
+wait方法与notify方法**必须要在同步代码块或者是同步函数中使用**。因为必须要通过锁对象调用这2个方法。
+
+
+
+
+
+
+
+
+
+### LockSupport 了解一下
+
+LockSupport是基于Unsafe类，由JDK提供的线程操作工具类，主要作用就是**挂起线程，唤醒线程**。Unsafe.park，unpark操作时，会调用当前线程的变量parker代理执行。Parker代码
+
+```c++
+JavaThread* thread=JavaThread::thread_from_jni_environment(env);
+...
+thread->parker()->park(isAbsolute != 0, time);
+```
+
+```c++
+class PlatformParker : public CHeapObj {
+  protected:
+    //互斥变量类型
+    pthread_mutex_t _mutex [1] ; 
+   //条件变量类型
+    pthread_cond_t  _cond  [1] ;
+    ...
+}
+
+class Parker : public os::PlatformParker {  
+private:  
+  volatile int _counter ;  
+  ...  
+public:  
+  void park(bool isAbsolute, jlong time);  
+  void unpark();  
+  ...  
+}
+```
+
+在Linux系统下，用的POSIX线程库pthread中的mutex(互斥量)，condition来实现线程的挂起、唤醒
+
+注意点：当park时，counter变量被设置为0，当unpark时，这个变量被设置为1
+
+unpark和park执行顺序不同时，counter和cond的状态变化如下
+
+- 先park后unpark; park：counter值不变，但会设置一个cond; unpark：counter先加1，检查cond存在，counter减为0
+- 先unpark后park；park：counter变为1，但不设置cond；unpark：counter减为0(线程不会因为park挂起)
+- 先多次unpark；counter也只设置为为1
+
+
+
+### LockSupport.park 和 Object.wait 区别
+
+两种方式都有具有挂起的线程的能力
+
+线程在Object.wait之后必须等到Object.notify才能唤醒
+
+LockSupport可以先unpark线程，等线程执行LockSupport.park是不会挂起的，可以继续执行
+
+需要注意的是就算线程多次unpark；也只能让线程第一次park是不会挂起
+
+
+
+**park与unpark**
+
+LockSupport类是Java6(JSR166-JUC)引入的一个类，用来**创建锁和其他同步工具类的基本线程阻塞原语**。使用LockSupport类中的park()和unpark()方法也可以实现线程的阻塞与唤醒。Park有停车的意思，假设线程为车辆，那么park方法代表着停车，而unpark方法则是指车辆启动离开。
+
+与 wait/notify 相比，park/unpark 方法更贴近操作系统层面的阻塞与唤醒线程，**并不需要获取对象的监视器**。
+
+park/unpark 原理可参考[LockSupport中的park与unpark原理](https://blog.csdn.net/weixin_39687783/article/details/85058686)一文。
+
+需要明白的是，每个java线程都有一个Parker对象，主要三部分组成 _counter、 _cond和 _mutex。Parker类是这样定义的：
+
+```c++
+class Parker : public os::PlatformParker {
+private:
+  //表示许可
+  volatile int _counter ;
+  ...
+public:
+  Parker() : PlatformParker() { //初始化_counter _counter = 0 ; 
+...
+public:
+  void park(bool isAbsolute, jlong time);
+  void unpark();
+  ...
+}
+class PlatformParker : public CHeapObj {
+  protected: pthread_mutex_t _mutex [1] ; pthread_cond_t  _cond  [1] ; ...
+}
+```
+
+Parker类里的_counter字段，就是用来记录所谓的“**许可**”的。**当调用park时，这个变量置为了0；当调用unpark时，这个变量置为1**。
+
+park和unpark的灵活之处在于，**unpark函数可以先于park调用**。比如线程B调用unpark函数，给线程A发了一个“许可”，那么当线程A调用park时，它发现已经有“许可”了，那么它会马上再继续运行。
+
+
+
+**先调用park再调用upark时**：
+
+1.先调用park
+
+（1）当前线程调用 Unsafe.park() 方法，检查_counter情况（为0），获得 _mutex 互斥锁。
+
+（2）mutex对象有个等待队列 _cond，线程进入等待队列中阻塞。
+
+（4）设置 _counter = 0。
+
+2.再调用upark
+
+（1）调用 Unsafe.unpark方法，设置 _counter 为 1
+
+（2）唤醒 _cond 条件变量中的 阻塞线程，线程恢复运行。
+
+（3）设置 _counter 为 0
+
+**先调用upark再调用park时**：
+
+（1）调用 Unsafe.unpark方法，设置 _counter 为 1。
+
+（2）当前线程调用 Unsafe.park() 方法。
+
+（3）检查 _counter ，本情况为 1，这时线程无需阻塞，继续运行。
+
+（4）设置 _counter 为 0。
+
+特别注意的是，**LockSupport是不可重入**的，如果一个线程连续2次调用LockSupport.park()，那么该线程一定会一直阻塞下去。
+
+
+
+
 
 
 
@@ -1855,9 +2043,9 @@ private Node enq(final Node node) {
 把线程要包装为Node对象的主要原因，除了用Node构造供虚拟队列外，还用Node包装了各种线程状态，这些状态被精心设计为一些数字值：
 
 - SIGNAL(-1) ：线程的后继线程正/已被阻塞，当该线程release或cancel时要重新这个后继线程(unpark)
-- CANCELLED(1)：因为超时或中断，该线程已经被取消
-- CONDITION(-2)：表明该线程被处于条件队列，就是因为调用了Condition.await而被阻塞
-- PROPAGATE(-3)：传播共享锁
+- CANCELLED(1)：当线程等待超时或者被中断，则取消等待，设等待状态为-1，进入取消状态则不再变化
+- CONDITION(-2)：当前节点处于等待队列，节点线程等待在Condition上，当其他线程对condition执行signall方法时，等待队列转移到同步队列，加入到对同步状态的获取
+- PROPAGATE(-3)：与共享模式相关，在共享模式中，该状态标识结点的线程处于可运行状态
 - 0：0代表无状态
 
 
@@ -2335,6 +2523,119 @@ synchronized的底层也是一个基于CAS操作的等待队列，但JVM实现�
 当然Lock比synchronized更适合在应用层扩展，可以继承AbstractQueuedSynchronizer定义各种实现，比如实现读写锁（ReadWriteLock），公平或不公平锁；同时，Lock对应的Condition也比wait/notify要方便的多、灵活的多。
 
 
+
+
+
+
+
+
+
+## AbstractQueuedSynchronizer(AQS)
+
+AQS其实就是基于volatile+cas实现的锁模板；如果需要线程阻塞等待，唤醒机制，则使用LockSupport挂起、唤醒线程
+
+```java
+//AbstractQueuedSynchronizer.java
+public class AbstractQueuedSynchronizer{
+    //线程节点
+    static final class Node {
+        ...
+        volatile Node prev;
+        volatile Node next;
+        volatile Thread thread;
+        ...
+    }    
+    ....
+    //head 等待队列头尾节点
+    private transient volatile Node head;
+    private transient volatile Node tail;
+    // The synchronization state. 同步状态
+    private volatile int state;  
+    ...
+    //提供CAS操作，状态具体的修改由子类实现
+    protected final boolean compareAndSetState(int expect, int update) {
+        return STATE.compareAndSet(this, expect, update);
+    }
+}
+```
+
+AQS内部维护一个同步队列，元素就是包装了线程的Node
+
+同步队列中首节点是获取到锁的节点，它在释放锁的时会唤醒后继节点，后继节点获取到锁的时候，会把自己设为首节点
+
+![http://www.milky.show/images/java/aqs/aqs_1.png](http://www.milky.show/images/java/aqs/aqs_1.png)
+
+```java
+public final void acquire(int arg) {
+    if (!tryAcquire(arg) &&
+            acquireQueued(addWaiter(Node.EXCLUSIVE), arg))
+        selfInterrupt();
+}
+```
+
+线程会先尝试获取锁，失败则封装成Node，CAS加入同步队列的尾部。在加入同步队列的尾部时，会判断前驱节点是否是head结点，并尝试加锁(可能前驱节点刚好释放锁)，否则线程进入阻塞等待
+
+**在AQS还存一个ConditionObject的内部类，它的使用机制和Object.wait、notify类似**
+
+```java
+// AbstractQueuedSynchronizer.java
+public class ConditionObject implements Condition, java.io.Serializable {
+    // 条件队列;Node 复用了AQS中定义的Node
+    private transient Node firstWaiter;
+    private transient Node lastWaiter;
+    ...
+```
+
+- 每个Condition对象内部包含一个Node元素的FIFO条件队列
+- 当一个线程调用Condition.await()方法，那么该线程将会释放锁、构造Node加入条件队列并进入等待状态
+
+```java
+//类似Object.wait
+public final void await() throws InterruptedException{
+    ...
+    Node node = addConditionWaiter(); //构造Node,加入条件队列
+    int savedState = fullyRelease(node);
+    int interruptMode = 0;
+    while (!isOnSyncQueue(node)) {
+        //挂起线程
+        LockSupport.park(this);
+        if ((interruptMode = checkInterruptWhileWaiting(node)) != 0)
+            break;
+    }
+    //notify唤醒线程后，加入同步队列继续竞争锁
+    if (acquireQueued(node, savedState) && interruptMode != THROW_IE)
+        interruptMode = REINTERRUPT;
+```
+
+![http://www.milky.show/images/java/aqs/aqs_2.png](http://www.milky.show/images/java/aqs/aqs_2.png)
+
+调用Condition.signal时，获取条件队列的首节点，将其移动到同步队列并且利用LockSupport唤醒节点中的线程。随后继续执行wait挂起前的状态，调用acquireQueued(node, savedState)竞争同步状态
+
+```java
+//类似Object.notify
+private void doSignal(Node first) {
+    do {
+        if ( (firstWaiter = first.nextWaiter) == null)
+            lastWaiter = null;
+        first.nextWaiter = null;
+    } while (!transferForSignal(first) &&
+            (first = firstWaiter) != null);
+}
+```
+
+![http://www.milky.show/images/java/aqs/aqs_3.png](http://www.milky.show/images/java/aqs/aqs_3.png)
+
+**volatile+cas机制保证了代码的同步性和可见性，而AQS封装了线程阻塞等待挂起，解锁唤醒其他线程的逻辑**。AQS子类只需根据状态变量，判断是否可获取锁，是否释放锁成功即可
+
+继承AQS需要选性重写以下几个接口
+
+```java
+protected boolean tryAcquire(int arg);//尝试独占性加锁
+protected boolean tryRelease(int arg);//对应tryAcquire释放锁
+protected int tryAcquireShared(int arg);//尝试共享性加锁
+protected boolean tryReleaseShared(int arg);//对应tryAcquireShared释放锁
+protected boolean isHeldExclusively();//该线程是否正在独占资源，只有用到condition才需要取实现它
+```
 
 
 
