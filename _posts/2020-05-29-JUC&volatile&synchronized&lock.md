@@ -1296,9 +1296,9 @@ public class Thread1 implements Runnable {
 
 1. 填充数据: 由于虚拟机要求对象起始地址必须是8字节的整数倍. 填充数据不是必须存在的, 仅仅是为了`字节对齐`. 
 
-    - 由于虚拟机要求对象起始地址必须是8字节的整数倍, 填充数据不是必须存在的, 仅仅是为了字节对齐. 
+    由于虚拟机要求对象起始地址必须是8字节的整数倍, 填充数据不是必须存在的, 仅仅是为了字节对齐. 
 
-        Tip: 不知道大家有没有被问过一个空对象占多少个字节? 就是8个字节, 是因为对齐填充的关系哈, 不到8个字节对其填充会帮我们自动补齐. 
+    Tip: 不知道大家有没有被问过一个空对象占多少个字节? 就是8个字节, 是因为对齐填充的关系哈, 不到8个字节对其填充会帮我们自动补齐. 
 
 2. 实例变量: 存放类的`属性数据`信息, 包括`父类`的属性信息, 这部分内存按4字节对齐. 
 
@@ -1427,7 +1427,7 @@ monitor 监视器源码是 C++ 写的, 在虚拟机的 ObjectMonitor.hpp 文件�
 
 大家说熟悉的锁升级过程, 其实就是在源码里面, 调用了不同的实现去获取获取锁, 失败就调用更高级的实现, 最后升级完成. 
 
-每个对象都与一个`monitor`相关联, 而`monitor`可以被线程拥有或释放, 在Java虚拟机(HotSpot)中, `monitor`是由`ObjectMonitor`实现的, 其主要数据结构如下(位于HotSpot虚拟机源码ObjectMonitor.hpp文件, C++实现的). 
+每个对象都与一个`monitor`相关联, 而`monitor`可以被线程拥有或释放, 在 Java 虚拟机(HotSpot)中, `monitor`是由`ObjectMonitor`实现的, 其主要数据结构如下(位于HotSpot虚拟机源码ObjectMonitor.hpp文件, C++实现的). 
 
 ```java
 ObjectMonitor() {
@@ -1443,9 +1443,19 @@ monitor 运行图如下:
 
 <img src="http://www.milky.show/images/java/synchronized/syn_16.png" alt="http://www.milky.show/images/java/synchronized/syn_16.png" style="zoom:67%;" />
 
-该图可以看出, 任意线程对 object 的访问, 首先要获得 object 的监视器, 如果获取失败, 该线程就进入同步队列, 线程状态变为 blocked , 当 object 的监视器占有者释放后, 在同步队列中的线程就会有机会重新获取该监视器. 
+该图可以看出, 线程遇到synchronized同步时，先会进入EntryList队列中，然后尝试把owner变量设置为当前线程，同时monitor中的计数器count加1，即获得对象锁。否则通过尝试自旋一定次数加锁，失败则进入Cxq队列阻塞等待, 当 object 的监视器占有者释放后, 在同步队列中的线程就会有机会重新获取该监视器. 
 
 <img src="http://www.milky.show/images/java/synchronized/syn_5.png" alt="http://www.milky.show/images/java/synchronized/syn_5.png" style="zoom:67%;" />
+
+线程执行完毕将释放持有的owner，owner变量恢复为null，count自减1，以便其他线程进入获取锁
+
+<img src="http://www.milky.show/images/java/synchronized/syn_20.png" alt="http://www.milky.show/images/java/synchronized/syn_20.png" style="zoom:67%;" />
+
+synchronized修饰方法原理也是类似的。只不过没用monitor指令，而是使用ACC_SYNCHRONIZED标识方法的同步
+
+synchronized是可重入，非公平锁，因为entryList的线程会先自旋尝试加锁，而不是加入cxq排队等待，不公平
+
+
 
 对于一个 synchronized 修饰的方法(代码块)来说: 
 
@@ -1455,6 +1465,96 @@ monitor 运行图如下:
 4. 如果当前线程执行完毕, 那么也释放`monitor`对象, `ObjectMonitor`对象的`_owner`变为null, `_count`减1. 
 
 因为监视器锁(monitor)是依赖于底层的操作系统的`Mutex Lock`来实现的, 而操作系统实现线程之间的切换时需要从`用户态转换到核心态`(具体可看 CXUAN 写的 OS 哦), 这个状态之间的转换需要相对比较长的时间, 时间成本相对较高, 这也是早期的`synchronized`效率低的原因. 庆幸在 Java 6 之后 Java 官方对从 JVM 层面对`synchronized`较大优化最终提升显著, Java 6 之后, 为了减少获得锁和释放锁所带来的性能消耗, 引入了锁升级的概念. 
+
+
+
+### Object的wait和notify方法原理
+
+wait，notify必须是持有当前对象锁Monitor的线程才能调用 (对象锁代指ObjectMonitor/Monitor，锁对象代指Object)
+
+上面有说到，当在sychronized中锁对象Object调用wait时会加入waitSet队列，WaitSet的元素对象就是ObjectWaiter
+
+```c++
+class ObjectWaiter : public StackObj {
+ public:
+  enum TStates { TS_UNDEF, TS_READY, TS_RUN, TS_WAIT, TS_ENTER, TS_CXQ } ;
+  enum Sorted  { PREPEND, APPEND, SORTED } ;
+  ObjectWaiter * volatile _next;
+  ObjectWaiter * volatile _prev;
+  Thread*       _thread;
+  ParkEvent *   _event;
+  volatile int  _notified ;
+  volatile TStates TState ;
+  Sorted        _Sorted ;           // List placement disposition
+  bool          _active ;           // Contention monitoring is enabled
+ public:
+  ObjectWaiter(Thread* thread);
+  void wait_reenter_begin(ObjectMonitor *mon);
+  void wait_reenter_end(ObjectMonitor *mon);
+};
+```
+
+**调用对象锁的wait()方法时，线程会被封装成ObjectWaiter，最后使用park方法挂起**
+
+```c++
+//objectMonitor.cpp
+void ObjectMonitor::wait(jlong millis, bool interruptible, TRAPS){
+    ...
+    //线程封装成 ObjectWaiter对象
+    ObjectWaiter node(Self);
+    node.TState = ObjectWaiter::TS_WAIT ;
+    ...
+    //一系列判断操作，当线程确实加入WaitSet时，则使用park方法挂起
+    if (node._notified == 0) {
+        if (millis <= 0) {
+            Self->_ParkEvent->park () ;
+        } else {
+            ret = Self->_ParkEvent->park (millis) ;
+        }
+    }
+```
+
+**而当对象锁使用notify()时**
+
+如果waitSet为空，则直接返回
+
+waitSet不为空从waitSet获取一个ObjectWaiter，然后根据不同的Policy加入到EntryList或通过`Atomic::cmpxchg_ptr`指令自旋操作加入**cxq队列**或者直接unpark唤醒
+
+```c++
+void ObjectMonitor::notify(TRAPS){
+    CHECK_OWNER();
+    //waitSet为空，则直接返回
+    if (_WaitSet == NULL) {
+        TEVENT (Empty-Notify) ;
+        return ;
+    }
+    ...
+    //通过DequeueWaiter获取_WaitSet列表中的第一个ObjectWaiter
+    Thread::SpinAcquire (&_WaitSetLock, "WaitSet - notify") ;
+    ObjectWaiter * iterator = DequeueWaiter() ;
+    if (iterator != NULL) {
+    ....
+    if (Policy == 2) {      // prepend to cxq
+         // prepend to cxq
+         if (List == NULL) {
+             iterator->_next = iterator->_prev = NULL ;
+             _EntryList = iterator ;
+         } else {
+            iterator->TState = ObjectWaiter::TS_CXQ ;
+            for (;;) {
+                ObjectWaiter * Front = _cxq ;
+                iterator->_next = Front ;
+                if (Atomic::cmpxchg_ptr (iterator, &_cxq, Front) == Front) {
+                    break ;
+                }
+            }
+         }
+     }
+```
+
+Object的notifyAll方法则对应`voidObjectMonitor::notifyAll(TRAPS)`，流程和notify类似。不过会通过for循环取出WaitSet的ObjectWaiter节点，再依次唤醒所有线程
+
+
 
 
 
