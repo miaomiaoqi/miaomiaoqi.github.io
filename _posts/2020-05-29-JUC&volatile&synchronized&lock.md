@@ -1443,6 +1443,31 @@ monitor 运行图如下:
 
 <img src="http://www.milky.show/images/java/synchronized/syn_16.png" alt="http://www.milky.show/images/java/synchronized/syn_16.png" style="zoom:67%;" />
 
+该图可以看出, 线程遇到synchronized同步时，先会进入EntryList队列中，然后尝试把owner变量设置为当前线程，同时monitor中的计数器count加1，即获得对象锁。否则通过尝试自旋一定次数加锁，失败则进入Cxq队列阻塞等待, 当 object 的监视器占有者释放后, 在同步队列中的线程就会有机会重新获取该监视器. 
+
+<img src="http://www.milky.show/images/java/synchronized/syn_5.png" alt="http://www.milky.show/images/java/synchronized/syn_5.png" style="zoom:67%;" />
+
+线程执行完毕将释放持有的owner，owner变量恢复为null，count自减1，以便其他线程进入获取锁
+
+<img src="http://www.milky.show/images/java/synchronized/syn_20.png" alt="http://www.milky.show/images/java/synchronized/syn_20.png" style="zoom:67%;" />
+
+synchronized修饰方法原理也是类似的。只不过没用monitor指令，而是使用ACC_SYNCHRONIZED标识方法的同步
+
+synchronized是可重入，非公平锁，因为entryList的线程会先自旋尝试加锁，而不是加入cxq排队等待，不公平
+
+
+
+对于一个 synchronized 修饰的方法(代码块)来说: 
+
+1. 当多个线程同时访问该方法, 那么这些线程会先被放进`_EntryLis`t队列, 此时线程处于`blocked`状态
+2. 当一个线程获取到了对象的`monitor`后, 那么就可以进入`running`状态, 执行方法块, 此时, `ObjectMonitor`对象的`_owner`指向当前线程, `_count`加1表示当前对象锁被一个线程获取. 
+3. 当`running`状态的线程调用`wait()`方法, 那么当前线程释放`monitor`对象, 进入`waiting`状态, `ObjectMonitor`对象的`_owner变为`null, `_count`减1, 同时线程进入`_WaitSet`队列, 直到有线程调用`notify()`方法唤醒该线程, 则该线程进入`_EntryList`队列, 竞争到锁再进入`_owner`区. 
+4. 如果当前线程执行完毕, 那么也释放`monitor`对象, `ObjectMonitor`对象的`_owner`变为null, `_count`减1. 
+
+因为监视器锁(monitor)是依赖于底层的操作系统的`Mutex Lock`来实现的, 而操作系统实现线程之间的切换时需要从`用户态转换到核心态`(具体可看 CXUAN 写的 OS 哦), 这个状态之间的转换需要相对比较长的时间, 时间成本相对较高, 这也是早期的`synchronized`效率低的原因. 庆幸在 Java 6 之后 Java 官方对从 JVM 层面对`synchronized`较大优化最终提升显著, Java 6 之后, 为了减少获得锁和释放锁所带来的性能消耗, 引入了锁升级的概念. 
+
+
+
 
 
 
