@@ -250,6 +250,58 @@ int b = a;
 
 
 
+## AQS(AbstractQueuedSynchronizer, 并发灵魂人物, 进阶必备)
+
+**学习 AQS 的思路**
+
+学习 AQS 的目的主要是想理解原理, 提高技术, 以及应对面试
+
+先从应用层面理解为什么需要他如何使用它, 然后再看一看我们 Java 代码的设计者是如何使用它的了解它的应用场景
+
+这样之后我们再去分析它的结构, 这样的话我们就学习得更加轻松了
+
+**为什么需要 AQS**
+
+锁和协作类有共同点: 闸门
+
+*   我们已经学过了 ReentrantLock 和 Semaphore, 有没有发现有共同点? 很相似?
+*   事实上, 不仅是 ReentrantLock 和 Semaphore, 包括 CountDownLatch, ReentrantReadWriteLock 都有这样类似的"协作"(或者叫"同步")功能, 其实它们底层都用了一个共同的基类, 这就是 AQS
+
+因为上面的那些协作类, 它们有很多工作都是类似的, 所以如果能提取出一个工具类, 那么就可以直接使用, 对于 ReentrantLock 和 Semaphore 而言就可以屏蔽很多细节, 只关注它们自己的"业务逻辑"就可以了
+
+**Semaphore 和 AQS 的关系**
+
+Semaphore 内部有一个 Sync 类, Sync 类继承了 AQS
+
+CountDownLatch 与 ReentrantLock 也一样
+
+**AQS 的作用**
+
+AQS 是一个用于构建锁, 同步器, 协作工具类的工具类(框架). 有了 AQS 以后, 更多的协作工具类都可以很方便得被写出来
+
+一句话总结: 有了 AQS, 构建线程协作类就容易多了
+
+**AQS 的重要性, 地位**
+
+AbstractQueuedSynchronizer 是 DougLea 写的, 从 JDK1.5 加入的一个基于 FIFO 等待队列实现的一个用于实现同步器的基础框架, 我们用 IDE 看 AQS 的实现类, 可以发现实现类有以下这些
+
+**AQS 内部原理解析**
+
+AQS 最核心的就是三大部分
+
+*   state
+    *   这里的 state 的具体含义, 会根据具体实现类的不同而不同, 比如在 Semaphore 里, 它表示"剩余的许可证的数量", 而在 CountDownLatch 里, 它表示"还需要倒数的数量"
+    *   state 是 volatile 修饰的, 会被并发地修改, 所以所有修改 state 的方法都需要保证线程安全, 比如 getState, setState 以及 compareAndSetState 操作来读取和更新这个状态. 这些方法都依赖于 j.u.c.atomic 包的支持
+*   控制线程抢锁和配合的 FIFO 队列
+    *   这个队列用来存放"等待的线程", AQS 就是"排队管理器", 当多个线程争用同一把锁时, 必须有排队机制将那些没能拿到锁的线程串在一起. 当锁释放时, 锁管理器就会挑选一个合适的线程来占有这个刚刚释放的锁
+    *   AQS 会维护一个等待的线程队列, 把线程都放到这个队列里
+*   期望协作工具类去实现的获取/释放等重要方法
+    *   这里的获取和释放方法, 是利用 AQS 的协作工具类里最重要的方法, 是由协作类自己去实现的, 并且含义各不相同
+    *   获取操作会依赖 state 变量, 经常会阻塞
+    *   释放操作不会阻塞
+
+
+
 
 
 ## Java 内存模型(JMM)
@@ -3128,58 +3180,6 @@ CyclicBarrier 循环栅栏和 CountDownLatch 很类似, 都能阻塞一组线程
 作用不同: CyclicBarrier 要等固定数量的线程都到达了栅栏位置才能继续执行, 而 CountDownLatch 只需等待数字到 0, 也就是说, CountDownLatch 用于事件, 但是 CyclicBarrier 是用于线程的
 
 可重用性不同: CountDownLatch 在倒数到 0 并触发门闩打开后, 就不能再次使用了, 除非新建新的示例; 而 CyclicBarrier 可以重复使用
-
-
-
-## AQS(AbstractQueuedSynchronizer, 并发灵魂人物, 进阶必备)
-
-**学习 AQS 的思路**
-
-学习 AQS 的目的主要是想理解原理, 提高技术, 以及应对面试
-
-先从应用层面理解为什么需要他如何使用它, 然后再看一看我们 Java 代码的设计者是如何使用它的了解它的应用场景
-
-这样之后我们再去分析它的结构, 这样的话我们就学习得更加轻松了
-
-**为什么需要 AQS**
-
-锁和协作类有共同点: 闸门
-
-*   我们已经学过了 ReentrantLock 和 Semaphore, 有没有发现有共同点? 很相似?
-*   事实上, 不仅是 ReentrantLock 和 Semaphore, 包括 CountDownLatch, ReentrantReadWriteLock 都有这样类似的"协作"(或者叫"同步")功能, 其实它们底层都用了一个共同的基类, 这就是 AQS
-
-因为上面的那些协作类, 它们有很多工作都是类似的, 所以如果能提取出一个工具类, 那么就可以直接使用, 对于 ReentrantLock 和 Semaphore 而言就可以屏蔽很多细节, 只关注它们自己的"业务逻辑"就可以了
-
-**Semaphore 和 AQS 的关系**
-
-Semaphore 内部有一个 Sync 类, Sync 类继承了 AQS
-
-CountDownLatch 与 ReentrantLock 也一样
-
-**AQS 的作用**
-
-AQS 是一个用于构建锁, 同步器, 协作工具类的工具类(框架). 有了 AQS 以后, 更多的协作工具类都可以很方便得被写出来
-
-一句话总结: 有了 AQS, 构建线程协作类就容易多了
-
-**AQS 的重要性, 地位**
-
-AbstractQueuedSynchronizer 是 DougLea 写的, 从 JDK1.5 加入的一个基于 FIFO 等待队列实现的一个用于实现同步器的基础框架, 我们用 IDE 看 AQS 的实现类, 可以发现实现类有以下这些
-
-**AQS 内部原理解析**
-
-AQS 最核心的就是三大部分
-
-*   state
-    *   这里的 state 的具体含义, 会根据具体实现类的不同而不同, 比如在 Semaphore 里, 它表示"剩余的许可证的数量", 而在 CountDownLatch 里, 它表示"还需要倒数的数量"
-    *   state 是 volatile 修饰的, 会被并发地修改, 所以所有修改 state 的方法都需要保证线程安全, 比如 getState, setState 以及 compareAndSetState 操作来读取和更新这个状态. 这些方法都依赖于 j.u.c.atomic 包的支持
-*   控制线程抢锁和配合的 FIFO 队列
-    *   这个队列用来存放"等待的线程", AQS 就是"排队管理器", 当多个线程争用同一把锁时, 必须有排队机制将那些没能拿到锁的线程串在一起. 当锁释放时, 锁管理器就会挑选一个合适的线程来占有这个刚刚释放的锁
-    *   AQS 会维护一个等待的线程队列, 把线程都放到这个队列里
-*   期望协作工具类去实现的获取/释放等重要方法
-    *   这里的获取和释放方法, 是利用 AQS 的协作工具类里最重要的方法, 是由协作类自己去实现的, 并且含义各不相同
-    *   获取操作会依赖 state 变量, 经常会阻塞
-    *   释放操作不会阻塞
 
 
 
