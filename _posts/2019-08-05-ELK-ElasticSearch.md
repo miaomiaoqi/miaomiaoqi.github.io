@@ -3133,7 +3133,7 @@ GET /lib4/items/_search
 }
 ```
 
-#### cardinality:求基数(互不相同的值的个数, 比如"男","女"就是 2)
+#### cardinality: 求基数(互不相同的值的个数, 比如"男","女"就是 2)
 
 ```json
 GET /lib4/items/_search
@@ -3290,7 +3290,7 @@ GET /lib3/user/_search
 
 bool 查询本身也可以被用做不评分的查询. 简单地将它放置到 filter 语句中并在内部构建布尔逻辑:
 
-```http
+```json
 {
   "bool": {
     "must": {
