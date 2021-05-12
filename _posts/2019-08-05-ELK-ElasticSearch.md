@@ -592,7 +592,7 @@ PUT /lib2
 
 **允许新增字段类型**
 
-**当 ES 在文档中碰到一个以前没见过的字段时, 它会利用动态映射来决定该字段的类型, 并自动地对该字段添加映射. **
+**当 ES 在文档中碰到一个以前没见过的字段时, 它会利用动态映射来决定该字段的类型, 并自动地对该字段添加映射.**
 
 **可以通过 dynamic 设置来控制这一行为, 它能够接受以下的选项:**
 
@@ -681,7 +681,7 @@ GET /myindex/doc/_search
 
 ### 支持的属性
 
-#### copy_to解析
+#### copy_to 解析
 
 ```json
 DELETE /myindex
@@ -724,7 +724,7 @@ GET /myindex/article/_search?q=content:html
 GET /myindex/article/_search?q=html,document
 ```
 
-**copy_to 字段是把其它字段中的值, 以空格为分隔符组成一个大字符串, 然后被分析和索引, 但是不存储, 也就是说它能被查询, 但不能被取回显示, 可以提高性能. **
+**copy_to 字段是把其它字段中的值, 以空格为分隔符组成一个大字符串, 然后被分析和索引, 但是不存储, 也就是说它能被查询, 但不能被取回显示, 可以提高性能.**
 
 **注意: copy_to 指向的字段字段类型要为: text**
 
@@ -1135,11 +1135,12 @@ PUT /my_index
   "mappings": {
     "doc": {
       "dynamic_templates": [ # 动态模板数组, 可以指定多个匹配规则, 先匹配到的先生效
-				{
-					"strings": { # template的名称, 随意指定
-						"match_mapping_type": "string", # 匹配规则
-						"mapping": { # 设置 mapping 信息
-							"type": "keyword"
+        {
+          "strings": { # template的名称, 随意指定
+          "match_mapping_type": "string", # 匹配规则
+          "mapping": {
+            # 设置 mapping 信息
+            "type": "keyword"
 						}
 					}
         }
@@ -1817,7 +1818,7 @@ GET /my_index/_search?q=alfred&df=user&sort=age:asc&from=4&size=10&timeout=1s
 
   以 term 为单位进行差异比较, 比如 "quick fox" "quick brown fox" 都会被匹配
 
-```apl
+```http
 DELETE test_search_index
 
 PUT test_search_index
