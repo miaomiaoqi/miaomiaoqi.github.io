@@ -137,7 +137,7 @@ ElasticSearch 的版本号的取值范围为 1 到 2^63-1.
 
 内部版本控制:使用的是 `_version`
 
-```json
+```
 PUT /lib/user/4?version=3
 {
 	"first_name": "xixi"
@@ -291,7 +291,7 @@ es 提供了一个测试分词的 api 接口, 方便验证分词效果, endpoint
 
 **可以直接指定 analyzer 进行测试**
 
-```json
+```
 POST _analyze
 {
   "analyzer": "standard",
@@ -319,7 +319,7 @@ POST _analyze
 
 **可以直接指定索引中的字段进行测试**
 
-```json
+```
 POST test_index/_analyze
 {
   "field": "username", # 测试字段
@@ -329,7 +329,7 @@ POST test_index/_analyze
 
 **可以自定义分词器进行测试**
 
-```json
+```
 POST _analyze
 {
   "tokenizer": "standard",
@@ -406,7 +406,7 @@ python 中最流行的分词系统, 支持分词和词性标注
 * NGram 和 Edge NGram 连词分割
 * Synonym 添加近义词的 term
 
-```json
+```
 POST _analyze
 {
   "test": "a Hello,World!",
@@ -424,7 +424,7 @@ POST _analyze
 
 **自定义分词 Api**
 
-```json
+```
 PUT /test_index
 {
   "settings": {
@@ -458,7 +458,7 @@ mapping 类似数据库中的表定义
 * 定义字段类型, 比如数值型, 字符串型, 布尔型等
 * 定义倒排索引相关的配置, 比如是否索引, 记录 position 等
 
-```json
+```
 PUT /myindex/article/1 
 {
   "post_date": "2018-05-10",
@@ -468,7 +468,7 @@ PUT /myindex/article/1
 }
 ```
 
-```json
+```
 PUT /myindex/article/2
 {
   "post_date": "2018-05-12",
@@ -478,7 +478,7 @@ PUT /myindex/article/2
 }
 ```
 
-```json
+```
 PUT /myindex/article/3
 {
   "post_date": "2018-05-16",
@@ -488,7 +488,7 @@ PUT /myindex/article/3
 }
 ```
 
-```json
+```
 GET /myindex/article/_search?q=2018-05
 
 GET /myindex/article/_search?q=2018-05-10
@@ -500,7 +500,7 @@ GET /myindex/article/_search?q=java
 
 **查看 mapping**
 
-```json
+```
 GET /myindex/_mapping
 
 {
@@ -551,7 +551,7 @@ GET /myindex/_mapping
 
 给索引 lib2 创建映射类型, es 默认会给每一个 field 加上倒排索引
 
-```json
+```
 PUT /lib2
 {
   "settings": {
@@ -596,7 +596,7 @@ PUT /lib2
 
 **可以通过 dynamic 设置来控制这一行为, 它能够接受以下的选项:**
 
-```json
+```
 true:默认值. 允许自动新增字段, 所以我们添加文档时候 es 可以自动建立 mapping
 false:不允许自动新增字段, 但是文档可以正常写入, 但无法对字段进行查询等操作
 strict:如果碰到陌生字段, 抛出异常, 不能写入
@@ -604,7 +604,7 @@ strict:如果碰到陌生字段, 抛出异常, 不能写入
 
 **dynamic 设置可以适用在根对象上或者 object 类型的任意字段上. **
 
-```json
+```
 PUT /my_index
 {
   "mapping": {
@@ -629,7 +629,7 @@ PUT /my_index
 }
 ```
 
-```json
+```
 PUT /myindex
 {
   "mappings": {
@@ -683,7 +683,7 @@ GET /myindex/doc/_search
 
 #### copy_to 解析
 
-```json
+```
 DELETE /myindex
 
 PUT /myindex/article/1
@@ -730,7 +730,7 @@ GET /myindex/article/_search?q=html,document
 
 当没有指定 field 时, 就会从 copy_to 字段中查询, 如果要使用 copy_to 字段, 需要自己创建 mapping
 
-```json
+```
 DELETE /myindex
 
 PUT /myindex
@@ -774,7 +774,7 @@ GET /myindex/article/_search
 
 控制当前字段是否索引, 默认为 true, 即记录索引, false 不记录, 即不可搜索
 
-```json
+```
 PUT /my_index
 {
   "mappings": {
@@ -874,7 +874,7 @@ https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-params.h
 
     对象类型:
 
-    ```json
+    ```
     # 对象类型底层结构
     PUT /lib5/person/1
     {
@@ -941,7 +941,7 @@ https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-params.h
 
 es 可以自动识别文档字段类型, 从而降低用户的使用成本
 
-```json
+```
 DELETE /test_index
 
 PUT /test_index/doc/1
@@ -988,7 +988,7 @@ es 是依靠 json 文档的字段类型实现自动识别字段类型, 支持的
 |   array   |                 由第一个非 null 值的类型决定                 |
 |  string   | 匹配为日期则设为 date 类型(默认开启)<br />匹配为数字类型的话设为 float 或 long 类型(默认关闭)<br />如果不是以上两种就设为 text 类型, 并附带 keyword 的子字段 |
 
-```json
+```
 DELETE /test_index
 
 PUT /test_index/doc/1
@@ -1071,7 +1071,7 @@ dynamic_date_formats 可以自定义日期类型
 
 date_detection 可以关闭日期自动识别的机制
 
-```json
+```
 DELETE /my_index
 
 PUT /my_index
@@ -1099,7 +1099,7 @@ GET /my_index/_mapping
 
 **numeric_detection 可以开启字符串中数字的自动识别**
 
-```json
+```
 DELETE /my_index
 
 PUT /my_index
@@ -1127,7 +1127,7 @@ GET /my_index/_mapping
 * 所有以 long_ 开头的字段都设定为 long 类型
 * 所有自动匹配为 double 类型的都设定为 float 类型, 以节省空间
 
-```json
+```
 DELETE /my_index
 
 PUT /my_index
@@ -1164,7 +1164,7 @@ path_match, path_unmatch: 匹配路径
 
 es 默认会为字符串设置为 text 类型, 并增加一个 keyword 的子字段, 我们现在要修改默认 string 全变为 keyword 类型
 
-```json
+```
 DELETE /my_index
 
 PUT /my_index
@@ -1197,7 +1197,7 @@ GET /my_index/_mapping
 
 **以 message 开头的字段都设置为 text 类型, 其余的 string 类型的字段设置为 keyword 类型**
 
-```json
+```
 DELETE /my_index
 
 PUT /my_index
@@ -1247,7 +1247,7 @@ https://www.elastic.co/guide/en/elasticsearch/reference/current/dynamic-template
 2. 修改步骤 1 得到的 mapping, 自定义相关配置
 3. 使用步骤 2 的 mapping 创建实际所需索引
 
-```json
+```
 # 临时索引
 DELETE /test_index
 PUT /test_index/doc/1
@@ -1326,7 +1326,7 @@ GET /my_product_index/_mapping
 
 索引模板 API, endpoint 为 _template
 
-```json
+```
 PUT /_template/test_template # template 的名称
 {
   # 匹配的索引名称
@@ -1375,7 +1375,7 @@ DELETE _template/test_template
 
 **添加索引, 指定配置信息**
 
-```json
+```
 PUT /lib/
 {
   "settings": {
@@ -1428,7 +1428,7 @@ GET /_all/_settings
 
 **添加文档, 指定 id 为 1, 使用 PUT 方式, 如果索引不存在, es 会自动创建对应的 index 和 type**
 
-```json
+```
 PUT /lib/user/1
 {
   "first_name": "Jane",
@@ -1443,7 +1443,7 @@ PUT /lib/user/1
 
 **添加文档, 随机分配 id, 使用 POST 方式**
 
-```json
+```
 POST /lib/user/
 {
   "first_name": "Douglas",
@@ -1474,7 +1474,7 @@ GET /lib/user/1?_source=age,interests
 
 **更新文档, 使用覆盖的方式, 相当于删除从建, id 需要相同**
 
-```json
+```
 PUT /lib/user/1
 {
   "first_name": "Jane",
@@ -1489,7 +1489,7 @@ PUT /lib/user/1
 
 **更新文档, 使用修改的方式, id 需要相同**
 
-```json
+```
 POST /lib/user/1/_update
 {
   "doc": {
@@ -1531,7 +1531,7 @@ curl 'http://localhost:9200/_mget' -d '{
 
 **使用 kibana 的方式**
 
-```json
+```
 GET /_mget
 {
   "docs": [
@@ -1605,7 +1605,7 @@ GET /lib/user/_mget
 
 **bulk 的格式**
 
-```json
+```
 {action:{metadata}}\n
 {requstbody}\n
 
@@ -1626,7 +1626,7 @@ create 和 index 的区别
 
 **批量添加**
 
-```json
+```
 POST /lib2/books/_bulk
 
 {"index": {"_id": 1}}
@@ -1644,7 +1644,7 @@ POST /lib2/books/_bulk
 
 **批量获取**
 
-```json
+```
 GET /lib2/books/_mget
 {
   "ids": ["1", "2", "3", "4"]
@@ -1653,7 +1653,7 @@ GET /lib2/books/_mget
 
 **删除, 没有请求体**
 
-```json
+```
 POST /lib2/books/_bulk
 
 {"delete": {"_index": "lib2", "_type": "books", "_id": 4}}
@@ -1677,7 +1677,7 @@ bulk一次最大处理多少数据量:
 
 实现对 es 中存储的数据进行查询分析, endpoint 为 _search
 
-```json
+```
 GET /_search
 GET /my_index/_search
 GET /my_index1,my_index2/_search
@@ -1692,7 +1692,7 @@ GET /my_*/_search
 
   仅包含部分查询语法
 
-  ```json
+  ```
   GET /my_index/_search?q=user:alfred
   ```
 
@@ -1700,7 +1700,7 @@ GET /my_*/_search
 
   es 提供的完备查询语法 Query DSL(Domain Specific Language)
 
-  ```json
+  ```
   GET /my_index/_search
   {
     "query": {
@@ -1818,7 +1818,7 @@ GET /my_index/_search?q=alfred&df=user&sort=age:asc&from=4&size=10&timeout=1s
 
   以 term 为单位进行差异比较, 比如 "quick fox" "quick brown fox" 都会被匹配
 
-```http
+```
 DELETE test_search_index
 
 PUT test_search_index
@@ -1880,7 +1880,7 @@ GET /test_search_index/_search?q=birth:(>1980 AND <1999)
 
 #### 数据准备
 
-```json
+```
 DELETE /lib3
 
 PUT /lib3
@@ -1958,7 +1958,7 @@ PUT /lib3/user/5
 
 #### 简单查询
 
-```json
+```
 GET /lib3/user/_search?q=name:lisi
 
 GET /lib3/user/_search?q=interests:changge&sort=age:desc
@@ -2000,7 +2000,7 @@ term query 会去倒排索引中寻找确切的 term, **它并不知道分词器
 
 term: 查询某个字段里含有某个关键词的文档
 
-```json
+```
 GET /lib3/user/_search/
 {
   "query": {
@@ -2013,7 +2013,7 @@ GET /lib3/user/_search/
 
 terms: 查询某个字段里含有多个关键词的文档
 
-```json
+```
 GET /lib3/user/_search
 {
   "query": {
@@ -2032,7 +2032,7 @@ GET /lib3/user/_search
 from: 从哪一个文档开始
 size: 需要的个数
 
-```json
+```
 GET /lib3/user/_search
 {
   "from": 0,
@@ -2050,7 +2050,7 @@ GET /lib3/user/_search
 
 #### 返回版本号
 
-```json
+```
 GET /lib3/user/_search
 {
   "version": true,
@@ -2069,7 +2069,7 @@ GET /lib3/user/_search
 
 **match query 知道分词器的存在, 会对搜索词进行分词操作, 然后再查询**
 
-```json
+```
 GET /lib3/user/_search
 {
   "query": {
@@ -2091,7 +2091,7 @@ GET /lib3/user/_search
 
 **match_all: 查询所有文档**
 
-```json
+```
 GET /lib3/user/_search
 {
   "query": {
@@ -2103,7 +2103,7 @@ GET /lib3/user/_search
 
 **multi_match: 可以指定多个字段进行查询, term 和 match 只能指定一个字段**
 
-```json
+```
 GET /lib3/user/_search
 {
   "query": {
@@ -2122,7 +2122,7 @@ GET /lib3/user/_search
 
 ElasticSearch 引擎首先分析(analyze)查询字符串, 从分析后的文本中构建短语查询, 这意味着必须匹配短语中的所有分词, 并且保证各个分词的相对位置不变:
 
-```json
+```
 GET lib3/user/_search
 {
   "query": {
@@ -2147,7 +2147,7 @@ GET /lib3/user/_search
 
 #### 指定返回的字段
 
-```json
+```
 GET /lib3/user/_search
 {
   "_source": [
@@ -2164,7 +2164,7 @@ GET /lib3/user/_search
 
 #### 控制加载的字段
 
-```json
+```
 GET /lib3/user/_search
 {
   "query": {
@@ -2186,7 +2186,7 @@ GET /lib3/user/_search
 
 **使用通配符\***
 
-```json
+```
 GET /lib3/user/_search
 {
   "_source": {
@@ -2207,7 +2207,7 @@ GET /lib3/user/_search
 
 使用 sort 实现排序: desc:降序, asc升序
 
-```json
+```
 GET /lib3/user/_search
 {
   "query": {
@@ -2241,7 +2241,7 @@ GET /lib3/user/_search
 
 #### 前缀匹配查询
 
-```json
+```
 GET /lib3/user/_search
 {
   "query": {
@@ -2260,7 +2260,7 @@ range: 实现范围查询, 主要针对数值和日期类型
 
 参数: gt, gte, lt, lte
 
-```json
+```
 GET /lib3/user/_search
 {
   "query": {
@@ -2293,7 +2293,7 @@ GET /lib3/user/_search
 
 ? 代表任意一个字符
 
-```json
+```
 GET /lib3/user/_search
 {
   "query": {
@@ -2327,7 +2327,7 @@ prefix_length: 指明区分词项的共同前缀长度, 默认是0
 
 max_expansions: 查询中的词项可以扩展的数目, 默认可以无限大
 
-```json
+```
 GET /lib3/user/_search
 {
   "query": {
@@ -2353,7 +2353,7 @@ GET /lib3/user/_search
 
 #### 高亮搜索结果
 
-```json
+```
 GET /lib3/user/_search
 {
   "query": {
@@ -2382,7 +2382,7 @@ ik_smart: 会做最粗粒度的拆分; 已被分出的词语将不会在被其�
 
 #### 数据准备
 
-```json
+```
 DELETE /lib3
 
 PUT /lib3
@@ -2459,13 +2459,13 @@ PUT /lib3/user/5
 }
 ```
 
-#### term查询和terms查询
+#### term 查询和 terms 查询
 
-term query会去倒排索引中寻找确切的term, **它并不知道分词器的存在即搜索词不进行分词**. 这种查询适合keyword 、numeric、date. 
+term query 会去倒排索引中寻找确切的 term, **它并不知道分词器的存在即搜索词不进行分词**. 这种查询适合 keyword 、numeric、date. 
 
-term:查询某个字段里含有某个关键词的文档
+term: 查询某个字段里含有某个关键词的文档
 
-```json
+```
 GET /lib3/user/_search/
 {
   "query": {
@@ -2476,9 +2476,9 @@ GET /lib3/user/_search/
 }
 ```
 
-terms:查询某个字段里含有多个关键词的文档
+terms: 查询某个字段里含有多个关键词的文档
 
-```json
+```
 GET /lib3/user/_search
 {
   "query": {
@@ -2491,10 +2491,10 @@ GET /lib3/user/_search
 
 #### 控制查询返回的数量
 
-from:从哪一个文档开始
-size:需要的个数
+from: 从哪一个文档开始
+size: 需要的个数
 
-```json
+```
 GET /lib3/user/_search
 {
   "from": 0,
@@ -2509,7 +2509,7 @@ GET /lib3/user/_search
 
 #### 返回版本号
 
-```json
+```
 GET /lib3/user/_search
 {
   "version": true,
@@ -2521,11 +2521,11 @@ GET /lib3/user/_search
 }
 ```
 
-#### match查询
+#### match 查询
 
-**match query知道分词器的存在, 会对搜索词进行分词操作, 然后再查询**
+**match query 知道分词器的存在, 会对搜索词进行分词操作, 然后再查询**
 
-```json
+```
 GET /lib3/user/_search
 {
   "query": {
@@ -2545,9 +2545,9 @@ GET /lib3/user/_search
 }
 ```
 
-**match_all:查询所有文档**
+**match_all: 查询所有文档**
 
-```json
+```
 GET /lib3/user/_search
 {
   "query": {
@@ -2557,9 +2557,9 @@ GET /lib3/user/_search
 }
 ```
 
-**multi_match:可以指定多个字段进行查询, term 和 match 只能指定一个字段**
+**multi_match: 可以指定多个字段进行查询, term 和 match 只能指定一个字段**
 
-```json
+```
 GET /lib3/user/_search
 {
   "query": {
@@ -2574,11 +2574,11 @@ GET /lib3/user/_search
 }
 ```
 
-**match_phrase:短语匹配查询**
+**match_phrase: 短语匹配查询**
 
-ElasticSearch引擎首先分析(analyze)查询字符串, 从分析后的文本中构建短语查询, 这意味着必须匹配短语中的所有分词, 并且保证各个分词的相对位置不变:
+ElasticSearch 引擎首先分析(analyze)查询字符串, 从分析后的文本中构建短语查询, 这意味着必须匹配短语中的所有分词, 并且保证各个分词的相对位置不变
 
-```json
+```
 GET lib3/user/_search
 {
   "query": {
@@ -2591,7 +2591,7 @@ GET lib3/user/_search
 
 #### 指定返回的字段
 
-```json
+```
 GET /lib3/user/_search
 {
   "_source": [
@@ -2608,7 +2608,7 @@ GET /lib3/user/_search
 
 #### 控制加载的字段
 
-```json
+```
 GET /lib3/user/_search
 {
   "query": {
@@ -2630,7 +2630,7 @@ GET /lib3/user/_search
 
 **使用通配符\***
 
-```json
+```
 GET /lib3/user/_search
 {
   "_source": {
@@ -2649,9 +2649,9 @@ GET /lib3/user/_search
 
 #### 排序
 
-使用sort实现排序: desc:降序, asc升序
+使用 sort 实现排序: desc: 降序, asc 升序
 
-```json
+```
 GET /lib3/user/_search
 {
   "query": {
@@ -2685,7 +2685,7 @@ GET /lib3/user/_search
 
 #### 前缀匹配查询
 
-```json
+```
 GET /lib3/user/_search
 {
   "query": {
@@ -2708,7 +2708,7 @@ include_lower: 是否包含范围的左边界, 默认是true
 
 include_upper: 是否包含范围的右边界, 默认是true
 
-```json
+```
 GET /lib3/user/_search
 {
   "query": {
@@ -2744,7 +2744,7 @@ GET /lib3/user/_search
 
 ? 代表任意一个字符
 
-```json
+```
 GET /lib3/user/_search
 {
   "query": {
@@ -2778,7 +2778,7 @@ prefix_length: 指明区分词项的共同前缀长度, 默认是0
 
 max_expansions: 查询中的词项可以扩展的数目, 默认可以无限大
 
-```json
+```
 GET /lib3/user/_search
 {
   "query": {
@@ -2804,7 +2804,7 @@ GET /lib3/user/_search
 
 #### 高亮搜索结果
 
-```json
+```
 GET /lib3/user/_search
 {
   "query": {
@@ -2827,7 +2827,7 @@ GET /lib3/user/_search
 
 filter 是不计算相关性的, 同时可以 cache. 因此, filter 速度要快于 query. 
 
-```json
+```
 POST /lib4/items/_bulk
 {"index": {"_id": 1}}
 {"price": 40,"itemID": "ID100123"}
@@ -2843,7 +2843,7 @@ POST /lib4/items/_bulk
 
 #### 简单的过滤查询
 
-```json
+```
 GET /lib4/items/_search
 {
   "post_filter": {
@@ -2884,7 +2884,7 @@ GET /lib4/_mapping
 DELETE lib4
 ```
 
-```json
+```
 PUT /lib4
 {
   "mappings": {
@@ -2908,7 +2908,7 @@ PUT /lib4
 
 格式:
 
-```json
+```
 {
   "bool": {
     "must": [ # 数据库中的 and
@@ -2927,7 +2927,7 @@ should: 可以满足也可以不满足的条件--or
 
 must_not: 不需要满足的条件--not
 
-```json
+```
 GET /lib4/items/_search
 {
   "query": {
@@ -2956,7 +2956,7 @@ GET /lib4/items/_search
 
 嵌套使用 bool:
 
-```json
+```
 GET /lib4/items/_search
 {
   "query": {
@@ -2991,7 +2991,7 @@ GET /lib4/items/_search
 
 #### 范围过滤
 
-```json
+```
 gt: >
 
 lt: <
@@ -3015,7 +3015,7 @@ GET /lib4/items/_search
 
 #### 过滤非空
 
-```json
+```
 GET /lib4/items/_search
 {
   "query": {
@@ -3072,7 +3072,7 @@ exists,missing,range,term,terms 默认是开启缓存的
 
 #### sum
 
-```json
+```
 GET /lib4/items/_search
 {
   "size": 0,
@@ -3088,7 +3088,7 @@ GET /lib4/items/_search
 
 #### min
 
-```json
+```
 GET /lib4/items/_search
 {
   "size": 0,
@@ -3104,7 +3104,7 @@ GET /lib4/items/_search
 
 #### max
 
-```json
+```
 GET /lib4/items/_search
 {
   "size": 0,
@@ -3120,7 +3120,7 @@ GET /lib4/items/_search
 
 #### avg
 
-```json
+```
 GET /lib4/items/_search
 {
   "size": 0,
@@ -3136,7 +3136,7 @@ GET /lib4/items/_search
 
 #### cardinality: 求基数(互不相同的值的个数, 比如"男","女"就是 2)
 
-```json
+```
 GET /lib4/items/_search
 {
   "size": 0,
@@ -3152,7 +3152,7 @@ GET /lib4/items/_search
 
 #### terms: 分组 
 
-```json
+```
 GET /lib4/items/_search
 {
   "size": 0,
@@ -3168,7 +3168,7 @@ GET /lib4/items/_search
 
 **对那些有唱歌兴趣的用户按年龄分组**
 
-```json
+```
 GET /lib3/user/_search
 {
   "query": {
@@ -3219,7 +3219,7 @@ filter: 必须 匹配, 但它以不评分、过滤模式来进行. 这些语句�
 
 下面的查询用于查找 title 字段匹配 how to make millions 并且不被标识为 spam 的文档. 那些被标识为 starred 或在 2014 之后的文档, 将比另外那些文档拥有更高的排名. 如果 _两者_ 都满足, 那么它排名将更高:
 
-```json
+```
 GET /lib3/user/_search
 {
   "query": {
@@ -3256,7 +3256,7 @@ GET /lib3/user/_search
 如果没有 must 语句, 那么至少需要能够匹配其中的一条 should 语句. 但, 如果存在至少一条 must 语句, 则对 should 语句的匹配没有要求.  
 如果我们不想因为文档的时间而影响得分, 可以用 filter 语句来重写前面的例子:
 
-```json
+```
 {
   "bool": {
     "must": {
@@ -3291,7 +3291,7 @@ GET /lib3/user/_search
 
 bool 查询本身也可以被用做不评分的查询. 简单地将它放置到 filter 语句中并在内部构建布尔逻辑:
 
-```json
+```
 {
   "bool": {
     "must": {
@@ -3348,7 +3348,7 @@ bool 查询本身也可以被用做不评分的查询. 简单地将它放置到 
 
 它将一个不变的常量评分应用于所有匹配的文档. 它被经常用于你只需要执行一个 filter 而没有其它查询(例如, 评分查询)的情况下. 
 
-```json
+```
 {
   "constant_score": {
     "filter": {
@@ -3670,7 +3670,7 @@ Query-Then-Fetch
 
 **在文档数量不多时, 会导致相关性算分严重不准的情况发生**, 比如 shard0 有 10 个文档, shard1 只有 1 个文档, 有可能那 1 个文档的相关性算分远远高于其他 10 个文档
 
-```json
+```
 DELETE test_search_relevance
 PUT test_search_relevance
 {
@@ -3722,7 +3722,7 @@ GET test_search_relevance/_search
 
   DFS Query-then-Fetch 是在拿到所有文档后再重新完整的计算一次相关性算分, 耗费更多的 cpu 和内存, 执行性能也比较低下, 一般不建议使用, 指定 search_type=dfs_query_then_fetch
 
-  ```json
+  ```
   GET test_search_relevance/_search?search_type=dfs_query_then_fetch
   {
     "query": {
@@ -3739,7 +3739,7 @@ GET test_search_relevance/_search
 
 es 默认会采用相关性算分排序, 用户可以通过设定 sorting 参数来自行设定排序规则
 
-```json
+```
 GET test_search_index/_search
 {
   "sort": {
@@ -3763,7 +3763,7 @@ GET test_search_index/_search
 }
 ```
 
-```json
+```
 DELETE test_search_index
 
 PUT test_search_index
@@ -3869,7 +3869,7 @@ GET test_search_index/_search
 
 **es 按照字符串排序比较特殊, 因为 es 有 text 和 keyword 两种类型, 针对 text 类型排序会报错误, 针对 keyword 类型是可以排序的, 因为默认开启了 docvalues**
 
-```json
+```
 GET test_search_index/_search
 {
   "sort": {
@@ -3908,7 +3908,7 @@ es 对此提供了两种实现方式
 
 * fielddata 默认禁用, 可以通过如下 API 开启, **此时字符串是按照分词后的 term 排序的**, 往往结果很难符合预期, 一般是在对分词做聚合分析的时候开启, **fielddata 只针对 text 类型生效**
 
-  ```json
+  ```
   PUT test_search_index/_mapping/doc
   {
     "properties": {
@@ -3933,7 +3933,7 @@ es 对此提供了两种实现方式
 
 * doc values 默认启用, 除了 text 类型, 可以在创建索引时就选择关闭, **如果后边要开启 doc values, 需要做 reindex 操作**
 
-  ```json
+  ```
   DELETE test_doc_values
   
   PUT test_doc_values
@@ -3970,7 +3970,7 @@ es 对此提供了两种实现方式
   }
   ```
 
-  ```json
+  ```
   # can be used to get original field value for not stored field
   PUT test_search_index/_mapping/doc
   {
@@ -4029,7 +4029,7 @@ es 提供了 3 种方式来解决分页与遍历的问题
 
 **size:** 指明获取总数
 
-```json
+```
 GET test_search_index/_search
 {
   "from": 1,
@@ -4037,7 +4037,7 @@ GET test_search_index/_search
 }
 ```
 
-```json
+```
 # pagination
 GET test_search_index/_search
 {
@@ -4089,7 +4089,7 @@ deep paging性能问题
 3. 每次发送 scroll 请求, 我们还需要指定一个scoll参数, 指定一个时间窗口, 每次搜索请求只要在这个时间窗口内能完成就可以了
 4. 当 hits 为 [] 的时候, 就代表最后一条了
 
-```json
+```
 # scroll
 GET test_search_index/_search?scroll=5m
 {
@@ -4138,7 +4138,7 @@ DELETE _search/scroll/_all
 * 只能下一页, 不能上一页
 * 使用简单
 
-```json
+```
 # search_after
 GET test_search_index/_search
 {
@@ -4192,7 +4192,7 @@ GET test_search_index/_search
 
 聚合分析作为 search 的一部分, api 如下所示
 
-```json
+```
 GET test_search_index/_search
 {
   "size": 0,
@@ -4214,7 +4214,7 @@ GET test_search_index/_search
 
 请告诉我公司目前在职人员工作岗位的分布情况?
 
-```json
+```
 GET test_search_index/_search
 {
   "size": 0,
@@ -4237,7 +4237,7 @@ GET test_search_index/_search
 
 ### 数据准备
 
-```json
+```
 DELETE test_search_index
 POST test_search_index/doc/_bulk
 {"index":{"_id":"1"}}
@@ -4260,7 +4260,7 @@ POST test_search_index/doc/_bulk
 
 返回数值类字段的最小值
 
-```json
+```
 GET /test_search_index/_search
 {
   "size": 0, # 不需要返回文档就写 0
@@ -4281,7 +4281,7 @@ GET /test_search_index/_search
 
 #### max
 
-```json
+```
 GET /test_search_index/_search
 {
   "size": 0, # 不需要返回文档就写 0
@@ -4297,7 +4297,7 @@ GET /test_search_index/_search
 
 #### avg
 
-```json
+```
 GET /test_search_index/_search
 {
   "size": 0, # 不需要返回文档就写 0
@@ -4313,7 +4313,7 @@ GET /test_search_index/_search
 
 #### sum
 
-```json
+```
 GET /test_search_index/_search
 {
   "size": 0, # 不需要返回文档就写 0
@@ -4331,7 +4331,7 @@ GET /test_search_index/_search
 
 意为集合的势, 或者基数, 是指不同数值的个数, 类似 SQL 中的 distinct count
 
-```json
+```
 GET /test_search_index/_search
 {
   "size": 0, # 不需要返回文档就写 0
@@ -4349,7 +4349,7 @@ GET /test_search_index/_search
 
 返回一系列数值类型的统计值, 包含 min, max, avg, sum 和 count
 
-```json
+```
 GET /test_search_index/_search
 {
   "size": 0,
@@ -4367,7 +4367,7 @@ GET /test_search_index/_search
 
 对 status 的扩展, 包含了更多的统计数据, 如方差, 标准差
 
-```json
+```
 GET /test_search_index/_search
 {
   "size": 0,
@@ -4385,7 +4385,7 @@ GET /test_search_index/_search
 
 百分位数统计
 
-```json
+```
 GET /test_search_index/_search
 {
   "size": 0,
@@ -4403,7 +4403,7 @@ GET /test_search_index/_search
 
 百分位数统计排名
 
-```json
+```
 # 30 和 50 在当前年龄里边处于一个怎样的百分位
 GET /test_search_index/_search
 {
@@ -4426,7 +4426,7 @@ GET /test_search_index/_search
 
 一般用于分桶后获取该桶内最匹配的顶部文档列表, 即详情数据
 
-```json
+```
 GET test_search_index/_search
 {
   "size": 0,
@@ -4471,7 +4471,7 @@ Bucket 意为桶, 即按照一定规则将文档分配到不同的桶中, 达到
 
 该分桶策略最简单, 直接按照 term 来分桶, 如果是 text 类型, 则按照分词后的结果分桶, 要打开 fielddata: true
 
-```json
+```
 GET /test_search_index/_search
 {
   "size": 0,
@@ -4492,7 +4492,7 @@ GET /test_search_index/_search
 
 通过指定数值的范围来设定分桶规则
 
-```json
+```
 GET test_search_index/_search
 {
   "size": 0,
@@ -4524,7 +4524,7 @@ GET test_search_index/_search
 
 通过指定日期的范围来设定分桶规则
 
-```json
+```
 {
   "size": 0,
   "aggs": {
@@ -4554,7 +4554,7 @@ GET test_search_index/_search
 
 直方图, 以固定间隔的策略来分割数据
 
-```json
+```
 GET test_search_index/_search
 {
   "size":0,
@@ -4577,7 +4577,7 @@ GET test_search_index/_search
 
 针对日期的直方图或柱状图, 是时序数据分析中常用的聚合分析类型
 
-```json
+```
 GET test_search_index/_search
 {
   "size":0,
@@ -4599,7 +4599,7 @@ Bucket 聚合分析允许通过添加子分析来进一步进行分析, 该子�
 
 #### 分桶后在分桶
 
-```json
+```
 GET test_search_index/_search
 {
   "size": 0,
@@ -4652,7 +4652,7 @@ Pipeline 的分析结果会输出到原结果中, 根据输出的位置不同, �
 
 找出所有 Bucket(上一步的结果) 中值最小的 Bucket 名称和值
 
-```json
+```
 GET test_search_index/_search
 {
   "size":0,
@@ -4682,7 +4682,7 @@ GET test_search_index/_search
 
 #### Parent Derivative 求导
 
-```json
+```
 GET test_search_index/_search
 {
   "size": 0,
@@ -4724,7 +4724,7 @@ es 聚合分析默认作用范围是 `query` 结果集, 可以通过如下方式
 
 为某个聚合分析设定过滤条件, 从而在不更改整体 `query` 语句的情况下修改了作用范围
 
-```json
+```
 GET test_search_index/_search
 {
   "size": 0,
@@ -4758,7 +4758,7 @@ GET test_search_index/_search
 
 作用于**文档过滤**, 但在聚合分析后生效
 
-```json
+```
 GET test_search_index/_search
 {
   "aggs": {
@@ -4782,7 +4782,7 @@ GET test_search_index/_search
 
 java 工程师的平均工资与所有工程师的平均工资
 
-```json
+```
 GET test_search_index/_search
 {
   "query": {
@@ -4819,7 +4819,7 @@ GET test_search_index/_search
 * _count 文档数
 * _key 按照 key 值排序
 
-```json
+```
 GET test_search_index/_search
 {
   "size": 0,
@@ -4845,7 +4845,7 @@ GET test_search_index/_search
 
 利用子聚合分析数值进行排序
 
-```json
+```
 GET test_search_index/_search
 {
   "size": 0,
@@ -4961,7 +4961,7 @@ GET test_search_index/_search
 
 * 设定 `show_term_doc_count_error` 可以查看每个 bucket 误算的最大值
 
-    ```json
+    ```
     GET test_search_index/_search
     {
       "size": 0,
@@ -5114,7 +5114,7 @@ ES 是基于 Lucene 以倒排索引为基础实现的存储体系, 不遵循关�
 
 ##### blog_index 的 mapping 设置1
 
-```json
+```
 DELETE blog_index
 PUT blog_index
 {
@@ -5164,7 +5164,7 @@ GET blog_index/_search?_source=title # 只会返回 title 字段, 但是在底�
 
 ##### blog_index 的 mapping 设置2, 解决大字段问题
 
-```json
+```
 DELETE blog_index
 PUT blog_index
 {
@@ -5257,7 +5257,7 @@ ES 不擅长处理关系型数据库中的关联关系, 比如文章表 blog 与
 
 #### Nested Object
 
-```json
+```
 DELETE blog_index
 # comments 需要保存到 blog 下
 PUT blog_index/doc/2
@@ -5416,7 +5416,7 @@ ES 还提供了类似关系型数据库中 `join` 的实现方式, 使用 `join`
 
 * has_parent 返回包含某父文档的子文档
 
-```json
+```
 # 使用 parent child 方式完成关联查询
 DELETE blog_index_parent_child
 PUT blog_index_parent_child
@@ -5554,7 +5554,7 @@ ES 提供了现成的 API 用于完成该工作
 
 <img src="http://www.milky.show/images/elastic/search/es_38.png" alt="http://www.milky.show/images/elastic/search/es_38.png" style="zoom: 50%;" />
 
-```json
+```
 DELETE blog_index
 # 添加数据
 PUT blog_index/doc/1
@@ -5595,7 +5595,7 @@ GET blog_index/doc/1
 
 <img src="http://www.milky.show/images/elastic/search/es_40.png" alt="http://www.milky.show/images/elastic/search/es_40.png" style="zoom: 67%;" />
 
-```json
+```
 DELETE blog_index
 # 添加数据
 PUT blog_index/doc/1
@@ -5641,7 +5641,7 @@ ES 提供了 Task API 来查看任务的执行进度和相关数据
 
 <img src="http://www.milky.show/images/elastic/search/es_41.png" alt="http://www.milky.show/images/elastic/search/es_41.png" style="zoom:67%;" />
 
-```json
+```
 POST blog_index/_update_by_query?conflicts=proceed&wait_for_completion=false
 
 GET _tasks/_qKI6E8_TDWjXyo_x-bhmw:11996
@@ -5750,7 +5750,7 @@ GET _cat/health # 查询集群的健康状态
 
 ### 单节点环境下创建索引分析
 
-```json
+```
 PUT /myindex
 {
    "settings" : {
@@ -5843,7 +5843,7 @@ PUT /myindex
 
 替换方式:首先查出原有 document 的数据, 将这条 document 标记为 deleted, 再根据用户数据创建一份新的 document, 用户未提交的数据不会保存
 
-```json
+```
 PUT /lib/user/4
 {
 	"first_name": "Jane",
@@ -5856,7 +5856,7 @@ PUT /lib/user/4
 
 修改方式(partial update):只修改部分 field 内容, es 接收用的数据, 更新 document 的部分字段, 再将这个 document 标记为 deleted, 再根据更新后的 document 创建一份新的 document
 
-```json
+```
 POST /lib/user/2/_update
 {
     "doc":{
@@ -5876,7 +5876,7 @@ es 有内置的脚本支持, 可以基于 groovy 脚本实现复杂的操作
 
 1. 修改年龄
 
-    ```json
+    ```
     POST /lib/user/4/_update
     {
       "script": "ctx._source.age+=1"
@@ -5885,7 +5885,7 @@ es 有内置的脚本支持, 可以基于 groovy 脚本实现复杂的操作
 
 2. 修改名字
 
-    ```json
+    ```
     POST /lib/user/4/_update
     {
       "script": "ctx._source.last_name+='hehe'"
@@ -5894,7 +5894,7 @@ es 有内置的脚本支持, 可以基于 groovy 脚本实现复杂的操作
 
 3. 添加爱好
 
-    ```json
+    ```
     POST /lib/user/4/_update
     {
       "script": {
@@ -5908,7 +5908,7 @@ es 有内置的脚本支持, 可以基于 groovy 脚本实现复杂的操作
 
 4. 删除爱好
 
-    ```json
+    ```
     POST /lib/user/4/_update
     {
       "script": {
@@ -6096,7 +6096,7 @@ bulk的格式:
 
 ### 查询结果分析
 
-```json
+```
 GET /lib3/user/_search
 
 {
@@ -6186,7 +6186,7 @@ GET /_all/user,items/_search # 查询所有索引下的, user, items 类型的�
 
 ### 分页查询中的 deep paging 问题
 
-```json
+```
 GET /lib3/user/_search
 {
     "from":0,
@@ -6210,7 +6210,7 @@ GET /_search?from=0&size=3
 
 **解决方式:对字段索引两次, 一次索引分词(用于搜索), 一次索引不分词(用于排序)**
 
-```json
+```
 GET /lib3/_search
 
 GET /lib3/user/_search
@@ -6312,7 +6312,7 @@ PUT /lib3
 
     搜索内容:hello world
 
-    ```json
+    ```
     {"title":"hello,what's your name?","content":{"owieurowieuolsdjflk"}}
     
     {"title":"hi,good morning","content":{"lkjkljkj.......world"}}
@@ -6410,7 +6410,7 @@ PUT /lib3
 
 3. strict:约到陌生字段就报错
 
-```json
+```
 PUT /lib8
 {
   "settings": {
@@ -6436,7 +6436,7 @@ PUT /lib8
 
 **会报错, 因为添加了 age 字段, 并且 mappings 中设置了 dynamic=strict**
 
-```json
+```
 PUT  /lib8/user/1
 {
   "name": "lisi",
@@ -6452,7 +6452,7 @@ PUT  /lib8/user/1
 
 可以手动关闭某个 type 的 date_detection
 
-```json
+```
 PUT /lib8
 {
   "settings": {
@@ -6469,7 +6469,7 @@ PUT /lib8
 
 **定制 dynamic mapping template(type)**
 
-```json
+```
 PUT /my_index
 {
   "mappings": {
@@ -6493,7 +6493,7 @@ PUT /my_index
 
 **使用了模板, en 后缀**
 
-```json
+```
 PUT /my_index/my_type/3
 {
   "title_en": "this is my dog"
@@ -6502,14 +6502,14 @@ PUT /my_index/my_type/3
 
 **没有使用模板**
 
-```json
+```
 PUT /my_index/my_type/5
 {
   "title": "this is my cat"
 }
 ```
 
-```json
+```
 GET my_index/my_type/_search
 {
   "query": {
@@ -6528,7 +6528,7 @@ GET my_index/my_type/_search
 
 批量查询的时候, 建议采用 scroll api, 并且采用多线程并发的方式来 reindex 数据, 每次 scroll 就查询指定日期的一段数据, 交给一个线程即可. 
 
-```json
+```
 PUT /index1/type1/4
 {
    "content":"1990-12-12"
@@ -6541,7 +6541,7 @@ GET /index1/type1/_mapping
 
 **报错**
 
-```json
+```
 PUT /index1/type1/4
 {
    "content":"I am very happy." # 上边自动映射为了 date 类型, 而这次插入的是 string 类型
@@ -6550,7 +6550,7 @@ PUT /index1/type1/4
 
 **修改 content 的类型为 string 类型, 报错, 不允许修改**
 
-```json
+```
 PUT /index1/type1/_mapping
 {
   "properties": {
@@ -6570,7 +6570,7 @@ PUT /index1/_alias/index2
 
 **创建新的索引, 把 content 的类型改为字符串**
 
-```json
+```
 PUT /newindex
 {
   "mappings": {
@@ -6587,7 +6587,7 @@ PUT /newindex
 
 使用scroll批量查询
 
-```json
+```
 GET /index1/type1/_search?scroll=1m
 {
   "query": {
@@ -6600,7 +6600,7 @@ GET /index1/type1/_search?scroll=1m
 
 使用 bulk 批量写入新的索引
 
-```json
+```
 POST /_bulk
 {"index":{"_index":"newindex","_type":"type1","_id":1}}
 {"content":"1982-12-12"}
@@ -6608,7 +6608,7 @@ POST /_bulk
 
 将别名 index2 和新的索引关联, 应用程序不用重启
 
-```json
+```
 POST /_aliases
 {
   "actions": [
@@ -6944,7 +6944,7 @@ flush 负责将内存中的 segment 写入磁盘, 主要做如下工作
 
 * 主要为 index 级别的设置优化, 以日志场景为例, 一般会有如下索引设定
 
-    ```json
+    ```
     PUT /myindex
     {
       "settings": {
