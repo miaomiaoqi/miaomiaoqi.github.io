@@ -1993,7 +1993,7 @@ GET /lib3/user/_search?q=interests:changge&sort=age:desc
 }
 ```
 
-#### term查询和terms查询
+#### term 查询和 terms 查询
 
 term query 会去倒排索引中寻找确切的 term, **它并不知道分词器的存在即搜索词不进行分词**. 这种查询适合 keyword 、numeric、date. 
 
@@ -2010,7 +2010,7 @@ GET /lib3/user/_search/
 }
 ```
 
-terms:查询某个字段里含有多个关键词的文档
+terms: 查询某个字段里含有多个关键词的文档
 
 ```json
 GET /lib3/user/_search
@@ -3290,7 +3290,7 @@ GET /lib3/user/_search
 
 bool 查询本身也可以被用做不评分的查询. 简单地将它放置到 filter 语句中并在内部构建布尔逻辑:
 
-```json
+```http
 {
   "bool": {
     "must": {
@@ -3343,7 +3343,7 @@ bool 查询本身也可以被用做不评分的查询. 简单地将它放置到 
 
 
 
-#### constant_score查询
+#### constant_score 查询
 
 它将一个不变的常量评分应用于所有匹配的文档. 它被经常用于你只需要执行一个 filter 而没有其它查询(例如, 评分查询)的情况下. 
 
