@@ -1512,7 +1512,7 @@ DELETE /lib/user/1
 
 **使用 curl 的方式**
 
-```bash
+```
 curl 'http://localhost:9200/_mget' -d '{
   "docs":[
     {
@@ -5922,7 +5922,7 @@ es 有内置的脚本支持, 可以基于 groovy 脚本实现复杂的操作
 
 5. 删除文档
 
-    ```bash
+    ```
     POST /lib/user/4/_update
     {
       "script": {
@@ -5936,7 +5936,7 @@ es 有内置的脚本支持, 可以基于 groovy 脚本实现复杂的操作
 
 6. upsert
 
-    ```bash
+    ```
     POST /lib/user/4/_update
     {
       "script": "ctx._source.age += 1",
@@ -5957,7 +5957,7 @@ es 有内置的脚本支持, 可以基于 groovy 脚本实现复杂的操作
 
 retry_on_conflict:
 
-```bash
+```
 POST /lib/user/4/_update?retry_on_conflict=3
 ```
 
@@ -5972,7 +5972,7 @@ POST /lib/user/4/_update?retry_on_conflict=3
 
 2. 路由算法:
 
-    ```bash
+    ```
     shard=hash(routing) % number_of_pirmary_shards
     ```
 
@@ -6065,7 +6065,7 @@ bulk的格式:
 
 为什么不使用如下格式:
 
-```bash
+```
 [
 	{
 		"action": {},
@@ -6149,7 +6149,7 @@ hits: 默认查询前 10 个文档
 
 timed_out:
 
-```bash
+```
 GET /lib3/user/_search?timeout=10ms
 {
     "_source": ["address","name"],
@@ -6166,7 +6166,7 @@ GET /lib3/user/_search?timeout=10ms
 
 ### 多 index, 多 type 查询模式
 
-```bash
+```
 GET _search # 查询所有文档
 
 GET /lib/_search # 查询单个索引
@@ -6324,7 +6324,7 @@ PUT /lib3
 
 查看分数是如何计算的:
 
-```bash
+```
 GET /lib3/user/_search?explain=true
 {
     "query":{
@@ -6337,7 +6337,7 @@ GET /lib3/user/_search?explain=true
 
 查看一个文档能否匹配上某个查询:
 
-```bash
+```
 GET /lib3/user/2/_explain
 {
     "query":{
@@ -6356,7 +6356,7 @@ GET /lib3/user/2/_explain
 
 DocValues其实是Lucene在构建倒排索引时, 会额外建立一个有序的正排索引(基于document => field value的映射列表)
 
-```bash
+```
 {"birthday":"1985-11-11",age:23}
 
 {"birthday":"1989-11-11",age:29}
@@ -6374,7 +6374,7 @@ doc2         29         1989-11-11
 
 **注意:默认对不分词的字段是开启的, 对分词字段无效(需要把fielddata设置为true)**
 
-```bash
+```
 PUT /lib3
 {
     "settings":{
