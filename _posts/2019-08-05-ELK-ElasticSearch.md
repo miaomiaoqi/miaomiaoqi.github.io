@@ -1817,7 +1817,7 @@ GET /my_index/_search?q=alfred&df=user&sort=age:asc&from=4&size=10&timeout=1s
 
   以 term 为单位进行差异比较, 比如 "quick fox" "quick brown fox" 都会被匹配
 
-```json
+```apl
 DELETE test_search_index
 
 PUT test_search_index
