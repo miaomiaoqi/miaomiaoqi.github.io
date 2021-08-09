@@ -24,6 +24,179 @@ Zookeeper 所提供的服务涵盖: 主从协调、服务器节点动态上下�
 1. 管理(存储, 读取)用户程序提交的数据
 2. 为用户程序提供数据节点监听服务
 
+Zookeeper从设计模式角度来理解: 是一个基于观察者模式设计的分布式服务管理框架, 它负责存储和管理大家都关心的数据, 然后接受观察者的注册, 一旦这些数据的状态发生变化, Zookeeper 就将负责通知已经在Zookeeper上注册的那些观察者做出相应的反应
+
+
+
+## 特点
+
+1. Zookeeper: 一个领导者（Leader）, 多个跟随者（Follower）组成的集群. 
+
+2. 集群中只要有半数以上节点存活, Zookeeper集群就能正常服务. 所以Zookeeper适合安装奇数台服务器. 
+
+3. 全局数据一致: 每个Server保存一份相同的数据副本, Client无论连接到哪个Server, 数据都是一致的. 
+
+4. 更新请求顺序执行, 来自同一个Client的更新请求按其发送顺序依次执行. 
+
+5. 数据更新原子性, 一次数据更新要么成功, 要么失败. 
+
+6. 实时性, 在一定时间范围内, Client能读到最新数据
+
+
+
+
+
+
+
+## Zookeeper 的数据模型
+
+ZooKeeper 数据模型的结构与Unix 文件系统很类似, 整体上可以看作是一棵树, 每个节点称做一个ZNode. 每一个ZNode 默认能够存储1MB 的数据, 每个ZNode 都可以通过其路径唯一标识. 
+
+<img src="http://www.milky.show/images/bigdata/zookeeper/6.png" alt="http://www.milky.show/images/bigdata/zookeeper/6.png" style="zoom:50%;" />
+
+1. 层次化的目录结构, 命名符合常规文件系统规范, 它很像数据结构当中的树, 也很像文件系统的目录
+1. 每个节点在 Zookeeper 中叫做 **Znode**, 并且其有一个唯一的路径标识
+1. 节点 Znode 可以包含数据和子节点
+1. 客户端应用可以在节点上设置监视器
+
+<img src="http://www.milky.show/images/bigdata/zookeeper/1.png" alt="http://www.milky.show/images/bigdata/zookeeper/1.png" style="zoom:50%;" />
+
+### Znode
+
+Znode 包含了数据, 子节点引用, 访问权限等等
+
+<img src="http://www.milky.show/images/bigdata/zookeeper/2.png" alt="http://www.milky.show/images/bigdata/zookeeper/2.png" style="zoom:50%;" />
+
+**data:** Znode存储的数据信息. 
+
+**ACL:** 记录Znode的访问权限, 即哪些人或哪些IP可以访问本节点. 
+
+**stat:** 包含Znode的各种元数据, 比如事务ID、版本号、时间戳、大小等等. 
+
+**child:** 当前节点的子节点引用, 类似于二叉树的左孩子右孩子. 
+
+
+
+这里需要注意一点, Zookeeper是为读多写少的场景所设计. Znode并不是用来存储大规模业务数据, 而是用于存储少量的状态和配置信息, **每个节点的数据最大不能超过1MB**. 
+
+
+
+### ZNode 节点信息
+
+**查看当前znode中所包含的内容**
+
+```bash
+[zk: hadoop102 :2181(CONNECTED) 0] ls /
+[zookeeper]
+```
+
+查看当前节点详细数据 
+
+```
+[zk: hadoop102 :2181(CONNECTED) 5] ls s /
+[zookeeper]cZxid = 0x0
+ctime = Thu Jan 01 08:00:00 CST 1970
+mZxid = 0x0
+mtime = Thu Jan 01 08:00:00 CST 1970
+pZxid = 0x0
+cversion = 1
+dataVersion = 0
+aclVersion = 0
+ephemeralOwner = 0x0
+dataLength = 0
+numChildren = 1
+```
+
+czxid: 创建节点的事务zxid 
+
+每次修改ZooKeeper状态都会产生一个ZooKeeper事务ID. 事务ID是ZooKeeper中所有修改总的次序. 每次修改都有唯一的zxid, 如果zxid1小于zxid2, 那么zxid1在zxid2之前发生. 
+
+ctime: znode被创建的毫秒数（从1970年开始）
+
+mzxid: znode最后更新的事务zxid 
+
+mtime: znode最后修改的毫秒数（从1970年开始）
+
+pZxid: znode最后更新的子节点zxid 
+
+cversion: znode 子节点变化号, znode 子节点修改次数
+
+dataversion: znode 数据变化号
+
+aclVersion: znode 访问控制列表的变化号
+
+ephemeralOwner: 如果是临时节点, 这个是znode 拥有者的 session id. 如果不是临时节点则是0. 
+
+dataLength: znode 的数据长度
+
+numChildren: znode 子节点数量
+
+### 节点类型（持久**/**短暂**/**有序号**/**无序号）
+
+Znode分为四种类型: 
+
+* 持久节点(PERSISTENT)默认
+
+    默认的节点类型, 创建节点的客户端与zookeeper断开连接后, 该节点依旧存在 
+
+* 持久节点顺序节点(PERSISTENT_SEQUENTIAL)
+
+    所谓顺序节点, 就是在创建节点时, Zookeeper根据创建的时间顺序给该节点名称进行编号
+
+* 临时节点(EPHEMERAL)
+
+    和持久节点相反, 当创建节点的客户端与zookeeper断开连接后, 临时节点会被删除: 
+
+* 临时顺序节点(EPHEMERAL_SEQUENTIAL)
+
+    顾名思义, 临时顺序节点结合和临时节点和顺序节点的特点: 在创建节点时, Zookeeper根据创建的时间顺序给该节点名称进行编号, 当创建节点的客户端与zookeeper断开连接后, 临时节点会被删除
+
+说明: 创建znode时设置顺序标识, znode名称后会附加一个值, 顺序号是一个单调递增的计数器, 由父节点维护注意: 在分布式系统中, 顺序号可以被用于为所有的事件进行全局排序, 这样客户端可以通过顺序号推断事件的顺序
+
+## 应用场景
+
+提供的服务包括: 统一命名服务、统一配置管理、统一集群管理、服务器节点动态上下线、软负载均衡等. 
+
+### 统一命名服务
+
+在分布式环境下, 经常需要对应用/服务进行统一命名, 便于识别. 例如: IP不容易记住, 而域名容易记住.  
+
+### 统一配置管理
+
+分布式环境下, 配置文件同步非常常见. 
+
+1.  一般要求一个集群中, 所有节点的配置信息是一致的, 比如Kafka 集群
+2.  对配置文件修改后, 希望能够快速同步到各个节点上. 
+
+配置管理可交由ZooKeeper实现
+
+1.  可将配置信息写入ZooKeeper上的一个Znode. 
+2.  各个客户端服务器监听这个Znode. 
+3.  一旦Znode中的数据被修改, ZooKeeper将通知各个客户端服务器
+
+### 统一集群管理
+
+分布式环境中, 实时掌握每个节点的状态是必要的. 
+
+*   可根据节点实时状态做出一些调整
+
+ZooKeeper可以实现实时监控节点状态变化
+
+*   可将节点信息写入ZooKeeper上的一个ZNode. 
+*   监听这个ZNode可获取它的实时状态变化.  
+
+### 服务器动态上下线
+
+客户端能实时洞察到服务器上下线的变化
+
+### 软负载均衡
+
+在Zookeeper中记录每台服务器的访问数, 让访问数最少的服务器去处理最新的客户端请求 
+
+
+
+
+
 ## 安装
 
 ### 单机版安装
@@ -69,9 +242,41 @@ Zookeeper 所提供的服务涵盖: 主从协调、服务器节点动态上下�
     #autopurge.purgeInterval=1
     ```
 
+3.  启动 zk, 使用 status 查看状态
+
+    `bin/zkServer.sh start`
+
+    `bin/zkServer.sh status`
+
+    `bin/zkServer.sh stop`
+
+    `bin/zkCli.sh`
+
+**配置参数解读**
+
+**tickTime = 2000**: 通信心跳时间, **Zookeeper**服务器与客户端心跳时间, 单位毫秒 
+
+<img src="http://www.milky.show/images/bigdata/zookeeper/7.png" alt="http://www.milky.show/images/bigdata/zookeeper/7.png" style="zoom:50%;" />
+
+**initLimit = 10**: **LF**初始通信时限 
+
+Leader和Follower初始连接时能容忍的最多心跳数（tickTime的数量） 
+
+**syncLimit = 5**: **LF**同步通信时限 
+
+Leader和Follower之间通信时间如果超过syncLimit * tickTime, Leader认为Follwer死掉, 从服务器列表中删除Follwer.  
+
+**dataDir**: 保存Zookeeper中的数据 
+
+注意: 默认的tmp目录, 容易被Linux系统定期删除, 所以一般不用默认的tmp目录.  
+
+**clientPort = 2181**: 客户端连接端口, 通常不做修改.  
+
+
+
 ### 集群安装
 
-1. 修改每一个 zookeeper 的配置文件
+1. 修改每一个 zookeeper 的配置文件, 增加如下配置
 
     ```bash
     # 2881 是leader和follower通信的端口 默认是2888
@@ -83,184 +288,108 @@ Zookeeper 所提供的服务涵盖: 主从协调、服务器节点动态上下�
 
 1. 到数据目录下创建文件 myid, 文件内容就是 myid 的值
 
-1. 分别启动三台机器, 使用status查看状态
+1. 分别启动三台机器, 使用 status 查看状态
+
+**配置参数解读**
+
+`server.A=B:C:D`
+
+**A** 是一个数字, 表示这个是第几号服务器；
+
+集群模式下配置一个文件myid, 这个文件在dataDir目录下, 这个文件里面有一个数据就是A的值, Zookeeper启动时读取此文件, 拿到里面的数据与zoo.cfg里面的配置信息比较从而判断到底是哪个server. 
+
+**B** 是这个服务器的地址；
+
+**C **是这个服务器Follower与集群中的Leader服务器交换信息的端口；
+
+**D** 是万一集群中的Leader服务器挂了, 需要一个端口来重新进行选举, 选出一个新的Leader, 而这个端口就是用来执行选举时服务器相互通信的端口. 
+
+
+
+## 选举机制
+
+SID: 服务器ID. 用来唯一标识一台ZooKeeper集群中的机器, 每台机器不能重复, 和myid一致. 
+
+ZXID: 事务ID. ZXID是一个事务ID, 用来标识一次服务器状态的变更. 在某一时刻,  集群中的每台机器的ZXID值不一定完全一致, 这和ZooKeeper服务器对于客户端“更新请求”的处理逻辑有关. 
+
+Epoch: 每个Leader任期的代号. 没有Leader时同一轮投票过程中的逻辑时钟值是相同的. 每投完一次票这个数据就会增加 
+
+### Zookeeper选举机制-第一次启动
+
+<img src="http://www.milky.show/images/bigdata/zookeeper/8.png" alt="http://www.milky.show/images/bigdata/zookeeper/8.png" style="zoom:50%;" />
+
+1.  服务器1启动, 发起一次选举. 服务器1投自己一票. 此时服务器1票数一票, 不够半数以上（3票）, 选举无法完成, 服务器1状态保持为LOOKING； 2.
+2.  服务器2启动, 再发起一次选举. 服务器1和2分别投自己一票并交换选票信息: 此时服务器1发现服务器2的myid比自己目前投票推举的（服务器1） 大, 更改选票为推举服务器2. 此时服务器1票数0票, 服务器2票数2票, 没有半数以上结果, 选举无法完成, 服务器1, 2状态保持LOOKING 
+3.  服务器3启动, 发起一次选举. 此时服务器1和2都会更改选票为服务器3. 此次投票结果: 服务器1为0票, 服务器2为0票, 服务器3为3票. 此时服务器3的票数已经超过半数, 服务器3当选Leader. 服务器1, 2更改状态为FOLLOWING, 服务器3更改状态为LEADING； LOOKING LOOKING 1 1 2 0 3 0 
+4.  服务器4启动, 发起一次选举. 此时服务器1, 2, 3已经不是LOOKING状态, 不会更改选票信息. 交换选票信息结果: 服务器3为3票, 服务器4为1票. 此时服务器4服从多数, 更改选票信息为服务器3, 并更改状态为FOLLOWING； 
+5.  服务器5启动, 同4一样当小弟. 
+
+### Zookeeper选举机制-非第一次启动
+
+<img src="http://www.milky.show/images/bigdata/zookeeper/9.png" alt="http://www.milky.show/images/bigdata/zookeeper/9.png" style="zoom:50%;" />
+
+1.  当ZooKeeper集群中的一台服务器出现以下两种情况之一时, 就会开始进入Leader选举
+    *   服务器初始化启动. 
+    *   服务器运行期间无法和Leader保持连接. 
+
+2.  而当一台机器进入Leader选举流程时, 当前集群也可能会处于以下两种状态:  
+
+    *   集群中本来就已经存在一个Leader. 对于第一种已经存在Leader的情况, 机器试图去选举Leader时, 会被告知当前服务器的Leader信息, 对于该机器来说, 仅仅需要和Leader机器建立连接, 并进行状态同步即可. 
+
+    * 集群中确实不存在Leader. 假设ZooKeeper由5台服务器组成, SID分别为1、2、3、4、5, ZXID分别为8、8、8、7、7, 并且此时SID为3的服务器是Leader. 某一时刻,  3和5服务器出现故障, 因此开始进行Leader选举.  
+
+        SID为1、2、4的机器投票情况（EPOCH, ZXID, SID ）:  （1, 8, 1） （1, 8, 2） （1, 7, 4）选举Leader规则:  
+
+        1.  EPOCH 大的直接胜出
+        2.  EPOCH 相同, 事务 id 大的胜出
+        3.  事务 id 相同, 服务器 id 大的胜出 
+
+
+
+
 
 ## 服务端命令
 
-启动
+| 命令语法           | 功能描述       |
+| ------------------ | -------------- |
+| zkServer.sh start  | 启动服务端     |
+| zkServer.sh status | 查看服务端状态 |
+| zkServer.sh stop   | 停止服务端     |
 
-```bash
-zkServer.sh start
-```
-
-状态
-
-```bash
-zkServer.sh status
-```
-
-客户端连接
-
-```bash
-zkCli.sh [-server host:port]
-```
-
-## Zookeeper 的数据模型
-
-1. 层次化的目录结构, 命名符合常规文件系统规范, 它很像数据结构当中的树, 也很像文件系统的目录
-1. 每个节点在 Zookeeper 中叫做 **Znode**, 并且其有一个唯一的路径标识
-1. 节点 Znode 可以包含数据和子节点
-1. 客户端应用可以在节点上设置监视器
-
-<img src="http://www.milky.show/images/bigdata/zookeeper/1.png" alt="http://www.milky.show/images/bigdata/zookeeper/1.png" style="zoom:50%;" />
-
-### Znode
-
-Znode 包含了数据, 子节点引用, 访问权限等等
-
-<img src="http://www.milky.show/images/bigdata/zookeeper/2.png" alt="http://www.milky.show/images/bigdata/zookeeper/2.png" style="zoom:50%;" />
-
-**data:** Znode存储的数据信息. 
-
-**ACL:** 记录Znode的访问权限, 即哪些人或哪些IP可以访问本节点. 
-
-**stat:** 包含Znode的各种元数据, 比如事务ID、版本号、时间戳、大小等等. 
-
-**child:** 当前节点的子节点引用, 类似于二叉树的左孩子右孩子. 
-
-
-
-这里需要注意一点, Zookeeper是为读多写少的场景所设计. Znode并不是用来存储大规模业务数据, 而是用于存储少量的状态和配置信息, **每个节点的数据最大不能超过1MB**. 
-
-## 节点类型
-
-Znode分为四种类型: 
-
-* 持久节点(PERSISTENT)默认
-
-    默认的节点类型, 创建节点的客户端与zookeeper断开连接后, 该节点依旧存在 
-
-* 持久节点顺序节点(PERSISTENT_SEQUENTIAL)
-
-    所谓顺序节点, 就是在创建节点时, Zookeeper根据创建的时间顺序给该节点名称进行编号
-
-* 临时节点(EPHEMERAL)
-
-    和持久节点相反, 当创建节点的客户端与zookeeper断开连接后, 临时节点会被删除: 
-
-* 临时顺序节点(EPHEMERAL_SEQUENTIAL)
-
-    顾名思义, 临时顺序节点结合和临时节点和顺序节点的特点: 在创建节点时, Zookeeper根据创建的时间顺序给该节点名称进行编号, 当创建节点的客户端与zookeeper断开连接后, 临时节点会被删除
 
 
 ## 客户端命令
 
-* ls path [watch]
-
-    查看节点下的子节点
-
-    ```bash
-    ls /
-    ```
-
-* create [-s] [-e] path data acl
-
-    在某个节点下创建节点, 默认是持久节点
-
-    ```bash
-    create /app1 "This is app1 server parent"
-    
-    create /app1/server01 "192.168.1.1,100"
-    ```
-
-    -e 是短暂节点, 客户端断开连接节点销毁
-
-    ```bash
-    create -e /app-e "aaaa"
-    ```
-
-    -s 是顺序节点, 会自动给节点加上序号
-
-    ```bash
-    [zk: 127.0.0.1:2220(CONNECTED) 5] create -s /test/aa 999
-    Created /test/aa0000000000
-    [zk: 127.0.0.1:2220(CONNECTED) 6] create -s /test/bb 999
-    Created /test/bb0000000001
-    [zk: 127.0.0.1:2220(CONNECTED) 7] create -s /test/aa 999
-    Created /test/aa0000000002
-    [zk: 127.0.0.1:2220(CONNECTED) 8] ls /test
-    [aa0000000000, aa0000000002, bb0000000001]
-    ```
-
-    -s 和 -e 结合使用就是临时顺序节点
-
-* get path [watch]
-
-    获取节点内容
-
-    ```bash
-    get /app1/server01
-    ```
-
-    开启 watch 功能
-
-    ```bash
-    get /app1 watch
-    ```
-
-    当其他机器修改/app1节点的内容时, 监听会收到通知, 但是只能监听一次, 监听器也分类型
-
-    ```bash
-    WATCHER::
-    
-    WatchedEvent state:SyncConnected type:NodeDataChanged path:/app1
-    ```
-
-* quit
-
-    客户端断开连接
-
-* set
-
-    更新节点内容
-
-    ```bash
-    set /app1 "xxx"
-    ```
-
-    会同步到其他机器上, 如果节点过多, 会有短暂延迟
-
-* delete
-
-    删除节点
-
-    ```bash
-    delete /app1
-    ```
-
-* exists
-
-    判断节点是否存在
-
-* getData
-
-    获得一个节点的数据
-
-* setData
-
-    设置一个节点的数据
-
-* getChildren
-
-    获取节点下的所有子节点
+| 命令基本语法                   | 功能描述                                                     |
+| ------------------------------ | ------------------------------------------------------------ |
+| help                           | 显示所有操作命令                                             |
+| ls path [watch]                | 使用ls 命令来查看当前znode的子节点[可监听]<br />-w 监听子节点变化<br />-s 附加次级信息 |
+| create [-s] [-e] path data acl | 在某个节点下创建节点, 默认是持久节点<br />-s 是顺序节点, 会自动给节点加上序号<br />-e 是短暂节点, 客户端断开连接节点销毁 |
+| get path [watch]               | 获得节点的值[可监听]<br />-w 监听节点内容变化<br />-s 附加次级信息 |
+| set                            | 设置节点的具体值                                             |
+| stat                           | 查看节点状态                                                 |
+| delete                         | 删除节点                                                     |
+| deleteall                      | 递归删除节点                                                 |
+| zkCli.sh -server ip:port       | 客户端连接服务器端                                           |
+| quit                           | 客户端断开连接                                               |
+| getChildren                    | 获取节点下的所有子节点                                       |
+| exists                         | 判断节点是否存在                                             |
 
 这其中, exists, getData, getChildren属于读操作. Zookeeper客户端在请求读操作的时候, 可以选择是否设置**Watch**. 
 
 我们可以理解成是注册在特定Znode上的触发器. 当这个Znode发生改变, 也就是调用了create, delete, setData方法的时候, 将会触发Znode上注册的对应事件, 请求Watch的客户端会接收到**异步通知**. 
 
+
+
+
+
+
+
 ## Zookeeper 监听器原理(Watch)
 
 当客户端设置Watch时, 会开启两个线程, 一个线程负责监听器, 一个线程负责和Zookeeper服务端通信告诉服务端监听线程的端口, 当服务端变化时, 服务端主动调用客户端监听器端口, 监听器调用zkClient的watch方法实现监听器, 原理是各种rpc调用
+
+客户端注册监听它关心的目录节点, 当目录节点发生变化（数据改变、节点删除、子目录节点增加删除）时, ZooKeeper 会通知客户端. 监听机制保证ZooKeeper 保存的任何的数据的任何改变都能快速的响应到监听了该节点的应用程序. 
 
 1. 客户端调用getData方法, watch参数是true. 服务端接到请求, 返回节点数据, 并且在对应的哈希表里插入被Watch的Znode路径, 以及Watcher列表. 
 
@@ -270,13 +399,39 @@ Znode分为四种类型:
 
     <img src="http://www.milky.show/images/bigdata/zookeeper/4.png" alt="http://www.milky.show/images/bigdata/zookeeper/4.png" style="zoom:50%;" />
 
+**监听原理详解**
+
+首先要有一个 main() 线程
+
+在 main 线程中创建 Zookeeper 客户端, 这时就会创建两个线程, 一个负责网络连接通信（connet）, 一个负责监听（listener）. 
+
+通过connect线程将注册的监听事件发送给Zookeeper. 
+
+在 Zookeeper 的注册监听器列表中将注册的监听事件添加到列表中. 
+
+Zookeeper 监听到有数据或路径变化, 就会将这个消息发送给listener线程. 
+
+listener 线程内部调用了 process() 方法. 
+
+**常见的监听**
+
+监听节点数据的变化
+
+`get path [watch] `
+
+监听子节点增减的变化
+
+`ls path [watch] `
+
+
+
 ## Zookeeper 的一致性
 
-Zookepper身为分布式系统协调服务, 如果自身挂掉了怎么办呢? 为了防止单机挂掉的情况, Zookeeper 维护了一个集群
+Zookepper 身为分布式系统协调服务, 如果自身挂掉了怎么办呢? 为了防止单机挂掉的情况, Zookeeper 维护了一个集群
 
 <img src="http://www.milky.show/images/bigdata/zookeeper/5.png" alt="http://www.milky.show/images/bigdata/zookeeper/5.png" style="zoom: 50%;" />
 
-Zookeeper Service集群是一主多从结构
+Zookeeper Service 集群是一主多从结构
 
 1. 在更新数据时, 首先更新到主节点(这里的节点是指服务器, 不是Znode), 再同步到从节点
 
@@ -327,4 +482,56 @@ Zookeeper Service集群是一主多从结构
     |分布式锁|优点|缺点|
     |-----|-----|-----|
     |Zookeeper|1. 有封装好的框架, 容易实现<br/>2.有等待锁的队列, 大大提升抢锁效率|添加和删除节点性能较低|
-    |Redis|Set和Del指令的性能较高|1. 实现复杂, 需要考虑超时, 原子性, 误删<br/>2. 没有等待锁的队列, 只能在客户端自旋来等锁, 效率低下|
+    |Redis|Set 和 Del 指令的性能较高|1. 实现复杂, 需要考虑超时, 原子性, 误删<br/>2. 没有等待锁的队列, 只能在客户端自旋来等锁, 效率低下|
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## 面试
+
+### 选举机制
+
+半数机制, 超过半数的投票通过, 即通过. 
+
+1.  第一次启动选举规则: 
+
+    投票过半数时, 服务器id大的胜出
+
+2.  第二次启动选举规则: 
+
+    1.  EPOCH大的直接胜出
+
+    2.  EPOCH相同, 事务id大的胜出
+
+    3.  事务id相同, 服务器id大的胜出
+
+### 生产集群安装多少**zk**合适？
+
+安装奇数台. 
+
+生产经验: 
+
+*   10台服务器: 3台zk；
+
+*   20台服务器: 5台zk
+
+*   100台服务器: 11台zk
+
+*   200台服务器: 11台zk 
+
+服务器台数多: 好处, 提高可靠性；坏处: 提高通信延时
+
+### 常用命令
+
+ls、get、create、delete 
