@@ -11,8 +11,6 @@ keywords:
 {:toc}
 
 
-
-
 ## MapStruct 是什么? 
 
 ### JavaBean 的困扰
@@ -41,203 +39,321 @@ keywords:
 
 同时, 作为一个工具类, 相比于手写, 其应该具有便捷, 不容易出错的特点. 
 
-## MapStruct 入门
 
-入门很简单. 我是基于 `Maven` 来进行项目 jar 包管理的. 
 
-### 引入依赖
+我们的故事要从一个风和日丽的下午开始说起!
+
+这天, 外包韩在位置上写代码～外包韩根据如下定义
+
+- PO(persistant object):持久化对象, 可以看成是与数据库中的表相映射的 java 对象. 最简单的 PO 就是对应数据库中某个表中的一条记录. 
+- **VO(view object)**:视图对象, 用于展示层, 它的作用是把某个指定页面（或组件）的所有数据封装起来. 
+- **BO(business object)**:业务对象, 主要作用是把业务逻辑封装为一个对象. 这个对象可以包括一个或多个其它的对象. 
+- **DTO、DO(省略......)**
+
+将Bean进行逐一分类! 例如一个car_tb的表, 于是他有了两个类, 一个叫CarPo, 里头属性和表字段完全一致. 另一个叫CarVo,用于页面上的Car显示! 但是外包韩在做CarPo到CarVo转换的时候, 代码是这么写的, 伪代码如下:
+
+```java
+CarPo carPo = this.carDao.selectById(1L);
+CarVo carVo = new CarVo();
+carVo.setId(carPo.getId());
+carVo.setName(carPo.getName());
+//省略一堆
+return carVo;
+```
+
+*画外音:*看到这一串代码是不是特别亲切, 我接手过一堆外包留下的代码, 就是这么写的, 一坨屎山! 一类几千行, 一半都在set属性. 
+
+恰巧, 阿雄打水路过! 鸡贼的阿雄瞄了一眼外包韩的屏幕, 看到外包韩的这一系列代码! 上去进行一顿教育, 觉得不够优雅! 阿雄觉得, 应该用`BeanUtils.copyProperties`来简化书写, 像下面这样! 
+
+```java
+CarPo carPo = this.carDao.selectById(1L);
+CarVo carVo = new CarVo();
+BeanUtils.copyProperties(carPo, carVo);
+return carVo;
+```
+
+可是, 外包韩盯着这段代码, 说道:"网上不是说反射效率慢, 你这么写, 没有性能问题么？" 阿雄说道:" 如果是用Apache的BeanUtil类, 确实有很大的性能问题, 像阿里巴巴的代码扫描插件, 都禁止用该类, 如下所示! "
+
+![https://www.milky.show/images/java/m_1.png](https://www.milky.show/images/java/m_1.png)
+
+"但是, 如果采用的是像Spring的BeanUtils类, 要在调用次数足够多的时候, 你才能明显的感受到卡顿. "阿雄补充道. 
+
+"哇, 阿雄真棒! "外包韩兴奋不已! 
+
+看着这办公室基情满满的氛围. 一旁正在拖地的清洁工------**扫地烟**, 他决定不再沉默. 
+
+只见扫地烟扔掉手中的拖把, 得瑟的说道"我们不考虑性能. 从拓展性角度看看! BeanUtils还是有很多问题的! "
+
+- 复制对象时字段类型不一致, 导致赋值不上, 你怎么解决？自己拓展？
+- 复制对象时字段名称不一致, 例如CarPo里叫carName, CarVo里叫name, 导致赋值不上, 你怎么解决？自己拓展？
+- 如果是集合类的复制, 例如List转换为List,你怎么处理？(省略一万字....)
+
+"那应该怎么办呢？"听了扫地烟的描述, 外包韩疑惑的问道! 
+
+"很简单, 其实我们在转换bean的过程中, set这些逻辑是固定的, 唯一变化的就是转换规则. 因此, 如果我们只需要书写转换规则, 转换代码由系统根据规则自动生成, 就方便很多了! 还是用上面的例子, CarPo里叫carName, CarVo里叫name, 属性名称不一致. 我们就通过一个注解
+
+```java
+@Mapping(source = "carName", target = "name"), 
+```
+
+指定对应转换规则. 系统识别到这个注解, 就会生成代码
+
+```java
+carVo.setName(carPo.getCarName())
+```
+
+如果能以这样的方式, set代码由系统自动生成, 那么在bean转换逻辑方面, 灵活性将大大加强, 而且这种方式不存在性能问题!"扫地烟补充道! 
+
+"那这些set逻辑, 由什么工具来生成呢？"外包韩和阿雄一起问道! 
+
+"工具的名字叫**MapStruct**! "
+
+ok, 上面的故事到了这里, 就结束了! 不需要问结局, 结局只有一个, 外包韩和阿雄幸福美满的...(省略10000字)... 那么我们开始具体来说一说**MapStruct**! 
+
+
+
+## MapStruct的教程
+
+### 用法
+
+引入pom文件如下
 
 ```xml
-<properties>
-	<org.mapstruct.version>1.3.0.Final</org.mapstruct.version>
-</properties>
-
 <dependency>
-	<groupId>org.mapstruct</groupId>
-	<artifactId>mapstruct-jdk8</artifactId>
-	<version>${org.mapstruct.version}</version>
+    <groupId>org.mapstruct</groupId>
+    <!-- jdk8以下就使用mapstruct -->
+    <artifactId>mapstruct-jdk8</artifactId>
+    <version>1.2.0.Final</version>
 </dependency>
-
 <dependency>
-	<groupId>org.mapstruct</groupId>
-	<artifactId>mapstruct-processor</artifactId>
-	<version>${org.mapstruct.version}</version>
+    <groupId>org.mapstruct</groupId>
+    <artifactId>mapstruct-processor</artifactId>
+    <version>1.2.0.Final</version>
 </dependency>
 ```
 
-### 创建 entity 和 dto 对象
-
-该类是从 github 某个订单系统里面拿下来的部分. 
+在准备两个实体类, 为了方便演示, 用了`lombok`插件. 准备两个实体类, 一个是CarPo
 
 ```java
 @Data
-public class Order {
-
-    /**
-     *订单id
-     */
-    private Long id;
-
-    /**
-     * 订单编号
-     */
-    private String orderSn;
-
-    /**
-     * 收货人姓名/号码
-     */
-    private String receiverKeyword;
-
-    /**
-     * 订单状态：0->待付款；1->待发货；2->已发货；3->已完成；4->已关闭；5->无效订单
-     */
-    private Integer status;
-
-    /**
-     * 订单类型：0->正常订单；1->秒杀订单
-     */
-    private Integer orderType;
-
-    /**
-     * 订单来源：0->PC订单；1->app订单
-     */
-    private Integer sourceType;
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class CarPo {
+    private Integer id;
+    private String brand;
 }
 ```
 
-对应的查询参数
+还有一个是CarVo
 
 ```java
 @Data
-public class OrderQueryParam {
-    /**
-     * 订单编号
-     */
-    private String orderSn;
-
-    /**
-     * 收货人姓名/号码
-     */
-    private String receiverKeyword;
-
-    /**
-     * 订单状态：0->待付款；1->待发货；2->已发货；3->已完成；4->已关闭；5->无效订单
-     */
-    private Integer status;
-
-    /**
-     * 订单类型：0->正常订单；1->秒杀订单
-     */
-    private Integer orderType;
-
-    /**
-     * 订单来源：0->PC订单；1->app订单
-     */
-    private Integer sourceType;
-
-
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class CarVo {
+    private Integer id;
+    private String brand;
 }
 ```
 
-### 写 Mapper
-
-`Mapper` 即映射器, 一般来说就是写 `xxxMapper` 接口. 
-
-当然, 不一定是以 `Mapper` 结尾的. 只是官方是这么写的. 在本入门例子中, 对应的接口如下
+再来一个转换接口
 
 ```java
-import com.homejim.mapstruct.dto.OrderQueryParam;
-import com.homejim.mapstruct.entity.Order;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-
 @Mapper
-public interface OrderMapper {
+public interface CarCovertBasic {
+    CarCovertBasic INSTANCE =
+    Mappers.getMapper(CarCovertBasic.class);
 
-    OrderQueryParam entity2queryParam(Order order);
-
+    CarVo toConvertVo(CarPo source);
 }
 ```
 
-简单的映射(字段和类型都匹配), 只有一个要求, 在接口上写 `@Mapper` 注解即可. 
-
-然后方法上, 入参对应要被转化的对象, 返回值对应转化后的对象, 方法名称可任意. 
-
-### 测试
-
-写一个测试类测试一下. 
+测试代码如下:
 
 ```java
-@Test
-public void entity2queryParam() {
-    Order order = new Order();
-    order.setId(12345L);
-    order.setOrderSn("orderSn");
-    order.setOrderType(0);
-    order.setReceiverKeyword("keyword");
-    order.setSourceType(1);
-    order.setStatus(2);
-
-    OrderMapper mapper = Mappers.getMapper(OrderMapper.class);
-    OrderQueryParam orderQueryParam = mapper.entity2queryParam(order);
-    assertEquals(orderQueryParam.getOrderSn(), order.getOrderSn());
-    assertEquals(orderQueryParam.getOrderType(), order.getOrderType());
-    assertEquals(orderQueryParam.getReceiverKeyword(), order.getReceiverKeyword());
-    assertEquals(orderQueryParam.getSourceType(), order.getSourceType());
-    assertEquals(orderQueryParam.getStatus(), order.getStatus());
-
-}
+//实际中从数据库取
+CarPo carPo = CarPo.builder().id(1)
+                           .brand("BMW")
+                           .build();
+CarVo carVo = CarCovertBasic.INSTANCE.toConvertVo(carPo);
+System.out.println(carVo);
 ```
 
-测试通过, 没有任何的问题. 
-
-## MapStruct 分析
-
-上面中, 我写了3个步骤来实现了从 `Order` 到 `OrderQueryParam` 的转换. 
-
-那么, 作为一个注解处理器, 通过`MapStruct` 生成的代码具有怎么样的优势呢? 
-
-### 高性能
-
-这是相对反射来说的, 反射需要去读取字节码的内容, 花销会比较大. 而通过 `MapStruct` 来生成的代码, 其类似于人手写. 速度上可以得到保证. 
-
-前面例子中生成的代码可以在编译后看到. 在 target/generated-sources/annotations 里可以看到. 
-
-对应的代码
+输出如下
 
 ```java
-@Generated(
-    value = "org.mapstruct.ap.MappingProcessor",
-    date = "2019-08-02T00:29:49+0800",
-    comments = "version: 1.3.0.Final, compiler: javac, environment: Java 11.0.2 (Oracle Corporation)"
-)
-public class OrderMapperImpl implements OrderMapper {
+CarVo(id=1, brand=BMW)
+```
 
-    @Override
-    public OrderQueryParam entity2queryParam(Order order) {
-        if ( order == null ) {
-            return null;
-        }
+可以看到, carPo的属性值复制给了carVo. 当然, 在这种情况下, 功能和`BeanUtils`是差不多的, 体现不出优势! 嗯, 我们放在后面说, 我们先来说说原理! 
 
-        OrderQueryParam orderQueryParam = new OrderQueryParam();
+### 原理
 
-        orderQueryParam.setOrderSn( order.getOrderSn() );
-        orderQueryParam.setReceiverKeyword( order.getReceiverKeyword() );
-        orderQueryParam.setStatus( order.getStatus() );
-        orderQueryParam.setOrderType( order.getOrderType() );
-        orderQueryParam.setSourceType( order.getSourceType() );
+其实原理就是MapStruct插件会识别我们的接口, 生成一个实现类, 在实现类中, 为我们实现了set逻辑! 例如, 上面的例子中, 给CarCovertBasic接口, 实现了一个实现类CarCovertBasicImpl, 我们可以用反编译工具看到源码如下图所示
 
-        return orderQueryParam;
-    }
+![https://www.milky.show/images/java/m_2.png](https://www.milky.show/images/java/m_2.png)
+
+下面, 我们来说说优势
+
+### 优势
+
+**两个类型属性不一致**
+
+此时 CarPo 的一个属性为 carName, 而 CarVo 对应的属性为 name! 
+
+我们在接口上增加对应关系即可, 如下所示
+
+```java
+@Mapper
+public interface CarCovertBasic {
+		CarCovertBasic INSTANCE = Mappers.getMapper(CarCovertBasic.class);
+
+		@Mapping(source = "carName", target = "name")
+		CarVo toConvertVo(CarPo source);
 }
 ```
 
-可以看到其生成了一个实现类, 而代码也类似于我们手写, 通俗易懂. 
+测试代码如下
 
+```java
+CarPo carPo = CarPo.builder().id(1)
+                       .brand("BMW")
+                       .carName("宝马")
+                       .build();
+CarVo carVo = CarCovertBasic.INSTANCE.toConvertVo(carPo);
+System.out.println(carVo);
+```
 
+输出如下
 
-### 使用相对简单
+```java
+CarVo(id=1, brand=BMW, name=宝马)
+```
 
-如果是完全映射的, 使用起来肯定没有反射简单. 用类似 `BeanUtils` 这些工具一条语句就搞定了. 但是, 如果需要进行特殊的匹配(特殊类型转换, 多对一转换等), 其相对来说也是比较简单的. 
+可以看到carVo已经能识别到carPo中的carName属性, 并赋值成功. 反编译的图如下
 
-基本上, 使用的时候, 我们只需要声明一个接口, 接口下写对应的方法, 就可以使用了. 当然, 如果有特殊情况, 是需要额外处理的. 
+![https://www.milky.show/images/java/m_3.png](https://www.milky.show/images/java/m_3.png)
+
+`画外音:`如果有多个映射关系可以用@Mappings注解, 嵌套多个@Mapping注解实现, 后文说明! 
+
+**集合类型转换**
+
+如果我们要从List转换为List怎么办呢？简单, 接口里加一个方法就行
+
+```java
+@Mapper
+public interface CarCovertBasic {
+    CarCovertBasic INSTANCE = Mappers.getMapper(CarCovertBasic.class);
+
+    @Mapping(source = "carName", target = "name")
+    CarVo toConvertVo(CarPo source);
+
+    List<CarVo> toConvertVos(List<CarPo> source);
+}
+```
+
+如代码所示, 我们增加了一个toConvertVos方法即可, mapStruct生成代码的时候, 会帮我们去循环调用toConvertVo方法, 给大家看一下反编译的代码, 就一目了然
+
+![https://www.milky.show/images/java/m_4.png](https://www.milky.show/images/java/m_4.png)
+
+**类型不一致**
+
+在CarPo加一个属性为Date类型的createTime,而在CarVo加一个属性为String类型的createTime,那么代码如下
+
+```java
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class CarPo {
+    private Integer id;
+    private String brand;
+    private String carName;
+    private Date createTime;
+}
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class CarVo {
+    private Integer id;
+    private String brand;
+    private String name;
+    private String createTime;
+}
+```
+
+接口就可以这么写
+
+```java
+@Mapper
+public interface CarCovertBasic {
+    CarCovertBasic INSTANCE = Mappers.getMapper(CarCovertBasic.class);
+    @Mappings({
+        @Mapping(source = "carName", target = "name"),
+        @Mapping(target = "createTime", expression = "java(com.guduyan.util.DateUtil.dateToStr(source.getCreateTime()))")
+    })
+    CarVo toConvertVo(CarPo source);
+
+    List<CarVo> toConvertVos(List<CarPo> source);
+}
+```
+
+这样在代码中, 就能解决类型不一致的问题! 在生成set方法的时候, 自动调用DateUtil类进行转换, 由于比较简单, 我就不贴反编译的图了! 
+
+**多对一**
+
+在实际业务情况中, 我们有时候会遇到将两个Bean映射为一个Bean的情况, 假设我们此时还有一个类为AtrributePo,我们要将CarPo和AttributePo同时映射为CarBo,我们可以这么写
+
+```java
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class AttributePo {
+    private double price;
+    private String color;
+}
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class CarBo {
+    private Integer id;
+    private String brand;
+    private String carName;
+    private Date createTime;
+    private double price;
+    private String color;
+}
+```
+
+接口改变如下
+
+```java
+@Mapper
+public interface CarCovertBasic {
+    CarCovertBasic INSTANCE = Mappers.getMapper(CarCovertBasic.class);
+    @Mappings({
+        @Mapping(source = "carName", target = "name"),
+        @Mapping(target = "createTime", expression = "java(com.guduyan.util.DateUtil.dateToStr(source.getCreateTime()))")
+    })
+    CarVo toConvertVo(CarPo source);
+
+    List<CarVo> toConvertVos(List<CarPo> source);
+
+    CarBo toConvertBo(CarPo source1, AttributePo source2);
+}
+```
+
+直接增加接口即可, 插件在生成代码的时候, 会帮我们自动组装, 看看下面的反编译代码就一目了然. 
+
+![https://www.milky.show/images/java/m_5.png](https://www.milky.show/images/java/m_5.png)
+
+**其他**
+
+关于MapStruct还有其他很多的高级功能, 我就不一一介绍了. 大家可以参考下面的文档, 在用到的时候自行翻阅即可! 文档地址:https://mapstruct.org/documentation/reference-guide/
