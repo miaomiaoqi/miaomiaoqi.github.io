@@ -2,7 +2,7 @@
 #   Main Configs   #
 # ---------------- #
 baseurl:
-# url: https://www.milky.show # 修改
+url: https://miaomiaoqi.github.io # 修改
 date_format: "ordinal"
 title: milky的个人博客 # 修改
 subtitle: "冲鸭!!!" # 修改
