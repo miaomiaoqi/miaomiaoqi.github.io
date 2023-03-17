@@ -15,7 +15,7 @@ keywords:
 
 首先处理这个问题, 我们要知道一些网络知识, 要知道tcp那些事, 比如说三次握手, 和四次挥手......很多人会问, 为什么建链接要3次握手, 断链接需要4次挥手? 让我们一起看下下面的流程图: 
 
-![https://www.miaomiaoqi.github.io/images/net/timewait/t_1.png](https://www.miaomiaoqi.github.io/images/net/timewait/t_1.png)
+![https://miaomiaoqi.github.io/images/net/timewait/t_1.png](https://miaomiaoqi.github.io/images/net/timewait/t_1.png)
 
 首先, 是三次握手: 
 

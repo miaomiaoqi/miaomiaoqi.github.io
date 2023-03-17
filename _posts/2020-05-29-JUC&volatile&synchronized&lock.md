@@ -38,7 +38,7 @@ keywords:
 
         用于保证多个CPU Cache之间缓存共享数据的一致
 
-        <img src="https://www.miaomiaoqi.github.io/images/java/concurrency/1.png" alt="https://www.miaomiaoqi.github.io/images/java/concurrency/1.png" style="zoom:67%;" />
+        <img src="https://miaomiaoqi.github.io/images/java/concurrency/1.png" alt="https://miaomiaoqi.github.io/images/java/concurrency/1.png" style="zoom:67%;" />
 
 * CPU 乱序执行优化
 
@@ -48,7 +48,7 @@ keywords:
 
     规范Java虚拟机与计算机内存是如何协调工作的, 规定了一个线程如何和何时可以看到其他线程修改过的共享变量的值, 以及在必须时如何同步地访问共享变量
 
-    <img src="https://www.miaomiaoqi.github.io/images/java/concurrency/2.png" alt="https://www.miaomiaoqi.github.io/images/java/concurrency/1.png" style="zoom: 50%;" />
+    <img src="https://miaomiaoqi.github.io/images/java/concurrency/2.png" alt="https://miaomiaoqi.github.io/images/java/concurrency/1.png" style="zoom: 50%;" />
 
     * 同步八种操作
 
@@ -104,9 +104,9 @@ keywords:
 
         1. 对一个变量执行unlock操作之前, 必须先把此变量同步到主内存中(执行store和write操作)
 
-        <img src="https://www.miaomiaoqi.github.io/images/java/concurrency/3.png" alt="https://www.miaomiaoqi.github.io/images/java/concurrency/1.png" style="zoom: 50%;" />
+        <img src="https://miaomiaoqi.github.io/images/java/concurrency/3.png" alt="https://miaomiaoqi.github.io/images/java/concurrency/1.png" style="zoom: 50%;" />
 
-        <img src="https://www.miaomiaoqi.github.io/images/java/concurrency/4.png" alt="https://www.miaomiaoqi.github.io/images/java/concurrency/1.png" style="zoom: 33%;" />
+        <img src="https://miaomiaoqi.github.io/images/java/concurrency/4.png" alt="https://miaomiaoqi.github.io/images/java/concurrency/1.png" style="zoom: 33%;" />
 
 
 
@@ -183,17 +183,17 @@ volatile 关键字, 通过加入内存屏障和禁止重排序优化来实现
 
 * 对volatile变量写操作时, 会在写操作后加入一条store屏障指令, 将本地内存中的共享变量值刷新到主存中
 
-    <img src="https://www.miaomiaoqi.github.io/images/java/concurrency/5.png" alt="https://www.miaomiaoqi.github.io/images/java/concurrency/5.png" style="zoom:50%;" />
+    <img src="https://miaomiaoqi.github.io/images/java/concurrency/5.png" alt="https://miaomiaoqi.github.io/images/java/concurrency/5.png" style="zoom:50%;" />
 
 * 对volatile变量读操作时, 会在读操作前加入一条load屏障指令, 从主内存中读取共享变量
 
-    <img src="https://www.miaomiaoqi.github.io/images/java/concurrency/6.png" alt="https://www.miaomiaoqi.github.io/images/java/concurrency/6.png" style="zoom:50%;" />
+    <img src="https://miaomiaoqi.github.io/images/java/concurrency/6.png" alt="https://miaomiaoqi.github.io/images/java/concurrency/6.png" style="zoom:50%;" />
 
 同样在 Volatile 章节我介绍到了现代计算机的内存结构, 以及 JMM(Java内存模型), 这里我需要说明一下就是JMM并不是实际存在的, 而是一套规范, 这个规范描述了很多java程序中各种变量(线程共享变量)的访问规则, 以及在JVM中将变量存储到内存和从内存中读取变量这样的底层细节, Java内存模型是对共享数据的可见性、有序性、和原子性的规则和保障. 
 
 大家感兴趣, 也记得去了解计算机的组成部分, cpu、内存、多级缓存等, 会帮助更好的理解java这么做的原因. 
 
-<img src="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_14.png" alt="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_14.png" style="zoom:67%;" />
+<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_14.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_14.png" style="zoom:67%;" />
 
 ### 有序性
 
@@ -420,7 +420,7 @@ volatile 做了什么?
 
 Java提供了种类丰富的锁, 每种锁因其特性的不同, 在适当的场景下能够展现出非常高的效率. 
 
-<img src="https://www.miaomiaoqi.github.io/images/java/lock/lock_1.png" alt="https://www.miaomiaoqi.github.io/images/java/lock/lock_1.png" style="zoom: 33%;" />
+<img src="https://miaomiaoqi.github.io/images/java/lock/lock_1.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_1.png" style="zoom: 33%;" />
 
 ### 乐观锁 VS 悲观锁
 
@@ -442,7 +442,7 @@ Java提供了种类丰富的锁, 每种锁因其特性的不同, 在适当的场
 
 乐观锁在Java中是通过使用无锁编程来实现, 最常采用的是CAS算法, Java原子类中的递增操作就通过CAS自旋实现的. 
 
-<img src="https://www.miaomiaoqi.github.io/images/java/lock/lock_5.png" alt="https://www.miaomiaoqi.github.io/images/java/lock/lock_5.png" style="zoom: 33%;" />
+<img src="https://miaomiaoqi.github.io/images/java/lock/lock_5.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_5.png" style="zoom: 33%;" />
 
 根据从上面的概念描述我们可以发现：
 
@@ -484,7 +484,7 @@ CAS算法涉及到三个操作数：
 
 之前提到java.util.concurrent包中的原子类, 就是通过CAS来实现了乐观锁, 那么我们进入原子类AtomicInteger的源码, 看一下AtomicInteger的定义：
 
-<img src="https://www.miaomiaoqi.github.io/images/java/lock/lock_6.png" alt="https://www.miaomiaoqi.github.io/images/java/lock/lock_6.png" style="zoom: 33%;" />
+<img src="https://miaomiaoqi.github.io/images/java/lock/lock_6.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_6.png" style="zoom: 33%;" />
 
 根据定义我们可以看出各属性的作用：
 
@@ -567,13 +567,13 @@ CAS虽然很高效, 但是它也存在三大问题, 这里也简单说一下：
 
 而为了让当前线程“稍等一下”, 我们需让当前线程进行自旋, 如果在自旋完成后前面锁定同步资源的线程已经释放了锁, 那么当前线程就可以不必阻塞而是直接获取同步资源, 从而避免切换线程的开销. 这就是自旋锁. 
 
-<img src="https://www.miaomiaoqi.github.io/images/java/lock/lock_7.png" alt="https://www.miaomiaoqi.github.io/images/java/lock/lock_7.png" style="zoom: 33%;" />
+<img src="https://miaomiaoqi.github.io/images/java/lock/lock_7.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_7.png" style="zoom: 33%;" />
 
 自旋锁本身是有缺点的, 它不能代替阻塞. 自旋等待虽然避免了线程切换的开销, 但它要占用处理器时间. 如果锁被占用的时间很短, 自旋等待的效果就会非常好. 反之, 如果锁被占用的时间很长, 那么自旋的线程只会白浪费处理器资源. 所以, 自旋等待的时间必须要有一定的限度, 如果自旋超过了限定次数(默认是10次, 可以使用-XX:PreBlockSpin来更改)没有成功获得锁, 就应当挂起线程. 
 
 自旋锁的实现原理同样也是CAS, AtomicInteger中调用unsafe进行自增操作的源码中的do-while循环就是一个自旋操作, 如果修改数值失败则通过循环来执行自旋, 直至修改成功. 
 
-<img src="https://www.miaomiaoqi.github.io/images/java/lock/lock_8.png" alt="https://www.miaomiaoqi.github.io/images/java/lock/lock_8.png" style="zoom: 33%;" />
+<img src="https://miaomiaoqi.github.io/images/java/lock/lock_8.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_8.png" style="zoom: 33%;" />
 
 自旋锁在JDK1.4.2中引入, 使用-XX:+UseSpinning来开启. JDK 6中变为默认开启, 并且引入了自适应的自旋锁(适应性自旋锁). 
 
@@ -589,11 +589,11 @@ synchronized 锁有四种状态, `无锁`, `偏向锁`, `轻量级锁`, `重量�
 
 简单版本: 
 
-<img src="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_8.png" alt="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_8.png"  />
+<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_8.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_8.png"  />
 
 升级方向: 
 
-<img src="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_9.png" alt="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_9.png" style="zoom:67%;" />
+<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_9.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_9.png" style="zoom:67%;" />
 
 Tip: 切记这个升级过程是不可逆的, 最后我会说明他的影响, 涉及使用场景. 
 
@@ -618,7 +618,7 @@ Tip: 切记这个升级过程是不可逆的, 最后我会说明他的影响, �
 
 现代操作系统会分为两层, 内核态和用户态, 自己的 APP 就是用户态, 系统资源就是内核态, 如果用户态想访问内核态的资源需要通过 kernel 的允许, 将用户态转向内核态, 拿到结果后再从内核态返回用户态. 早期 synchronized 加锁就需要申请系统资源, 进行用户态和内核态的转换, 所以是重量级锁, 经过优化后在某些情况下不需要通过内核态就可以解决, 比如 CAS(轻量级锁), 只需要用户态就可以完成
 
-<img src="https://www.miaomiaoqi.github.io/images/mashibing/synchronized/syn_3.png" alt="https://www.miaomiaoqi.github.io/images/mashibing/synchronized/syn_3.png" style="zoom: 33%;" />
+<img src="https://miaomiaoqi.github.io/images/mashibing/synchronized/syn_3.png" alt="https://miaomiaoqi.github.io/images/mashibing/synchronized/syn_3.png" style="zoom: 33%;" />
 
 这四种锁是指锁的状态, 专门针对synchronized的. 在介绍这四种锁状态之前还需要介绍一些额外的知识. 
 
@@ -701,7 +701,7 @@ Monitor是线程私有的数据结构, 每一个线程都有一个可用monitor 
 
 偏向锁在1.6之后是默认开启的, 1.5中是关闭的, 需要手动开启参数是xx:-UseBiasedLocking=false. 
 
-<img src="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_10.png" alt="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_10.png" style="zoom:67%;" />
+<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_10.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_10.png" style="zoom:67%;" />
 
 经过 HotSpot 的作者大量的研究发现大多数时候是`不存在锁竞争`的, 经常是一个线程多次获得同一个锁, 因此如果每次都要`竞争锁`会增大很多没有必要付出的代价, 为了降低获取锁的代价, 才引入的偏向锁. 核心思想: 
 
@@ -713,11 +713,11 @@ Monitor是线程私有的数据结构, 每一个线程都有一个可用monitor 
 
 偏向锁使用了一种等到竞争出现才释放锁的机制, 所以当其他线程尝试竞争偏向锁时, 持有偏向锁的线程才会释放锁. 
 
-<img src="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_17.png" alt="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_17.png" style="zoom:67%;" />
+<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_17.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_17.png" style="zoom:67%;" />
 
 如图, 偏向锁的撤销, 需要等待全局安全点(在这个时间点上没有正在执行的字节码). 它会首先暂停拥有偏向锁的线程, 然后检查持有偏向锁的线程是否还存活,  如果线程不处于活动状态, 则将对象头设置成无锁状态; 如果线程仍然活着, 拥有偏向锁的栈会被执行, 遍历偏向对象的锁记录, 栈中的锁记录和对象头的 mark word 要么重新偏向于其他线程, 要么恢复到无锁或者标记对象不适合作为偏向锁, 最后唤醒暂停的线程
 
-<img src="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_18.png" alt="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_18.png" style="zoom: 67%;" />
+<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_18.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_18.png" style="zoom: 67%;" />
 
 **如何关闭偏向锁**
 
@@ -757,7 +757,7 @@ CAS 适合操作特别快或者线程数较小的情况, 因为自旋会消耗 C
 
 但是如果自旋的**时间太长**也不行, 因为自旋是要消耗CPU的, 因此**自旋的次数是有限制**的, 比如10次或者100次, 如果自旋次数到了线程1还没有释放锁, 或者线程1还在执行, 线程2还在自旋等待, 那么这个时候轻量级锁就会膨胀为重量级锁. 重量级锁把除了拥有锁的线程都阻塞, 防止 CPU 空转. 
 
-<img src="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_6.png" alt="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_6.png" style="zoom: 50%;" />
+<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_6.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_6.png" style="zoom: 50%;" />
 
 还是跟Mark Work 相关, 如果这个对象是无锁的, jvm就会在当前线程的栈帧中建立一个叫锁记录(Lock Record)的空间, 用来存储锁对象的Mark Word 拷贝, 然后把Lock Record中的owner指向当前对象. 
 
@@ -765,7 +765,7 @@ JVM接下来会利用CAS尝试把对象原本的Mark Word 更新会Lock Record�
 
 如果失败了, 就会判断当前对象的Mark Word是否指向了当前线程的栈帧, 是则表示当前的线程已经持有了这个对象的锁, 否则说明被其他线程持有了, 继续锁升级, 修改锁的状态, 之后等待的线程也阻塞. 
 
-<img src="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_11.png" alt="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_11.png" style="zoom:67%;" />
+<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_11.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_11.png" style="zoom:67%;" />
 
 
 
@@ -775,7 +775,7 @@ JVM接下来会利用CAS尝试把对象原本的Mark Word 更新会Lock Record�
 
 自旋都失败了, 那就升级为重量级的锁, 像1.5的一样, 等待唤起咯. 
 
-<img src="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_12.png" alt="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_12.png" />
+<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_12.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_12.png" />
 
 
 
@@ -795,7 +795,7 @@ JVM接下来会利用CAS尝试把对象原本的Mark Word 更新会Lock Record�
 
 下图是两个线程同时争夺锁, 导致锁膨胀的流程图. 
 
-<img src="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_19.png" alt="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_19.png" style="zoom:67%;" />
+<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_19.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_19.png" style="zoom:67%;" />
 
 因为自旋会消耗 CPU, 为了避免无用的自旋(比如, 获得锁的线程被阻塞住了), 一旦锁升级成了重量级锁, 就不会再恢复到轻量级锁状态. 当锁处于这个状态下, 其他线程试图获取锁时, 都会被阻塞住, 当持有锁的线程释放锁之后会唤醒这些线程, 被唤醒的线程就会进行新一轮的争夺锁. 
 
@@ -829,7 +829,7 @@ Linux系统的体系结构大家大学应该都接触过了, 分为用户空间(
 
 我们所有的程序都在用户空间运行, 进入用户运行状态也就是(用户态), 但是很多操作可能涉及内核运行, 比我I/O, 我们就会进入内核运行状态(内核态). 
 
-<img src="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_15.png" alt="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_15.png" style="zoom:67%;" />
+<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_15.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_15.png" style="zoom:67%;" />
 
 这个过程是很复杂的, 也涉及很多值的传递, 我简单概括下流程: 
 
@@ -847,7 +847,7 @@ Linux系统的体系结构大家大学应该都接触过了, 分为用户空间(
 
 **锁升级流程图**
 
-<img src="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_7.png" alt="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_7.png" />
+<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_7.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_7.png" />
 
 
 
@@ -907,27 +907,27 @@ JVM启动过程, 会有很多线程竞争(明确), 所以默认情况启动时�
 
 直接用语言描述可能有点抽象, 这里作者用从别处看到的一个例子来讲述一下公平锁和非公平锁. 
 
-<img src="https://www.miaomiaoqi.github.io/images/java/lock/lock_9.png" alt="https://www.miaomiaoqi.github.io/images/java/lock/lock_9.png" style="zoom: 33%;" />
+<img src="https://miaomiaoqi.github.io/images/java/lock/lock_9.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_9.png" style="zoom: 33%;" />
 
 如上图所示, 假设有一口水井, 有管理员看守, 管理员有一把锁, 只有拿到锁的人才能够打水, 打完水要把锁还给管理员. 每个过来打水的人都要管理员的允许并拿到锁之后才能去打水, 如果前面有人正在打水, 那么这个想要打水的人就必须排队. 管理员会查看下一个要去打水的人是不是队伍里排最前面的人, 如果是的话, 才会给你锁让你去打水; 如果你不是排第一的人, 就必须去队尾排队, 这就是公平锁. 
 
 但是对于非公平锁, 管理员对打水的人没有要求. 即使等待队伍里有排队等待的人, 但如果在上一个人刚打完水把锁还给管理员而且管理员还没有允许等待队伍里下一个人去打水时, 刚好来了一个插队的人, 这个插队的人是可以直接从管理员那里拿到锁去打水, 不需要排队, 原本排队等待的人只能继续等待. 如下图所示：
 
-<img src="https://www.miaomiaoqi.github.io/images/java/lock/lock_10.png" alt="https://www.miaomiaoqi.github.io/images/java/lock/lock_10.png" style="zoom: 33%;" />
+<img src="https://miaomiaoqi.github.io/images/java/lock/lock_10.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_10.png" style="zoom: 33%;" />
 
 接下来我们通过ReentrantLock的源码来讲解公平锁和非公平锁. 
 
-<img src="https://www.miaomiaoqi.github.io/images/java/lock/lock_11.png" alt="https://www.miaomiaoqi.github.io/images/java/lock/lock_11.png" style="zoom: 33%;" />
+<img src="https://miaomiaoqi.github.io/images/java/lock/lock_11.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_11.png" style="zoom: 33%;" />
 
 根据代码可知, ReentrantLock里面有一个内部类Sync, Sync继承AQS(AbstractQueuedSynchronizer), 添加锁和释放锁的大部分操作实际上都是在Sync中实现的. 它有公平锁FairSync和非公平锁NonfairSync两个子类. ReentrantLock默认使用非公平锁, 也可以通过构造器来显示的指定使用公平锁. 
 
 下面我们来看一下公平锁与非公平锁的加锁方法的源码:
 
-<img src="https://www.miaomiaoqi.github.io/images/java/lock/lock_12.png" alt="https://www.miaomiaoqi.github.io/images/java/lock/lock_12.png" style="zoom: 33%;" />
+<img src="https://miaomiaoqi.github.io/images/java/lock/lock_12.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_12.png" style="zoom: 33%;" />
 
 通过上图中的源代码对比, 我们可以明显的看出公平锁与非公平锁的lock()方法唯一的区别就在于公平锁在获取同步状态时多了一个限制条件：hasQueuedPredecessors(). 
 
-<img src="https://www.miaomiaoqi.github.io/images/java/lock/lock_13.png" alt="https://www.miaomiaoqi.github.io/images/java/lock/lock_13.png" style="zoom: 33%;" />
+<img src="https://miaomiaoqi.github.io/images/java/lock/lock_13.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_13.png" style="zoom: 33%;" />
 
 再进入hasQueuedPredecessors(), 可以看到该方法主要做一件事情：主要是判断当前线程是否位于同步队列中的第一个. 如果是则返回true, 否则返回false. 
 
@@ -960,11 +960,11 @@ public class Widget {
 
 还是打水的例子, 有多个人在排队打水, 此时管理员允许锁和同一个人的多个水桶绑定. 这个人用多个水桶打水时, 第一个水桶和锁绑定并打完水之后, 第二个水桶也可以直接和锁绑定并开始打水, 所有的水桶都打完水之后打水人才会将锁还给管理员. 这个人的所有打水流程都能够成功执行, 后续等待的人也能够打到水. 这就是可重入锁. 
 
-<img src="https://www.miaomiaoqi.github.io/images/java/lock/lock_14.png" alt="https://www.miaomiaoqi.github.io/images/java/lock/lock_14.png" style="zoom: 33%;" />
+<img src="https://miaomiaoqi.github.io/images/java/lock/lock_14.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_14.png" style="zoom: 33%;" />
 
 但如果是非可重入锁的话, 此时管理员只允许锁和同一个人的一个水桶绑定. 第一个水桶和锁绑定打完水之后并不会释放锁, 导致第二个水桶不能和锁绑定也无法打水. 当前线程出现死锁, 整个等待队列中的所有线程都无法被唤醒. 
 
-<img src="https://www.miaomiaoqi.github.io/images/java/lock/lock_15.png" alt="https://www.miaomiaoqi.github.io/images/java/lock/lock_15.png" style="zoom: 33%;" />
+<img src="https://miaomiaoqi.github.io/images/java/lock/lock_15.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_15.png" style="zoom: 33%;" />
 
 之前我们说过ReentrantLock和synchronized都是重入锁, 那么我们通过重入锁ReentrantLock以及非可重入锁NonReentrantLock的源码来对比分析一下为什么非可重入锁在重复调用同步资源时会出现死锁. 
 
@@ -974,7 +974,7 @@ public class Widget {
 
 释放锁时, 可重入锁同样先获取当前status的值, 在当前线程是持有锁的线程的前提下. 如果status-1 == 0, 则表示当前线程所有重复获取锁的操作都已经执行完毕, 然后该线程才会真正释放锁. 而非可重入锁则是在确定当前线程是持有锁的线程之后, 直接将status置为0, 将锁释放. 
 
-<img src="https://www.miaomiaoqi.github.io/images/java/lock/lock_16.png" alt="https://www.miaomiaoqi.github.io/images/java/lock/lock_16.png" style="zoom: 33%;" />
+<img src="https://miaomiaoqi.github.io/images/java/lock/lock_16.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_16.png" style="zoom: 33%;" />
 
 
 
@@ -992,7 +992,7 @@ public class Widget {
 
 下图为ReentrantReadWriteLock的部分源码：
 
-<img src="https://www.miaomiaoqi.github.io/images/java/lock/lock_17.png" alt="https://www.miaomiaoqi.github.io/images/java/lock/lock_17.png" style="zoom: 33%;" />
+<img src="https://miaomiaoqi.github.io/images/java/lock/lock_17.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_17.png" style="zoom: 33%;" />
 
 我们看到ReentrantReadWriteLock有两把锁：ReadLock和WriteLock, 由词知意, 一个读锁一个写锁, 合称“读写锁”. 再进一步观察可以发现ReadLock和WriteLock是靠内部类Sync实现的锁. Sync是AQS的一个子类, 这种结构在CountDownLatch、ReentrantLock、Semaphore里面也都存在. 
 
@@ -1002,7 +1002,7 @@ public class Widget {
 
 在独享锁中这个值通常是0或者1(如果是重入锁的话state值就是重入的次数), 在共享锁中state就是持有锁的数量. 但是在ReentrantReadWriteLock中有读、写两把锁, 所以需要在一个整型变量state上分别描述读锁和写锁的数量(或者也可以叫状态). 于是将state变量“按位切割”切分成了两个部分, 高16位表示读锁状态(读锁个数), 低16位表示写锁状态(写锁个数). 如下图所示：
 
-<img src="https://www.miaomiaoqi.github.io/images/java/lock/lock_18.png" alt="https://www.miaomiaoqi.github.io/images/java/lock/lock_18.png" style="zoom: 33%;" />
+<img src="https://miaomiaoqi.github.io/images/java/lock/lock_18.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_18.png" style="zoom: 33%;" />
 
 了解了概念之后我们再来看代码, 先看写锁的加锁源码：
 
@@ -1074,7 +1074,7 @@ protected final int tryAcquireShared(int unused) {
 
 此时, 我们再回头看一下互斥锁 ReentrantLock 中公平锁和非公平锁的加锁源码：
 
-<img src="https://www.miaomiaoqi.github.io/images/java/lock/lock_19.png" alt="https://www.miaomiaoqi.github.io/images/java/lock/lock_19.png" style="zoom: 33%;" />
+<img src="https://miaomiaoqi.github.io/images/java/lock/lock_19.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_19.png" style="zoom: 33%;" />
 
 我们发现在ReentrantLock虽然有公平锁和非公平锁两种, 但是它们添加的都是独享锁. 根据源码所示, 当某一个线程调用lock方法获取锁时, 如果同步资源没有被其他线程锁住, 那么当前线程在使用CAS更新state成功后就会成功抢占该资源. 而如果公共资源被占用且不是被当前线程占用, 那么就会加锁失败. 所以可以确定ReentrantLock无论读操作还是写操作, 添加的锁都是都是独享锁. 
 
@@ -1328,7 +1328,7 @@ public class Thread1 implements Runnable {
 
 管程解决互斥问题相对简单, 把共享变量以及共享变量的操作都封装在一个类中
 
-<img src="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_1.png" alt="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_1.png" />
+<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_1.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_1.png" />
 
 当线程 A 和线程 B 需要获取共享变量 count 时, 就需要调用 get 和 set 方法, 而get和set方法则保证互斥性, 保证每次只能有一个线程访问. 
 
@@ -1342,7 +1342,7 @@ public class Thread1 implements Runnable {
 
 我们知道在 Java 的 JVM 内存区域中一个对象在堆区创建, 创建后的对象由三部分组成. 
 
-<img src="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_2.png" alt="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_2.png" style="zoom: 50%;" />
+<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_2.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_2.png" style="zoom: 50%;" />
 
 这三部分功能如下: 
 
@@ -1362,13 +1362,13 @@ public class Thread1 implements Runnable {
 
     `Mark Word`状态表示位如下: 
 
-    <img src="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_3.png" alt="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_3.png" style="zoom:67%;" />
+    <img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_3.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_3.png" style="zoom:67%;" />
 
     `synchronized`不论是修饰方法还是代码块, 都是通过持有修饰对象的`锁`来实现同步, `synchronized`锁对象是存在对象头`Mark Word`. 其中轻量级锁和偏向锁是`Java6`对`synchronized`锁进行优化后新增加的, 这里我们主要分析一下重量级锁也就是通常说synchronized的对象锁, 锁标识位为10, 其中指针指向的是`monitor`对象(也称为管程或监视器锁)的起始地址. 每个对象都存在着一个 monitor[4] 与之关联. 
 
-    <img src="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_4.png" alt="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_4.png" style="zoom:67%;" />
+    <img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_4.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_4.png" style="zoom:67%;" />
 
-<img src="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_13.png" alt="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_13.png" style="zoom:67%;" />
+<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_13.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_13.png" style="zoom:67%;" />
 
 **反汇编查看**
 
@@ -1493,13 +1493,13 @@ ObjectMonitor() {
 
 monitor 运行图如下: 
 
-<img src="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_16.png" alt="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_16.png" style="zoom:67%;" />
+<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_16.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_16.png" style="zoom:67%;" />
 
 该图可以看出, 线程遇到 synchronized 同步时, 先会进入 EntryList 队列中, 然后尝试把 owner 变量设置为当前线程, 同时 monitor 中的计数器 count 加 1, 即获得对象锁. 否则通过尝试自旋一定次数加锁, 失败则进入 Cxq 队列阻塞等待, 当 object 的监视器占有者释放后, 在同步队列中的线程就会有机会重新获取该监视器. 
 
-<img src="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_5.png" alt="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_5.png" style="zoom:67%;" />
+<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_5.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_5.png" style="zoom:67%;" />
 
-<img src="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_21.png" alt="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_21.png" style="zoom:67%;" />
+<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_21.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_21.png" style="zoom:67%;" />
 
 
 
@@ -1518,7 +1518,7 @@ wait方法的使用对应上图的第3步, 也就是说, **调用`wait()`、`not
 
 线程执行完毕将释放持有的 owner, owner 变量恢复为 null, count 自减 1, 以便其他线程进入获取锁
 
-<img src="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_20.png" alt="https://www.miaomiaoqi.github.io/images/java/synchronized/syn_20.png" style="zoom:67%;" />
+<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_20.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_20.png" style="zoom:67%;" />
 
 synchronized修饰方法原理也是类似的. 只不过没用monitor指令, 而是使用ACC_SYNCHRONIZED标识方法的同步
 
@@ -1979,7 +1979,7 @@ public ReentrantLock(boolean fair) {
 
 sync 是 ReentrantLock 的成员变量, 是其内部类 Sync 的实例. NonfairSync 和 FairSync 都是 Sync 类的子类. 可以参考如下类关系图: 
 
-<img src="https://www.miaomiaoqi.github.io/images/java/lock/lock_2.png" alt="https://www.miaomiaoqi.github.io/images/java/lock/lock_2.png" style="zoom: 50%;" />
+<img src="https://miaomiaoqi.github.io/images/java/lock/lock_2.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_2.png" style="zoom: 50%;" />
 
 Sync 继承 了AQS, 所以他具备了 AQS 的功能. 同样的, NonfairSync 和 FairSync 都是 AQS 的子类. 
 
@@ -1987,7 +1987,7 @@ Sync 继承 了AQS, 所以他具备了 AQS 的功能. 同样的, NonfairSync 和
 
 下面将通过如下场景描述非公平锁的实现原理: 假设一个线程(t1)获取到了锁, 其他很多没获取到锁的线程(others_t)加入到了 AQS 的同步队列中等待, 当这个线程执行完, 释放锁后, 其他线程重新非公平的竞争锁. 
 
-<img src="https://www.miaomiaoqi.github.io/images/java/lock/lock_20.png" alt="https://www.miaomiaoqi.github.io/images/java/lock/lock_20.png" style="zoom: 50%;" />
+<img src="https://miaomiaoqi.github.io/images/java/lock/lock_20.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_20.png" style="zoom: 50%;" />
 
 
 
@@ -1996,7 +1996,7 @@ Sync 继承 了AQS, 所以他具备了 AQS 的功能. 同样的, NonfairSync 和
 简单说来, AbstractQueuedSynchronizer 会把所有的请求线程构成一个 CLH 队列, 当一个线程执行完毕(lock.unlock())时会激活自己的后继节点, 但正在执行的线程并不在队列中, 而那些等待执行的线程全部处于阻塞状态, 经过调查线程的显式阻塞是通过调用 LockSupport.park() 完成, 而 LockSupport.park()则调用 sun.misc.Unsafe.park() 本地方法, 再进一步, HotSpot 在 Linux 中中通过调用 pthread_mutex_lock 函数把线程交给系统内核进行阻塞. 
 该队列如图：
 
-<img src="https://www.miaomiaoqi.github.io/images/java/lock/lock_21.png" alt="https://www.miaomiaoqi.github.io/images/java/lock/lock_21.png" style="zoom: 50%;" />
+<img src="https://miaomiaoqi.github.io/images/java/lock/lock_21.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_21.png" style="zoom: 50%;" />
 
 与synchronized相同的是, 这也是一个虚拟队列, 不存在队列实例, 仅存在节点之间的前后关系. 令人疑惑的是为什么采用CLH队列呢? 原生的CLH队列是用于自旋锁, 但 Doug Lea 把其改造为阻塞锁. 
 **当有线程竞争锁时, 该线程会首先尝试获得锁, 这对于那些已经在队列中排队的线程来说显得不公平, 这也是非公平锁的由来**, 与synchronized实现类似, 这样会极大提高吞吐量. 
@@ -2330,7 +2330,7 @@ protected final boolean tryRelease(int releases) {
 
 这个过程大概可以描述为下图这样子: 
 
-<img src="https://www.miaomiaoqi.github.io/images/java/lock/lock_3.png" alt="https://www.miaomiaoqi.github.io/images/java/lock/lock_3.png" style="zoom:67%;" />
+<img src="https://miaomiaoqi.github.io/images/java/lock/lock_3.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_3.png" style="zoom:67%;" />
 
 **公平锁的实现原理**
 
@@ -2379,7 +2379,7 @@ static final class FairSync extends Sync {
 
 这个过程大概可以描述为下图这样子: 
 
-<img src="https://www.miaomiaoqi.github.io/images/java/lock/lock_4.png" alt="https://www.miaomiaoqi.github.io/images/java/lock/lock_4.png" style="zoom: 50%;" />
+<img src="https://miaomiaoqi.github.io/images/java/lock/lock_4.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_4.png" style="zoom: 50%;" />
 
 **tryLock 原理**
 
@@ -2611,7 +2611,7 @@ AQS内部维护一个同步队列, 元素就是包装了线程的Node
 
 同步队列中首节点是获取到锁的节点, 它在释放锁的时会唤醒后继节点, 后继节点获取到锁的时候, 会把自己设为首节点
 
-<img src="https://www.miaomiaoqi.github.io/images/java/aqs/aqs_1.png" alt="https://www.miaomiaoqi.github.io/images/java/aqs/aqs_1.png" style="zoom:67%;" />
+<img src="https://miaomiaoqi.github.io/images/java/aqs/aqs_1.png" alt="https://miaomiaoqi.github.io/images/java/aqs/aqs_1.png" style="zoom:67%;" />
 
 ```java
 public final void acquire(int arg) {
@@ -2655,7 +2655,7 @@ public final void await() throws InterruptedException{
         interruptMode = REINTERRUPT;
 ```
 
-<img src="https://www.miaomiaoqi.github.io/images/java/aqs/aqs_2.png" alt="https://www.miaomiaoqi.github.io/images/java/aqs/aqs_2.png" style="zoom:67%;" />
+<img src="https://miaomiaoqi.github.io/images/java/aqs/aqs_2.png" alt="https://miaomiaoqi.github.io/images/java/aqs/aqs_2.png" style="zoom:67%;" />
 
 调用Condition.signal时, 获取条件队列的首节点, 将其移动到同步队列并且利用LockSupport唤醒节点中的线程. 随后继续执行wait挂起前的状态, 调用acquireQueued(node, savedState)竞争同步状态
 
@@ -2671,7 +2671,7 @@ private void doSignal(Node first) {
 }
 ```
 
-<img src="https://www.miaomiaoqi.github.io/images/java/aqs/aqs_3.png" alt="https://www.miaomiaoqi.github.io/images/java/aqs/aqs_3.png" style="zoom:67%;" />
+<img src="https://miaomiaoqi.github.io/images/java/aqs/aqs_3.png" alt="https://miaomiaoqi.github.io/images/java/aqs/aqs_3.png" style="zoom:67%;" />
 
 **volatile+cas机制保证了代码的同步性和可见性, 而AQS封装了线程阻塞等待挂起, 解锁唤醒其他线程的逻辑**. AQS子类只需根据状态变量, 判断是否可获取锁, 是否释放锁成功即可
 
@@ -2954,7 +2954,7 @@ ConcurrentHashMap 和 CopyOnWriteArrayList: 取代同步的 HashMap 和同步的
 
 ### ConcurrentHashMap
 
-[https://www.miaomiaoqi.github.io/2019/12/26/Java-%E9%9B%86%E5%90%88%E7%B1%BB/](https://www.miaomiaoqi.github.io/2019/12/26/Java-%E9%9B%86%E5%90%88%E7%B1%BB/)
+[https://miaomiaoqi.github.io/2019/12/26/Java-%E9%9B%86%E5%90%88%E7%B1%BB/](https://miaomiaoqi.github.io/2019/12/26/Java-%E9%9B%86%E5%90%88%E7%B1%BB/)
 
 
 
@@ -3199,7 +3199,7 @@ CyclicBarrier 循环栅栏和 CountDownLatch 很类似, 都能阻塞一组线程
 
 **高并发缓存**
 
-<img src="https://www.miaomiaoqi.github.io/images/java/concurrency/10.png" alt="https://www.miaomiaoqi.github.io/images/java/concurrency/10.png" style="zoom:67%;" />
+<img src="https://miaomiaoqi.github.io/images/java/concurrency/10.png" alt="https://miaomiaoqi.github.io/images/java/concurrency/10.png" style="zoom:67%;" />
 
 缓存特征
 
@@ -3241,7 +3241,7 @@ CyclicBarrier 循环栅栏和 CountDownLatch 很类似, 都能阻塞一组线程
 
 **高并发消息队列**
 
-<img src="https://www.miaomiaoqi.github.io/images/java/concurrency/11.png" alt="https://www.miaomiaoqi.github.io/images/java/concurrency/11.png" style="zoom:67%;" />
+<img src="https://miaomiaoqi.github.io/images/java/concurrency/11.png" alt="https://miaomiaoqi.github.io/images/java/concurrency/11.png" style="zoom:67%;" />
 
 消息队列特性
 
@@ -3269,7 +3269,7 @@ CyclicBarrier 循环栅栏和 CountDownLatch 很类似, 都能阻塞一组线程
 
 **高并发应用拆分**
 
-<img src="https://www.miaomiaoqi.github.io/images/java/concurrency/12.png" alt="https://www.miaomiaoqi.github.io/images/java/concurrency/12.png" style="zoom:67%;" />
+<img src="https://miaomiaoqi.github.io/images/java/concurrency/12.png" alt="https://miaomiaoqi.github.io/images/java/concurrency/12.png" style="zoom:67%;" />
 
 应用拆分原则
 
@@ -3291,7 +3291,7 @@ CyclicBarrier 循环栅栏和 CountDownLatch 很类似, 都能阻塞一组线程
 
 **高并发应用限流**
 
-<img src="https://www.miaomiaoqi.github.io/images/java/concurrency/13.png" alt="https://www.miaomiaoqi.github.io/images/java/concurrency/13.png" style="zoom:67%;" />
+<img src="https://miaomiaoqi.github.io/images/java/concurrency/13.png" alt="https://miaomiaoqi.github.io/images/java/concurrency/13.png" style="zoom:67%;" />
 
 **高并发服务降级与熔断**
 

@@ -74,7 +74,7 @@ return carVo;
 
 可是, 外包韩盯着这段代码, 说道:"网上不是说反射效率慢, 你这么写, 没有性能问题么？" 阿雄说道:" 如果是用Apache的BeanUtil类, 确实有很大的性能问题, 像阿里巴巴的代码扫描插件, 都禁止用该类, 如下所示! "
 
-![https://www.miaomiaoqi.github.io/images/java/m_1.png](https://www.miaomiaoqi.github.io/images/java/m_1.png)
+![https://miaomiaoqi.github.io/images/java/m_1.png](https://miaomiaoqi.github.io/images/java/m_1.png)
 
 "但是, 如果采用的是像Spring的BeanUtils类, 要在调用次数足够多的时候, 你才能明显的感受到卡顿. "阿雄补充道. 
 
@@ -193,7 +193,7 @@ CarVo(id=1, brand=BMW)
 
 其实原理就是MapStruct插件会识别我们的接口, 生成一个实现类, 在实现类中, 为我们实现了set逻辑! 例如, 上面的例子中, 给CarCovertBasic接口, 实现了一个实现类CarCovertBasicImpl, 我们可以用反编译工具看到源码如下图所示
 
-![https://www.miaomiaoqi.github.io/images/java/m_2.png](https://www.miaomiaoqi.github.io/images/java/m_2.png)
+![https://miaomiaoqi.github.io/images/java/m_2.png](https://miaomiaoqi.github.io/images/java/m_2.png)
 
 下面, 我们来说说优势
 
@@ -234,7 +234,7 @@ CarVo(id=1, brand=BMW, name=宝马)
 
 可以看到carVo已经能识别到carPo中的carName属性, 并赋值成功. 反编译的图如下
 
-![https://www.miaomiaoqi.github.io/images/java/m_3.png](https://www.miaomiaoqi.github.io/images/java/m_3.png)
+![https://miaomiaoqi.github.io/images/java/m_3.png](https://miaomiaoqi.github.io/images/java/m_3.png)
 
 `画外音:`如果有多个映射关系可以用@Mappings注解, 嵌套多个@Mapping注解实现, 后文说明! 
 
@@ -256,7 +256,7 @@ public interface CarCovertBasic {
 
 如代码所示, 我们增加了一个toConvertVos方法即可, mapStruct生成代码的时候, 会帮我们去循环调用toConvertVo方法, 给大家看一下反编译的代码, 就一目了然
 
-![https://www.miaomiaoqi.github.io/images/java/m_4.png](https://www.miaomiaoqi.github.io/images/java/m_4.png)
+![https://miaomiaoqi.github.io/images/java/m_4.png](https://miaomiaoqi.github.io/images/java/m_4.png)
 
 **类型不一致**
 
@@ -352,7 +352,7 @@ public interface CarCovertBasic {
 
 直接增加接口即可, 插件在生成代码的时候, 会帮我们自动组装, 看看下面的反编译代码就一目了然. 
 
-![https://www.miaomiaoqi.github.io/images/java/m_5.png](https://www.miaomiaoqi.github.io/images/java/m_5.png)
+![https://miaomiaoqi.github.io/images/java/m_5.png](https://miaomiaoqi.github.io/images/java/m_5.png)
 
 **其他**
 
