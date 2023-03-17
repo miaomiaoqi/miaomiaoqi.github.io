@@ -18,7 +18,7 @@ ThreadLocal 顾名思义是线程私有的局部变量存储容器, 可以理解
 
 ## 整体认识
 
-<img src="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_1.png" alt="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_1.png" style="zoom:67%;" />
+<img src="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_1.png" alt="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_1.png" style="zoom:67%;" />
 
 ThreadLocal 中的嵌套内部类 ThreadLocalMap, 这个类本质上是一个 map, 和 HashMap 之类的实现相似, 依然是 key-value 的形式, 其中有一个内部类 Entry, 其中 key 可以看做是 ThreadLocal 实例, **但是其本质是持有 ThreadLocal 实例的弱引用**
 
@@ -711,7 +711,7 @@ ThreadLocal 可以用来做数据库连接池保存 Connection 对象, 这样就
 
 **比如这种, 比如 mysql 读写分离. 主写读从过程中, 类似于 shardingsphere 的中间件. 就通过 threadlocal 来实现某一次读请求路由到主库. 通过 threadlocal 设置标识即可**
 
-<img src="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_2.png" alt="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_2.png" style="zoom:67%;" />
+<img src="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_2.png" alt="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_2.png" style="zoom:67%;" />
 
 如果我启动另外一个线程. 那么在主线程设置的 threadlocal 值能被子线程拿到吗?
 
@@ -723,7 +723,7 @@ ThreadLocal 可以用来做数据库连接池保存 Connection 对象, 这样就
 
 暂且不讨论这些全链路组件的优劣. 在全链路组件落地的过程中, threadlocal 是一个相当关键的步骤. 拿 zipkin 的实现来说: 
 
-<img src="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_3.png" alt="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_3.png" style="zoom:67%;" />
+<img src="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_3.png" alt="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_3.png" style="zoom:67%;" />
 
 核心的数据传递都通过 threadlocal 来实现
 
@@ -731,11 +731,11 @@ ThreadLocal 可以用来做数据库连接池保存 Connection 对象, 这样就
 
 相关代码. 我们在父线程设置了一个threadlocal. 另外启动一个线程去获取
 
-<img src="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_4.png" alt="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_4.png" style="zoom:67%;" />
+<img src="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_4.png" alt="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_4.png" style="zoom:67%;" />
 
 运行结果:
 
-<img src="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_5.png" alt="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_5.png" style="zoom:67%;" />
+<img src="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_5.png" alt="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_5.png" style="zoom:67%;" />
 
 结论: 拿不到数据. 获取的是个 null
 
@@ -743,23 +743,23 @@ ThreadLocal 可以用来做数据库连接池保存 Connection 对象, 这样就
 
 在 java8 中提供了一个这个类(InheritableThreadLocal): 
 
-<img src="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_6.png" alt="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_6.png" style="zoom:67%;" />
+<img src="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_6.png" alt="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_6.png" style="zoom:67%;" />
 
 从字面意思来看: 可以实现父线程到子线程的共享, 那么我们实验一下
 
 将实现换成了 InheritableThreadLocal
 
-<img src="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_7.png" alt="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_7.png" style="zoom:67%;" />
+<img src="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_7.png" alt="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_7.png" style="zoom:67%;" />
 
 看一下效果 (果然解决了问题): 
 
-<img src="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_8.png" alt="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_8.png" style="zoom:67%;" />
+<img src="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_8.png" alt="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_8.png" style="zoom:67%;" />
 
 ### InheritableThreadLocal 原理
 
 看一下目录结构: 
 
-<img src="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_9.png" alt="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_9.png" style="zoom:67%;" />
+<img src="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_9.png" alt="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_9.png" style="zoom:67%;" />
 
 复写了父类 3 个方法
 
@@ -767,15 +767,15 @@ ThreadLocal 可以用来做数据库连接池保存 Connection 对象, 这样就
 
 在 Thread 类当中, 可以看出 Thread 类维护了两个成员变量, ThreadLocal 以及 InheritableThreadLocal, 数据类型都是 ThreadLocalMap. 这也就解释了为什么这个变量是线程私有的. 但是如果要知道为什么父子线程的变量传递, 那就继续看一下源码. 当我们在主线程中开一个新的子线程的时候, 开始会 new 一个新的 Thread
 
-<img src="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_10.png" alt="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_10.png" style="zoom:67%;" />
+<img src="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_10.png" alt="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_10.png" style="zoom:67%;" />
 
 在 thread 构造函数中, new 一个 thread 方法
 
-<img src="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_11.png" alt="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_11.png" style="zoom:67%;" />
+<img src="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_11.png" alt="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_11.png" style="zoom:67%;" />
 
 可以看到, 最后会调用 ThreadLocal 的 createInheritedMap 方法, 而该方法会新建一个 ThreadLocalMap, 看一下构造函数的内容: 
 
-<img src="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_12.png" alt="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_12.png" style="zoom:67%;" />
+<img src="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_12.png" alt="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_12.png" style="zoom:67%;" />
 
 parentMap 就是父线程的 ThreadLocalMap, 这个构造函数的意思大概就是将父线程的 ThreadLocalMap 复制到自己的 ThreadLocalMap 里面来, 这样我们就可以使用 InheritableThreadLocal 访问到父线程中的变量了
 
@@ -789,13 +789,13 @@ parentMap 就是父线程的 ThreadLocalMap, 这个构造函数的意思大概�
 
 **看一个例子**
 
-<img src="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_13.png" alt="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_13.png" style="zoom:67%;" />
+<img src="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_13.png" alt="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_13.png" style="zoom:67%;" />
 
 new 了一个线程池大小为1的线程池. 在第一次执行前, 设置了一个 wzAAA, 在子线程执行获取, 然后 sleep(2000) 以后, 设置了一个另外的值. 再次获取结果
 
 看一下运行结果:
 
-<img src="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_14.png" alt="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_14.png" style="zoom:67%;" />
+<img src="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_14.png" alt="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_14.png" style="zoom:67%;" />
 
 两次执行结果居然一样. . 那么显然不是我们想要的结果. 问题出在哪里? 
 
@@ -809,15 +809,15 @@ new 了一个线程池大小为1的线程池. 在第一次执行前, 设置了�
 
 让我们看一下简介: 
 
-<img src="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_15.png" alt="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_15.png" style="zoom:67%;" />
+<img src="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_15.png" alt="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_15.png" style="zoom:67%;" />
 
 我们按照相关 wiki 进行改造
 
-<img src="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_16.png" alt="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_16.png" style="zoom:67%;" />
+<img src="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_16.png" alt="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_16.png" style="zoom:67%;" />
 
 相关结果正确: 
 
-<img src="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_17.png" alt="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_17.png" style="zoom:67%;" />
+<img src="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_17.png" alt="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_17.png" style="zoom:67%;" />
 
 相关原理简介: 
 
@@ -827,7 +827,7 @@ new 了一个线程池大小为1的线程池. 在第一次执行前, 设置了�
 
 比如 sleuth:
 
-<img src="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_18.png" alt="http://www.miaomiaoqi.github.io/images/java/threadlocal/th_18.png" style="zoom:67%;" />
+<img src="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_18.png" alt="https://www.miaomiaoqi.github.io/images/java/threadlocal/th_18.png" style="zoom:67%;" />
 
 在跨线程调用中. 也是通过覆写 runnable 来实现来防止链路丢失
 

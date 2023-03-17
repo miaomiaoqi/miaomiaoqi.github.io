@@ -52,20 +52,20 @@ Zookeeper从设计模式角度来理解: 是一个基于观察者模式设计的
 
 ZooKeeper 数据模型的结构与Unix 文件系统很类似, 整体上可以看作是一棵树, 每个节点称做一个ZNode. 每一个ZNode 默认能够存储1MB 的数据, 每个ZNode 都可以通过其路径唯一标识. 
 
-<img src="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/6.png" alt="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/6.png" style="zoom:50%;" />
+<img src="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/6.png" alt="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/6.png" style="zoom:50%;" />
 
 1. 层次化的目录结构, 命名符合常规文件系统规范, 它很像数据结构当中的树, 也很像文件系统的目录
 1. 每个节点在 Zookeeper 中叫做 **Znode**, 并且其有一个唯一的路径标识
 1. 节点 Znode 可以包含数据和子节点
 1. 客户端应用可以在节点上设置监视器
 
-<img src="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/1.png" alt="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/1.png" style="zoom:50%;" />
+<img src="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/1.png" alt="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/1.png" style="zoom:50%;" />
 
 ### Znode
 
 Znode 包含了数据, 子节点引用, 访问权限等等
 
-<img src="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/2.png" alt="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/2.png" style="zoom:50%;" />
+<img src="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/2.png" alt="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/2.png" style="zoom:50%;" />
 
 **data:** Znode存储的数据信息. 
 
@@ -256,7 +256,7 @@ ZooKeeper可以实现实时监控节点状态变化
 
 **tickTime = 2000**: 通信心跳时间, **Zookeeper**服务器与客户端心跳时间, 单位毫秒 
 
-<img src="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/7.png" alt="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/7.png" style="zoom:50%;" />
+<img src="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/7.png" alt="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/7.png" style="zoom:50%;" />
 
 **initLimit = 10**: **LF**初始通信时限 
 
@@ -316,7 +316,7 @@ Epoch: 每个Leader任期的代号. 没有Leader时同一轮投票过程中的�
 
 ### Zookeeper选举机制-第一次启动
 
-<img src="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/8.png" alt="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/8.png" style="zoom:50%;" />
+<img src="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/8.png" alt="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/8.png" style="zoom:50%;" />
 
 1.  服务器1启动, 发起一次选举. 服务器1投自己一票. 此时服务器1票数一票, 不够半数以上（3票）, 选举无法完成, 服务器1状态保持为LOOKING； 2.
 2.  服务器2启动, 再发起一次选举. 服务器1和2分别投自己一票并交换选票信息: 此时服务器1发现服务器2的myid比自己目前投票推举的（服务器1） 大, 更改选票为推举服务器2. 此时服务器1票数0票, 服务器2票数2票, 没有半数以上结果, 选举无法完成, 服务器1, 2状态保持LOOKING 
@@ -326,7 +326,7 @@ Epoch: 每个Leader任期的代号. 没有Leader时同一轮投票过程中的�
 
 ### Zookeeper选举机制-非第一次启动
 
-<img src="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/9.png" alt="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/9.png" style="zoom:50%;" />
+<img src="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/9.png" alt="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/9.png" style="zoom:50%;" />
 
 1.  当ZooKeeper集群中的一台服务器出现以下两种情况之一时, 就会开始进入Leader选举
     *   服务器初始化启动. 
@@ -391,11 +391,11 @@ Epoch: 每个Leader任期的代号. 没有Leader时同一轮投票过程中的�
 
 1. 客户端调用getData方法, watch参数是true. 服务端接到请求, 返回节点数据, 并且在对应的哈希表里插入被Watch的Znode路径, 以及Watcher列表. 
 
-    <img src="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/3.png" alt="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/3.png" style="zoom: 50%;" />
+    <img src="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/3.png" alt="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/3.png" style="zoom: 50%;" />
 
 2. 当被Watch的Znode已删除, 服务端会查找哈希表, 找到该Znode对应的所有Watcher, 异步通知客户端, 并且删除哈希表中对应的Key-Value. 
 
-    <img src="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/4.png" alt="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/4.png" style="zoom:50%;" />
+    <img src="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/4.png" alt="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/4.png" style="zoom:50%;" />
 
 **监听原理详解**
 
@@ -427,7 +427,7 @@ listener 线程内部调用了 process() 方法.
 
 Zookepper 身为分布式系统协调服务, 如果自身挂掉了怎么办呢? 为了防止单机挂掉的情况, Zookeeper 维护了一个集群
 
-<img src="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/5.png" alt="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/5.png" style="zoom: 50%;" />
+<img src="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/5.png" alt="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/5.png" style="zoom: 50%;" />
 
 Zookeeper Service 集群是一主多从结构
 
@@ -498,13 +498,13 @@ Zookeeper Service 集群是一主多从结构
 
  Paxos算法解决的问题：就是如何快速正确的在一个分布式系统中对某个数据值达成一致, 并且保证不论发生任何异常,  都不会破坏整个系统的一致性.  
 
-<img src="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/10.png" alt="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/10.png" style="zoom:50%;" />
+<img src="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/10.png" alt="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/10.png" style="zoom:50%;" />
 
 **Paxos 算法描述**
 
 在一个Paxos系统中, 首先将所有节点划分为Proposer（提议者）, Acceptor（接受者）, 和Learner（学习者）. （注意：每个节点都可以身兼数职）. 
 
-<img src="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/11.png" alt="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/11.png" style="zoom:50%;" />
+<img src="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/11.png" alt="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/11.png" style="zoom:50%;" />
 
 一个完整的Paxos算法流程分为三个阶段： 
 
@@ -520,7 +520,7 @@ Zookeeper Service 集群是一主多从结构
 
 **Paxos 算法流程**
 
-<img src="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/12.png" alt="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/12.png" style="zoom:50%;" />
+<img src="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/12.png" alt="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/12.png" style="zoom:50%;" />
 
 Prepare: Proposer生成全局唯一且递增的Proposal ID, 向所有Acceptor发送Propose请求, 这里无需携带提案内容, 只携带Proposal ID即可. 
 
@@ -542,7 +542,7 @@ Learn: Proposer收到多数Acceptor的Accept后, 决议形成, 将形成的决�
 
 有A1, A2, A3, A4, A5 5位议员, 就税率问题进行决议. 
 
-<img src="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/13.png" alt="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/13.png" style="zoom:50%;" />
+<img src="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/13.png" alt="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/13.png" style="zoom:50%;" />
 
 *   A1发起1号Proposal的Propose, 等待Promise承诺
 
@@ -558,7 +558,7 @@ Learn: Proposer收到多数Acceptor的Accept后, 决议形成, 将形成的决�
 
 现在我们假设在A1提出提案的同时, A5决定将税率定为20% 
 
-<img src="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/14.png" alt="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/14.png" style="zoom:50%;" />
+<img src="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/14.png" alt="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/14.png" style="zoom:50%;" />
 
 *   A1, A5同时发起Propose（序号分别为1, 2） 
 
@@ -578,7 +578,7 @@ Learn: Proposer收到多数Acceptor的Accept后, 决议形成, 将形成的决�
 
 现在我们假设在A1提出提案的同时, A5决定将税率定为20% 
 
-<img src="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/15.png" alt="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/15.png" style="zoom:50%;" />
+<img src="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/15.png" alt="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/15.png" style="zoom:50%;" />
 
 *   A1, A5同时发起Propose（序号分别为1, 2） 
 
@@ -606,7 +606,7 @@ Zab 协议包括两种基本的模式：消息广播、崩溃恢复.
 
 **消息广播**
 
-<img src="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/16.png" alt="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/16.png" style="zoom:50%;" />
+<img src="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/16.png" alt="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/16.png" style="zoom:50%;" />
 
 1.  客户端发起一个写操作请求. 
 
@@ -640,7 +640,7 @@ ZAB协议针对事务请求的处理过程类似于一个两阶段提交过程
 
 一旦Leader服务器出现崩溃或者由于网络原因导致Leader服务器失去了与过半Follower的联系, 那么就会进入崩溃恢复模式. 
 
-<img src="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/17.png" alt="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/17.png" style="zoom:50%;" />
+<img src="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/17.png" alt="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/17.png" style="zoom:50%;" />
 
 **假设两种服务器异常情况**
 
@@ -656,7 +656,7 @@ ZAB协议针对事务请求的处理过程类似于一个两阶段提交过程
 
 崩溃恢复主要包括两部分：**Leader**选举和数据恢复. 
 
-<img src="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/18.png" alt="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/18.png" style="zoom:50%;" />
+<img src="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/18.png" alt="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/18.png" style="zoom:50%;" />
 
 **Leader**选举：根据上述要求, Zab协议需要保证选举出来的Leader需要满足以下条件
 
@@ -667,7 +667,7 @@ ZAB协议针对事务请求的处理过程类似于一个两阶段提交过程
 
 崩溃恢复主要包括两部分：**Leader**选举和数据恢复. 
 
-<img src="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/19.png" alt="http://www.miaomiaoqi.github.io/images/bigdata/zookeeper/19.png" style="zoom:50%;" />
+<img src="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/19.png" alt="https://www.miaomiaoqi.github.io/images/bigdata/zookeeper/19.png" style="zoom:50%;" />
 
 **Zab**如何数据同步
 

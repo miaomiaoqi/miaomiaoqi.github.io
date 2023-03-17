@@ -285,7 +285,7 @@ ribbon:
 
 ### SpringCloud 注册中心 Eureka 集群是怎么保持数据一致的
 
-<img src="http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_8.png" alt="http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_8.png" style="zoom: 50%;" />
+<img src="https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_8.png" alt="https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_8.png" style="zoom: 50%;" />
 
 服务注册中心不可能是单点的, 一定会有一个集群, 那么集群中的服务注册信息如何在集群中保持一致的呢? 
 
@@ -302,7 +302,7 @@ ribbon:
 
 分布式系统中有一个重要理论: CAP. 
 
-<img src="http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_9.png" alt="http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_9.png" style="zoom: 50%;" />
+<img src="https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_9.png" alt="https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_9.png" style="zoom: 50%;" />
 
 该理论提到了分布式系统中的3个特性: 
 
@@ -328,7 +328,7 @@ ZooKeeper 选择了 **C**, 就是尽可能的保证数据一致性, 某些情况
 
 Eureka 则选择了 **A**, 所以 Eureka 具有高可用性, 在任何时候, 服务消费者都能正常获取服务列表, 但不保证数据的强一致性, 消费者可能会拿到过期的服务列表. 
 
-<img src="http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_10.png" alt="http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_10.png" style="zoom: 50%;" />
+<img src="https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_10.png" alt="https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_10.png" style="zoom: 50%;" />
 
 >   Eureka 的设计理念: 保留可用及过期的数据总比丢掉可用的数据好. 
 
@@ -360,11 +360,11 @@ Eureka Server 启动后, 会通过 Eureka Client 请求其他 Eureka Server 节�
 
 Eureka Server 每当自己的信息变更后, 例如 Client 向自己发起*注册、续约、注销*请求,  就会把自己的最新信息通知给其他 Eureka Server, 保持数据同步. 
 
-<img src="http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_11.png" alt="http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_11.png" style="zoom: 50%;" />
+<img src="https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_11.png" alt="https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_11.png" style="zoom: 50%;" />
 
 如果自己的信息变更是另一个 Eureka Server 同步过来的, 这是再同步回去的话就出现**数据同步死循环**了. 
 
-<img src="http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_12.png" alt="http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_12.png" style="zoom: 50%;" />
+<img src="https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_12.png" alt="https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_12.png" style="zoom: 50%;" />
 
 Eureka Server 在执行复制操作的时候, 使用 `HEADER_REPLICATION` 这个 http header 来区分普通应用实例的正常请求, 说明这是一个复制请求, 这样其他 peer 节点收到请求时, 就不会再对其进行复制操作, 从而避免死循环. 
 
@@ -380,7 +380,7 @@ Eureka Server 在执行复制操作的时候, 使用 `HEADER_REPLICATION` 这个
 
 2.  A 的数据比 B 的旧, B 返回 409, 要求 A 同步 B 的数据. 
 
-<img src="http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_13.png" alt="http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_13.png" style="zoom: 50%;" />
+<img src="https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_13.png" alt="https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_13.png" style="zoom: 50%;" />
 
 还有一个重要的机制:**hearbeat 心跳**, 即续约操作, 来进行数据的最终修复, 因为节点间的复制可能会出错, 通过心跳就可以发现错误, 进行弥补. 
 
@@ -518,7 +518,7 @@ public interface ProductClient {
 
 ## 分布式统一配置中心 Config
 
-<img src="http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_1.png" alt="http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_1.png" style="zoom: 50%;" />
+<img src="https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_1.png" alt="https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_1.png" style="zoom: 50%;" />
 
 * 配置的内容安全与权限
 
@@ -644,7 +644,7 @@ public interface ProductClient {
 
 ## 自动刷新配置 Spring Cloud Bus
 
-<img src="http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_2.png" alt="http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_2.png" style="zoom: 50%;" />
+<img src="https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_2.png" alt="https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_2.png" style="zoom: 50%;" />
 
 SpringCloudBus 依赖 mq 发消息实现服务自动更新配置
 
@@ -676,7 +676,7 @@ SpringCloudBus 依赖 mq 发消息实现服务自动更新配置
 
 * 启动 ConfigServer 服务, 会在 rabbitmq 中自动创建一个 queue, 如下图
 
-    ![http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_3.png](http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_3.png)
+    ![https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_3.png](https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_3.png)
 
     
 
@@ -721,7 +721,7 @@ SpringCloudBus 依赖 mq 发消息实现服务自动更新配置
 
 * 启动 Config Client 服务, 会在 rabbitmq 中自动创建一个 queue, 如下图
 
-    ![http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_4.png](http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_4.png)
+    ![https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_4.png](https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_4.png)
 
 * 修改 git 仓库中的配置文件内容, 向 ConfigServer 发送一条 POST 请求
 
@@ -731,7 +731,7 @@ SpringCloudBus 依赖 mq 发消息实现服务自动更新配置
 
 * **目前为止我们实现了手动的自动刷新, 接下来要配置 git 服务器的 webhooks 实现更改配置后自动 push**
 
-    <img src="http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_5.png" alt="http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_5.png" style="zoom: 50%;" />
+    <img src="https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_5.png" alt="https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_5.png" style="zoom: 50%;" />
 
     **我使用的是 git 所以需要配置外网域名进行 push, 生产环境我们可以搭建 gitlab 在内网中使用更安全**
 
@@ -773,7 +773,7 @@ spring:
 - 安全性
 - 扩展性
 
-<img src="http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_6.png" alt="http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_6.png" style="zoom:67%;" />
+<img src="https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_6.png" alt="https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_6.png" style="zoom:67%;" />
 
 加入 Zuul 依赖
 
@@ -1160,7 +1160,7 @@ Hystrix提供了4种执行命令的方法, execute()和queue()适用于 HystrixC
 
 #### 几种方法的关系
 
-<img src="http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_14.png" alt="http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_14.png" style="zoom: 50%;" />
+<img src="https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_14.png" alt="https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_14.png" style="zoom: 50%;" />
 
 -   execute()实际是调用了queue().get()
 -   queue()实际调用了toObservable().toBlocking().toFuture()
@@ -1186,7 +1186,7 @@ final static ConcurrentHashMap<String, HystrixThreadPool> threadPools = new Conc
 
 后续查询商品的请求创建command时, 将会重用已创建的线程池. 线程池隔离之后的服务依赖关系: 
 
-<img src="http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_15.png" alt="http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_15.png" style="zoom: 50%;" />
+<img src="https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_15.png" alt="https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_15.png" style="zoom: 50%;" />
 
 通过发送请求线程与执行请求的线程分离, 可有效防止发生级联故障. 当线程池或请求队列饱和时, Hystrix将拒绝服务, 使得请求线程可以快速失败, 从而避免依赖问题扩散. 
 
@@ -1215,7 +1215,7 @@ final static ConcurrentHashMap<String, HystrixThreadPool> threadPools = new Conc
 
 信号量的资源隔离只是起到一个开关的作用, 比如, 服务 A 的信号量大小为 10, 那么就是说它同时只允许有 10 个 tomcat 线程来访问服务 A, 其它的请求都会被拒绝, 从而达到资源隔离和限流保护的作用.
 
-<img src="http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_16.png" alt="http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_16.png" style="zoom: 50%;" />
+<img src="https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_16.png" alt="https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_16.png" style="zoom: 50%;" />
 
 使用线程池时, 发送请求的线程和执行依赖服务的线程不是同一个, 而使用信号量时, 发送请求的线程和执行依赖服务的线程时同一个,  都是发起请求的线程. 
 
@@ -1328,7 +1328,7 @@ final static ConcurrentHashMap<String, HystrixThreadPool> threadPools = new Conc
 
     有时系统具有两种行为- 主要和次要, 或主要和故障转移. 主要和次要逻辑涉及到不同的网络调用和业务逻辑, 所以需要将主次逻辑封装在不同的Command 中, 使用线程池进行隔离. 为了实现主从逻辑切换, 可以将主次 command 封装在外观 HystrixCommand 的 run 方法中, 并结合配置中心设置的开关切换主从逻辑. 由于主次逻辑都是经过线程池隔离的 HystrixCommand, 因此外观 HystrixCommand 可以使用信号量隔离, 而没有必要使用线程池隔离引入不必要的开销. 原理图如下: 
 
-<img src="http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_18.png" alt="http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_18.png" style="zoom: 50%;" />
+<img src="https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_18.png" alt="https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_18.png" style="zoom: 50%;" />
 
 主次模型的使用场景还是很多的. 如当系统升级新功能时, 如果新版本的功能出现问题, 通过开关控制降级调用旧版本的功能. 
 
@@ -1478,7 +1478,7 @@ public class CommandFacadeWithPrimarySecondary extends HystrixCommand<String> {
 
 下图展示了 HystrixCircuitBreaker 的工作原理
 
-<img src="http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_17.png" alt="http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_17.png" style="zoom: 50%;" />
+<img src="https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_17.png" alt="https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_17.png" style="zoom: 50%;" />
 
 **熔断器工作的详细过程如下:**
 
@@ -1506,7 +1506,7 @@ public class CommandFacadeWithPrimarySecondary extends HystrixCommand<String> {
 
 当某个服务发生降级数量达到一定的百分比, 那么正常的逻辑也会直接触发降级, 将整个服务熔断, 一定时间后再恢复访问, 在 SpringCloud 中的熔断就是配置 4 个属性
 
-<img src="http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_7.png" alt="http://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_7.png" style="zoom: 50%;" />
+<img src="https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_7.png" alt="https://www.miaomiaoqi.github.io/images/springcloud/springcloud_sell_7.png" style="zoom: 50%;" />
 
 **Closed:** 默认熔断器是关闭的, 当失败次数达到一定阈值, 会变为打开状态
 
