@@ -60,7 +60,7 @@ cookie 是不可跨域的:每个 cookie 都会绑定单一的域名, 无法在�
 
 cookie 重要的属性
 
-![http://www.milky.show/images/security/sec_1.png](http://www.milky.show/images/security/sec_1.png)
+![http://www.miaomiaoqi.github.io/images/security/sec_1.png](http://www.miaomiaoqi.github.io/images/security/sec_1.png)
 
 ## 什么是 Session
 
@@ -68,7 +68,7 @@ session 是另一种记录服务器和客户端会话状态的机制
 
 session 是基于 cookie 实现的, session 存储在服务器端, sessionId 会被存储到客户端的cookie 中
 
-![http://www.milky.show/images/security/sec_2.png](http://www.milky.show/images/security/sec_2.png)
+![http://www.miaomiaoqi.github.io/images/security/sec_2.png](http://www.miaomiaoqi.github.io/images/security/sec_2.png)
 
 session 认证流程:
 
@@ -112,7 +112,7 @@ session 认证流程:
 
 token 的身份验证流程:
 
-![http://www.milky.show/images/security/sec_3.png](http://www.milky.show/images/security/sec_3.png)
+![http://www.miaomiaoqi.github.io/images/security/sec_3.png](http://www.miaomiaoqi.github.io/images/security/sec_3.png)
 
 1.  客户端使用用户名跟密码请求登录
 
@@ -138,7 +138,7 @@ token 完全由应用管理, 所以它可以避开同源策略
 
 refresh token 是专用于刷新 access token 的 token. 如果没有 refresh token, 也可以刷新 access token, 但每次刷新都要用户输入登录用户名与密码, 会很麻烦. 有了 refresh token, 可以减少这个麻烦, 客户端直接用 refresh token 去更新 access token, 无需用户进行额外的操作. 
 
-![http://www.milky.show/images/security/sec_4.png](http://www.milky.show/images/security/sec_4.png)
+![http://www.miaomiaoqi.github.io/images/security/sec_4.png](http://www.miaomiaoqi.github.io/images/security/sec_4.png)
 
 Access Token 的有效期比较短, 当 Acesss Token 由于过期而失效时, 使用 Refresh Token 就可以获取到新的 Token, 如果 Refresh Token 也失效了, 用户就只能重新登录了. 
 
@@ -164,7 +164,7 @@ JWT 是为了在网络应用环境间传递声明而执行的一种基于 JSON �
 
 ### JWT 的原理
 
-![http://www.milky.show/images/security/sec_5.png](http://www.milky.show/images/security/sec_5.png)
+![http://www.miaomiaoqi.github.io/images/security/sec_5.png](http://www.miaomiaoqi.github.io/images/security/sec_5.png)
 
 JWT 认证流程:
 
@@ -252,7 +252,7 @@ http://www.example.com/user?token=xxx
 
 ## 常见的加密算法
 
-![http://www.milky.show/images/security/sec_6.png](http://www.milky.show/images/security/sec_6.png)
+![http://www.miaomiaoqi.github.io/images/security/sec_6.png](http://www.miaomiaoqi.github.io/images/security/sec_6.png)
 
 哈希算法(Hash Algorithm)又称散列算法, 散列函数, 哈希函数, 是一种从任何一种数据中创建小的数字“指纹”的方法. 哈希算法将数据重新打乱混合, 重新创建一个哈希值. 
 
@@ -390,7 +390,7 @@ JWT 适合一次性的命令认证, 颁发一个有效期极短的 JWT, 即使�
 -   服务器重启 session 不丢失(不过也要注意 session 在 Redis 中的刷新/失效机制)；
 -   不仅可以跨服务器 session 共享, 甚至可以跨平台(例如网页端和 APP 端)
 
-![http://www.milky.show/images/security/sec_7.png](http://www.milky.show/images/security/sec_7.png)
+![http://www.miaomiaoqi.github.io/images/security/sec_7.png](http://www.miaomiaoqi.github.io/images/security/sec_7.png)
 
 #### session 持久化
 

@@ -12,7 +12,7 @@ keywords:
 
 ## SpringSecurity 基本原理
 
-<img src="http://www.milky.show/images/springsecurity/authen_1.png" alt="http://www.milky.show/images/springsecurity/authen_1.png" style="zoom: 25%;" />
+<img src="http://www.miaomiaoqi.github.io/images/springsecurity/authen_1.png" alt="http://www.miaomiaoqi.github.io/images/springsecurity/authen_1.png" style="zoom: 25%;" />
 
 SpringSecurity 的基本原理是内置了许多的过滤器, 所有的过滤器都可以根据我们的配置进行插拔式的配置, 其中绿色的部分是我们可控的, 其余的部分是必须存在的
 
@@ -86,7 +86,7 @@ SpringSecurity 并没有提供验证码的校验过滤器, 需要自定义 Filte
 
 **SpringSecurity 并没有提供短信验证码的登录功能, 所以我们需要自己实现 SmsAuthenticationTokenFilter**
 
-<img src="http://www.milky.show/images/springsecurity/authen_2.png" alt="http://www.milky.show/images/springsecurity/authen_2.png" style="zoom: 25%;" />
+<img src="http://www.miaomiaoqi.github.io/images/springsecurity/authen_2.png" alt="http://www.miaomiaoqi.github.io/images/springsecurity/authen_2.png" style="zoom: 25%;" />
 
 自定义一个 **SmsAuthenticationFilter**, 根据手机号生成未认证的 **SmsAuthenticationToken**(封装登录信息, 身份认证之前封装的是手机号, 认证成功后封装的是用户信息), AuthenticationManager 会检索系统中所有的 Provider, 这时我们提供一个 **SmsAuthenticationProvider** 用这个 provider 来校验手机号的信息, provider 调用 UserDetailsService 获取用户信息进行认证, 认证成功的话将我们的 Token 置为已认证状态
 
@@ -98,7 +98,7 @@ SpringSecurity 并没有提供验证码的校验过滤器, 需要自定义 Filte
 
 ### OAuth 协议要解决的问题
 
-<img src="http://www.milky.show/images/springsecurity/authen_3.png" alt="http://www.milky.show/images/springsecurity/authen_3.png" style="zoom: 50%;" />
+<img src="http://www.miaomiaoqi.github.io/images/springsecurity/authen_3.png" alt="http://www.miaomiaoqi.github.io/images/springsecurity/authen_3.png" style="zoom: 50%;" />
 
 用户将微信用户名和密码告诉第三方, 第三方程序员再向微信请求数据, 会存在如下风险
 
@@ -110,7 +110,7 @@ OAuth 就是用来解决上述问题的
 
 ### OAuth 协议中的各种角色
 
-<img src="http://www.milky.show/images/springsecurity/authen_4.png" alt="http://www.milky.show/images/springsecurity/authen_4.png" style="zoom: 50%;" />
+<img src="http://www.miaomiaoqi.github.io/images/springsecurity/authen_4.png" alt="http://www.miaomiaoqi.github.io/images/springsecurity/authen_4.png" style="zoom: 50%;" />
 
 上图是 OAuth 的核心流程, 其中第 2 步同意授权又包含 4 种模式
 
@@ -121,7 +121,7 @@ OAuth 就是用来解决上述问题的
 
 #### 授权码模式
 
-<img src="http://www.milky.show/images/springsecurity/authen_5.png" alt="http://www.milky.show/images/springsecurity/authen_5.png" style="zoom: 50%;" />
+<img src="http://www.miaomiaoqi.github.io/images/springsecurity/authen_5.png" alt="http://www.miaomiaoqi.github.io/images/springsecurity/authen_5.png" style="zoom: 50%;" />
 
 用户同意授权的动作是在认证服务器上完成的, 认证服务器可以明确知道是用户同意授权了, 安全性高
 
@@ -129,15 +129,15 @@ OAuth 就是用来解决上述问题的
 
 ## SpringSocial
 
-<img src="http://www.milky.show/images/springsecurity/authen_7.png" alt="http://www.milky.show/images/springsecurity/authen_7.png" style="zoom: 50%;" />
+<img src="http://www.miaomiaoqi.github.io/images/springsecurity/authen_7.png" alt="http://www.miaomiaoqi.github.io/images/springsecurity/authen_7.png" style="zoom: 50%;" />
 
 SpringSocial 将 OAuth 的流程封装成了 SocialAuthenticationFilter 中并加入到了过滤器链中
 
 ### SpringSocial 开发第三方登录
 
-<img src="http://www.milky.show/images/springsecurity/authen_8.png" alt="http://www.milky.show/images/springsecurity/authen_8.png" style="zoom: 50%;" />
+<img src="http://www.miaomiaoqi.github.io/images/springsecurity/authen_8.png" alt="http://www.miaomiaoqi.github.io/images/springsecurity/authen_8.png" style="zoom: 50%;" />
 
-<img src="http://www.milky.show/images/springsecurity/authen_6.png" alt="http://www.milky.show/images/springsecurity/authen_6.png" style="zoom: 50%;" />
+<img src="http://www.miaomiaoqi.github.io/images/springsecurity/authen_6.png" alt="http://www.miaomiaoqi.github.io/images/springsecurity/authen_6.png" style="zoom: 50%;" />
 
 ServiceProvider(AbstractOAuth2ServiceProvider): 负责 1~6 步的流程
 
