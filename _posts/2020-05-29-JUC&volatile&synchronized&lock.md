@@ -209,31 +209,31 @@ volatile 关键字, 通过加入内存屏障和禁止重排序优化来实现
 
     * 锁定规则
 
-        一个unlock操作先行发生于后面对同一个锁的lock操作
+        一个 unlock 操作先行发生于后面对同一个锁的 lock 操作
 
-    * volatile变量规则
+    * volatile 变量规则
 
         对一个变量的写操作先行发生于后面对这个变量的读操作
 
     * 传递规则
 
-        如果操作A先行发生于操作B, 而操作B又先行发生于操作C, 则可以得出操作A先行发生于操作C
+        如果操作 A 先行发生于操作 B, 而操作 B 又先行发生于操作 C, 则可以得出操作 A 先行发生于操作 C
 
     * 线程启动原则
 
-        Thread对象的start()方法先行发生于此线程的每一个动作
+        Thread 对象的 start() 方法先行发生于此线程的每一个动作
 
     * 线程中断规则
 
-        对线程interrupt()方法的调用先行发生于被中断线程的代码检测到中断事件的发生
+        对线程 interrupt() 方法的调用先行发生于被中断线程的代码检测到中断事件的发生
 
     * 线程终结规则
 
-        线程中所有操作都先行发生于线程的终止检测, 我们可以通过Thread.join()方法结束. Thread.isAlive()的返回值手段检测到线程已经终止执行
+        线程中所有操作都先行发生于线程的终止检测, 我们可以通过 Thread.join() 方法结束. Thread.isAlive()的返回值手段检测到线程已经终止执行
 
     * 对象终结规则
 
-        一个对象的初始化完成先行发生于他的finalize()方法的开始
+        一个对象的初始化完成先行发生于他的 finalize() 方法的开始
 
 **as-if-serial**
 
@@ -1180,7 +1180,7 @@ volatile 关键字具有许多特性, **其中最重要的特性就是保证了�
 
 这里的可见性是什么意思呢? 当一个线程修改了变量的值, 新的值会立刻同步到主内存当中. 而其他线程读取这个变量的时候, 也会从主内存中拉取最新的变量值. 
 
-为什么volatile关键字可以有这样的特性? 这得益于java语言的先行发生原则(happens-before). 
+为什么 volatile 关键字可以有这样的特性? 这得益于 java 语言的先行发生原则(happens-before). 
 
 **总结**
 
@@ -1200,12 +1200,12 @@ volatile 关键字具有许多特性, **其中最重要的特性就是保证了�
 
 ## Synchronized 关键字
 
-synchronized 关键字是Java并发编程中线程同步的常用手段之一, 其作用有三个:
+synchronized 关键字是 Java 并发编程中线程同步的常用手段之一, 其作用有三个:
 
 1. **互斥性**: 确保线程互斥的访问同步代, 锁自动释放, 多个线程操作同个代码块或函数必须排队获得锁, 
 2. **可见性**: 保证共享变量的修改能够及时可见, 获得锁的线程操作完毕后会将所数据刷新到共享内存区[1]
 3. **有序性**: 有效解决重排序问题
-4. 可重入性: synchronized锁对象的时候有个计数器, 他会记录下线程获取锁的次数, 在执行完对应的代码块之后, 计数器就会-1, 直到计数器清零, 就释放锁了. 
+4. 可重入性: synchronized 锁对象的时候有个计数器, 他会记录下线程获取锁的次数, 在执行完对应的代码块之后, 计数器就会-1, 直到计数器清零, 就释放锁了. 
 5. 不可中断就是指, 一个线程获取锁之后, 另外一个线程处于阻塞或者等待状态, 前一个不释放, 后一个也一直会阻塞或者等待, 不可以被中断. 
 
 synchronized 用法有三个:
@@ -1508,9 +1508,9 @@ monitor 运行图如下:
 - 获取到锁的线程可也以通过调用 wait 方法将锁释放(release), 然后该线程对象会被放入_WaitSet列表中, 进入Wait Set (等待区)进行等待(阻塞BLOCKED). 
 - 当获取到锁的对象调用 notify/notifyAll 方法唤醒等待区被阻塞的线程时, 线程重新竞争锁. 如果竞争锁成功, 那么线程就进入 RUNNABLE 状态; 如果竞争锁失败, 这些线程会重新进入到 Entry Set 区再重新去竞争锁. 
 
-wait方法的使用对应上图的第3步, 也就是说, **调用`wait()`、`notify()`/`notifyAll()`方法的对象必须已经获取到锁**. 
+wait 方法的使用对应上图的第 3 步, 也就是说, **调用`wait()`、`notify()`/`notifyAll()`方法的对象必须已经获取到锁**. 
 
-如何确保调用对象获取到锁呢? 使用sychronized关键字呗! **所以说这些方法调用也必须发生在sychronized修饰的同步代码块内**. 
+如何确保调用对象获取到锁呢? 使用 sychronized 关键字呗! **所以说这些方法调用也必须发生在 sychronized 修饰的同步代码块内**. 
 
 
 
@@ -1520,9 +1520,9 @@ wait方法的使用对应上图的第3步, 也就是说, **调用`wait()`、`not
 
 <img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_20.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_20.png" style="zoom:67%;" />
 
-synchronized修饰方法原理也是类似的. 只不过没用monitor指令, 而是使用ACC_SYNCHRONIZED标识方法的同步
+ synchronized 修饰方法原理也是类似的. 只不过没用 monitor 指令, 而是使用 ACC_SYNCHRONIZED 标识方法的同步
 
-synchronized是可重入, 非公平锁, 因为entryList的线程会先自旋尝试加锁, 而不是加入cxq排队等待, 不公平
+synchronized 是可重入, 非公平锁, 因为 entryList 的线程会先自旋尝试加锁, 而不是加入 cxq 排队等待, 不公平
 
 
 
@@ -1654,7 +1654,7 @@ Object 的 notifyAll 方法则对应`voidObjectMonitor::notifyAll(TRAPS)`, 流�
 
 
 
-**调用wait和notify方法需要注意的细节**
+**调用 wait 和 notify 方法需要注意的细节**
 
 wait方法与notify方法**必须要由同一个锁对象调用**. 因为对应的锁对象可以通过notify唤醒使用同一个锁对象调用的wait方法后的线程. 
 
@@ -2560,19 +2560,15 @@ synchronized 和 Reentrantlock 的底层汇编还是 lock cmpxchg 命令
 
 在低争用 低耗时的环境下CAS效率更高
 
-synchronized到重量级之后是等待队列(不消耗CPU)CAS(等待期间消耗CPU)
+synchronized 到重量级之后是等待队列(不消耗CPU)CAS(等待期间消耗CPU)
 
 
 
-AbstractQueuedSynchronizer通过构造一个基于阻塞的CLH队列容纳所有的阻塞线程, 而对该队列的操作均通过Lock-Free(CAS)操作, 但对已经获得锁的线程而言, ReentrantLock实现了偏向锁的功能. 
+AbstractQueuedSynchronizer 通过构造一个基于阻塞的CLH队列容纳所有的阻塞线程, 而对该队列的操作均通过Lock-Free(CAS)操作, 但对已经获得锁的线程而言, ReentrantLock 实现了偏向锁的功能. 
 
-synchronized的底层也是一个基于CAS操作的等待队列, 但JVM实现的更精细, 把等待队列分为ContentionList和EntryList, 目的是为了降低线程的出列速度; 当然也实现了偏向锁, 从数据结构来说二者设计没有本质区别. 但synchronized还实现了自旋锁, 并针对不同的系统和硬件体系进行了优化, 而Lock则完全依靠系统阻塞挂起等待线程. 
+synchronized 的底层也是一个基于 CAS 操作的等待队列, 但 JVM 实现的更精细, 把等待队列分为 ContentionList 和 EntryList, 目的是为了降低线程的出列速度; 当然也实现了偏向锁, 从数据结构来说二者设计没有本质区别. 但 synchronized 还实现了自旋锁, 并针对不同的系统和硬件体系进行了优化, 而 Lock 则完全依靠系统阻塞挂起等待线程. 
 
-当然Lock比synchronized更适合在应用层扩展, 可以继承AbstractQueuedSynchronizer定义各种实现, 比如实现读写锁(ReadWriteLock), 公平或不公平锁; 同时, Lock对应的Condition也比wait/notify要方便的多、灵活的多. 
-
-
-
-
+当然 Lock比synchronized 更适合在应用层扩展, 可以继承 AbstractQueuedSynchronizer 定义各种实现, 比如实现读写锁(ReadWriteLock), 公平或不公平锁; 同时, Lock 对应的 Condition 也比 wait/notify 要方便的多、灵活的多. 
 
 
 
@@ -2580,7 +2576,7 @@ synchronized的底层也是一个基于CAS操作的等待队列, 但JVM实现的
 
 ## AbstractQueuedSynchronizer(AQS)
 
-AQS其实就是基于volatile+cas实现的锁模板; 如果需要线程阻塞等待, 唤醒机制, 则使用LockSupport挂起、唤醒线程
+AQS 其实就是基于 volatile+cas 实现的锁模板; 如果需要线程阻塞等待, 唤醒机制, 则使用 LockSupport 挂起、唤醒线程
 
 ```java
 //AbstractQueuedSynchronizer.java
@@ -2607,7 +2603,7 @@ public class AbstractQueuedSynchronizer{
 }
 ```
 
-AQS内部维护一个同步队列, 元素就是包装了线程的Node
+AQS 内部维护一个同步队列, 元素就是包装了线程的 Node
 
 同步队列中首节点是获取到锁的节点, 它在释放锁的时会唤醒后继节点, 后继节点获取到锁的时候, 会把自己设为首节点
 
@@ -2621,9 +2617,9 @@ public final void acquire(int arg) {
 }
 ```
 
-线程会先尝试获取锁, 失败则封装成Node, CAS加入同步队列的尾部. 在加入同步队列的尾部时, 会判断前驱节点是否是head结点, 并尝试加锁(可能前驱节点刚好释放锁), 否则线程进入阻塞等待
+线程会先尝试获取锁, 失败则封装成 Node, CAS 加入同步队列的尾部. 在加入同步队列的尾部时, 会判断前驱节点是否是 head 结点, 并尝试加锁(可能前驱节点刚好释放锁), 否则线程进入阻塞等待
 
-**在AQS还存一个ConditionObject的内部类, 它的使用机制和Object.wait、notify类似**
+**在 AQS 还存一个 ConditionObject 的内部类, 它的使用机制和 Object.wait、notify 类似**
 
 ```java
 // AbstractQueuedSynchronizer.java
@@ -2634,8 +2630,8 @@ public class ConditionObject implements Condition, java.io.Serializable {
     ...
 ```
 
-- 每个Condition对象内部包含一个Node元素的FIFO条件队列
-- 当一个线程调用Condition.await()方法, 那么该线程将会释放锁、构造Node加入条件队列并进入等待状态
+- 每个 Condition 对象内部包含一个Node元素的FIFO条件队列
+- 当一个线程调用 Condition.await() 方法, 那么该线程将会释放锁、构造 Node 加入条件队列并进入等待状态
 
 ```java
 //类似Object.wait
@@ -2657,7 +2653,7 @@ public final void await() throws InterruptedException{
 
 <img src="https://miaomiaoqi.github.io/images/java/aqs/aqs_2.png" alt="https://miaomiaoqi.github.io/images/java/aqs/aqs_2.png" style="zoom:67%;" />
 
-调用Condition.signal时, 获取条件队列的首节点, 将其移动到同步队列并且利用LockSupport唤醒节点中的线程. 随后继续执行wait挂起前的状态, 调用acquireQueued(node, savedState)竞争同步状态
+调用 Condition.signal 时, 获取条件队列的首节点, 将其移动到同步队列并且利用 LockSupport 唤醒节点中的线程. 随后继续执行 wait 挂起前的状态, 调用acquireQueued(node, savedState)竞争同步状态
 
 ```java
 //类似Object.notify
