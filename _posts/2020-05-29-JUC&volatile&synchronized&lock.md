@@ -118,12 +118,12 @@ keywords:
 
 提供了互斥访问, 同一时刻只能有一个线程来对它进行操作
 
-Atomic包
+Atomic 包
 
 * AtomicXXX: CAS, Unsafe.compareAndSwapInt
-* AtomicLong和LongAdder
+* AtomicLong 和 LongAdder
 * AtomicReference, AtomicXxxFieldUpdater
-* AtomicStampReference 解决CAS的ABA问题
+* AtomicStampReference 解决 CAS 的 ABA 问题
 * AtomicBoolean
 
 锁
@@ -181,17 +181,17 @@ JMM 关于 synchronized 的两条规定
 
 volatile 关键字, 通过加入内存屏障和禁止重排序优化来实现
 
-* 对volatile变量写操作时, 会在写操作后加入一条store屏障指令, 将本地内存中的共享变量值刷新到主存中
+* 对 volatile 变量写操作时, 会在写操作后加入一条 store 屏障指令, 将本地内存中的共享变量值刷新到主存中
 
     <img src="https://miaomiaoqi.github.io/images/java/concurrency/5.png" alt="https://miaomiaoqi.github.io/images/java/concurrency/5.png" style="zoom:50%;" />
 
-* 对volatile变量读操作时, 会在读操作前加入一条load屏障指令, 从主内存中读取共享变量
+* 对 volatile 变量读操作时, 会在读操作前加入一条 load 屏障指令, 从主内存中读取共享变量
 
     <img src="https://miaomiaoqi.github.io/images/java/concurrency/6.png" alt="https://miaomiaoqi.github.io/images/java/concurrency/6.png" style="zoom:50%;" />
 
-同样在 Volatile 章节我介绍到了现代计算机的内存结构, 以及 JMM(Java内存模型), 这里我需要说明一下就是JMM并不是实际存在的, 而是一套规范, 这个规范描述了很多java程序中各种变量(线程共享变量)的访问规则, 以及在JVM中将变量存储到内存和从内存中读取变量这样的底层细节, Java内存模型是对共享数据的可见性、有序性、和原子性的规则和保障. 
+同样在 Volatile 章节我介绍到了现代计算机的内存结构, 以及 JMM(Java内存模型), 这里我需要说明一下就是 JMM 并不是实际存在的, 而是一套规范, 这个规范描述了很多 java 程序中各种变量(线程共享变量)的访问规则, 以及在 JVM 中将变量存储到内存和从内存中读取变量这样的底层细节, Java 内存模型是对共享数据的可见性、有序性、和原子性的规则和保障. 
 
-大家感兴趣, 也记得去了解计算机的组成部分, cpu、内存、多级缓存等, 会帮助更好的理解java这么做的原因. 
+大家感兴趣, 也记得去了解计算机的组成部分, cpu、内存、多级缓存等, 会帮助更好的理解 java 这么做的原因. 
 
 <img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_14.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_14.png" style="zoom:67%;" />
 
@@ -424,7 +424,7 @@ Java提供了种类丰富的锁, 每种锁因其特性的不同, 在适当的场
 
 ### 乐观锁 VS 悲观锁
 
-乐观锁与悲观锁是一种广义上的概念, 体现了看待线程同步的不同角度. 在Java和数据库中都有此概念对应的实际应用. 
+乐观锁与悲观锁是一种广义上的概念, 体现了看待线程同步的不同角度. 在 Java 和数据库中都有此概念对应的实际应用. 
 
 互斥同步锁(悲观锁)的劣势
 
@@ -434,22 +434,22 @@ Java提供了种类丰富的锁, 每种锁因其特性的不同, 在适当的场
 
 **悲观锁**
 
-对于同一个数据的并发操作, 悲观锁认为自己在使用数据的时候一定有别的线程来修改数据, 因此在获取数据的时候会先加锁, 确保数据不会被别的线程修改. Java中, synchronized关键字和Lock的实现类都是悲观锁. 
+对于同一个数据的并发操作, 悲观锁认为自己在使用数据的时候一定有别的线程来修改数据, 因此在获取数据的时候会先加锁, 确保数据不会被别的线程修改. Java 中, synchronized 关键字和 Lock 的实现类都是悲观锁. 
 
 **乐观锁**
 
 乐观锁认为自己在使用数据时不会有别的线程修改数据, 所以不会添加锁, 只是在更新数据的时候去判断之前有没有别的线程更新了这个数据. 如果这个数据没有被更新, 当前线程将自己修改的数据成功写入. 如果数据已经被其他线程更新, 则根据不同的实现方式执行不同的操作(例如报错或者自动重试). 
 
-乐观锁在Java中是通过使用无锁编程来实现, 最常采用的是CAS算法, Java原子类中的递增操作就通过CAS自旋实现的. 
+乐观锁在 Java 中是通过使用无锁编程来实现, 最常采用的是 CAS 算法, Java 原子类中的递增操作就通过 CAS 自旋实现的. 
 
 <img src="https://miaomiaoqi.github.io/images/java/lock/lock_5.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_5.png" style="zoom: 33%;" />
 
-根据从上面的概念描述我们可以发现：
+根据从上面的概念描述我们可以发现: 
 
 - 悲观锁适合写操作多的场景, 先加锁可以保证写操作时数据正确. 
 - 乐观锁适合读操作多的场景, 不加锁的特点能够使其读操作的性能大幅提升. 
 
-光说概念有些抽象, 我们来看下乐观锁和悲观锁的调用方式示例：
+光说概念有些抽象, 我们来看下乐观锁和悲观锁的调用方式示例: 
 
 ```java
 // ------------------------- 悲观锁的调用方式 -------------------------
@@ -472,27 +472,27 @@ atomicInteger.incrementAndGet(); //执行自增1
 
 通过调用方式示例, 我们可以发现悲观锁基本都是在显式的锁定之后再操作同步资源, 而乐观锁则直接去操作同步资源. 那么, 为何乐观锁能够做到不锁定同步资源也可以正确的实现线程同步呢? 我们通过介绍乐观锁的主要实现方式 “CAS” 的技术原理来为大家解惑. 
 
-CAS全称 Compare And Swap(比较与交换), 是一种无锁算法. 在不使用锁(没有线程被阻塞)的情况下实现多线程之间的变量同步. java.util.concurrent包中的原子类就是通过CAS来实现了乐观锁. 
+CAS 全称 Compare And Swap(比较与交换), 是一种无锁算法. 在不使用锁(没有线程被阻塞)的情况下实现多线程之间的变量同步. java.util.concurrent 包中的原子类就是通过 CAS 来实现了乐观锁. 
 
-CAS算法涉及到三个操作数：
+CAS 算法涉及到三个操作数: 
 
-- 需要读写的内存值 V. 
-- 进行比较的值 A. 
-- 要写入的新值 B. 
+- 需要读写的内存值 V
+- 进行比较的值 A
+- 要写入的新值 B 
 
-当且仅当 V 的值等于 A 时, CAS通过原子方式用新值B来更新V的值(“比较+更新”整体是一个原子操作), 否则不会执行任何操作. 一般情况下, “更新”是一个不断重试的操作. 
+当且仅当 V 的值等于 A 时, CAS 通过原子方式用新值 B 来更新V的值(“比较+更新”整体是一个原子操作), 否则不会执行任何操作. 一般情况下, “更新”是一个不断重试的操作. 
 
-之前提到java.util.concurrent包中的原子类, 就是通过CAS来实现了乐观锁, 那么我们进入原子类AtomicInteger的源码, 看一下AtomicInteger的定义：
+之前提到 java.util.concurrent 包中的原子类, 就是通过 CAS 来实现了乐观锁, 那么我们进入原子类 AtomicInteger 的源码, 看一下 AtomicInteger 的定义: 
 
 <img src="https://miaomiaoqi.github.io/images/java/lock/lock_6.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_6.png" style="zoom: 33%;" />
 
-根据定义我们可以看出各属性的作用：
+根据定义我们可以看出各属性的作用
 
-- unsafe： 获取并操作内存的数据. 
-- valueOffset： 存储value在AtomicInteger中的偏移量. 
-- value： 存储AtomicInteger的int值, 该属性需要借助volatile关键字保证其在线程间是可见的. 
+- unsafe: 获取并操作内存的数据
+- valueOffset: 存储 value 在 AtomicInteger 中的偏移量
+- value: 存储 AtomicInteger 的 int 值, 该属性需要借助 volatile 关键字保证其在线程间是可见的
 
-接下来, 我们查看AtomicInteger的自增函数incrementAndGet()的源码时, 发现自增函数底层调用的是unsafe.getAndAddInt(). 但是由于JDK本身只有Unsafe.class, 只通过class文件中的参数名, 并不能很好的了解方法的作用, 所以我们通过OpenJDK 8 来查看Unsafe的源码：
+接下来, 我们查看 AtomicInteger 的自增函数 incrementAndGet() 的源码时, 发现自增函数底层调用的是 unsafe.getAndAddInt(). 但是由于 JDK 本身只有Unsafe.class, 只通过 class 文件中的参数名, 并不能很好的了解方法的作用, 所以我们通过 OpenJDK 8 来查看 Unsafe 的源码: 
 
 ```java
 // ------------------------- JDK 8 -------------------------
@@ -521,25 +521,25 @@ public final int getAndAddInt(Object o, long offset, int delta) {
 }
 ```
 
-根据OpenJDK 8的源码我们可以看出, getAndAddInt()循环获取给定对象o中的偏移量处的值v, 然后判断内存值是否等于v. 如果相等则将内存值设置为 v + delta, 否则返回false, 继续循环进行重试, 直到设置成功才能退出循环, 并且将旧值返回. 整个“比较+更新”操作封装在compareAndSwapInt()中, 在JNI里是借助于一个CPU指令完成的, 属于原子操作, 可以保证多个线程都能够看到同一个变量的修改值. 
+根据 OpenJDK 8 的源码我们可以看出, getAndAddInt() 循环获取给定对象o中的偏移量处的值 v, 然后判断内存值是否等于v. 如果相等则将内存值设置为 v + delta, 否则返回 false, 继续循环进行重试, 直到设置成功才能退出循环, 并且将旧值返回. 整个“比较+更新”操作封装在 compareAndSwapInt() 中, 在 JNI 里是借助于一个 CPU 指令完成的, 属于原子操作, 可以保证多个线程都能够看到同一个变量的修改值. 
 
-后续JDK通过CPU的cmpxchg指令, 去比较寄存器中的 A 和 内存中的值 V. 如果相等, 就把要写入的新值 B 存入内存中. 如果不相等, 就将内存值 V 赋值给寄存器中的值 A. 然后通过Java代码中的while循环再次调用cmpxchg指令进行重试, 直到设置成功为止. 
+后续 JDK 通过 CPU 的 cmpxchg 指令, 去比较寄存器中的 A 和 内存中的值 V. 如果相等, 就把要写入的新值 B 存入内存中. 如果不相等, 就将内存值 V 赋值给寄存器中的值 A. 然后通过 Java 代码中的 while 循环再次调用 cmpxchg 指令进行重试, 直到设置成功为止. 
 
-CAS虽然很高效, 但是它也存在三大问题, 这里也简单说一下：
+CAS 虽然很高效, 但是它也存在三大问题, 这里也简单说一下: 
 
 1. ABA 问题
 
-    . CAS需要在操作值的时候检查内存值是否发生变化, 没有发生变化才会更新内存值. 但是如果内存值原来是A, 后来变成了B, 然后又变成了A, 那么CAS进行检查时会发现值没有发生变化, 但是实际上是有变化的. ABA问题的解决思路就是在变量前面添加版本号, 每次变量更新的时候都把版本号加一, 这样变化过程就从“A－B－A”变成了“1A－2B－3A”. 
+    CAS 需要在操作值的时候检查内存值是否发生变化, 没有发生变化才会更新内存值. 但是如果内存值原来是 A, 后来变成了 B, 然后又变成了 A, 那么 CAS 进行检查时会发现值没有发生变化, 但是实际上是有变化的. ABA 问题的解决思路就是在变量前面添加版本号, 每次变量更新的时候都把版本号加一, 这样变化过程就从“A－B－A”变成了“1A－2B－3A”. 
 
-    - JDK从1.5开始提供了AtomicStampedReference类来解决ABA问题, 具体操作封装在compareAndSet()中. compareAndSet()首先检查当前引用和当前标志与预期引用和预期标志是否相等, 如果都相等, 则以原子方式将引用值和标志的值设置为给定的更新值. 
+    - JDK 从 1.5 开始提供了AtomicStampedReference 类来解决ABA问题, 具体操作封装在 compareAndSet() 中. compareAndSet() 首先检查当前引用和当前标志与预期引用和预期标志是否相等, 如果都相等, 则以原子方式将引用值和标志的值设置为给定的更新值. 
 
-2. **循环时间长开销大**. CAS操作如果长时间不成功, 会导致其一直自旋, 给CPU带来非常大的开销. 
+2. **循环时间长开销大**. CAS 操作如果长时间不成功, 会导致其一直自旋, 给 CPU 带来非常大的开销. 
 
 3. 只能保证一个共享变量的原子操作
 
-    . 对一个共享变量执行操作时, CAS能够保证原子操作, 但是对多个共享变量操作时, CAS是无法保证操作的原子性的. 
+    *   对一个共享变量执行操作时, CAS 能够保证原子操作, 但是对多个共享变量操作时, CAS 是无法保证操作的原子性的. 
 
-    - Java从1.5开始JDK提供了AtomicReference类来保证引用对象之间的原子性, 可以把多个变量放在一个对象里来进行CAS操作. 
+    - Java 从 1.5 开始  JDK 提供了 AtomicReference 类来保证引用对象之间的原子性, 可以把多个变量放在一个对象里来进行 CAS 操作. 
 
 **开销对比**
 
@@ -561,7 +561,7 @@ CAS虽然很高效, 但是它也存在三大问题, 这里也简单说一下：
 
 ### 自旋锁 VS 适应性自旋锁
 
-阻塞或唤醒一个Java线程需要操作系统切换CPU状态来完成, 这种状态转换需要耗费处理器时间. 如果同步代码块中的内容过于简单, 状态转换消耗的时间有可能比用户代码执行的时间还要长. 
+阻塞或唤醒一个 Java 线程需要操作系统切换 CPU 状态来完成, 这种状态转换需要耗费处理器时间. 如果同步代码块中的内容过于简单, 状态转换消耗的时间有可能比用户代码执行的时间还要长. 
 
 在许多场景中, 同步资源的锁定时间很短, 为了这一小段时间去切换线程, 线程挂起和恢复现场的花费可能会让系统得不偿失. 如果物理机器有多个处理器, 能够让两个或以上的线程同时并行执行, 我们就可以让后面那个请求锁的线程不放弃CPU的执行时间, 看看持有锁的线程是否很快就会释放锁. 
 
@@ -569,13 +569,13 @@ CAS虽然很高效, 但是它也存在三大问题, 这里也简单说一下：
 
 <img src="https://miaomiaoqi.github.io/images/java/lock/lock_7.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_7.png" style="zoom: 33%;" />
 
-自旋锁本身是有缺点的, 它不能代替阻塞. 自旋等待虽然避免了线程切换的开销, 但它要占用处理器时间. 如果锁被占用的时间很短, 自旋等待的效果就会非常好. 反之, 如果锁被占用的时间很长, 那么自旋的线程只会白浪费处理器资源. 所以, 自旋等待的时间必须要有一定的限度, 如果自旋超过了限定次数(默认是10次, 可以使用-XX:PreBlockSpin来更改)没有成功获得锁, 就应当挂起线程. 
+自旋锁本身是有缺点的, 它不能代替阻塞. 自旋等待虽然避免了线程切换的开销, 但它要占用处理器时间. 如果锁被占用的时间很短, 自旋等待的效果就会非常好. 反之, 如果锁被占用的时间很长, 那么自旋的线程只会白浪费处理器资源. 所以, 自旋等待的时间必须要有一定的限度, 如果自旋超过了限定次数(默认是  10次, 可以使用 -XX:PreBlockSpin 来更改)没有成功获得锁, 就应当挂起线程. 
 
-自旋锁的实现原理同样也是CAS, AtomicInteger中调用unsafe进行自增操作的源码中的do-while循环就是一个自旋操作, 如果修改数值失败则通过循环来执行自旋, 直至修改成功. 
+自旋锁的实现原理同样也是 CAS, AtomicInteger 中调用 unsafe 进行自增操作的源码中的 do-while 循环就是一个自旋操作, 如果修改数值失败则通过循环来执行自旋, 直至修改成功. 
 
 <img src="https://miaomiaoqi.github.io/images/java/lock/lock_8.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_8.png" style="zoom: 33%;" />
 
-自旋锁在JDK1.4.2中引入, 使用-XX:+UseSpinning来开启. JDK 6中变为默认开启, 并且引入了自适应的自旋锁(适应性自旋锁). 
+自旋锁在 JDK1.4.2 中引入, 使用 -XX:+UseSpinning 来开启. JDK 6 中变为默认开启, 并且引入了自适应的自旋锁(适应性自旋锁). 
 
 自适应意味着自旋的时间(次数)不再固定, 而是由前一次在同一个锁上的自旋时间及锁的拥有者的状态来决定. 如果在同一个锁对象上, 自旋等待刚刚成功获得过锁, 并且持有锁的线程正在运行中, 那么虚拟机就会认为这次自旋也是很有可能再次成功, 进而它将允许自旋等待持续相对更长的时间. 如果对于某个锁, 自旋很少成功获得过, 那在以后尝试获取这个锁时将可能省略掉自旋过程, 直接阻塞线程, 避免浪费处理器资源. 
 
@@ -622,40 +622,40 @@ Tip: 切记这个升级过程是不可逆的, 最后我会说明他的影响, �
 
 这四种锁是指锁的状态, 专门针对synchronized的. 在介绍这四种锁状态之前还需要介绍一些额外的知识. 
 
-首先为什么Synchronized能实现线程同步? 
+首先为什么 Synchronized 能实现线程同步? 
 
-在回答这个问题之前我们需要了解两个重要的概念：“Java对象头”、“Monitor”. 
+在回答这个问题之前我们需要了解两个重要的概念: “Java对象头”、“Monitor”. 
 
-**Java对象头**
+**Java 对象头**
 
-synchronized 是悲观锁, 在操作同步资源之前需要给同步资源先加锁, 这把锁就是存在Java对象头里的, 而Java对象头又是什么呢? 
+synchronized 是悲观锁, 在操作同步资源之前需要给同步资源先加锁, 这把锁就是存在 Java 对象头里的, 而 Java 对象头又是什么呢? 
 
-我们以 Hotspot 虚拟机为例, Hotspot 的对象头主要包括两部分数据：Mark Word(标记字段)、Klass Pointer(类型指针). 
+我们以 Hotspot 虚拟机为例, Hotspot 的对象头主要包括两部分数据: Mark Word(标记字段)、Klass Pointer(类型指针). 
 
-**Mark Word**：默认存储对象的HashCode, 分代年龄和锁标志位信息. 这些信息都是与对象自身定义无关的数据, 所以Mark Word被设计成一个**非固定的数据结构**以便在极小的空间内存存储尽量多的数据. 它会根据对象的状态复用自己的存储空间, 也就是说在运行期间Mark Word里存储的数据会随着锁标志位的变化而变化. 
+**Mark Word**: 默认存储对象的HashCode, 分代年龄和锁标志位信息. 这些信息都是与对象自身定义无关的数据, 所以Mark Word被设计成一个**非固定的数据结构**以便在极小的空间内存存储尽量多的数据. 它会根据对象的状态复用自己的存储空间, 也就是说在运行期间Mark Word里存储的数据会随着锁标志位的变化而变化. 
 
-**Klass Point**：对象指向它的类元数据的指针, 虚拟机通过这个指针来确定这个对象是哪个类的实例. 
+**Klass Point**: 对象指向它的类元数据的指针, 虚拟机通过这个指针来确定这个对象是哪个类的实例. 
 
 **Monitor**
 
-Monitor可以理解为一个同步工具或一种同步机制, 通常被描述为一个对象. 每一个Java对象就有一把看不见的锁, 称为内部锁或者Monitor锁. 
+Monitor 可以理解为一个同步工具或一种同步机制, 通常被描述为一个对象. 每一个 Java 对象就有一把看不见的锁, 称为内部锁或者 Monitor 锁. 
 
-Monitor是线程私有的数据结构, 每一个线程都有一个可用monitor record列表, 同时还有一个全局的可用列表. 每一个被锁住的对象都会和一个monitor关联, 同时monitor中有一个Owner字段存放拥有该锁的线程的唯一标识, 表示该锁被这个线程占用. 
+Monitor 是线程私有的数据结构, 每一个线程都有一个可用 monitor record 列表, 同时还有一个全局的可用列表. 每一个被锁住的对象都会和一个 monitor 关联, 同时 monitor 中有一个 Owner 字段存放拥有该锁的线程的唯一标识, 表示该锁被这个线程占用. 
 
-现在话题回到synchronized, synchronized通过Monitor来实现线程同步, Monitor是依赖于底层的操作系统的Mutex Lock(互斥锁)来实现的线程同步. 
+现在话题回到 synchronized, synchronized 通过 Monitor 来实现线程同步, Monitor 是依赖于底层的操作系统的 Mutex Lock(互斥锁)来实现的线程同步. 
 
-如同我们在自旋锁中提到的“阻塞或唤醒一个Java线程需要操作系统切换CPU状态来完成, 这种状态转换需要耗费处理器时间. 如果同步代码块中的内容过于简单, 状态转换消耗的时间有可能比用户代码执行的时间还要长”. 这种方式就是synchronized最初实现同步的方式, 这就是JDK 6之前synchronized效率低的原因. 这种依赖于操作系统Mutex Lock所实现的锁我们称之为“重量级锁”, JDK 6中为了减少获得锁和释放锁带来的性能消耗, 引入了“偏向锁”和“轻量级锁”. 
+如同我们在自旋锁中提到的“阻塞或唤醒一个 Java 线程需要操作系统切换 CPU 状态来完成, 这种状态转换需要耗费处理器时间. 如果同步代码块中的内容过于简单, 状态转换消耗的时间有可能比用户代码执行的时间还要长”. 这种方式就是 synchronized 最初实现同步的方式, 这就是 JDK 6 之前 synchronized 效率低的原因. 这种依赖于操作系统 Mutex Lock 所实现的锁我们称之为“重量级锁”, JDK 6 中为了减少获得锁和释放锁带来的性能消耗, 引入了“偏向锁”和“轻量级锁”. 
 
-所以目前锁一共有4种状态, 级别从低到高依次是：无锁、偏向锁、轻量级锁和重量级锁. 锁状态只能升级不能降级. 
+所以目前锁一共有 4 种状态, 级别从低到高依次是: 无锁、偏向锁、轻量级锁和重量级锁. 锁状态只能升级不能降级. 
 
-通过上面的介绍, 我们对synchronized的加锁机制以及相关知识有了一个了解, 那么下面我们给出四种锁状态对应的的Mark Word内容, 然后再分别讲解四种锁状态的思路以及特点：
+通过上面的介绍, 我们对 synchronized 的加锁机制以及相关知识有了一个了解, 那么下面我们给出四种锁状态对应的的 Mark Word 内容, 然后再分别讲解四种锁状态的思路以及特点: 
 
-| 锁状态   | 存储内容                                                | 存储内容 |
-| :------- | :------------------------------------------------------ | :------- |
-| 无锁     | 对象的hashCode、对象分代年龄、是否是偏向锁（0）         | 01       |
-| 偏向锁   | 偏向线程ID、偏向时间戳、对象分代年龄、是否是偏向锁（1） | 01       |
-| 轻量级锁 | 指向栈中锁记录的指针                                    | 00       |
-| 重量级锁 | 指向互斥量（重量级锁）的指针                            | 10       |
+| 锁状态   | 存储内容                                               | 存储内容 |
+| :------- | :----------------------------------------------------- | :------- |
+| 无锁     | 对象的 hashCode、对象分代年龄、是否是偏向锁(0)         | 01       |
+| 偏向锁   | 偏向线程 ID、偏向时间戳、对象分代年龄、是否是偏向锁(1) | 01       |
+| 轻量级锁 | 指向栈中锁记录的指针                                   | 00       |
+| 重量级锁 | 指向互斥量(重量级锁)的指针                             | 10       |
 
 
 
@@ -671,11 +671,11 @@ Monitor是线程私有的数据结构, 每一个线程都有一个可用monitor 
 
 在大多数情况下, 锁总是由同一线程多次获得, 不存在多线程竞争, 所以出现了偏向锁. 其目标就是在只有一个线程执行同步代码块时能够提高性能. 
 
-当一个线程访问同步代码块并获取锁时, 会在Mark Word里存储锁偏向的线程ID. 在线程进入和退出同步块时不再通过CAS操作来加锁和解锁, 而是检测Mark Word里是否存储着指向当前线程的偏向锁. 引入偏向锁是为了在无多线程竞争的情况下尽量减少不必要的轻量级锁执行路径, 因为轻量级锁的获取及释放依赖多次CAS原子指令, 而偏向锁只需要在置换ThreadID的时候依赖一次CAS原子指令即可. 
+当一个线程访问同步代码块并获取锁时, 会在 Mark Word 里存储锁偏向的线程 ID. 在线程进入和退出同步块时不再通过 CAS 操作来加锁和解锁, 而是检测Mark Word 里是否存储着指向当前线程的偏向锁. 引入偏向锁是为了在无多线程竞争的情况下尽量减少不必要的轻量级锁执行路径, 因为轻量级锁的获取及释放依赖多次 CAS 原子指令, 而偏向锁只需要在置换 ThreadID 的时候依赖一次 CAS 原子指令即可. 
 
 偏向锁只有遇到其他线程尝试竞争偏向锁时, 持有偏向锁的线程才会释放锁, 线程不会主动释放偏向锁. 偏向锁的撤销, 需要等待全局安全点(在这个时间点上没有字节码正在执行), 它会首先暂停拥有偏向锁的线程, 判断锁对象是否处于被锁定状态. 撤销偏向锁后恢复到无锁(标志位为“01”)或轻量级锁(标志位为“00”)的状态. 
 
-偏向锁在JDK 6及以后的JVM里是默认启用的. 可以通过JVM参数关闭偏向锁：-XX:-UseBiasedLocking=false, 关闭之后程序默认会进入轻量级锁状态. 
+偏向锁在 JDK 6 及以后的 JVM 里是默认启用的. 可以通过JVM参数关闭偏向锁: -XX:-UseBiasedLocking=false, 关闭之后程序默认会进入轻量级锁状态. 
 
 
 
@@ -683,23 +683,23 @@ Monitor是线程私有的数据结构, 每一个线程都有一个可用monitor 
 
 将自己的线程号写进了 markword 上, 此时只是贴了一个自己的 id 上去, 并没有发生锁的竞争
 
-多数Sychronized方法, 在很多情况下, 其实只有一个线程运行, 例如: StringBuffer中的一些sync方法(append()方法), Vector中的一些sync方法
+多数 Sychronized 方法, 在很多情况下, 其实只有一个线程运行, 例如: StringBuffer 中的一些 sync方法(append()方法), Vector 中的一些 sync 方法
 
 **只要有另外的线程来竞争, 就会升级为轻量级锁**
 
-具体操作是**markword上记录当前线程指针, 下次同一个线程加锁的时候, 不需要争用, 只用判断线程指针是否是同一个, 所以, 偏向锁, 偏向的是加锁的第一个线程, hashCode备份在线程栈上, 线程销毁, 锁降级为无锁. **
+具体操作是 **markword上记录当前线程指针, 下次同一个线程加锁的时候, 不需要争用, 只用判断线程指针是否是同一个, 所以, 偏向锁, 偏向的是加锁的第一个线程, hashCode备份在线程栈上, 线程销毁, 锁降级为无锁. **
 
-一旦有其他线程竞争, 偏向锁就会升级为轻量级锁, 每个线程有自己的LockRecord在自己的线程栈上, 用CAS去争用markword的LR的指针, 指针指向哪个线程的LR, 哪个线程就拥有锁. 如果自旋次数超过十次, 升级为重量级锁. 或者有多个线程在等待, 即超过1/2cpu核数, 升级为重量级锁. 以前通过参数可以调, 现在JVM做了优化, 自适应自旋, 合适的时候自己升级为重量锁. 
+一旦有其他线程竞争, 偏向锁就会升级为轻量级锁, 每个线程有自己的  LockRecord 在自己的线程栈上, 用 CAS 去争用 markword 的 LR 的指针, 指针指向哪个线程的LR, 哪个线程就拥有锁. 如果自旋次数超过十次, 升级为重量级锁. 或者有多个线程在等待, 即超过 1/2cpu 核数, 升级为重量级锁. 以前通过参数可以调, 现在 JVM 做了优化, 自适应自旋, 合适的时候自己升级为重量锁. 
 
-**偏向锁默认是启动的, 但会默认延迟4秒钟. 因为JVM虚拟机自己有一些默认启动的线程, 里面有好多sync代码, 这些sync代码启动时就知道肯定会有竞争, 如果使用偏向锁, 就会造成偏向锁不断的进行锁撤销, 锁升级的操作, 效率较低. **
+**偏向锁默认是启动的, 但会默认延迟 4 秒钟. 因为 JVM 虚拟机自己有一些默认启动的线程, 里面有好多 sync 代码, 这些 sync 代码启动时就知道肯定会有竞争, 如果使用偏向锁, 就会造成偏向锁不断的进行锁撤销, 锁升级的操作, 效率较低. **
 
 
 
-之前我提到过了, 对象头是由Mark Word和Klass pointer 组成, 锁争夺也就是对象头指向的Monitor对象的争夺, 一旦有线程持有了这个对象, 标志位修改为1, 就进入偏向模式, 同时会把这个线程的ID记录在对象的Mark Word中. 
+之前我提到过了, 对象头是由 Mark Word 和 Klass pointer 组成, 锁争夺也就是对象头指向的 Monitor 对象的争夺, 一旦有线程持有了这个对象, 标志位修改为1, 就进入偏向模式, 同时会把这个线程的ID记录在对象的Mark Word中. 
 
-这个过程是采用了CAS乐观锁操作的, 每次同一线程进入, 虚拟机就不进行任何同步的操作了, 对标志位+1就好了, 不同线程过来, CAS会失败, 也就意味着获取锁失败. 
+这个过程是采用了 CAS 乐观锁操作的, 每次同一线程进入, 虚拟机就不进行任何同步的操作了, 对标志位 +1 就好了, 不同线程过来, CAS 会失败, 也就意味着获取锁失败. 
 
-偏向锁在1.6之后是默认开启的, 1.5中是关闭的, 需要手动开启参数是xx:-UseBiasedLocking=false. 
+偏向锁在 1.6 之后是默认开启的, 1.5 中是关闭的, 需要手动开启参数是x x:-UseBiasedLocking=false. 
 
 <img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_10.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_10.png" style="zoom:67%;" />
 
@@ -911,7 +911,7 @@ JVM启动过程, 会有很多线程竞争(明确), 所以默认情况启动时�
 
 如上图所示, 假设有一口水井, 有管理员看守, 管理员有一把锁, 只有拿到锁的人才能够打水, 打完水要把锁还给管理员. 每个过来打水的人都要管理员的允许并拿到锁之后才能去打水, 如果前面有人正在打水, 那么这个想要打水的人就必须排队. 管理员会查看下一个要去打水的人是不是队伍里排最前面的人, 如果是的话, 才会给你锁让你去打水; 如果你不是排第一的人, 就必须去队尾排队, 这就是公平锁. 
 
-但是对于非公平锁, 管理员对打水的人没有要求. 即使等待队伍里有排队等待的人, 但如果在上一个人刚打完水把锁还给管理员而且管理员还没有允许等待队伍里下一个人去打水时, 刚好来了一个插队的人, 这个插队的人是可以直接从管理员那里拿到锁去打水, 不需要排队, 原本排队等待的人只能继续等待. 如下图所示：
+但是对于非公平锁, 管理员对打水的人没有要求. 即使等待队伍里有排队等待的人, 但如果在上一个人刚打完水把锁还给管理员而且管理员还没有允许等待队伍里下一个人去打水时, 刚好来了一个插队的人, 这个插队的人是可以直接从管理员那里拿到锁去打水, 不需要排队, 原本排队等待的人只能继续等待. 如下图所示: 
 
 <img src="https://miaomiaoqi.github.io/images/java/lock/lock_10.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_10.png" style="zoom: 33%;" />
 
@@ -925,11 +925,11 @@ JVM启动过程, 会有很多线程竞争(明确), 所以默认情况启动时�
 
 <img src="https://miaomiaoqi.github.io/images/java/lock/lock_12.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_12.png" style="zoom: 33%;" />
 
-通过上图中的源代码对比, 我们可以明显的看出公平锁与非公平锁的lock()方法唯一的区别就在于公平锁在获取同步状态时多了一个限制条件：hasQueuedPredecessors(). 
+通过上图中的源代码对比, 我们可以明显的看出公平锁与非公平锁的lock()方法唯一的区别就在于公平锁在获取同步状态时多了一个限制条件: hasQueuedPredecessors(). 
 
 <img src="https://miaomiaoqi.github.io/images/java/lock/lock_13.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_13.png" style="zoom: 33%;" />
 
-再进入hasQueuedPredecessors(), 可以看到该方法主要做一件事情：主要是判断当前线程是否位于同步队列中的第一个. 如果是则返回true, 否则返回false. 
+再进入hasQueuedPredecessors(), 可以看到该方法主要做一件事情: 主要是判断当前线程是否位于同步队列中的第一个. 如果是则返回true, 否则返回false. 
 
 综上, 公平锁就是通过同步队列来实现多个线程按照申请锁的顺序来获取锁, 从而实现公平的特性. 非公平锁加锁时不考虑排队等待问题, 直接尝试获取锁, 所以存在后申请却先获得锁的情况. 
 
@@ -937,7 +937,7 @@ JVM启动过程, 会有很多线程竞争(明确), 所以默认情况启动时�
 
 ### 可重入锁(ReentrantLock)和非可重入锁
 
-可重入锁又名递归锁, 是指在同一个线程在外层方法获取锁的时候, 再进入该线程的内层方法会自动获取锁(前提锁对象得是同一个对象或者class), 不会因为之前已经获取过还没释放而阻塞. Java中ReentrantLock和synchronized都是可重入锁, 可重入锁的一个优点是可一定程度避免死锁. 下面用示例代码来进行分析：
+可重入锁又名递归锁, 是指在同一个线程在外层方法获取锁的时候, 再进入该线程的内层方法会自动获取锁(前提锁对象得是同一个对象或者class), 不会因为之前已经获取过还没释放而阻塞. Java中ReentrantLock和synchronized都是可重入锁, 可重入锁的一个优点是可一定程度避免死锁. 下面用示例代码来进行分析: 
 
 ```java
 public class Widget {
@@ -990,21 +990,21 @@ public class Widget {
 
 在读的地方使用读锁, 在写的地方使用写锁, 灵活控制, 如果没有写锁的情况下, 读是物阻塞的, 提高了程序的执行效率, 独享锁与共享锁也是通过AQS来实现的, 通过实现不同的方法, 来实现独享或者共享. 
 
-下图为ReentrantReadWriteLock的部分源码：
+下图为ReentrantReadWriteLock的部分源码: 
 
 <img src="https://miaomiaoqi.github.io/images/java/lock/lock_17.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_17.png" style="zoom: 33%;" />
 
-我们看到ReentrantReadWriteLock有两把锁：ReadLock和WriteLock, 由词知意, 一个读锁一个写锁, 合称“读写锁”. 再进一步观察可以发现ReadLock和WriteLock是靠内部类Sync实现的锁. Sync是AQS的一个子类, 这种结构在CountDownLatch、ReentrantLock、Semaphore里面也都存在. 
+我们看到ReentrantReadWriteLock有两把锁: ReadLock和WriteLock, 由词知意, 一个读锁一个写锁, 合称“读写锁”. 再进一步观察可以发现ReadLock和WriteLock是靠内部类Sync实现的锁. Sync是AQS的一个子类, 这种结构在CountDownLatch、ReentrantLock、Semaphore里面也都存在. 
 
 在ReentrantReadWriteLock里面, 读锁和写锁的锁主体都是Sync, 但读锁和写锁的加锁方式不一样. 读锁是共享锁, 写锁是独享锁. 读锁的共享锁可保证并发读非常高效, 而读写、写读、写写的过程互斥, 因为读锁和写锁是分离的. 所以ReentrantReadWriteLock的并发性相比一般的互斥锁有了很大提升. 
 
 那读锁和写锁的具体加锁方式有什么区别呢? 在了解源码之前我们需要回顾一下其他知识.  在最开始提及AQS的时候我们也提到了state字段(int类型, 32位), 该字段用来描述有多少线程获持有锁. 
 
-在独享锁中这个值通常是0或者1(如果是重入锁的话state值就是重入的次数), 在共享锁中state就是持有锁的数量. 但是在ReentrantReadWriteLock中有读、写两把锁, 所以需要在一个整型变量state上分别描述读锁和写锁的数量(或者也可以叫状态). 于是将state变量“按位切割”切分成了两个部分, 高16位表示读锁状态(读锁个数), 低16位表示写锁状态(写锁个数). 如下图所示：
+在独享锁中这个值通常是0或者1(如果是重入锁的话state值就是重入的次数), 在共享锁中state就是持有锁的数量. 但是在ReentrantReadWriteLock中有读、写两把锁, 所以需要在一个整型变量state上分别描述读锁和写锁的数量(或者也可以叫状态). 于是将state变量“按位切割”切分成了两个部分, 高16位表示读锁状态(读锁个数), 低16位表示写锁状态(写锁个数). 如下图所示: 
 
 <img src="https://miaomiaoqi.github.io/images/java/lock/lock_18.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_18.png" style="zoom: 33%;" />
 
-了解了概念之后我们再来看代码, 先看写锁的加锁源码：
+了解了概念之后我们再来看代码, 先看写锁的加锁源码: 
 
 ```java
 protected final boolean tryAcquire(int acquires) {
@@ -1034,11 +1034,11 @@ protected final boolean tryAcquire(int acquires) {
 - 如果当且写线程数为0(那么读线程也应该为0, 因为上面已经处理c!=0的情况), 并且当前线程需要阻塞那么就返回失败; 如果通过CAS增加写线程数失败也返回失败. 
 - 如果 c = 0, w = 0 或者 c > 0, w > 0(重入), 则设置当前线程或锁的拥有者, 返回成功! 
 
-tryAcquire()除了重入条件(当前线程为获取了写锁的线程)之外, 增加了一个读锁是否存在的判断. 如果存在读锁, 则写锁不能被获取, 原因在于：必须确保写锁的操作对读锁可见, 如果允许读锁在已被获取的情况下对写锁的获取, 那么正在运行的其他读线程就无法感知到当前写线程的操作. 
+tryAcquire()除了重入条件(当前线程为获取了写锁的线程)之外, 增加了一个读锁是否存在的判断. 如果存在读锁, 则写锁不能被获取, 原因在于: 必须确保写锁的操作对读锁可见, 如果允许读锁在已被获取的情况下对写锁的获取, 那么正在运行的其他读线程就无法感知到当前写线程的操作. 
 
 因此, 只有等待其他读线程都释放了读锁, 写锁才能被当前线程获取, 而写锁一旦被获取, 则其他读写线程的后续访问均被阻塞. 写锁的释放与ReentrantLock的释放过程基本类似, 每次释放均减少写状态, 当写状态为0时表示写锁已被释放, 然后等待的读写线程才能够继续访问读写锁, 同时前次写线程的修改对后续的读写线程可见. 
 
-接着是读锁的代码：
+接着是读锁的代码: 
 
 ```java
 protected final int tryAcquireShared(int unused) {
@@ -1072,7 +1072,7 @@ protected final int tryAcquireShared(int unused) {
 
 可以看到在 tryAcquireShared(int unused) 方法中, 如果其他线程已经获取了写锁, 则当前线程获取读锁失败, 进入等待状态. 如果当前线程获取了写锁或者写锁未被获取, 则当前线程(线程安全, 依靠CAS保证)增加读状态, 成功获取读锁. 读锁的每次释放(线程安全的, 可能有多个读线程同时释放读锁)均减少读状态, 减少的值是“1<<16”. 所以读写锁才能实现读读的过程共享, 而读写、写读、写写的过程互斥. 
 
-此时, 我们再回头看一下互斥锁 ReentrantLock 中公平锁和非公平锁的加锁源码：
+此时, 我们再回头看一下互斥锁 ReentrantLock 中公平锁和非公平锁的加锁源码: 
 
 <img src="https://miaomiaoqi.github.io/images/java/lock/lock_19.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_19.png" style="zoom: 33%;" />
 
@@ -1637,17 +1637,17 @@ Object 的 notifyAll 方法则对应`voidObjectMonitor::notifyAll(TRAPS)`, 流�
 
 **等待/通知使用方法**
 
-等待/通知机制就是用于解决线程间通信的问题的, 使用到的3个方法的含义如下：
+等待/通知机制就是用于解决线程间通信的问题的, 使用到的3个方法的含义如下: 
 
-1. **wait**：线程不再活动, 不再参与调度, **释放**它对锁的拥有权. 它还要等着别的线程执行一个**特别的动作**, 也即是“**通知(notify)**”在这个对象上等待的线程从WAITING状态中释放出来, 重新进入到调度队列(ready queue)中. 
-2. **notify**：唤醒一个等待当前对象的锁的线程. 唤醒在此对象监视器上等待的单个线程. 
-3. **notifyAll**：唤醒在此对象监视器上等待的所有线程. 
+1. **wait**: 线程不再活动, 不再参与调度, **释放**它对锁的拥有权. 它还要等着别的线程执行一个**特别的动作**, 也即是“**通知(notify)**”在这个对象上等待的线程从WAITING状态中释放出来, 重新进入到调度队列(ready queue)中. 
+2. **notify**: 唤醒一个等待当前对象的锁的线程. 唤醒在此对象监视器上等待的单个线程. 
+3. **notifyAll**: 唤醒在此对象监视器上等待的所有线程. 
 
-注意：
+注意: 
 
 哪怕只通知了一个等待的线程, 被通知线程也不能立即恢复执行, 因为它当初中断的地方是在同步块内, 而此刻它已经不持有锁, 所以它需要**再次尝试去获取锁**(很可能面临其它线程的竞争), 成功后才能在当初调用 wait 方法之后的地方恢复执行. 
 
-总结如下：
+总结如下: 
 
 - 如果能获取锁, 线程就从 WAITING/TIMED_WAITING 状态转换为RUNNABLE 状态; 
 - 否则, 从 Wait Set 区出来, 又进入 Entry Set区, 线程就从 WAITING 状态又变成 BLOCKED 状态. 
@@ -1699,12 +1699,12 @@ public:
 
 在Linux系统下, 用的POSIX线程库pthread中的mutex(互斥量), condition来实现线程的挂起、唤醒
 
-注意点：当park时, counter变量被设置为0, 当unpark时, 这个变量被设置为1
+注意点: 当park时, counter变量被设置为0, 当unpark时, 这个变量被设置为1
 
 unpark和park执行顺序不同时, counter和cond的状态变化如下
 
-- 先park后unpark; park：counter值不变, 但会设置一个cond; unpark：counter先加1, 检查cond存在, counter减为0
-- 先unpark后park; park：counter变为1, 但不设置cond; unpark：counter减为0(线程不会因为park挂起)
+- 先park后unpark; park: counter值不变, 但会设置一个cond; unpark: counter先加1, 检查cond存在, counter减为0
+- 先unpark后park; park: counter变为1, 但不设置cond; unpark: counter减为0(线程不会因为park挂起)
 - 先多次unpark; counter也只设置为为1
 
 
@@ -1729,7 +1729,7 @@ LockSupport类是Java6(JSR166-JUC)引入的一个类, 用来**创建锁和其他
 
 park/unpark 原理可参考[LockSupport中的park与unpark原理](https://blog.csdn.net/weixin_39687783/article/details/85058686)一文. 
 
-需要明白的是, 每个java线程都有一个Parker对象, 主要三部分组成 _counter、 _cond和 _mutex. Parker类是这样定义的：
+需要明白的是, 每个java线程都有一个Parker对象, 主要三部分组成 _counter、 _cond和 _mutex. Parker类是这样定义的: 
 
 ```c++
 class Parker : public os::PlatformParker {
@@ -1756,7 +1756,7 @@ park和unpark的灵活之处在于, **unpark函数可以先于park调用**. 比�
 
 
 
-**先调用park再调用upark时**：
+**先调用park再调用upark时**: 
 
 1.先调用park
 
@@ -1774,7 +1774,7 @@ park和unpark的灵活之处在于, **unpark函数可以先于park调用**. 比�
 
 (3)设置 _counter 为 0
 
-**先调用upark再调用park时**：
+**先调用upark再调用park时**: 
 
 (1)调用 Unsafe.unpark方法, 设置 _counter 为 1. 
 
@@ -1994,13 +1994,13 @@ Sync 继承 了AQS, 所以他具备了 AQS 的功能. 同样的, NonfairSync 和
 **加锁**
 
 简单说来, AbstractQueuedSynchronizer 会把所有的请求线程构成一个 CLH 队列, 当一个线程执行完毕(lock.unlock())时会激活自己的后继节点, 但正在执行的线程并不在队列中, 而那些等待执行的线程全部处于阻塞状态, 经过调查线程的显式阻塞是通过调用 LockSupport.park() 完成, 而 LockSupport.park()则调用 sun.misc.Unsafe.park() 本地方法, 再进一步, HotSpot 在 Linux 中中通过调用 pthread_mutex_lock 函数把线程交给系统内核进行阻塞. 
-该队列如图：
+该队列如图: 
 
 <img src="https://miaomiaoqi.github.io/images/java/lock/lock_21.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_21.png" style="zoom: 50%;" />
 
 与synchronized相同的是, 这也是一个虚拟队列, 不存在队列实例, 仅存在节点之间的前后关系. 令人疑惑的是为什么采用CLH队列呢? 原生的CLH队列是用于自旋锁, 但 Doug Lea 把其改造为阻塞锁. 
 **当有线程竞争锁时, 该线程会首先尝试获得锁, 这对于那些已经在队列中排队的线程来说显得不公平, 这也是非公平锁的由来**, 与synchronized实现类似, 这样会极大提高吞吐量. 
-如果已经存在 Running 线程, 则新的竞争线程会被追加到队尾, 具体是采用基于 CAS 的 Lock-Free 算法, 因为线程并发对 Tail 调用 CAS 可能会导致其他线程 CAS 失败, 解决办法是**循环 CAS 直至成功**. AbstractQueuedSynchronizer 的实现非常精巧, 令人叹为观止, 不入细节难以完全领会其精髓, 下面详细说明实现过程：
+如果已经存在 Running 线程, 则新的竞争线程会被追加到队尾, 具体是采用基于 CAS 的 Lock-Free 算法, 因为线程并发对 Tail 调用 CAS 可能会导致其他线程 CAS 失败, 解决办法是**循环 CAS 直至成功**. AbstractQueuedSynchronizer 的实现非常精巧, 令人叹为观止, 不入细节难以完全领会其精髓, 下面详细说明实现过程: 
 
 **Sync.nonfairTryAcquire**
 
@@ -2035,7 +2035,7 @@ final boolean nonfairTryAcquire(int acquires) {
 
 **AbstractQueuedSynchronizer.addWaiter**
 
-addWaiter 方法负责把**当前无法获得锁的线程包装为一个 Node 添加到队尾**：
+addWaiter 方法负责把**当前无法获得锁的线程包装为一个 Node 添加到队尾**: 
 
 ```java
 private Node addWaiter(Node mode) {
@@ -2054,13 +2054,13 @@ private Node addWaiter(Node mode) {
 }
 ```
 
-其中参数mode是独占锁还是共享锁, 默认为null, 独占锁. 追加到队尾的动作分两步：
+其中参数mode是独占锁还是共享锁, 默认为null, 独占锁. 追加到队尾的动作分两步: 
 
 如果当前队尾已经存在(tail!=null), 则使用CAS把当前线程更新为Tail
 
 如果当前**Tail为null或则线程调用CAS设置队尾失败**, 则通过enq方法继续设置Tail
 
-下面是enq方法：
+下面是enq方法: 
 
 ```java
 private Node enq(final Node node) {
@@ -2088,13 +2088,13 @@ private Node enq(final Node node) {
 
 该方法就是**循环调用CAS**, 即使有高并发的场景, 无限循环将会最终成功把当前线程追加到队尾(或设置队头). 总而言之, **addWaiter的目的就是通过CAS把当前线程追加到队尾, 并返回包装后的Node实例. **
 
-把线程要包装为Node对象的主要原因, 除了用Node构造供虚拟队列外, 还用Node包装了各种线程状态, 这些状态被精心设计为一些数字值：
+把线程要包装为Node对象的主要原因, 除了用Node构造供虚拟队列外, 还用Node包装了各种线程状态, 这些状态被精心设计为一些数字值: 
 
-- SIGNAL(-1) ：线程的后继线程正/已被阻塞, 当该线程release或cancel时要重新这个后继线程(unpark)
-- CANCELLED(1)：当线程等待超时或者被中断, 则取消等待, 设等待状态为-1, 进入取消状态则不再变化
-- CONDITION(-2)：当前节点处于等待队列, 节点线程等待在Condition上, 当其他线程对condition执行signall方法时, 等待队列转移到同步队列, 加入到对同步状态的获取
-- PROPAGATE(-3)：与共享模式相关, 在共享模式中, 该状态标识结点的线程处于可运行状态
-- 0：0代表无状态
+- SIGNAL(-1) : 线程的后继线程正/已被阻塞, 当该线程release或cancel时要重新这个后继线程(unpark)
+- CANCELLED(1): 当线程等待超时或者被中断, 则取消等待, 设等待状态为-1, 进入取消状态则不再变化
+- CONDITION(-2): 当前节点处于等待队列, 节点线程等待在Condition上, 当其他线程对condition执行signall方法时, 等待队列转移到同步队列, 加入到对同步状态的获取
+- PROPAGATE(-3): 与共享模式相关, 在共享模式中, 该状态标识结点的线程处于可运行状态
+- 0: 0代表无状态
 
 
 
@@ -2133,7 +2133,7 @@ private final boolean parkAndCheckInterrupt() {
 }
 ```
 
-如前面所述, LockSupport.park最终把线程交给系统(Linux)内核进行阻塞. 当然也不是马上把请求不到锁的线程进行阻塞, 还要检查该线程的状态, 比如如果该线程处于Cancel状态则没有必要, 具体的检查在shouldParkAfterFailedAcquire中：
+如前面所述, LockSupport.park最终把线程交给系统(Linux)内核进行阻塞. 当然也不是马上把请求不到锁的线程进行阻塞, 还要检查该线程的状态, 比如如果该线程处于Cancel状态则没有必要, 具体的检查在shouldParkAfterFailedAcquire中: 
 
 ```java
 private static boolean shouldParkAfterFailedAcquire(Node pred, Node node) {
@@ -2165,11 +2165,11 @@ private static boolean shouldParkAfterFailedAcquire(Node pred, Node node) {
 }
 ```
 
-检查原则在于：
+检查原则在于: 
 
-- 规则1：如果前继的节点状态为SIGNAL, 表明当前节点需要unpark, 则返回成功, 此时acquireQueued方法的第12行(parkAndCheckInterrupt)将导致线程阻塞
-- 规则2：如果前继节点状态为CANCELLED(ws>0), 说明前置节点已经被放弃, 则回溯到一个非取消的前继节点, 返回false, acquireQueued方法的无限循环将递归调用该方法, 直至规则1返回true, 导致线程阻塞
-- 规则3：如果前继节点状态为非SIGNAL、非CANCELLED, 则设置前继的状态为SIGNAL, 返回false后进入acquireQueued的无限循环, 与规则2同
+- 规则1: 如果前继的节点状态为SIGNAL, 表明当前节点需要unpark, 则返回成功, 此时acquireQueued方法的第12行(parkAndCheckInterrupt)将导致线程阻塞
+- 规则2: 如果前继节点状态为CANCELLED(ws>0), 说明前置节点已经被放弃, 则回溯到一个非取消的前继节点, 返回false, acquireQueued方法的无限循环将递归调用该方法, 直至规则1返回true, 导致线程阻塞
+- 规则3: 如果前继节点状态为非SIGNAL、非CANCELLED, 则设置前继的状态为SIGNAL, 返回false后进入acquireQueued的无限循环, 与规则2同
 
 总体看来, shouldParkAfterFailedAcquire就是靠前继节点判断当前线程是否应该被阻塞, 如果前继节点处于CANCELLED状态, **则顺便删除这些节点重新构造队列. **
 至此, 锁住线程的逻辑已经完成, 下面讨论解锁的过程. 
@@ -2184,7 +2184,7 @@ private static boolean shouldParkAfterFailedAcquire(Node pred, Node node) {
 
 至此可以看到, 把tryAcquire方法延迟到子类中实现的做法非常精妙并具有极强的可扩展性, 令人叹为观止! 当然精妙的不是这个Template设计模式, 而是Doug Lea对锁结构的精心布局. 
 
-解锁代码相对简单, 主要体现在AbstractQueuedSynchronizer.release和Sync.tryRelease方法中：
+解锁代码相对简单, 主要体现在AbstractQueuedSynchronizer.release和Sync.tryRelease方法中: 
 class AbstractQueuedSynchronizer
 
 ```java
@@ -2218,8 +2218,8 @@ protected final boolean tryRelease(int releases) {
 
 tryRelease与tryAcquire语义相同, 把如何释放的逻辑延迟到子类中. 
 
-tryRelease语义很明确：如果线程多次锁定, 则进行多次释放, 直至status==0则真正释放锁, 所谓释放锁即设置status为0, 因为无竞争所以没有使用CAS. 
-release的语义在于：如果可以释放锁, 则唤醒队列第一个线程(Head), 具体唤醒代码如下：
+tryRelease语义很明确: 如果线程多次锁定, 则进行多次释放, 直至status==0则真正释放锁, 所谓释放锁即设置status为0, 因为无竞争所以没有使用CAS. 
+release的语义在于: 如果可以释放锁, 则唤醒队列第一个线程(Head), 具体唤醒代码如下: 
 
 ```java
 private void unparkSuccessor(Node node) {
