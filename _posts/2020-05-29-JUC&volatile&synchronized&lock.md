@@ -2950,7 +2950,7 @@ ConcurrentHashMap 和 CopyOnWriteArrayList: 取代同步的 HashMap 和同步的
 
 ### ConcurrentHashMap
 
-[https://miaomiaoqi.github.io/2019/12/26/Java-%E9%9B%86%E5%90%88%E7%B1%BB/](https://miaomiaoqi.github.io/2019/12/26/Java-%E9%9B%86%E5%90%88%E7%B1%BB/)
+[https://miaomiaoqi.github.io/2019/12/26/Java-容器/](https://miaomiaoqi.github.io/2019/12/26/Java-容器/)
 
 
 
@@ -2978,7 +2978,9 @@ Copy-On-Write 并发容器还包括 CopyOnWriteArraySet, 用来代替同步 Set
 
 **实现原理**
 
-CopyOnWrite 就是在写的时候复制一份新的出来, 这样写的过程中就是在一个全新的内存中, 读就不会受影响了
+**读写分离思想, 在写的时候复制一份新的来写, 只影响写, 不影响读, 但是不能保证数据实时一致性, 只能保证最终一致性**
+
+相同实现的还是 CopyOnWriteArraySet
 
 **创建新副本, 读写分离**
 
