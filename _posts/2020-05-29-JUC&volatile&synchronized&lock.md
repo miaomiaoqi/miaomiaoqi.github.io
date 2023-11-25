@@ -579,7 +579,7 @@ CAS 虽然很高效, 但是它也存在三大问题, 这里也简单说一下:
 
 自适应意味着自旋的时间(次数)不再固定, 而是由前一次在同一个锁上的自旋时间及锁的拥有者的状态来决定. 如果在同一个锁对象上, 自旋等待刚刚成功获得过锁, 并且持有锁的线程正在运行中, 那么虚拟机就会认为这次自旋也是很有可能再次成功, 进而它将允许自旋等待持续相对更长的时间. 如果对于某个锁, 自旋很少成功获得过, 那在以后尝试获取这个锁时将可能省略掉自旋过程, 直接阻塞线程, 避免浪费处理器资源. 
 
-在自旋锁中 另有三种常见的锁形式:TicketLock、CLHlock和MCSlock, 本文中仅做名词介绍, 不做深入讲解, 感兴趣的同学可以自行查阅相关资料. 
+在自旋锁中 另有三种常见的锁形式: TicketLock、CLHlock 和 MCSlock, 本文中仅做名词介绍, 不做深入讲解, 感兴趣的同学可以自行查阅相关资料. 
 
 
 
@@ -901,7 +901,7 @@ JVM启动过程, 会有很多线程竞争(明确), 所以默认情况启动时�
 
 ### 公平锁和非公平锁
 
-公平锁是指多个线程按照申请锁的顺序来获取锁, 线程直接进入队列中排队, 队列中的第一个线程才能获得锁. 公平锁的优点是等待锁的线程不会饿死. 缺点是整体吞吐效率相对非公平锁要低, 等待队列中除第一个线程以外的所有线程都会阻塞, CPU唤醒阻塞线程的开销比非公平锁大. 
+公平锁是指多个线程按照申请锁的顺序来获取锁, 线程直接进入队列中排队, 队列中的第一个线程才能获得锁. 公平锁的优点是等待锁的线程不会饿死. 缺点是整体吞吐效率相对非公平锁要低, 等待队列中除第一个线程以外的所有线程都会阻塞, CPU 唤醒阻塞线程的开销比非公平锁大. 
 
 非公平锁是多个线程加锁时直接尝试获取锁, 获取不到才会到等待队列的队尾等待. 但如果此时锁刚好可用, 那么这个线程可以无需阻塞直接获取到锁, 所以非公平锁有可能出现后申请锁的线程先获取锁的场景. 非公平锁的优点是可以减少唤起线程的开销, 整体的吞吐效率高, 因为线程有几率不阻塞直接获得锁, CPU不必唤醒所有线程. 缺点是处于等待队列中的线程可能会饿死, 或者等很久才会获得锁. 
 
@@ -913,23 +913,23 @@ JVM启动过程, 会有很多线程竞争(明确), 所以默认情况启动时�
 
 但是对于非公平锁, 管理员对打水的人没有要求. 即使等待队伍里有排队等待的人, 但如果在上一个人刚打完水把锁还给管理员而且管理员还没有允许等待队伍里下一个人去打水时, 刚好来了一个插队的人, 这个插队的人是可以直接从管理员那里拿到锁去打水, 不需要排队, 原本排队等待的人只能继续等待. 如下图所示: 
 
-<img src="https://miaomiaoqi.github.io/images/java/lock/lock_10.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_10.png" style="zoom: 33%;" />
+<img src="https://miaomiaoqi.github.io/images/java/lock/lock_10.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_10.png" style="zoom: 50%;" />
 
-接下来我们通过ReentrantLock的源码来讲解公平锁和非公平锁. 
+接下来我们通过 ReentrantLock 的源码来讲解公平锁和非公平锁. 
 
 <img src="https://miaomiaoqi.github.io/images/java/lock/lock_11.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_11.png" style="zoom: 33%;" />
 
-根据代码可知, ReentrantLock里面有一个内部类Sync, Sync继承AQS(AbstractQueuedSynchronizer), 添加锁和释放锁的大部分操作实际上都是在Sync中实现的. 它有公平锁FairSync和非公平锁NonfairSync两个子类. ReentrantLock默认使用非公平锁, 也可以通过构造器来显示的指定使用公平锁. 
+根据代码可知, ReentrantLock 里面有一个内部类 Sync, Sync 继承 AQS(AbstractQueuedSynchronizer), 添加锁和释放锁的大部分操作实际上都是在 Sync 中实现的. 它有公平锁 FairSync 和非公平锁 NonfairSync 两个子类. ReentrantLock 默认使用非公平锁, 也可以通过构造器来显示的指定使用公平锁. 
 
 下面我们来看一下公平锁与非公平锁的加锁方法的源码:
 
 <img src="https://miaomiaoqi.github.io/images/java/lock/lock_12.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_12.png" style="zoom: 33%;" />
 
-通过上图中的源代码对比, 我们可以明显的看出公平锁与非公平锁的lock()方法唯一的区别就在于公平锁在获取同步状态时多了一个限制条件: hasQueuedPredecessors(). 
+通过上图中的源代码对比, 我们可以明显的看出公平锁与非公平锁的 lock() 方法唯一的区别就在于公平锁在获取同步状态时多了一个限制条件: hasQueuedPredecessors(). 
 
 <img src="https://miaomiaoqi.github.io/images/java/lock/lock_13.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_13.png" style="zoom: 33%;" />
 
-再进入hasQueuedPredecessors(), 可以看到该方法主要做一件事情: 主要是判断当前线程是否位于同步队列中的第一个. 如果是则返回true, 否则返回false. 
+再进入 hasQueuedPredecessors(), 可以看到该方法主要做一件事情: 主要是判断当前线程是否位于同步队列中的第一个. 如果是则返回 true, 否则返回 false. 
 
 综上, 公平锁就是通过同步队列来实现多个线程按照申请锁的顺序来获取锁, 从而实现公平的特性. 非公平锁加锁时不考虑排队等待问题, 直接尝试获取锁, 所以存在后申请却先获得锁的情况. 
 
@@ -937,7 +937,7 @@ JVM启动过程, 会有很多线程竞争(明确), 所以默认情况启动时�
 
 ### 可重入锁(ReentrantLock)和非可重入锁
 
-可重入锁又名递归锁, 是指在同一个线程在外层方法获取锁的时候, 再进入该线程的内层方法会自动获取锁(前提锁对象得是同一个对象或者class), 不会因为之前已经获取过还没释放而阻塞. Java中ReentrantLock和synchronized都是可重入锁, 可重入锁的一个优点是可一定程度避免死锁. 下面用示例代码来进行分析: 
+可重入锁又名递归锁, 是指在同一个线程在外层方法获取锁的时候, 再进入该线程的内层方法会自动获取锁(前提锁对象得是同一个对象或者class), 不会因为之前已经获取过还没释放而阻塞. Java 中 ReentrantLock 和 synchronized 都是可重入锁, 可重入锁的一个优点是可一定程度避免死锁. 下面用示例代码来进行分析: 
 
 ```java
 public class Widget {
@@ -952,9 +952,9 @@ public class Widget {
 }
 ```
 
-在上面的代码中, 类中的两个方法都是被内置锁synchronized修饰的, doSomething()方法中调用doOthers()方法. 因为内置锁是可重入的, 所以同一个线程在调用doOthers()时可以直接获得当前对象的锁, 进入doOthers()进行操作. 
+在上面的代码中, 类中的两个方法都是被内置锁 synchronized 修饰的, doSomething() 方法中调用 doOthers() 方法. 因为内置锁是可重入的, 所以同一个线程在调用 doOthers() 时可以直接获得当前对象的锁, 进入 doOthers() 进行操作. 
 
-如果是一个不可重入锁, 那么当前线程在调用doOthers()之前需要将执行doSomething()时获取当前对象的锁释放掉, 实际上该对象锁已被当前线程所持有, 且无法释放. 所以此时会出现死锁. 
+如果是一个不可重入锁, 那么当前线程在调用 doOthers() 之前需要将执行 doSomething() 时获取当前对象的锁释放掉, 实际上该对象锁已被当前线程所持有, 且无法释放. 所以此时会出现死锁. 
 
 而为什么可重入锁就可以在嵌套调用时可以自动获得锁呢? 我们通过图示和源码来分别解析一下. 
 
@@ -966,13 +966,13 @@ public class Widget {
 
 <img src="https://miaomiaoqi.github.io/images/java/lock/lock_15.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_15.png" style="zoom: 33%;" />
 
-之前我们说过ReentrantLock和synchronized都是重入锁, 那么我们通过重入锁ReentrantLock以及非可重入锁NonReentrantLock的源码来对比分析一下为什么非可重入锁在重复调用同步资源时会出现死锁. 
+之前我们说过 ReentrantLock 和 synchronized 都是重入锁, 那么我们通过重入锁 ReentrantLock 以及非可重入锁 NonReentrantLock 的源码来对比分析一下为什么非可重入锁在重复调用同步资源时会出现死锁. 
 
-首先ReentrantLock和NonReentrantLock都继承父类AQS, 其父类AQS中维护了一个同步状态status来计数重入次数, status初始值为0. 
+首先 ReentrantLock 和 NonReentrantLock 都继承父类 AQS, 其父类 AQS 中维护了一个同步状态 status  来计数重入次数, status 初始值为 0. 
 
-当线程尝试获取锁时, 可重入锁先尝试获取并更新status值, 如果status == 0表示没有其他线程在执行同步代码, 则把status置为1, 当前线程开始执行. 如果status != 0, 则判断当前线程是否是获取到这个锁的线程, 如果是的话执行status+1, 且当前线程可以再次获取锁. 而非可重入锁是直接去获取并尝试更新当前status的值, 如果status != 0的话会导致其获取锁失败, 当前线程阻塞. 
+当线程尝试获取锁时, 可重入锁先尝试获取并更新 status 值, 如果 status == 0 表示没有其他线程在执行同步代码, 则把 status 置为 1, 当前线程开始执行. 如果status != 0, 则判断当前线程是否是获取到这个锁的线程, 如果是的话执行 status+1, 且当前线程可以再次获取锁. 而非可重入锁是直接去获取并尝试更新当前status 的值, 如果 status != 0 的话会导致其获取锁失败, 当前线程阻塞. 
 
-释放锁时, 可重入锁同样先获取当前status的值, 在当前线程是持有锁的线程的前提下. 如果status-1 == 0, 则表示当前线程所有重复获取锁的操作都已经执行完毕, 然后该线程才会真正释放锁. 而非可重入锁则是在确定当前线程是持有锁的线程之后, 直接将status置为0, 将锁释放. 
+释放锁时, 可重入锁同样先获取当前 status 的值, 在当前线程是持有锁的线程的前提下. 如果 status-1 == 0, 则表示当前线程所有重复获取锁的操作都已经执行完毕, 然后该线程才会真正释放锁. 而非可重入锁则是在确定当前线程是持有锁的线程之后, 直接将 status 置为 0, 将锁释放. 
 
 <img src="https://miaomiaoqi.github.io/images/java/lock/lock_16.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_16.png" style="zoom: 33%;" />
 
@@ -980,27 +980,27 @@ public class Widget {
 
 ### 共享锁(读锁)和排他锁(写锁)
 
-共享锁又称为读锁, 该锁可被多个线程所持有. 如果线程T对数据A加上共享锁后, 则其他线程只能对A再加共享锁, 不能加排它锁. 获得共享锁的线程只能读数据, 不能修改数据. 
+共享锁又称为读锁, 该锁可被多个线程所持有. 如果线程T对数据 A 加上共享锁后, 则其他线程只能对 A 再加共享锁, 不能加排它锁. 获得共享锁的线程只能读数据, 不能修改数据. 
 
-排他锁又称为写锁, 独享锁, 该锁一次只能被一个线程所持有. 如果线程T对数据A加上排它锁后, 则其他线程不能再对A加任何类型的锁. 获得排它锁的线程即能读数据又能修改数据. JDK中的synchronized和JUC中Lock的实现类就是互斥锁. 
+排他锁又称为写锁, 独享锁, 该锁一次只能被一个线程所持有. 如果线程T对数据A加上排它锁后, 则其他线程不能再对A加任何类型的锁. 获得排它锁的线程即能读数据又能修改数据. JDK 中的 synchronized 和 JUC 中 Lock 的实现类就是互斥锁. 
 
 **共享锁和排它锁的典型是读写锁 ReentrantReadWriteLock, 其中读锁是共享锁, 写锁是排他锁**
 
 在没有读写锁之前, 我们假设使用 ReentrantLock, 那么虽然我们保证了线程安全, 但是也浪费了一定的资源: 多个读操作同时进行, 并没有线程安全问题
 
-在读的地方使用读锁, 在写的地方使用写锁, 灵活控制, 如果没有写锁的情况下, 读是物阻塞的, 提高了程序的执行效率, 独享锁与共享锁也是通过AQS来实现的, 通过实现不同的方法, 来实现独享或者共享. 
+在读的地方使用读锁, 在写的地方使用写锁, 灵活控制, 如果没有写锁的情况下, 读是物阻塞的, 提高了程序的执行效率, 独享锁与共享锁也是通过 AQS 来实现的, 通过实现不同的方法, 来实现独享或者共享. 
 
-下图为ReentrantReadWriteLock的部分源码: 
+下图为 ReentrantReadWriteLock 的部分源码: 
 
-<img src="https://miaomiaoqi.github.io/images/java/lock/lock_17.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_17.png" style="zoom: 33%;" />
+<img src="https://miaomiaoqi.github.io/images/java/lock/lock_17.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_17.png" style="zoom: 50%;" />
 
-我们看到ReentrantReadWriteLock有两把锁: ReadLock和WriteLock, 由词知意, 一个读锁一个写锁, 合称“读写锁”. 再进一步观察可以发现ReadLock和WriteLock是靠内部类Sync实现的锁. Sync是AQS的一个子类, 这种结构在CountDownLatch、ReentrantLock、Semaphore里面也都存在. 
+我们看到 ReentrantReadWriteLock 有两把锁: ReadLock 和 WriteLock, 由词知意, 一个读锁一个写锁, 合称“读写锁”. 再进一步观察可以发现 ReadLock 和WriteLock 是靠内部类 Sync 实现的锁. Sync 是 AQS 的一个子类, 这种结构在 CountDownLatch、ReentrantLock、Semaphore 里面也都存在. 
 
-在ReentrantReadWriteLock里面, 读锁和写锁的锁主体都是Sync, 但读锁和写锁的加锁方式不一样. 读锁是共享锁, 写锁是独享锁. 读锁的共享锁可保证并发读非常高效, 而读写、写读、写写的过程互斥, 因为读锁和写锁是分离的. 所以ReentrantReadWriteLock的并发性相比一般的互斥锁有了很大提升. 
+在 ReentrantReadWriteLock 里面, 读锁和写锁的锁主体都是 Sync, 但读锁和写锁的加锁方式不一样. 读锁是共享锁, 写锁是独享锁. 读锁的共享锁可保证并发读非常高效, 而读写、写读、写写的过程互斥, 因为读锁和写锁是分离的. 所以ReentrantReadWriteLock的并发性相比一般的互斥锁有了很大提升. 
 
-那读锁和写锁的具体加锁方式有什么区别呢? 在了解源码之前我们需要回顾一下其他知识.  在最开始提及AQS的时候我们也提到了state字段(int类型, 32位), 该字段用来描述有多少线程获持有锁. 
+那读锁和写锁的具体加锁方式有什么区别呢? 在了解源码之前我们需要回顾一下其他知识.  在最开始提及 AQS 的时候我们也提到了 state 字段(int类型, 32位), 该字段用来描述有多少线程获持有锁. 
 
-在独享锁中这个值通常是0或者1(如果是重入锁的话state值就是重入的次数), 在共享锁中state就是持有锁的数量. 但是在ReentrantReadWriteLock中有读、写两把锁, 所以需要在一个整型变量state上分别描述读锁和写锁的数量(或者也可以叫状态). 于是将state变量“按位切割”切分成了两个部分, 高16位表示读锁状态(读锁个数), 低16位表示写锁状态(写锁个数). 如下图所示: 
+在独享锁中这个值通常是0或者1(如果是重入锁的话 state值就是重入的次数), 在共享锁中 state 就是持有锁的数量. 但是在 ReentrantReadWriteLock 中有读、写两把锁, 所以需要在一个整型变量 state 上分别描述读锁和写锁的数量(或者也可以叫状态). 于是将 state 变量“按位切割”切分成了两个部分, 高 16 位表示读锁状态(读锁个数), 低16位表示写锁状态(写锁个数). 如下图所示: 
 
 <img src="https://miaomiaoqi.github.io/images/java/lock/lock_18.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_18.png" style="zoom: 33%;" />
 
@@ -2539,10 +2539,10 @@ ReentrantLock 具备公平锁和非公平锁, 默认使用非公平锁. 其实�
 
 synchronized 和 Reentrantlock 的底层汇编还是 lock cmpxchg 命令
 
-我们先看看他们的区别: 
+我们先看看他们的区别:
 
-- synchronized 是关键字, 是 JVM 层面的底层啥都帮我们做了, 而Lock是一个接口, 是JDK层面的有丰富的API. 
-- 在发生异常时 Synchronized 会自动释放锁(由 javac 编译时自动实现), 而 ReentrantLock 需要开发者在finally块中显示释放锁
+- synchronized 是关键字, 是 JVM 层面的底层啥都帮我们做了, 而 Lock 是一个接口, 是 JDK 层面的有丰富的API. 
+- 在发生异常时 Synchronized 会自动释放锁(由 javac 编译时自动实现), 而 ReentrantLock 需要开发者在 finally 块中显示释放锁
 - Synchronized 是不可以被中断的, 而`ReentrantLock#lockInterruptibly`方法是可以被中断的
 - ReentrantLock 获取锁的形式有多种: 如立即返回是否成功的 tryLock(),以及等待指定时长的获取, 更加灵活
 - synchronized 能锁住方法和代码块, 而 Lock 只能锁住代码块. 
@@ -2552,19 +2552,19 @@ synchronized 和 Reentrantlock 的底层汇编还是 lock cmpxchg 命令
 
 两者一个是 JDK 层面的一个是 JVM 层面的, 我觉得最大的区别其实在, 我们是否需要丰富的 api, 还有一个我们的场景. 
 
-**比如我现在是滴滴, 我早上有打车高峰, 我代码使用了大量的 synchronized, 有什么问题? 锁升级过程是不可逆的, 过了高峰我们还是重量级的锁, 那效率是不是大打折扣了? 这个时候你用Lock是不是很好?**
+**比如我现在是滴滴, 我早上有打车高峰, 我代码使用了大量的 synchronized, 有什么问题? 锁升级过程是不可逆的, 过了高峰我们还是重量级的锁, 那效率是不是大打折扣了? 这个时候你用 Lock 是不是很好?**
 
 场景是一定要考虑的, 我现在告诉你哪个好都是扯淡, 因为脱离了业务, 一切技术讨论都没有了价值. 
 
-在高争用 高耗时的环境下synchronized效率更高
+在高争用 高耗时的环境下 synchronized 效率更高
 
-在低争用 低耗时的环境下CAS效率更高
+在低争用 低耗时的环境下 CAS 效率更高
 
 synchronized 到重量级之后是等待队列(不消耗CPU)CAS(等待期间消耗CPU)
 
 
 
-AbstractQueuedSynchronizer 通过构造一个基于阻塞的CLH队列容纳所有的阻塞线程, 而对该队列的操作均通过Lock-Free(CAS)操作, 但对已经获得锁的线程而言, ReentrantLock 实现了偏向锁的功能. 
+AbstractQueuedSynchronizer 通过构造一个基于阻塞的 CLH 队列容纳所有的阻塞线程, 而对该队列的操作均通过 Lock-Free(CAS) 操作, 但对已经获得锁的线程而言, ReentrantLock 实现了偏向锁的功能. 
 
 synchronized 的底层也是一个基于 CAS 操作的等待队列, 但 JVM 实现的更精细, 把等待队列分为 ContentionList 和 EntryList, 目的是为了降低线程的出列速度; 当然也实现了偏向锁, 从数据结构来说二者设计没有本质区别. 但 synchronized 还实现了自旋锁, 并针对不同的系统和硬件体系进行了优化, 而 Lock 则完全依靠系统阻塞挂起等待线程. 
 
@@ -3133,7 +3133,7 @@ new Semaphore(int permits, boolean fair): 这里可以设置是否要使用公�
 
 tryAcquire(): 看看现在有没有空闲的许可证, 如果有的话就获取, 如果没有的话也没关系, 我不必陷入阻塞, 我可以去做别的事, 过一会再来查看许可证的空闲情况.
 
-tryAcquire(timeout): 和 tryAcquire()一样, 但是多了一个超时时间, 比如"在 3 秒内获取不到去可证, 我就去做别的事"
+tryAcquire(timeout) 和 tryAcquire() 一样, 但是多了一个超时时间, 比如"在 3 秒内获取不到去可证, 我就去做别的事"
 
 release(): 释放许可证
 
@@ -3151,7 +3151,7 @@ release(): 释放许可证
 
 **Condition 作用**
 
-当线程 1 需要等待某个条件的时候, 它就去执行 condition.await()方法, 一旦执行了 await()方法, 线程就会进入阻塞状态
+当线程 1 需要等待某个条件的时候, 它就去执行 condition.await() 方法, 一旦执行了 await() 方法, 线程就会进入阻塞状态
 
 然后通常会有另外一个线程, 假设是线程 2, 去执行对应的条件, 直到这个条件达成的时候, 线程 2 就会去执行 condition.signal()方法, 这时 JVM 就会从阻塞的线程里找, 找到那些等待该 condition 的线程, 当线程 1 就会收到可执行信号的时候, 它的线程状态就会变成 Runnable 可执行状
 
