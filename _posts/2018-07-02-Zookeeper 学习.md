@@ -44,10 +44,6 @@ Zookeeper 从设计模式角度来理解: 是一个基于观察者模式设计�
 
 
 
-
-
-
-
 ## Zookeeper 的数据模型
 
 ZooKeeper 数据模型的结构与Unix 文件系统很类似, 整体上可以看作是一棵树, 每个节点称做一个 ZNode. 每一个 ZNode 默认能够存储 1MB 的数据, 每个ZNode 都可以通过其路径唯一标识. 
@@ -256,7 +252,7 @@ ZooKeeper 可以实现实时监控节点状态变化
 
 <img src="https://miaomiaoqi.github.io/images/bigdata/zookeeper/7.png" alt="https://miaomiaoqi.github.io/images/bigdata/zookeeper/7.png" style="zoom:50%;" />
 
-**initLimit = 10**: **LeaderFollower**初始通信时限 
+**initLimit = 10**: **LeaderFollower** 初始通信时限 
 
 Leader 和 Follower 初始连接时能容忍的最多心跳数(tickTime 的数量) 
 
@@ -300,13 +296,13 @@ Leader 和 Follower 之间通信时间如果超过 syncLimit * tickTime, Leader 
 
 **C** 是这个服务器 Follower 与集群中的 Leader 服务器交换信息的端口；
 
-**D** 是万一集群中的 Leader 服务器挂了, 需要一个端口来重新进行选举, 选出一个新的Leader, 而这个端口就是用来执行选举时服务器相互通信的端口. 
+**D** 是万一集群中的 Leader 服务器挂了, 需要一个端口来重新进行选举, 选出一个新的 Leader, 而这个端口就是用来执行选举时服务器相互通信的端口. 
 
 
 
 ## 选举机制
 
-SID: 服务器 ID. 用来唯一标识一台 ZooKeeper 集群中的机器, 每台机器不能重复, 和myid一致. 
+SID: 服务器 ID. 用来唯一标识一台 ZooKeeper 集群中的机器, 每台机器不能重复, 和 myid 一致. 
 
 ZXID: 事务 ID. ZXID 是一个事务 ID, 用来标识一次服务器状态的变更. 在某一时刻,  集群中的每台机器的 ZXID 值不一定完全一致, 这和 ZooKeeper 服务器对于客户端“更新请求”的处理逻辑有关. 
 
@@ -334,7 +330,7 @@ Epoch: 每个 Leader 任期的代号. 没有 Leader 时同一轮投票过程中�
 
     *   集群中本来就已经存在一个 Leader. 对于第一种已经存在 Leader 的情况, 机器试图去选举 Leader 时, 会被告知当前服务器的 Leader 信息, 对于该机器来说, 仅仅需要和 Leader 机器建立连接, 并进行状态同步即可
 
-    * 集群中确实不存在 Leader. 假设ZooKeeper由5台服务器组成, SID 分别为1、2、3、4、5, ZXID分别为 8、8、8、7、7, 并且此时 SID 为 3 的服务器是 Leader. 某一时刻,  3 和 5 服务器出现故障, 因此开始进行 Leader 选举
+    * 集群中确实不存在 Leader. 假设ZooKeeper由 5 台服务器组成, SID 分别为1、2、3、4、5, ZXID 分别为 8、8、8、7、7, 并且此时 SID 为 3 的服务器是 Leader. 某一时刻,  3 和 5 服务器出现故障, 因此开始进行 Leader 选举
 
         SID为 1、2、4 的机器投票情况(EPOCH, ZXID, SID ):  (1, 8, 1) (1, 8, 2) (1, 7, 4)选举Leader规则:  
 
@@ -425,7 +421,7 @@ Zookepper 身为分布式系统协调服务, 如果自身挂掉了怎么办呢? 
 
 Zookeeper Service 集群是一主多从结构
 
-1. 在更新数据时, 首先更新到主节点(这里的节点是指服务器, 不是Znode), 再同步到从节点
+1. 在更新数据时, 首先更新到主节点(这里的节点是指服务器, 不是 Znode), 再同步到从节点
 
 2. 在读取数据时, 直接读取任意从节点. 
 
@@ -496,11 +492,11 @@ Zookeeper Service 集群是一主多从结构
 
 **Paxos 算法描述**
 
-在一个Paxos系统中, 首先将所有节点划分为Proposer(提议者), Acceptor(接受者), 和Learner(学习者). (注意: 每个节点都可以身兼数职). 
+在一个 Paxos 系统中, 首先将所有节点划分为 Proposer(提议者), Acceptor(接受者), 和 Learner(学习者). (注意: 每个节点都可以身兼数职). 
 
 <img src="https://miaomiaoqi.github.io/images/bigdata/zookeeper/11.png" alt="https://miaomiaoqi.github.io/images/bigdata/zookeeper/11.png" style="zoom:50%;" />
 
-一个完整的Paxos算法流程分为三个阶段:  
+一个完整的 Paxos 算法流程分为三个阶段:  
 
 * Prepare 准备阶段
     * Proposer 向多个 Acceptor 发出 Propose 请求 Promise(承诺) 
@@ -522,17 +518,17 @@ Promise: Acceptor 收到 Propose 请求后, 做出“两个承诺, 一个应答�
 
 *   不再接受 Proposal ID 小于等于(注意: 这里是<= )当前请求的 Propose 请求. 
 *   不再接受 Proposal ID 小于(注意: 这里是< )当前请求的 Accept 请求. 
-*   不违背以前做出的承诺下, 回复已经Accept过的提案中 Proposal ID 最大的那个提案的 Value 和 Proposal ID, 没有则返回空值. 
+*   不违背以前做出的承诺下, 回复已经 Accep t过的提案中 Proposal ID 最大的那个提案的 Value 和 Proposal ID, 没有则返回空值. 
 
 Propose: Proposer 收到多数 Acceptor 的 Promise 应答后, 从应答中选择 Proposal ID 最大的提案的 Value, 作为本次要发起的提案. 如果所有应答的提案Value 均为空值, 则可以自己随意决定提案 Value. 然后携带当前 Proposal ID, 向所有 Acceptor 发送 Propose 请求. 
 
-Accept: Acceptor 收到 Propose 请求后, 在不违背自己之前做出的承诺下, 接受并持久化当前 Proposal ID和提案 Value. 
+Accept: Acceptor 收到 Propose 请求后, 在不违背自己之前做出的承诺下, 接受并持久化当前 Proposal ID 和提案 Value. 
 
 Learn: Proposer 收到多数 Acceptor 的 Accept 后, 决议形成, 将形成的决议发送给所有 Learner. 
 
 下面我们针对上述描述做三种情况的推演举例: 为了简化流程, 我们这里不设置 Learner. 
 
-**情况1**
+**情况 1**
 
 有 A1, A2, A3, A4, A5 5 位议员, 就税率问题进行决议. 
 
@@ -558,9 +554,9 @@ Learn: Proposer 收到多数 Acceptor 的 Accept 后, 决议形成, 将形成的
 
 *   A2 承诺 A1, A4 承诺 A5, A3 行为成为关键
 
-*   情况1: A3先收到A1消息, 承诺 A1
+*   情况1: A3 先收到 A1 消息, 承诺 A1
 
-*   A1 发起Proposal(1, 10%), A2, A3 接受
+*   A1 发起 Proposal(1, 10%), A2, A3 接受
 
 *   之后 A3 又收到 A5 消息, 回复A1: (1, 10%), 并承诺 A5
 
@@ -568,7 +564,7 @@ Learn: Proposer 收到多数 Acceptor 的 Accept 后, 决议形成, 将形成的
 
 
 
-**情况3**
+**情况 3**
 
 现在我们假设在 A1 提出提案的同时, A5 决定将税率定为20% 
 
