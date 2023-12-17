@@ -427,6 +427,8 @@ listener 线程内部调用了 process() 方法.
 
 
 
+## 客户端向服务端写数据的流程
+
 **写流程之写入请求直接发送给 Leader 节点**
 
 <img src="https://miaomiaoqi.github.io/images/bigdata/zookeeper/27.png" alt="https://miaomiaoqi.github.io/images/bigdata/zookeeper/27.png" style="zoom: 50%;" />
