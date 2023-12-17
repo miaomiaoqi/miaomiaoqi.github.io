@@ -157,6 +157,8 @@ Znode 分为四种类型:
 
 在分布式环境下, 经常需要对应用/服务进行统一命名, 便于识别. 例如: IP不容易记住, 而域名容易记住
 
+<img src="https://miaomiaoqi.github.io/images/bigdata/zookeeper/22.png" alt="https://miaomiaoqi.github.io/images/bigdata/zookeeper/22.png" style="zoom:50%;" />
+
 ### 统一配置管理
 
 分布式环境下, 配置文件同步非常常见
@@ -170,6 +172,8 @@ Znode 分为四种类型:
 2.  各个客户端服务器监听这个 Znode. 
 3.  一旦 Znode 中的数据被修改, ZooKeeper 将通知各个客户端服务器
 
+<img src="https://miaomiaoqi.github.io/images/bigdata/zookeeper/23.png" alt="https://miaomiaoqi.github.io/images/bigdata/zookeeper/23.png" style="zoom:50%;" />
+
 ### 统一集群管理
 
 分布式环境中, 实时掌握每个节点的状态是必要的. 
@@ -179,15 +183,21 @@ Znode 分为四种类型:
 ZooKeeper 可以实现实时监控节点状态变化
 
 *   可将节点信息写入 ZooKeeper上的一个 ZNode. 
-*   监听这个 ZNode 可获取它的实时状态变化.  
+*   监听这个 ZNode 可获取它的实时状态变化
+
+<img src="https://miaomiaoqi.github.io/images/bigdata/zookeeper/24.png" alt="https://miaomiaoqi.github.io/images/bigdata/zookeeper/24.png" style="zoom:50%;" />
 
 ### 服务器动态上下线
 
 客户端能实时洞察到服务器上下线的变化
 
+<img src="https://miaomiaoqi.github.io/images/bigdata/zookeeper/25.png" alt="https://miaomiaoqi.github.io/images/bigdata/zookeeper/25.png" style="zoom:50%;" />
+
 ### 软负载均衡
 
 在 Zookeeper 中记录每台服务器的访问数, 让访问数最少的服务器去处理最新的客户端请求 
+
+<img src="https://miaomiaoqi.github.io/images/bigdata/zookeeper/26.png" alt="https://miaomiaoqi.github.io/images/bigdata/zookeeper/26.png" style="zoom:50%;" />
 
 
 
@@ -332,7 +342,7 @@ Epoch: 每个 Leader 任期的代号. 没有 Leader 时同一轮投票过程中�
 
     * 集群中确实不存在 Leader. 假设ZooKeeper由 5 台服务器组成, SID 分别为1、2、3、4、5, ZXID 分别为 8、8、8、7、7, 并且此时 SID 为 3 的服务器是 Leader. 某一时刻,  3 和 5 服务器出现故障, 因此开始进行 Leader 选举
 
-        SID为 1、2、4 的机器投票情况(EPOCH, ZXID, SID ):  (1, 8, 1) (1, 8, 2) (1, 7, 4)选举Leader规则:  
+        SID为 1、2、4 的机器投票情况(EPOCH, ZXID, SID): (1, 8, 1) (1, 8, 2) (1, 7, 4)选举Leader规则:  
 
         1.  EPOCH 大的直接胜出
         2.  EPOCH 相同, 事务 id 大的胜出
@@ -413,6 +423,22 @@ listener 线程内部调用了 process() 方法.
 
 
 
+<img src="https://miaomiaoqi.github.io/images/bigdata/zookeeper/21.png" alt="https://miaomiaoqi.github.io/images/bigdata/zookeeper/21.png" style="zoom: 50%;" />
+
+
+
+**写流程之写入请求直接发送给 Leader 节点**
+
+<img src="https://miaomiaoqi.github.io/images/bigdata/zookeeper/27.png" alt="https://miaomiaoqi.github.io/images/bigdata/zookeeper/27.png" style="zoom: 50%;" />
+
+**写流程之写入请求发送给 follower 节点**
+
+<img src="https://miaomiaoqi.github.io/images/bigdata/zookeeper/28.png" alt="https://miaomiaoqi.github.io/images/bigdata/zookeeper/28.png" style="zoom: 50%;" />
+
+
+
+
+
 ## Zookeeper 的一致性
 
 Zookepper 身为分布式系统协调服务, 如果自身挂掉了怎么办呢? 为了防止单机挂掉的情况, Zookeeper 维护了一个集群
@@ -471,6 +497,8 @@ Zookeeper Service 集群是一主多从结构
     |-----|-----|-----|
     |Zookeeper|1. 有封装好的框架, 容易实现<br/>2. 有等待锁的队列, 大大提升抢锁效率|添加和删除节点性能较低|
     |Redis|Set 和 Del 指令的性能较高|1. 实现复杂, 需要考虑超时, 原子性, 误删<br/>2. 没有等待锁的队列, 只能在客户端自旋来等锁, 效率低下|
+
+<img src="https://miaomiaoqi.github.io/images/bigdata/zookeeper/20.png" alt="https://miaomiaoqi.github.io/images/bigdata/zookeeper/20.png" style="zoom: 50%;" />
 
 
 
@@ -650,7 +678,7 @@ ZAB 协议针对事务请求的处理过程类似于一个两阶段提交过程
 
 **Leader** 选举: 根据上述要求, Zab 协议需要保证选举出来的 Leader 需要满足以下条件
 
-*   新选举出来的 Leader 不能包含未提交的 Proposal. 即新 **Leader** 必须都是已经提交了**Proposal**的**Follower**服务器节点. 
+*   新选举出来的 Leader 不能包含未提交的 Proposal. 即新 **Leader** 必须都是已经提交了 **Proposal** 的 **Follower** 服务器节点. 
 *   新选举的 **Leader** 节点中含有最大的 **zxid**. 这样做的好处是可以避免 Leader 服务器检查 Proposal 的提交和丢弃工作. 
 
 **崩溃恢复-数据恢复**
@@ -677,6 +705,36 @@ epoch 编号可以理解为当前集群所处的年代, 或者周期. 每次 Lea
 Zab 协议通过 epoch 编号来区分 Leader 变化周期, 能够有效避免不同的 Leader 错误的使用了相同的zxid编号提出了不一样的 Proposal 的异常情况. 
 
 基于以上策略, 当一个包含了上一个 Leader 周期中尚未提交过的事务 Proposal 的服务器启动时, 当这台机器加入集群中, 以 Follower 角色连上 Leader 服务器后, Leader 服务器会根据自己服务器上最后提交的 Proposal 来和 Follower 服务器的 Proposal 进行比对, 比对的结果肯定是 Leader 要求 Follower 进行一个回退操作, 回退到一个确实已经被集群中过半机器 Commit 的最新 Proposal. 
+
+
+
+## CAP 理论
+
+*   一致性(C:Consistency)
+
+*   可用性(A:Available)
+
+*   分区容错性(P:PartitionTolerance)
+
+这三个基本需求, 最多只能同时满足其中的两项, 因为P是必须的, 因此往往选择就在CP或者AP中. 
+
+1.   一致性(**C:Consistency**)
+
+在分布式环境中, 一致性是指数据在多个副本之间是否能够保持数据一致的特性. 在一致性的需求下, 当一个系统在数据一致的状态下执行更新操作后, 应该保证系统的数据仍然处于一致的状态. 
+
+2.   可用性(**A:Available**)
+
+可用性是指系统提供的服务必须一直处于可用的状态, 对于用户的每一个操作请求总是能够在有限的时间内返回结果. 
+
+3.   分区容错性(**P:PartitionTolerance**)
+
+分布式系统在遇到任何网络分区故障的时候, 仍然需要能够保证对外提供满足一致性和可用性的服务, 除非是整个网络环境都发生了故障. 
+
+**ZooKeeper 保证的是 CP **
+
+1.   **ZooKeeper** 不能保证每次服务请求的可用性. (注：在极端环境下, ZooKeeper 可能会丢弃一些请求, 消费者程序需要重新请求才能获得结果). 所以说, ZooKeeper 不能保证服务可用性. 
+
+2.   进行 **Leader** 选举时集群都是不可用. 
 
 
 
