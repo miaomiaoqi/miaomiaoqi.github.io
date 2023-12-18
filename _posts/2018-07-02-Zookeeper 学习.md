@@ -774,3 +774,11 @@ Zab 协议通过 epoch 编号来区分 Leader 变化周期, 能够有效避免�
 ### 常用命令
 
 ls、get、create、delete 
+
+
+
+## zookeeper 可视化工具
+
+prettyzoo
+
+https://github.com/vran-dev/PrettyZoo/releases
