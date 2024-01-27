@@ -216,7 +216,7 @@ YAML 是专门用来写配置文件的语言, 非常简洁和强大, 远比 JSON
         一组连词线开头的行, 构成一个数组
     
         ```yaml
-    pets: 
+        pets: 
           - Cat
           - Dog
           - Goldfish
@@ -245,7 +245,7 @@ YAML 是专门用来写配置文件的语言, 非常简洁和强大, 远比 JSON
     * 字符串默认不使用引号表示
     
       ```yaml
-    str: 这是一行字符串
+      str: 这是一行字符串
       ```
       
         如果字符串之中包含空格或特殊字符, 需要放在引号之中
@@ -291,14 +291,14 @@ YAML 是专门用来写配置文件的语言, 非常简洁和强大, 远比 JSON
 * 配置文件占位符
 
     ```properties
-person.lastName=哈哈哈哈哈${random.uuid}
-person.age=${random.int}
-person.birth=2018/08/20
-person.map.k1=v1
-person.map.k2=14
-person.list=a,b,c,d
-person.dog.name=${person.lastName: xxx}小狗
-person.dog.age=15
+    person.lastName=哈哈哈哈哈${random.uuid}
+    person.age=${random.int}
+    person.birth=2018/08/20
+    person.map.k1=v1
+    person.map.k2=14
+    person.list=a,b,c,d
+    person.dog.name=${person.lastName: xxx}小狗
+    person.dog.age=15
     ```
 
     ${random.uuid}, 生成随机 uuid
@@ -382,7 +382,7 @@ person.dog.age=15
         private Dog dog;
         
         // Get和Set方法
-}
+  }
   ```
   
 * 使用 @Value 注解手动注入值
@@ -490,7 +490,7 @@ Spring 提供的对不同环境提供不同配置功能的支持, 可以通过�
     1. 虚拟机参数
     
         ```bash
-    -Dspring.profiles.active=prod
+        -Dspring.profiles.active=prod
         ```
         
         -D是默认语法
@@ -1363,6 +1363,16 @@ public class WebConfig implements WebMvcConfigurer {
 
 }
 ```
+
+### 拦截器执行顺序
+
+若每个拦截器的 preHandle() 都返回 true, 此时多个拦截器的执行顺序和拦截器在 SpringMVC的配置文件的配置顺序有关, preHandle() 会按照配置的顺序执行, 而 postHandle()和 afterCompletion() 会按照配置的反序执行
+
+若某个拦截器的 preHandle() 返回了 false, preHandle() 返回 false 和它之前的拦截器的 preHandle() 都回执行, postHandle() 都不执行, 返回 false 的拦截器之前的拦截器的 afterCompletion() 会执行
+
+
+
+
 
 ## 数据访问
 
@@ -2632,7 +2642,7 @@ Spring 提供了自定义参数解析器的功能
 1. 浏览器中访问接口
 
     ```http
-http://localhost:8089/param/test?param=aa&param2=ll
+    http://localhost:8089/param/test?param=aa&param2=ll
     ```
 
     第一次访问控制台打印如下
@@ -2697,9 +2707,20 @@ private HandlerMethodArgumentResolver getArgumentResolver(MethodParameter parame
 
 **自定义的 AOP 可以通过 `@Order(1)` 注解, 或者实现 `Ordered` 接口指明 AOP 的顺序, 值越小优先级越高**
 
-#### 正常执行流程
 
-```
+
+#### Spring4+SpringBoot1
+
+正常情况
+
+*   环绕通知前
+*   @Before
+*   目标方法
+*   环绕通知后
+*   @After 后置通知
+*   @AfterReturning 返回后通知
+
+```java
 filter4...pre -> filter1...pre -> filter2...pre -> filter3...pre -> inteceptor1...pre -> 
 inteceptor2...pre -> @Around1 -> @Before1 -> @Around2 -> @Before2 -> 目标方法 -> @Around2 -> 
 @After2 -> @AfterReturning2 -> @Around1 -> @After1 -> @AfterReturning1 -> 全局响应处理 -> 
@@ -2707,9 +2728,15 @@ inteceptor2...post -> inteceptor1...post -> inteceptor2...after -> inteceptor1..
 filter3...after -> filter2...after -> filter1...after -> filter4...after
 ```
 
-#### 异常执行流程
+异常情况
 
-```
+*   环绕通知前
+*   @Before
+*   目标方法
+*   @After 后置通知
+*   @AfterThrowing 异常通知
+
+```java
 filter4...pre -> filter1...pre -> filter2...pre -> filter3...pre -> inteceptor1...pre -> 
 inteceptor2...pre -> @Around1 -> @Before1 -> @Around2 -> @Before2 -> 目标方法 -> @After2 -> 
 @AfterThrowing2 -> @After1 -> @AfterThrowing1 -> 全局异常处理 -> inteceptor2...after -> 
@@ -2717,6 +2744,42 @@ inteceptor1...after -> filter3...after -> filter2...after -> filter1...after -> 
 ```
 
 **异常时 @Around 的后续不会执行, 不会执行全局响应, 拦截器的 post 方法不会执行**
+
+
+
+#### Spring5+SpringBoot2
+
+正常情况
+
+*   环绕通知前
+*   @Before
+*   目标方法
+*   @AfterReturning
+*   @After
+*   环绕通知后
+
+```java
+filter4...pre -> filter1...pre -> filter2...pre -> filter3...pre -> inteceptor1...pre -> 
+inteceptor2...pre -> @Around1 -> @Before1 -> @Around2 -> @Before2 -> 目标方法 -> @AfterReturning2 -> 
+@After2  -> @Around2 -> @AfterReturning1 -> @After1 -> @Around1 -> 全局响应处理 -> 
+inteceptor2...post -> inteceptor1...post -> inteceptor2...after -> inteceptor1...after -> 
+filter3...after -> filter2...after -> filter1...after -> filter4...after
+```
+
+异常情况
+
+*   环绕通知前
+*   @Before
+*   目标方法
+*   @AfterThrowing 异常通知
+*   @After 后置通知
+
+```java
+filter4...pre -> filter1...pre -> filter2...pre -> filter3...pre -> inteceptor1...pre -> 
+inteceptor2...pre -> @Around1 -> @Before1 -> @Around2 -> @Before2 -> 目标方法 -> 
+@AfterThrowing2 -> @After2 -> @AfterThrowing1 -> @After1 -> 全局异常处理 -> inteceptor2...after -> 
+inteceptor1...after -> filter3...after -> filter2...after -> filter1...after -> filter4...after
+```
 
 
 
