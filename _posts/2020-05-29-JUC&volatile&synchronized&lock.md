@@ -567,13 +567,13 @@ CAS 虽然很高效, 但是它也存在三大问题, 这里也简单说一下:
 
 而为了让当前线程“稍等一下”, 我们需让当前线程进行自旋, 如果在自旋完成后前面锁定同步资源的线程已经释放了锁, 那么当前线程就可以不必阻塞而是直接获取同步资源, 从而避免切换线程的开销. 这就是自旋锁. 
 
-<img src="https://miaomiaoqi.github.io/images/java/lock/lock_7.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_7.png" style="zoom: 33%;" />
+<img src="https://miaomiaoqi.github.io/images/java/lock/lock_7.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_7.png" style="zoom: 67%;" />
 
 自旋锁本身是有缺点的, 它不能代替阻塞. 自旋等待虽然避免了线程切换的开销, 但它要占用处理器时间. 如果锁被占用的时间很短, 自旋等待的效果就会非常好. 反之, 如果锁被占用的时间很长, 那么自旋的线程只会白浪费处理器资源. 所以, 自旋等待的时间必须要有一定的限度, 如果自旋超过了限定次数(默认是  10次, 可以使用 -XX:PreBlockSpin 来更改)没有成功获得锁, 就应当挂起线程. 
 
 自旋锁的实现原理同样也是 CAS, AtomicInteger 中调用 unsafe 进行自增操作的源码中的 do-while 循环就是一个自旋操作, 如果修改数值失败则通过循环来执行自旋, 直至修改成功. 
 
-<img src="https://miaomiaoqi.github.io/images/java/lock/lock_8.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_8.png" style="zoom: 33%;" />
+<img src="https://miaomiaoqi.github.io/images/java/lock/lock_8.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_8.png" style="zoom: 100%;" />
 
 自旋锁在 JDK1.4.2 中引入, 使用 -XX:+UseSpinning 来开启. JDK 6 中变为默认开启, 并且引入了自适应的自旋锁(适应性自旋锁). 
 
@@ -589,11 +589,11 @@ synchronized 锁有四种状态, `无锁`, `偏向锁`, `轻量级锁`, `重量�
 
 简单版本: 
 
-<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_8.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_8.png"  />
+<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_8.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_8.png" style="zoom:;" />
 
 升级方向: 
 
-<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_9.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_9.png" style="zoom:67%;" />
+<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_9.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_9.png"  />
 
 Tip: 切记这个升级过程是不可逆的, 最后我会说明他的影响, 涉及使用场景. 
 
