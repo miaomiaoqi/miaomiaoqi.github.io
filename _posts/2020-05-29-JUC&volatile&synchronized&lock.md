@@ -420,7 +420,7 @@ volatile 做了什么?
 
 Java提供了种类丰富的锁, 每种锁因其特性的不同, 在适当的场景下能够展现出非常高的效率. 
 
-<img src="https://miaomiaoqi.github.io/images/java/lock/lock_1.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_1.png" style="zoom: 33%;" />
+<img src="https://miaomiaoqi.github.io/images/java/lock/lock_1.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_1.png" style="zoom: 100%;" />
 
 ### 乐观锁 VS 悲观锁
 
