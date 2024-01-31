@@ -442,7 +442,7 @@ Java提供了种类丰富的锁, 每种锁因其特性的不同, 在适当的场
 
 乐观锁在 Java 中是通过使用无锁编程来实现, 最常采用的是 CAS 算法, Java 原子类中的递增操作就通过 CAS 自旋实现的. 
 
-<img src="https://miaomiaoqi.github.io/images/java/lock/lock_5.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_5.png" style="zoom: 33%;" />
+<img src="https://miaomiaoqi.github.io/images/java/lock/lock_5.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_5.png" style="zoom: 50%;" />
 
 根据从上面的概念描述我们可以发现: 
 
