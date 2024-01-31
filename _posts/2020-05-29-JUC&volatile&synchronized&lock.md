@@ -589,7 +589,7 @@ synchronized 锁有四种状态, `无锁`, `偏向锁`, `轻量级锁`, `重量�
 
 简单版本: 
 
-<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_8.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_8.png" style="zoom:;" />
+<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_8.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_8.png" style="zoom: 150%;" />
 
 升级方向: 
 
@@ -701,7 +701,7 @@ Monitor 是线程私有的数据结构, 每一个线程都有一个可用 monito
 
 偏向锁在 1.6 之后是默认开启的, 1.5 中是关闭的, 需要手动开启参数是x x:-UseBiasedLocking=false. 
 
-<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_10.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_10.png" style="zoom:67%;" />
+<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_10.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_10.png"  />
 
 经过 HotSpot 的作者大量的研究发现大多数时候是`不存在锁竞争`的, 经常是一个线程多次获得同一个锁, 因此如果每次都要`竞争锁`会增大很多没有必要付出的代价, 为了降低获取锁的代价, 才引入的偏向锁. 核心思想: 
 
@@ -713,11 +713,11 @@ Monitor 是线程私有的数据结构, 每一个线程都有一个可用 monito
 
 偏向锁使用了一种等到竞争出现才释放锁的机制, 所以当其他线程尝试竞争偏向锁时, 持有偏向锁的线程才会释放锁. 
 
-<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_17.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_17.png" style="zoom:67%;" />
+<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_17.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_17.png"  />
 
 如图, 偏向锁的撤销, 需要等待全局安全点(在这个时间点上没有正在执行的字节码). 它会首先暂停拥有偏向锁的线程, 然后检查持有偏向锁的线程是否还存活,  如果线程不处于活动状态, 则将对象头设置成无锁状态; 如果线程仍然活着, 拥有偏向锁的栈会被执行, 遍历偏向对象的锁记录, 栈中的锁记录和对象头的 mark word 要么重新偏向于其他线程, 要么恢复到无锁或者标记对象不适合作为偏向锁, 最后唤醒暂停的线程
 
-<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_18.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_18.png" style="zoom: 67%;" />
+<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_18.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_18.png"  />
 
 **如何关闭偏向锁**
 
@@ -765,7 +765,7 @@ JVM接下来会利用CAS尝试把对象原本的Mark Word 更新会Lock Record�
 
 如果失败了, 就会判断当前对象的Mark Word是否指向了当前线程的栈帧, 是则表示当前的线程已经持有了这个对象的锁, 否则说明被其他线程持有了, 继续锁升级, 修改锁的状态, 之后等待的线程也阻塞. 
 
-<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_11.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_11.png" style="zoom:67%;" />
+<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_11.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_11.png"  />
 
 
 
@@ -775,7 +775,7 @@ JVM接下来会利用CAS尝试把对象原本的Mark Word 更新会Lock Record�
 
 自旋都失败了, 那就升级为重量级的锁, 像1.5的一样, 等待唤起咯. 
 
-<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_12.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_12.png" />
+<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_12.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_12.png"  />
 
 
 
@@ -795,7 +795,7 @@ JVM接下来会利用CAS尝试把对象原本的Mark Word 更新会Lock Record�
 
 下图是两个线程同时争夺锁, 导致锁膨胀的流程图. 
 
-<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_19.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_19.png" style="zoom:67%;" />
+<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_19.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_19.png"  />
 
 因为自旋会消耗 CPU, 为了避免无用的自旋(比如, 获得锁的线程被阻塞住了), 一旦锁升级成了重量级锁, 就不会再恢复到轻量级锁状态. 当锁处于这个状态下, 其他线程试图获取锁时, 都会被阻塞住, 当持有锁的线程释放锁之后会唤醒这些线程, 被唤醒的线程就会进行新一轮的争夺锁. 
 
@@ -847,7 +847,7 @@ Linux系统的体系结构大家大学应该都接触过了, 分为用户空间(
 
 **锁升级流程图**
 
-<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_7.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_7.png" />
+<img src="https://miaomiaoqi.github.io/images/java/synchronized/syn_7.png" alt="https://miaomiaoqi.github.io/images/java/synchronized/syn_7.png" style="zoom:150%;" />
 
 
 
@@ -907,27 +907,27 @@ JVM启动过程, 会有很多线程竞争(明确), 所以默认情况启动时�
 
 直接用语言描述可能有点抽象, 这里作者用从别处看到的一个例子来讲述一下公平锁和非公平锁. 
 
-<img src="https://miaomiaoqi.github.io/images/java/lock/lock_9.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_9.png" style="zoom: 33%;" />
+<img src="https://miaomiaoqi.github.io/images/java/lock/lock_9.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_9.png" style="zoom: 67%;" />
 
 如上图所示, 假设有一口水井, 有管理员看守, 管理员有一把锁, 只有拿到锁的人才能够打水, 打完水要把锁还给管理员. 每个过来打水的人都要管理员的允许并拿到锁之后才能去打水, 如果前面有人正在打水, 那么这个想要打水的人就必须排队. 管理员会查看下一个要去打水的人是不是队伍里排最前面的人, 如果是的话, 才会给你锁让你去打水; 如果你不是排第一的人, 就必须去队尾排队, 这就是公平锁. 
 
 但是对于非公平锁, 管理员对打水的人没有要求. 即使等待队伍里有排队等待的人, 但如果在上一个人刚打完水把锁还给管理员而且管理员还没有允许等待队伍里下一个人去打水时, 刚好来了一个插队的人, 这个插队的人是可以直接从管理员那里拿到锁去打水, 不需要排队, 原本排队等待的人只能继续等待. 如下图所示: 
 
-<img src="https://miaomiaoqi.github.io/images/java/lock/lock_10.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_10.png" style="zoom: 50%;" />
+<img src="https://miaomiaoqi.github.io/images/java/lock/lock_10.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_10.png" style="zoom: 67%;" />
 
 接下来我们通过 ReentrantLock 的源码来讲解公平锁和非公平锁. 
 
-<img src="https://miaomiaoqi.github.io/images/java/lock/lock_11.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_11.png" style="zoom: 33%;" />
+<img src="https://miaomiaoqi.github.io/images/java/lock/lock_11.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_11.png" style="zoom: 67%;" />
 
 根据代码可知, ReentrantLock 里面有一个内部类 Sync, Sync 继承 AQS(AbstractQueuedSynchronizer), 添加锁和释放锁的大部分操作实际上都是在 Sync 中实现的. 它有公平锁 FairSync 和非公平锁 NonfairSync 两个子类. ReentrantLock 默认使用非公平锁, 也可以通过构造器来显示的指定使用公平锁. 
 
 下面我们来看一下公平锁与非公平锁的加锁方法的源码:
 
-<img src="https://miaomiaoqi.github.io/images/java/lock/lock_12.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_12.png" style="zoom: 33%;" />
+<img src="https://miaomiaoqi.github.io/images/java/lock/lock_12.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_12.png" style="zoom: 67%;" />
 
 通过上图中的源代码对比, 我们可以明显的看出公平锁与非公平锁的 lock() 方法唯一的区别就在于公平锁在获取同步状态时多了一个限制条件: hasQueuedPredecessors(). 
 
-<img src="https://miaomiaoqi.github.io/images/java/lock/lock_13.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_13.png" style="zoom: 33%;" />
+<img src="https://miaomiaoqi.github.io/images/java/lock/lock_13.png" alt="https://miaomiaoqi.github.io/images/java/lock/lock_13.png" style="zoom: 67%;" />
 
 再进入 hasQueuedPredecessors(), 可以看到该方法主要做一件事情: 主要是判断当前线程是否位于同步队列中的第一个. 如果是则返回 true, 否则返回 false. 
 
