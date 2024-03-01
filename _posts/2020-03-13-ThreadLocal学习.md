@@ -669,7 +669,7 @@ remove() -> ThreadLocalMap.remove(this) -> expungeStaleentries()
 
 
 
-### **Thread 和 ThreadLocal 有什么联系呢**
+### Thread 和 ThreadLocal 有什么联系呢
 
 Thread 和 ThreadLocal 是绑定的, ThreadLocal 依赖于 Thread 去执行, Thread 将需要隔离的数据存放到 ThreadLocal (准确的讲是 ThreadLocalMap)中, 来实现多线程处理. 
 
